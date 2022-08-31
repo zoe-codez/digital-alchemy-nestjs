@@ -1,0 +1,14 @@
+{
+  "bin": {
+    "entity-inspector": "main.js"
+  },
+  "name": "@steggy/entity-inspector",
+  "license": "MIT",
+  "main": "main.js",
+  "displayName": "Entity Inspector",
+  "version": "22.36.8",
+  "homepage": "https://github.com/mp3three/steggy",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

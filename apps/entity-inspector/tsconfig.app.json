@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "types": [
+      "node"
+    ]
+  },
+  "exclude": [
+    "**/*.spec.ts"
+  ],
+  "include": [
+    "**/*.ts",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/tty/**/*.ts",
+    "../../libs/home-assistant/**/*.ts",
+    "../../libs/utilities/**/*.ts"
+  ]
+}

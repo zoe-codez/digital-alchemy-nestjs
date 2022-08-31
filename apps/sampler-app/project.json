@@ -1,0 +1,85 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/sampler-app/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "sampler-app:build",
+        "inspect": "inspect",
+        "port": 33343
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [],
+        "outputPath": "dist/apps/sampler-app",
+        "generatePackageJson": true,
+        "main": "apps/sampler-app/src/main.ts",
+        "tsConfig": "apps/sampler-app/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/sampler-app/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Sampler App",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build sampler-app --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/sampler-app/main.js -c -m --keep-classnames --module > dist/apps/sampler-app/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/sampler-app/main.js; cat dist/apps/sampler-app/minified.js >> dist/apps/sampler-app/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/sampler-app --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build sampler-app --configuration=production",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/apps/sampler-app/main.js --scan-config > dist/configs/sampler-app.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["terminal"]
+}

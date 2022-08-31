@@ -1,0 +1,65 @@
+{
+  "implicitDependencies": {
+    ".eslintrc.json": "*",
+    "nx.json": "*",
+    "package.json": "*",
+    "project.json": {
+      "targets": {
+        "build": "*"
+      }
+    },
+    "tsconfig.base.json": "*",
+    "workspace.json": "*"
+  },
+  "affected": {
+    "defaultBase": "origin/master"
+  },
+  "npmScope": "steggy",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/nx-cloud",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e",
+          "build-vsix",
+          "scan-config",
+          "publish"
+        ],
+        "accessToken": "ZWQ1ZWQyMTEtNjQwMi00MmEzLTgwZjMtYjQ4NTYyNzMxZGI4fHJlYWQtd3JpdGU=",
+        "canTrackAnalytics": false,
+        "showUsageWarnings": true,
+        "parallel": 5
+      }
+    }
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
+  },
+  "defaultProject": "config-builder",
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"]
+    }
+  }
+}

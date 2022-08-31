@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "projects": {
+    "boilerplate": "libs/boilerplate",
+    "build-pipeline": "apps/build-pipeline",
+    "config-builder": "apps/config-builder",
+    "entity-inspector": "apps/entity-inspector",
+    "home-assistant": "libs/home-assistant",
+    "log-formatter": "apps/log-formatter",
+    "mqtt": "libs/mqtt",
+    "server": "libs/server",
+    "tty": "libs/tty",
+    "hass-type-generate": "apps/hass-type-generate",
+    "sampler-app": "apps/sampler-app",
+    "utilities": "libs/utilities"
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
+}

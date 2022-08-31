@@ -1,0 +1,10 @@
+{
+  "author": {
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
+  },
+  "name": "@steggy/tty",
+  "license": "MIT",
+  "version": "22.36.8",
+  "displayName": "TTY"
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/build-pipeline/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "build-pipeline:build",
+        "inspect": "inspect",
+        "port": 33339
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [],
+        "outputPath": "dist/apps/build-pipeline",
+        "generatePackageJson": true,
+        "main": "apps/build-pipeline/src/main.ts",
+        "tsConfig": "apps/build-pipeline/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/build-pipeline/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build build-pipeline --configuration=production",
+            "description": "Create build"
+          },
+          {
+            "command": "npx terser dist/apps/build-pipeline/main.js -c -m --keep-classnames --module > tools/scripts/pipeline.js",
+            "description": "Move to final destination"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build build-pipeline --configuration=production",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/apps/build-pipeline/main.js --scan-config > dist/configs/build-pipeline.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["terminal"]
+}

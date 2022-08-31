@@ -1,0 +1,118 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/entity-inspector/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "entity-inspector:build",
+        "inspect": "inspect",
+        "port": 33342
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx nx build entity-inspector --configuration=scan-config"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/apps/entity-inspector",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/entity-inspector/src/environments/environment.ts",
+            "with": "apps/entity-inspector/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/entity-inspector/src/entrypoints/main.ts",
+        "tsConfig": "apps/entity-inspector/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/scan-config/entity-inspector",
+          "fileReplacements": [
+            {
+              "replace": "apps/entity-inspector/src/environments/environment.ts",
+              "with": "apps/entity-inspector/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/entity-inspector/**/*.ts"
+        ]
+      },
+      "outputs": [
+        "{options.outputFile}"
+      ]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Entity Inspector",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build entity-inspector --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/entity-inspector/main.js -c -m --keep-classnames --module > dist/apps/entity-inspector/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/entity-inspector/main.js; cat dist/apps/entity-inspector/minified.js >> dist/apps/entity-inspector/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/entity-inspector --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build entity-inspector --configuration=scan-config",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/scan-config/entity-inspector/main.js > dist/configs/entity-inspector.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    }
+  },
+  "tags": [
+    "terminal"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "mp3three"
+  },
+  "name": "@steggy/home-assistant",
+  "displayName": "Home Assistant",
+  "license": "MIT",
+  "version": "22.36.8",
+  "scripts": {
+    "postinstall": "npx hass-type-generate"
+  },
+  "description": "HELLO WORLD"
+}

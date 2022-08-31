@@ -1,0 +1,15 @@
+{
+  "author": {
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
+  },
+  "name": "@steggy/utilities",
+  "displayName": "Utilities",
+  "license": "MIT",
+  "version": "22.36.8",
+  "homepage": "https://github.com/mp3three/steggy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mp3three/steggy.git"
+  }
+}

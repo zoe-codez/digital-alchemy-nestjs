@@ -1,0 +1,95 @@
+{
+  "compileOnSave": false,
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "compilerOptions": {
+    "allowJs": false,
+    "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": false,
+    "jsx": "react",
+    "lib": [
+      "ES2021",
+      "dom"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "skipDefaultLibCheck": true,
+    "strictPropertyInitialization": false,
+    "strict": false,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noStrictGenericChecks": true,
+    "alwaysStrict": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "ES2021",
+    "paths": {
+      "@steggy/boilerplate": [
+        "libs/boilerplate/src/index.ts"
+      ],
+      "@steggy/home-assistant": [
+        "libs/home-assistant/src/index.ts"
+      ],
+      "@steggy/mqtt": [
+        "libs/mqtt/src/index.ts"
+      ],
+      "@steggy/server": [
+        "libs/server/src/index.ts"
+      ],
+      "@steggy/tty": [
+        "libs/tty/src/index.ts"
+      ],
+      "@steggy/utilities": [
+        "libs/utilities/src/index.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "./apps/entity-inspector/tsconfig.json"
+    },
+    {
+      "path": "./apps/build-pipeline/tsconfig.json"
+    },
+    {
+      "path": "./apps/config-builder/tsconfig.json"
+    },
+    {
+      "path": "./apps/log-formatter/tsconfig.json"
+    },
+    {
+      "path": "./apps/hass-type-generate/tsconfig.json"
+    },
+    {
+      "path": "./libs/boilerplate/tsconfig.json"
+    },
+    {
+      "path": "./libs/home-assistant/tsconfig.json"
+    },
+    {
+      "path": "./libs/mqtt/tsconfig.json"
+    },
+    {
+      "path": "./libs/server/tsconfig.json"
+    },
+    {
+      "path": "./libs/tty/tsconfig.json"
+    },
+    {
+      "path": "./libs/utilities/tsconfig.json"
+    }
+  ]
+}
