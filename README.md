@@ -8,8 +8,6 @@ It provides a quick bootstrapping interface, which provides:
 - Additional lifecycle events
 - Specialized eventing annotations
 
-This library exists to address a desire to have a consistent set of tooling I could share between various automation, scripting, and server tasks.
-
 ## Applications
 
 ### [Config Builder](apps/config-builder)
