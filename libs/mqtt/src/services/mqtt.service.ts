@@ -62,14 +62,14 @@ export class MqttService {
 
   public publish(
     topic: string,
-    message: string | Buffer | Record<string, unknown>,
+    message?: string | Buffer | Record<string, unknown> | Array<unknown>,
     options?: IClientPublishOptions,
   ): Promise<Packet> {
     return new Promise<Packet>((resolve, reject) => {
       if (is.object(message)) {
         message = JSON.stringify(message);
       }
-      this.client.publish(topic, message, options, (error, packet) => {
+      this.client.publish(topic, message ?? "", options, (error, packet) => {
         if (error) {
           return reject(error);
         }
