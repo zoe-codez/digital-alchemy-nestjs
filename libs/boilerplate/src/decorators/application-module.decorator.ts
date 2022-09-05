@@ -24,7 +24,18 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   globals?: Provider[];
   /**
-   * Wire in a substitute provider for `AutoLogService` application wide
+   * Wire in a substitute provider for `AutoLogService` application wide.
+   * Provide value as nestjs provider
+   *
+   * @example
+   * ```typescript
+   * {
+   *   provide: AutoLogService,
+   * // different value source examples
+   *   useClass: AlternateLogger
+   *   useFactory: ...
+   * }
+   * ```
    */
   logger?: Provider<iLogger>;
 }

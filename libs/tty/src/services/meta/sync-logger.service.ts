@@ -2,6 +2,7 @@ import { Inject, Injectable, Scope } from "@nestjs/common";
 import { INQUIRER } from "@nestjs/core";
 import {
   ACTIVE_APPLICATION,
+  iLogger,
   InjectConfig,
   LIB_BOILERPLATE,
   LOG_CONTEXT,
@@ -28,13 +29,13 @@ const SORTED_LEVELS = [
 ] as LogLevels[];
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class SyncLoggerService {
+export class SyncLoggerService implements iLogger {
   constructor(
     @Inject(INQUIRER) private parent: unknown,
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
     private readonly screen: ScreenService,
     @InjectConfig(LOG_LEVEL, LIB_BOILERPLATE)
-    private readonly level: LogLevels,
+    public level: LogLevels,
   ) {}
 
   #cached: string;
