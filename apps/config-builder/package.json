@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Config Builder",
-  "version": "22.36.10",
+  "version": "22.37.0",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
     "node": ">=16.0.0"

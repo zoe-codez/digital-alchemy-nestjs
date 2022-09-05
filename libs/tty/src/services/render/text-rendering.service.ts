@@ -258,7 +258,7 @@ export class TextRenderingService {
       return chalk.green(item.toLocaleString());
     }
     if (is.number(item)) {
-      return chalk.yellow(String(item));
+      return chalk.yellow(Number(item).toLocaleString());
     }
     if (is.boolean(item)) {
       return chalk.magenta(String(item));
