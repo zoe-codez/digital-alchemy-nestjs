@@ -1,11 +1,5 @@
-import {
-  DynamicModule,
-  ForwardReference,
-  Provider,
-  Type,
-} from "@nestjs/common";
+import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
-import { START } from "@steggy/utilities";
 
 import {
   CACHE_PROVIDER,
@@ -18,7 +12,6 @@ import {
   SCAN_CONFIG,
   VERSION,
 } from "../config";
-import { iLogger } from "../contracts";
 import { LOGGER_PROVIDERS } from "../decorators/injectors";
 import { CONFIG_PROVIDERS } from "../decorators/injectors/inject-config.decorator";
 import { LibraryModule } from "../decorators/library-module.decorator";
@@ -37,15 +30,6 @@ import {
   ScheduleExplorerService,
   WorkspaceService,
 } from "../services";
-
-interface ModuleOptions {
-  logger?: {
-    imports: Array<
-      Type | DynamicModule | Promise<DynamicModule> | ForwardReference
-    >;
-    logger: Provider<iLogger>;
-  };
-}
 
 @LibraryModule({
   configuration: {
@@ -122,20 +106,17 @@ interface ModuleOptions {
 })
 export class BoilerplateModule {
   public static RegisterCache = RegisterCache;
-  public static forRoot(options: ModuleOptions = {}): DynamicModule {
+  public static forRoot(): DynamicModule {
     // @InjectConfig()
     const config = [...CONFIG_PROVIDERS.values()];
     // @InjectLogger()
     const transientLoggers = [...LOGGER_PROVIDERS.values()];
-    const logger: Provider<iLogger> = options.logger?.logger ?? AutoLogService;
-    const imports = options.logger?.imports ?? [];
 
     return {
       exports: [
         ...config,
         ...transientLoggers,
-        logger,
-
+        AutoLogService,
         AutoConfigService,
         CacheProviderService,
         FetchService,
@@ -144,13 +125,12 @@ export class BoilerplateModule {
         WorkspaceService,
       ],
       global: true,
-      imports: [RegisterCache(), DiscoveryModule, ...imports],
+      imports: [RegisterCache(), DiscoveryModule],
       module: BoilerplateModule,
       providers: [
         ...config,
         ...transientLoggers,
-        logger,
-
+        AutoLogService,
         AutoConfigService,
         CacheProviderService,
         EventsExplorerService,

@@ -1,10 +1,4 @@
-import {
-  DynamicModule,
-  ForwardReference,
-  ModuleMetadata,
-  Provider,
-  Type,
-} from "@nestjs/common";
+import { DynamicModule, ModuleMetadata, Provider } from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
@@ -13,7 +7,6 @@ import {
   ACTIVE_APPLICATION,
   ConfigItem,
   CONSUMES_CONFIG,
-  iLogger,
   LOGGER_LIBRARY,
   StringConfig,
 } from "../contracts";
@@ -29,26 +22,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    * If omitted, will default to all
    */
   globals?: Provider[];
-  /**
-   * Wire in a substitute provider for `AutoLogService` application wide.
-   * Provide value as nestjs provider
-   *
-   * @example
-   * ```typescript
-   * {
-   *   provide: AutoLogService,
-   * // different value source examples
-   *   useClass: AlternateLogger
-   *   useFactory: ...
-   * }
-   * ```
-   */
-  logger?: {
-    imports: Array<
-      Type | DynamicModule | Promise<DynamicModule> | ForwardReference
-    >;
-    logger: Provider<iLogger>;
-  };
 }
 
 /**
@@ -75,7 +48,7 @@ export function ApplicationModule(
     ...metadata.globals,
   ];
   metadata.imports = [
-    BoilerplateModule.forRoot({ logger: metadata.logger }),
+    BoilerplateModule.forRoot(),
     {
       exports: GLOBAL_SYMBOLS,
       global: true,
