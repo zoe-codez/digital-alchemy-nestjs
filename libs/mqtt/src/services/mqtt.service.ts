@@ -62,7 +62,7 @@ export class MqttService {
 
   public publish(
     topic: string,
-    message?: string | Buffer | Record<string, unknown> | Array<unknown>,
+    message?: string | Buffer | object | Array<unknown>,
     options?: IClientPublishOptions,
   ): Promise<Packet> {
     return new Promise<Packet>((resolve, reject) => {

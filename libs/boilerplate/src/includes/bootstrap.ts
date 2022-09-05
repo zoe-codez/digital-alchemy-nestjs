@@ -143,6 +143,7 @@ export async function Bootstrap(
       app = await NestFactory.create(module, options);
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
   app.enableShutdownHooks();

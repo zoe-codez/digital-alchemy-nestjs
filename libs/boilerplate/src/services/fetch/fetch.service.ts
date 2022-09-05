@@ -4,7 +4,7 @@ import Bottleneck from "bottleneck";
 import { createWriteStream } from "fs";
 import fetch from "node-fetch";
 
-import { InjectLogger } from "../../decorators/injectors/inject-logger.decorator";
+import { TransientLogger } from "../../decorators/injectors/inject-logger.decorator";
 import { AutoLogService } from "../auto-log.service";
 import { BaseFetchService } from "./base-fetch.service";
 
@@ -12,7 +12,7 @@ const DEFAULT_TRUNCATE_LENGTH = 200;
 @Injectable({ scope: Scope.TRANSIENT })
 export class FetchService extends BaseFetchService {
   constructor(
-    @InjectLogger()
+    @TransientLogger()
     protected override readonly logger: AutoLogService,
   ) {
     super();

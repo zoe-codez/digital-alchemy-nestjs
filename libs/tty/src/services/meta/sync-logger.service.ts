@@ -110,8 +110,9 @@ export class SyncLoggerService {
    *
    *  - extreme early init
    *  - code locations where DI isn't available
+   *  - transient providers
    *
-   * `@InjectLogger()` annotation is available for providers
+   * `@InjectLogger()` / `@TransientLogger` (same thing) annotation is available for providers
    */
   public setContext(library: symbol, service: { name: string }): void {
     this.#context = `${library.description}:${service.name}`;

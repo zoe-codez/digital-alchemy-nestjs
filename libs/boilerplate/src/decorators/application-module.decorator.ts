@@ -7,6 +7,7 @@ import {
   ACTIVE_APPLICATION,
   ConfigItem,
   CONSUMES_CONFIG,
+  iLogger,
   LOGGER_LIBRARY,
   StringConfig,
 } from "../contracts";
@@ -22,6 +23,10 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    * If omitted, will default to all
    */
   globals?: Provider[];
+  /**
+   * Wire in a substitute provider for `AutoLogService` application wide
+   */
+  logger?: Provider<iLogger>;
 }
 
 /**
@@ -48,7 +53,7 @@ export function ApplicationModule(
     ...metadata.globals,
   ];
   metadata.imports = [
-    BoilerplateModule.forRoot(),
+    BoilerplateModule.forRoot({ logger: metadata.logger }),
     {
       exports: GLOBAL_SYMBOLS,
       global: true,

@@ -31,6 +31,10 @@ import {
   WorkspaceService,
 } from "../services";
 
+interface ModuleOptions {
+  logger?: Provider;
+}
+
 @LibraryModule({
   configuration: {
     [CACHE_PROVIDER]: {
@@ -106,18 +110,19 @@ import {
 })
 export class BoilerplateModule {
   public static RegisterCache = RegisterCache;
-  public static forRoot(extra: Provider[] = []): DynamicModule {
+  public static forRoot(options: ModuleOptions = {}): DynamicModule {
     // @InjectConfig()
     const config = [...CONFIG_PROVIDERS.values()];
     // @InjectLogger()
-    const loggers = [...LOGGER_PROVIDERS.values()];
+    const transientLoggers = [...LOGGER_PROVIDERS.values()];
+    const logger = options.logger ?? AutoLogService;
     return {
       exports: [
-        ...extra,
         ...config,
-        ...loggers,
+        ...transientLoggers,
+        logger,
+
         AutoConfigService,
-        AutoLogService,
         CacheProviderService,
         FetchService,
         JSONFilterService,
@@ -128,11 +133,11 @@ export class BoilerplateModule {
       imports: [RegisterCache(), DiscoveryModule],
       module: BoilerplateModule,
       providers: [
-        ...extra,
         ...config,
-        ...loggers,
+        ...transientLoggers,
+        logger,
+
         AutoConfigService,
-        AutoLogService,
         CacheProviderService,
         EventsExplorerService,
         FetchService,

@@ -21,3 +21,4 @@ export function InjectLogger(): ParameterDecorator {
     return Inject(provide)(target, property, index);
   };
 }
+export const TransientLogger = InjectLogger;

@@ -74,9 +74,9 @@ export const MQTT_CLIENT_INSTANCE = "MQTT_CLIENT_INSTANCE";
 export const SEND_ROOM_STATE = (room: string, action: string): string =>
   ["internal", "set_room_state", room, action].join("/");
 
-export const MQTT_CONNECT = Symbol("MQTT_CONNECT");
-export const MQTT_DISCONNECT = Symbol("MQTT_DISCONNECT");
-export const MQTT_ERROR = Symbol("MQTT_ERROR");
-export const MQTT_RECONNECT = Symbol("MQTT_RECONNECT");
-export const MQTT_CLOSE = Symbol("MQTT_CLOSE");
-export const MQTT_OFFLINE = Symbol("MQTT_OFFLINE");
+export const MQTT_CONNECT = "MQTT_CONNECT";
+export const MQTT_DISCONNECT = "MQTT_DISCONNECT";
+export const MQTT_ERROR = "MQTT_ERROR";
+export const MQTT_RECONNECT = "MQTT_RECONNECT";
+export const MQTT_CLOSE = "MQTT_CLOSE";
+export const MQTT_OFFLINE = "MQTT_OFFLINE";
