@@ -1,4 +1,10 @@
-import { DynamicModule, ModuleMetadata, Provider } from "@nestjs/common";
+import {
+  DynamicModule,
+  ForwardReference,
+  ModuleMetadata,
+  Provider,
+  Type,
+} from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
@@ -37,7 +43,12 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    * }
    * ```
    */
-  logger?: Provider<iLogger>;
+  logger?: {
+    imports: Array<
+      Type | DynamicModule | Promise<DynamicModule> | ForwardReference
+    >;
+    logger: Provider<iLogger>;
+  };
 }
 
 /**

@@ -1,5 +1,11 @@
-import { DynamicModule, Provider } from "@nestjs/common";
+import {
+  DynamicModule,
+  ForwardReference,
+  Provider,
+  Type,
+} from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
+import { START } from "@steggy/utilities";
 
 import {
   CACHE_PROVIDER,
@@ -12,6 +18,7 @@ import {
   SCAN_CONFIG,
   VERSION,
 } from "../config";
+import { iLogger } from "../contracts";
 import { LOGGER_PROVIDERS } from "../decorators/injectors";
 import { CONFIG_PROVIDERS } from "../decorators/injectors/inject-config.decorator";
 import { LibraryModule } from "../decorators/library-module.decorator";
@@ -32,7 +39,12 @@ import {
 } from "../services";
 
 interface ModuleOptions {
-  logger?: Provider;
+  logger?: {
+    imports: Array<
+      Type | DynamicModule | Promise<DynamicModule> | ForwardReference
+    >;
+    logger: Provider<iLogger>;
+  };
 }
 
 @LibraryModule({
@@ -115,7 +127,9 @@ export class BoilerplateModule {
     const config = [...CONFIG_PROVIDERS.values()];
     // @InjectLogger()
     const transientLoggers = [...LOGGER_PROVIDERS.values()];
-    const logger = options.logger ?? AutoLogService;
+    const logger: Provider<iLogger> = options.logger?.logger ?? AutoLogService;
+    const imports = options.logger?.imports ?? [];
+
     return {
       exports: [
         ...config,
@@ -130,7 +144,7 @@ export class BoilerplateModule {
         WorkspaceService,
       ],
       global: true,
-      imports: [RegisterCache(), DiscoveryModule],
+      imports: [RegisterCache(), DiscoveryModule, ...imports],
       module: BoilerplateModule,
       providers: [
         ...config,
