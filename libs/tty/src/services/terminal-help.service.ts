@@ -102,6 +102,7 @@ export class TerminalHelpService {
   }
 
   private formatDescription(prefix: string, description: string) {
+    description ||= "No description";
     const size = ansiMaxLength(prefix);
     return (
       prefix +
