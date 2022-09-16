@@ -23,6 +23,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   globals?: Provider[];
 }
+export const NO_APPLICATION = Symbol("steggy_no_app");
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
@@ -33,7 +34,7 @@ export function ApplicationModule(
 ): ClassDecorator {
   // No symbol applications, for when you really just don't care
   // Doesn't meaningfully need imports I guess
-  metadata.application ??= Symbol("steggy");
+  metadata.application ??= NO_APPLICATION;
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.globals ??= [];

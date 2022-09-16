@@ -469,7 +469,8 @@
       ],
       "rules": {
         "@typescript-eslint/unbound-method": "off",
-        "@typescript-eslint/no-magic-numbers": "off"
+        "@typescript-eslint/no-magic-numbers": "off",
+        "radar/no-duplicate-string": "off"
       }
     },
     {

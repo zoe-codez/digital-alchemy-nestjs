@@ -17,14 +17,21 @@ import { LIB_BOILERPLATE, LOG_LEVEL } from "../config";
 import {
   AbstractConfig,
   ACTIVE_APPLICATION,
+  BOOTSTRAP_OPTIONS,
   CONFIG_DEFAULTS,
   ConfigItem,
-  NO_USER_CONFIG,
   SKIP_CONFIG_INIT,
 } from "../contracts";
-import { LibraryModule, MESSY_INJECTED_CONFIGS } from "../decorators";
+import {
+  LibraryModule,
+  MESSY_INJECTED_CONFIGS,
+  NO_APPLICATION,
+} from "../decorators";
+import { BootstrapOptions } from "../includes";
 import { AutoLogService } from "./auto-log.service";
 import { WorkspaceService } from "./workspace.service";
+
+let SWITCHES: string[] = argv;
 
 /**
  * Configuration and environment variable management service.
@@ -34,6 +41,9 @@ import { WorkspaceService } from "./workspace.service";
  */
 @Injectable()
 export class AutoConfigService {
+  public static setSwitches(update: string[]): void {
+    SWITCHES = update;
+  }
   constructor(
     /**
      * Override defaults provided by Bootstrap
@@ -43,8 +53,8 @@ export class AutoConfigService {
     private readonly configDefaults: AbstractConfig = {},
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
-    @Inject(NO_USER_CONFIG)
-    private readonly noUserConfig: boolean,
+    @Inject(BOOTSTRAP_OPTIONS)
+    private readonly bootOptions: BootstrapOptions,
     @Optional()
     @Inject(SKIP_CONFIG_INIT)
     skipInit: boolean,
@@ -156,7 +166,7 @@ export class AutoConfigService {
    * - values loaded from environment variables
    * - values loaded from command line switches
    */
-  private earlyInit(switches = argv): void {
+  private earlyInit(switches = SWITCHES): void {
     this.switches = minimist(switches);
     this.config = {};
     this.setDefaults();
@@ -166,7 +176,7 @@ export class AutoConfigService {
       LIB_BOILERPLATE.description,
       AutoConfigService.name,
     ].join(":");
-    if (this.noUserConfig) {
+    if (!this.APPLICATION || this.APPLICATION === NO_APPLICATION) {
       this.configFiles = [];
     } else {
       const [fileConfig, files] = this.workspace.loadMergedConfig(
@@ -252,10 +262,8 @@ export class AutoConfigService {
     const configs = LibraryModule.configs;
     configs.forEach(({ configuration }, project) => {
       configuration ??= {};
-      const cleanedProject = (
-        project ?? this.APPLICATION.description
-      ).replaceAll("-", "_");
-      const isApplication = this.APPLICATION.description === project;
+      const cleanedProject = project?.replaceAll("-", "_") || "unknown";
+      const isApplication = this.APPLICATION?.description === project;
       const environmentPrefix = isApplication
         ? "application"
         : `libs_${cleanedProject}`;
@@ -264,11 +272,7 @@ export class AutoConfigService {
         : `libs.${cleanedProject}`;
       Object.keys(configuration).forEach(key => {
         const noAppPath = `${environmentPrefix}_${key}`;
-        const search = [
-          `${this.APPLICATION.description}__${noAppPath}`,
-          noAppPath,
-          key,
-        ];
+        const search = [noAppPath, key];
         const configPath = `${configPrefix}.${key}`;
         // Find an applicable switch
         const flag =
@@ -353,6 +357,9 @@ export class AutoConfigService {
     });
   }
 
+  /**
+   * Load defaults from the module definitions
+   */
   private setDefaults(): void {
     LibraryModule.configs.forEach(({ configuration }, project) => {
       const isApplication = this.appName === project;

@@ -15,11 +15,11 @@ import { ExpressAdapter } from "@nestjs/platform-express";
 import {
   AbstractConfig,
   AutoLogService,
+  BOOTSTRAP_OPTIONS,
   CONFIG_DEFAULTS,
   LIB_BOILERPLATE,
   LifecycleService,
   NEST_NOOP_LOGGER,
-  NO_USER_CONFIG,
   UsePrettyLogger,
 } from "@steggy/boilerplate";
 import { eachSeries, is } from "@steggy/utilities";
@@ -102,7 +102,6 @@ export async function Bootstrap(
   module: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
 ): Promise<INestApplicationContext> {
-  bootOptions.globals ??= [];
   // Environment files can append extra modules
   const current = Reflect.getMetadata("imports", module) ?? [];
   // console.log(current);
@@ -119,13 +118,15 @@ export async function Bootstrap(
     );
     exit();
   }
-  const flags = bootOptions.flags ?? [];
-  if (bootOptions.skipConfigLoad) {
-    flags.push(NO_USER_CONFIG);
-  }
+  bootOptions.flags ??= [];
+  bootOptions.globals ??= [];
+  bootOptions.globals.push({
+    provide: BOOTSTRAP_OPTIONS,
+    useFactory: () => bootOptions,
+  });
   const append = [
     ...bootOptions.globals,
-    ...flags.map(i => ({ provide: i, useValue: true })),
+    ...bootOptions.flags.map(i => ({ provide: i, useValue: true })),
   ];
   append.push({
     provide: CONFIG_DEFAULTS,

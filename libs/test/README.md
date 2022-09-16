@@ -7,6 +7,10 @@ This testing library aims to be api compatible with the nest testing library, wh
 
 ### Configuration
 
-File based configurations are ignored by the test loader.
-Environment variables and command line switches may still have an effect.
-The intended way to provide configurations to the test adapter is via the bootstrap overrides when creating the test module.
+File based configurations will not be loaded unless an application name or config file is explicitly provided.
+Environment variables and command line switches may still have an effect
+
+### Lifecycle events
+
+The testing library does not run lifecycle events on providers by default.
+Setting the `bootstrap.init = true` in the configuration options will cause the full lifecycle and init workflow to happen.
