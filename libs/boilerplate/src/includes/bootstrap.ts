@@ -6,6 +6,7 @@
 import {
   DynamicModule,
   INestApplication,
+  INestApplicationContext,
   ModuleMetadata,
   Provider,
 } from "@nestjs/common";
@@ -40,6 +41,12 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
    */
   extraModules?: DynamicModule[];
   /**
+   * Activate application functionality by flags.
+   *
+   * Basically a more convenient way to add globals.
+   */
+  flags?: Array<string | symbol>;
+  /**
    * Insert additional providers with a global scope.
    */
   globals?: Provider[];
@@ -48,6 +55,12 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
    * `ServerModule` from `@steggy/server` needs to be imported to actually listen for requests
    */
   http?: boolean;
+  /**
+   * If set to false, the application module be created but not initialized
+   *
+   * Use with testing
+   */
+  init?: boolean;
   /**
    * Disable nestjs log messages
    */
@@ -88,7 +101,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
-): Promise<void | never> {
+): Promise<INestApplicationContext> {
   bootOptions.globals ??= [];
   // Environment files can append extra modules
   const current = Reflect.getMetadata("imports", module) ?? [];
@@ -105,18 +118,18 @@ export async function Bootstrap(
     );
     exit();
   }
+  const flags = bootOptions.flags ?? [];
   if (bootOptions.skipConfigLoad) {
-    bootOptions.globals.push({
-      provide: NO_USER_CONFIG,
-      useValue: true,
-    });
+    flags.push(NO_USER_CONFIG);
   }
-  const append = [...bootOptions.globals];
+  const append = [
+    ...bootOptions.globals,
+    ...flags.map(i => ({ provide: i, useValue: true })),
+  ];
   append.push({
     provide: CONFIG_DEFAULTS,
     useValue: bootOptions.config ?? {},
   });
-
   globals.exports.push(...append);
   globals.providers.push(...append);
 
@@ -169,4 +182,5 @@ export async function Bootstrap(
     await item(app, server, bootOptions);
   });
   await lifecycle.postInit(app, { options: bootOptions, server });
+  return app;
 }

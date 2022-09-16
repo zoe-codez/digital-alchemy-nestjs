@@ -20,6 +20,7 @@ import {
   CONFIG_DEFAULTS,
   ConfigItem,
   NO_USER_CONFIG,
+  SKIP_CONFIG_INIT,
 } from "../contracts";
 import { LibraryModule, MESSY_INJECTED_CONFIGS } from "../decorators";
 import { AutoLogService } from "./auto-log.service";
@@ -43,6 +44,9 @@ export class AutoConfigService {
     @Optional()
     @Inject(NO_USER_CONFIG)
     private readonly noUserConfig: boolean,
+    @Optional()
+    @Inject(SKIP_CONFIG_INIT)
+    skipInit: boolean,
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
   ) {
@@ -51,7 +55,9 @@ export class AutoConfigService {
     //
     // Needs to happen ASAP in order to provide values for @InjectConfig, and any direct loading of this class to work as intended
     //
-    this.earlyInit();
+    if (skipInit !== true) {
+      this.earlyInit();
+    }
     AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
   }
 
@@ -113,13 +119,13 @@ export class AutoConfigService {
     this.sanityCheck();
   }
 
-  private cast(data: string, type: string): unknown {
+  private cast(data: string | string[], type: string): unknown {
     switch (type) {
       case "boolean":
         data ??= "";
         return is.boolean(data)
           ? data
-          : ["true", "y", "1"].includes(data.toLowerCase());
+          : ["true", "y", "1"].includes((data as string).toLowerCase());
       case "number":
         return Number(data);
       case "string[]":
@@ -160,19 +166,19 @@ export class AutoConfigService {
     ].join(":");
     if (this.noUserConfig) {
       this.configFiles = [];
-      return;
+    } else {
+      const [fileConfig, files] = this.workspace.loadMergedConfig(
+        this.switches["config"]
+          ? [resolve(this.switches["config"])]
+          : this.workspace.configFilePaths(this.appName),
+      );
+      this.configFiles = files;
+      fileConfig.forEach((config, path) => {
+        deepExtend(this.config, config);
+        this.logger.debug(`Loaded configuration from {${path}}`);
+      });
     }
-    const [fileConfig, files] = this.workspace.loadMergedConfig(
-      this.switches["config"]
-        ? [resolve(this.switches["config"])]
-        : this.workspace.configFilePaths(this.appName),
-    );
-    this.configFiles = files;
-    fileConfig.forEach(config => deepExtend(this.config, config));
     this.loadFromEnv();
-    fileConfig.forEach((config, path) =>
-      this.logger.debug(`Loaded configuration from {${path}}`),
-    );
   }
 
   private getConfiguration(path: string): ConfigItem {

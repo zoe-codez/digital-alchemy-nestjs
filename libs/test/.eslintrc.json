@@ -13,12 +13,13 @@
         "*.js",
         "*.jsx"
       ],
-      "rules": {},
       "parserOptions": {
         "project": [
-          "libs/boilerplate/tsconfig.lib.json",
-          "libs/boilerplate/tsconfig.spec.json"
+          "libs/test/tsconfig.*?.json"
         ]
+      },
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": "off"
       }
     },
     {

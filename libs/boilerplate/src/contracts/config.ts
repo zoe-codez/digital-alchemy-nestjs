@@ -1,6 +1,7 @@
 import { AnyConfig, ConfigItem } from "./meta";
 
 export const NO_USER_CONFIG = Symbol("NO_USER_CONFIG");
+export const SKIP_CONFIG_INIT = Symbol("SKIP_CONFIG_INIT");
 export const CONSUMES_CONFIG = Symbol("CONSUMES_CONFIG");
 export const CONFIG_DEFAULTS = Symbol("CONFIG_DEFAULTS");
 

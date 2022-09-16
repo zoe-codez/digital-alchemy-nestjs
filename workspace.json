@@ -5,13 +5,14 @@
     "build-pipeline": "apps/build-pipeline",
     "config-builder": "apps/config-builder",
     "entity-inspector": "apps/entity-inspector",
+    "hass-type-generate": "apps/hass-type-generate",
     "home-assistant": "libs/home-assistant",
     "log-formatter": "apps/log-formatter",
     "mqtt": "libs/mqtt",
-    "server": "libs/server",
-    "tty": "libs/tty",
-    "hass-type-generate": "apps/hass-type-generate",
     "sampler-app": "apps/sampler-app",
+    "server": "libs/server",
+    "test": "libs/test",
+    "tty": "libs/tty",
     "utilities": "libs/utilities"
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"

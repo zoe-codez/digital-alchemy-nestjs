@@ -197,7 +197,6 @@
       "**/.hg": true,
       "**/*vsix": true,
       "**/CVS": true,
-      "**/tsconfig.spec.json": true,
       "**/.DS_Store": true,
       "SECURITY.md": true,
       "**/node_modules": true,
@@ -209,7 +208,6 @@
       "**/.yarnclean": true,
       "LICENSE": true,
       "**/.gitkeep": true,
-      "**/jest.*.js": true,
       "**/.babelrc": true,
       "**/.prettierignore": true,
       ".editorconfig": true

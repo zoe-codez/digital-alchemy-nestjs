@@ -56,6 +56,7 @@
               "aggregator",
               "alloc",
               "allowlist",
+              "tsconfig",
               "ansi",
               "argv",
               "arn",
@@ -460,6 +461,15 @@
           }
         ],
         "@typescript-eslint/no-explicit-any": "error"
+      }
+    },
+    {
+      "files": [
+        "*.spec.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-magic-numbers": "off"
       }
     },
     {

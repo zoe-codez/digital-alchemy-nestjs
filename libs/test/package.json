@@ -1,0 +1,17 @@
+{
+  "name": "@steggy/test",
+  "displayName": "Test",
+  "nx": {
+    "ignore": true
+  },
+  "license": "MIT",
+  "version": "22.37.4",
+  "homepage": "https://github.com/mp3three/steggy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mp3three/steggy.git"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
