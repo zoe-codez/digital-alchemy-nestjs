@@ -13,8 +13,8 @@ import { DependenciesScanner } from "@nestjs/core/scanner";
 import {
   ApplicationModule,
   Bootstrap,
-  BootstrapOptions,
   NEST_NOOP_LOGGER,
+  QuickScriptOptions,
 } from "@steggy/boilerplate";
 import { ClassConstructor } from "class-transformer";
 
@@ -28,7 +28,7 @@ import {
 export class TestingModuleBuilder {
   constructor(
     metadataScanner: MetadataScanner,
-    private readonly metadata: BootstrapOptions,
+    private readonly metadata: QuickScriptOptions,
   ) {
     this.scanner = new DependenciesScanner(
       this.container,
@@ -57,7 +57,7 @@ export class TestingModuleBuilder {
     );
     this.scanner.applyApplicationProviders();
     return Bootstrap(this.module, {
-      ...this.metadata,
+      ...this.metadata.bootstrap,
       init: false,
     });
   }
@@ -93,7 +93,9 @@ export class TestingModuleBuilder {
     });
   }
 
-  private createModule(metadata: ModuleMetadata): ClassConstructor<unknown> {
+  private createModule(
+    metadata: QuickScriptOptions,
+  ): ClassConstructor<unknown> {
     class RootTestModule {}
     return ApplicationModule(metadata)(
       RootTestModule,

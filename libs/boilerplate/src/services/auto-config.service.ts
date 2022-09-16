@@ -38,8 +38,9 @@ export class AutoConfigService {
     /**
      * Override defaults provided by Bootstrap
      */
+    @Optional()
     @Inject(CONFIG_DEFAULTS)
-    private readonly configDefaults: AbstractConfig,
+    private readonly configDefaults: AbstractConfig = {},
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
     @Inject(NO_USER_CONFIG)
@@ -65,7 +66,7 @@ export class AutoConfigService {
   public loadedConfigFiles: string[];
   private config: AbstractConfig = {};
   private loadedConfigPath: string;
-  private switches = minimist(argv);
+  private switches: ReturnType<typeof minimist>;
 
   private get appName(): string {
     return this.APPLICATION.description;
@@ -155,7 +156,8 @@ export class AutoConfigService {
    * - values loaded from environment variables
    * - values loaded from command line switches
    */
-  private earlyInit(): void {
+  private earlyInit(switches = argv): void {
+    this.switches = minimist(switches);
     this.config = {};
     this.setDefaults();
     deepExtend(this.config, this.configDefaults ?? {});

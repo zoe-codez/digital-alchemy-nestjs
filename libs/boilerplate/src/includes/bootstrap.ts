@@ -105,6 +105,7 @@ export async function Bootstrap(
   bootOptions.globals ??= [];
   // Environment files can append extra modules
   const current = Reflect.getMetadata("imports", module) ?? [];
+  // console.log(current);
   if (!is.empty(bootOptions.imports)) {
     current.push(...bootOptions.imports);
     Reflect.defineMetadata("imports", current, module);

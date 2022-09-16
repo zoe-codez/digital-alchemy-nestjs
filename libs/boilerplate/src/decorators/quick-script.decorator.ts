@@ -23,19 +23,7 @@ export interface iQuickScript extends iSteggyProvider {
   exec: () => void | Promise<void>;
 }
 
-/**
- * Use as an annotation for a single NestJS provider.
- * Will bootstrap a minimal TTY app around the provider, and will use the `exec` method as the entrypoint.
- *
- * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
- */
-export function QuickScript({
-  WAIT_TIME = WAIT_BOOTSTRAP * DEFAULT_LIMIT,
-  bootstrap,
-  controller,
-  PERSISTENT,
-  ...options
-}: ApplicationModuleMetadata & {
+export type QuickScriptOptions = ApplicationModuleMetadata & {
   /**
    * Keep the application open after `exec` finishes
    */
@@ -48,7 +36,21 @@ export function QuickScript({
    * ServerModule and enabling http still must be performed
    */
   controller?: string;
-} = {}): ClassDecorator {
+};
+
+/**
+ * Use as an annotation for a single NestJS provider.
+ * Will bootstrap a minimal TTY app around the provider, and will use the `exec` method as the entrypoint.
+ *
+ * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
+ */
+export function QuickScript({
+  WAIT_TIME = WAIT_BOOTSTRAP * DEFAULT_LIMIT,
+  bootstrap,
+  controller,
+  PERSISTENT,
+  ...options
+}: QuickScriptOptions = {}): ClassDecorator {
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
   options.providers ??= [];

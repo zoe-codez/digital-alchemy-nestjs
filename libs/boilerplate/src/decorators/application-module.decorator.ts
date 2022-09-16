@@ -31,7 +31,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
 export function ApplicationModule(
   metadata: ApplicationModuleMetadata,
 ): ClassDecorator {
-  const propertiesKeys = Object.keys(metadata);
   // No symbol applications, for when you really just don't care
   // Doesn't meaningfully need imports I guess
   metadata.application ??= Symbol("steggy");
@@ -39,6 +38,7 @@ export function ApplicationModule(
   metadata.providers ??= [];
   metadata.globals ??= [];
   metadata.controllers ??= [];
+  // metadata.
   [...metadata.providers, ...metadata.controllers].forEach(provider => {
     provider[LOGGER_LIBRARY] = metadata.application.description;
   });
@@ -71,7 +71,8 @@ export function ApplicationModule(
       metadata.application.description,
       target.name,
     );
-    propertiesKeys.forEach(property => {
+    // Reflect.defineMetadata("imports", metadata.imports, target);
+    Object.keys(metadata).forEach(property => {
       Reflect.defineMetadata(property, metadata[property], target);
     });
     return target;

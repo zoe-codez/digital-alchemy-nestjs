@@ -20,9 +20,11 @@ describe("AutoConfig", () => {
 
   beforeAll(async () => {
     const app = await Test.createTestingModule({
-      config: {
-        application: { foo: true },
-        libs: { boilerplate: { LOG_LEVEL: "debug" } },
+      bootstrap: {
+        config: {
+          application: { foo: true },
+          libs: { boilerplate: { LOG_LEVEL: "debug" } },
+        },
       },
     }).compile();
 
@@ -96,11 +98,13 @@ describe("AutoConfig", () => {
   describe("Early Init", () => {
     beforeEach(async () => {
       const app = await Test.createTestingModule({
-        config: {
-          application: { foo: true },
-          libs: { boilerplate: { LOG_LEVEL: "debug" } },
+        bootstrap: {
+          config: {
+            application: { foo: true },
+            libs: { boilerplate: { LOG_LEVEL: "debug" } },
+          },
+          flags: [SKIP_CONFIG_INIT, NO_USER_CONFIG],
         },
-        flags: [SKIP_CONFIG_INIT, NO_USER_CONFIG],
       }).compile();
       configService = app.get<AutoConfigService>(AutoConfigService);
       delete env["LOG_LEVEL"];
@@ -119,33 +123,46 @@ describe("AutoConfig", () => {
 
     describe("environment variable coercion", () => {
       it("pull from super simplified variable", () => {
-        env["LOG_LEVEL"] = "banana";
+        env["LOG_LEVEL"] = "silent";
         configService["earlyInit"]();
-        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("banana");
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
       });
 
       it("is case insensitive", () => {
-        env["log_level"] = "banana";
+        env["log_level"] = "silent";
         configService["earlyInit"]();
-        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("banana");
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
       });
 
       it("accepts dash or underscore", () => {
-        env["log-level"] = "banana";
+        env["log-level"] = "silent";
         configService["earlyInit"]();
-        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("banana");
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
       });
 
-      it.only("can accept direct references", () => {
-        env["libs_boilerplate_LOG_LEVEL"] = "banana";
+      it("can accept direct references", () => {
+        env["libs_boilerplate_LOG_LEVEL"] = "silent";
         configService["earlyInit"]();
-        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("banana");
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
       });
 
-      it.only("can accept direct references wacky style", () => {
-        env["LiBs-boilerPlate-LOG-level"] = "banana";
+      it("can accept direct references wacky style", () => {
+        env["LiBs-boilerPlate-LOG-level"] = "silent";
         configService["earlyInit"]();
-        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("banana");
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
+      });
+    });
+
+    describe("command line switch coercion", () => {
+      // ? Normally pulls from `argv`, but manually overriding the values for the purpose of testing
+      it("can make sense of switches", () => {
+        configService["earlyInit"](["--LOG_LEVEL", "silent"]);
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
+      });
+
+      it("is case insensitive", () => {
+        configService["earlyInit"](["--log_level", "silent"]);
+        expect(configService.get([LIB_BOILERPLATE, LOG_LEVEL])).toBe("silent");
       });
     });
   });
