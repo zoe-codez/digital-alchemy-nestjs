@@ -1,15 +1,12 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
-import {
-  INestApplicationContext,
-  Logger,
-  ModuleMetadata,
-} from "@nestjs/common";
+import { INestApplicationContext, Logger } from "@nestjs/common";
 import {
   ApplicationConfig,
   MetadataScanner,
   NestContainer,
 } from "@nestjs/core";
 import { DependenciesScanner } from "@nestjs/core/scanner";
+import { TestingInstanceLoader } from "@nestjs/testing/testing-instance-loader";
 import {
   ApplicationModule,
   Bootstrap,
@@ -18,7 +15,6 @@ import {
 } from "@steggy/boilerplate";
 import { ClassConstructor } from "class-transformer";
 
-import { TestingInstanceLoader } from "./instance-loader";
 import {
   MockFactory,
   OverrideBy,
@@ -56,10 +52,7 @@ export class TestingModuleBuilder {
       this.mocker,
     );
     this.scanner.applyApplicationProviders();
-    return Bootstrap(this.module, {
-      ...this.metadata.bootstrap,
-      init: false,
-    });
+    return Bootstrap(this.module, this.metadata.bootstrap);
   }
 
   public overrideFilter<T = unknown>(typeOrToken: T): OverrideBy {

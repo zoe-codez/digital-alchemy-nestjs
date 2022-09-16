@@ -135,7 +135,7 @@ export async function Bootstrap(
   globals.providers.push(...append);
 
   let { preInit, postInit } = bootOptions;
-  const { prettyLog, nestNoopLogger, http } = bootOptions;
+  const { prettyLog, nestNoopLogger, http, init } = bootOptions;
 
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
@@ -159,6 +159,9 @@ export async function Bootstrap(
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
+  }
+  if (init === false) {
+    return app;
   }
   app.enableShutdownHooks();
   const lifecycle = app.get(LifecycleService);

@@ -12,7 +12,7 @@ import {
   SCAN_CONFIG,
   VERSION,
 } from "../config";
-import { NO_USER_CONFIG, SKIP_CONFIG_INIT } from "../contracts";
+import { SKIP_CONFIG_INIT } from "../contracts";
 import { AutoConfigService } from "../services";
 
 describe("AutoConfig", () => {
@@ -103,7 +103,7 @@ describe("AutoConfig", () => {
             application: { foo: true },
             libs: { boilerplate: { LOG_LEVEL: "debug" } },
           },
-          flags: [SKIP_CONFIG_INIT, NO_USER_CONFIG],
+          flags: [SKIP_CONFIG_INIT],
         },
       }).compile();
       configService = app.get<AutoConfigService>(AutoConfigService);
