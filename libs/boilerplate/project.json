@@ -16,7 +16,8 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/boilerplate/src/index.ts",
         "assets": [
-          "libs/boilerplate/package.json"
+          "libs/boilerplate/package.json",
+          "libs/boilerplate/README.md"
         ]
       },
       "configurations": {

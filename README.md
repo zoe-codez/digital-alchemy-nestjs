@@ -8,26 +8,6 @@ It provides a quick bootstrapping interface, which provides:
 - Additional lifecycle events
 - Specialized eventing annotations
 
-## Applications
-
-### [Config Builder](apps/config-builder)
-
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
-It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
-
-### [Log Formatter](apps/log-formatter)
-
-Pipe JSON logs in via stdin, get pretty/readable logs out.
-Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo so logs will format the same as during development.
-
-### [Sampler App](apps/sampler-app)
-
-Demonstration of the capabilities of the TTY library.
-
-### [Hass Type Generate](apps/hass-type-generate)
-
-Companion application to `@steggy/home-assisant`. Intended to rewrite library type definitions to match a specific home assistant install.
-
 ## Libraries
 
 ### [Boilerplate](libs/boilerplate)
@@ -61,3 +41,23 @@ Utilities for creating terminal applications.
 Enables the `--help` switch, which will output available configuations that can be sent via command line switches.
 
 > Note: switches are accepted without TTY, this just adds a reporting mechanism
+
+## Applications
+
+### [Config Builder](apps/config-builder)
+
+A script to manage file based configurations for applications based off `@steggy/boilerplate`.
+It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
+
+### [Log Formatter](apps/log-formatter)
+
+Pipe JSON logs in via stdin, get pretty/readable logs out.
+Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo so logs will format the same as during development.
+
+### [Sampler App](apps/sampler-app)
+
+Demonstration of the capabilities of the TTY library.
+
+### [Hass Type Generate](apps/hass-type-generate)
+
+Companion application to `@steggy/home-assisant`. Intended to rewrite library type definitions to match a specific home assistant install.
