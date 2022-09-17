@@ -4,13 +4,13 @@ import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   ConfigDefinitionDTO,
+  ConfigTypeDTO,
 } from "../contracts";
 import {
   CONFIG_DEFAULTS,
-  ConfigTypeDTO,
   CONSUMES_CONFIG,
-} from "../contracts/config";
-import { LOGGER_LIBRARY } from "../contracts/logger/constants";
+  LOGGER_LIBRARY,
+} from "../contracts/constants";
 import { LibraryModule, MESSY_INJECTED_CONFIGS } from "../decorators";
 import { ModuleScannerService } from "../services";
 

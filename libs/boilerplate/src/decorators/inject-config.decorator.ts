@@ -4,14 +4,15 @@ import { v4 as uuid } from "uuid";
 
 import {
   ACTIVE_APPLICATION,
-  ConfigItem,
+  AnyConfig,
+  BaseConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-} from "../../contracts";
-import { AutoConfigService } from "../../services";
+} from "../contracts";
+import { AutoConfigService } from "../services/auto-config.service";
 
 export const CONFIG_PROVIDERS = new Set<Provider>();
-export const MESSY_INJECTED_CONFIGS = new Map<string, ConfigItem>();
+export const MESSY_INJECTED_CONFIGS = new Map<string, BaseConfig>();
 
 export function InjectConfig(
   /**
@@ -48,7 +49,7 @@ export function InjectConfig(
     ````
     > (there should be an `@` in front of that `InjectConfig`, but tsdoc hates that for me right now)
    */
-  from?: symbol | ConfigItem,
+  from?: symbol | AnyConfig,
 ): ParameterDecorator {
   return function (target, key, index) {
     if (is.object(from)) {
@@ -78,6 +79,7 @@ export function InjectConfig(
     return Inject(id)(target, key, index);
   };
 }
+
 InjectConfig.inject = function (path: string, from?: symbol) {
   const id = uuid();
   CONFIG_PROVIDERS.add({

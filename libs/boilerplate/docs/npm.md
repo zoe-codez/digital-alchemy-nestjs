@@ -1,15 +1,5 @@
 # @steggy/boilerplate
 
-## Description
-
-This library is the required entrypoint for using the rest of the libraries published from this repository.
-Boilerplate provides a batteries included bootstrapping workflow for NestJS applications, as well as several utility classes.
-
-## Extra Reading
-
-| --- | --- |
-| [Logger](./docs/logger.md) | API documentation for `AutoLogService` |
-
 ## Bootstrap
 
 ### `@QuickScript` minimal applications
@@ -55,48 +45,6 @@ Bootstrap(ApplicationModule, {
   prettyLog: true
 })
 ```
-
-### Lifecycle events
-
-The bootstrap flow provides additional lifecycle events to simplify some application wiring.
-When possible, it is recommended to use the standard nest lifecycle events.
-
-```typescript
-import { QuickScript } from "@steggy/boilerplate";
-
-@QuickScript()
-class ExampleScript {
-  // Intended for situations where application flow needs to be changed.
-  // Logic going here should either do nothing, or result in a process.exit()
-  rewire(app, bootstrapOptions) {
-    console.log("1");
-  }
-  // Called prior to kicking off the NestJS app.init()
-  // Logic that might have otherwise gone in your entrypoint file can fit in here
-  onPreInit(app, express, bootstrapOptions) {
-    console.log("2");
-  }
-  // NestJS lifecycle
-  onModuleInit() {
-    console.log("3");
-  }
-  // NestJS lifecycle
-  onApplicationBootstrap() {
-    console.log("4");
-  }
-  // Called after successful init
-  // Logic at the extreme end of boostrapping goes here. Ex: attaching webserver listeners
-  onPostInit(app, express, bootstrapOptions) {
-    console.log("5");
-  }
-  // Provided by `@QuickScript` only
-  // Very last method to run
-  exec() {
-    console.log("Hello world");
-  }
-}
-```
-
 ## Configuration
 
 The boilerplate library has an opinionated configuration system that is based off [rc](https://www.npmjs.com/package/rc).

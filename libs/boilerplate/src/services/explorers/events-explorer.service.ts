@@ -5,7 +5,7 @@ import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { isProxy } from "util/types";
 
-import { LOG_CONTEXT } from "../../contracts/logger";
+import { LOG_CONTEXT } from "../../contracts";
 import {
   EVENT_LISTENER_METADATA,
   OnEventMetadata,

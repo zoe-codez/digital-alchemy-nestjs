@@ -17,9 +17,9 @@ import { LIB_BOILERPLATE, LOG_LEVEL } from "../config";
 import {
   AbstractConfig,
   ACTIVE_APPLICATION,
+  BaseConfig,
   BOOTSTRAP_OPTIONS,
   CONFIG_DEFAULTS,
-  ConfigItem,
   SKIP_CONFIG_INIT,
 } from "../contracts";
 import {
@@ -193,7 +193,7 @@ export class AutoConfigService {
     this.loadFromEnv();
   }
 
-  private getConfiguration(path: string): ConfigItem {
+  private getConfiguration(path: string): BaseConfig {
     const { configs } = LibraryModule;
     const parts = path.split(".");
     if (parts.length === SINGLE) {
@@ -212,7 +212,6 @@ export class AutoConfigService {
         // Applications can yolo a bit harder than libraries
         default: defaultValue,
         type: "string",
-        warnDefault: false,
       };
     }
     const [, library, property] = parts;
@@ -338,14 +337,6 @@ export class AutoConfigService {
         // It's fine that this symbol isn't the same as the real one
         // Just going to get turned back into a string anyways
         const value = this.get([Symbol.for(project), name]);
-        if (definition.warnDefault) {
-          if (value === definition.default) {
-            this.logger.warn(
-              `[${project}] configuration {${name}} is using using the default value. This value should be overridden for best practices.`,
-            );
-          }
-          return;
-        }
         if (definition.required && is.undefined(value)) {
           this.logger.fatal(
             { ...definition },

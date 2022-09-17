@@ -1,8 +1,9 @@
-import { TestingModuleBuilder } from '../module-builder';
-import { OverrideByFactoryOptions } from './override-by-factory-options.interface';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TestingModuleBuilder } from "../module-builder";
+import { OverrideByFactoryOptions } from "./override-by-factory-options.interface";
 
 export interface OverrideBy {
-  useValue: (value: any) => TestingModuleBuilder;
-  useFactory: (options: OverrideByFactoryOptions) => TestingModuleBuilder;
   useClass: (metatype: any) => TestingModuleBuilder;
+  useFactory: (options: OverrideByFactoryOptions) => TestingModuleBuilder;
+  useValue: (value: any) => TestingModuleBuilder;
 }

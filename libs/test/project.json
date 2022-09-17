@@ -70,5 +70,10 @@
       }
     }
   },
-  "tags": []
+  "implicitDependencies": [
+    "!boilerplate"
+  ],
+  "tags": [
+    "shared"
+  ]
 }

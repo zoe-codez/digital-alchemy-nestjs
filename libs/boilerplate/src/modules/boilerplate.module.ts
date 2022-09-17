@@ -12,24 +12,22 @@ import {
   SCAN_CONFIG,
   VERSION,
 } from "../config";
-import { LOGGER_PROVIDERS } from "../decorators/injectors";
-import { CONFIG_PROVIDERS } from "../decorators/injectors/inject-config.decorator";
+import { LOGGER_PROVIDERS } from "../decorators";
+import { CONFIG_PROVIDERS } from "../decorators/inject-config.decorator";
 import { LibraryModule } from "../decorators/library-module.decorator";
-import { RegisterCache } from "../includes";
 import {
   AutoConfigService,
   AutoLogService,
-  CacheProviderService,
   ConfigScanner,
   EventsExplorerService,
-  FetchService,
-  JSONFilterService,
   LifecycleService,
   LogExplorerService,
   ModuleScannerService,
   ScheduleExplorerService,
   WorkspaceService,
 } from "../services";
+import { CacheProviderService, RegisterCache } from "../services/cache.service";
+import { FetchService } from "../services/fetch.service";
 
 @LibraryModule({
   configuration: {
@@ -84,7 +82,6 @@ import {
     AutoLogService,
     CacheProviderService,
     FetchService,
-    JSONFilterService,
     WorkspaceService,
   ],
   imports: [RegisterCache(), DiscoveryModule],
@@ -96,7 +93,6 @@ import {
     ConfigScanner,
     EventsExplorerService,
     FetchService,
-    JSONFilterService,
     LifecycleService,
     LogExplorerService,
     ModuleScannerService,
@@ -120,7 +116,6 @@ export class BoilerplateModule {
         AutoConfigService,
         CacheProviderService,
         FetchService,
-        JSONFilterService,
         ModuleScannerService,
         WorkspaceService,
       ],
@@ -135,7 +130,6 @@ export class BoilerplateModule {
         CacheProviderService,
         EventsExplorerService,
         FetchService,
-        JSONFilterService,
         LifecycleService,
         LogExplorerService,
         ModuleScannerService,

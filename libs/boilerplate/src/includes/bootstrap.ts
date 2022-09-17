@@ -170,9 +170,6 @@ export async function Bootstrap(
   logger.setContext(LIB_BOILERPLATE, { name: "Bootstrap" });
   // onPreInit
   preInit ??= [];
-  // if (noGlobalError !== true) {
-  //   preInit.push(GlobalErrorInit);
-  // }
   await eachSeries(preInit, async item => {
     await item(app, server, bootOptions);
   });
