@@ -5,19 +5,19 @@ import { exit } from "process";
 
 import {
   ACTIVE_APPLICATION,
-  ConfigItem,
+  BaseConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
   StringConfig,
 } from "../contracts";
-import { RegisterCache } from "../includes";
 import { BoilerplateModule } from "../modules";
-import { MESSY_INJECTED_CONFIGS } from "./injectors";
+import { RegisterCache } from "../services";
+import { MESSY_INJECTED_CONFIGS } from "./inject-config.decorator";
 import { LibraryModule } from "./library-module.decorator";
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application?: symbol;
-  configuration?: Record<string, ConfigItem>;
+  configuration?: Record<string, BaseConfig>;
   /**
    * If omitted, will default to all
    */
@@ -119,7 +119,7 @@ function FindUnregisteredConfigurations(
         ({
           description: "No description provided",
           type: "string",
-        } as ConfigItem<StringConfig>);
+        } as StringConfig);
     });
   });
 }

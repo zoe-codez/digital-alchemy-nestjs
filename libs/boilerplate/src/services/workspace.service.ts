@@ -14,11 +14,6 @@ import { ACTIVE_APPLICATION } from "../contracts/constants";
 const extensions = ["json", "ini", "yaml", "yml"];
 
 /**
- * The workspace file is def not getting out into any builds, seems like a reasonably unique name
- */
-const isDevelopment = existsSync(join(cwd(), "steggy.code-workspace"));
-
-/**
  * Tools for describing the current environment the code is running in
  */
 @Injectable()
@@ -26,7 +21,6 @@ export class WorkspaceService {
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
   ) {}
-  public IS_DEVELOPMENT = isDevelopment;
 
   private isWindows = platform === "win32";
 

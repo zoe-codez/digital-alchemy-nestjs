@@ -10,6 +10,14 @@ export type SteggyConfigTypes =
   | "record"
   | "string[]";
 
+export type AnyConfig =
+  | StringConfig
+  | BooleanConfig
+  | InternalConfig
+  | NumberConfig
+  | RecordConfig
+  | StringArrayConfig;
+
 export class BaseConfig {
   /**
    * If no other values are provided, what value should be injected?

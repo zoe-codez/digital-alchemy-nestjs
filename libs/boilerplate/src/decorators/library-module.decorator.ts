@@ -1,9 +1,9 @@
 import { Global, ModuleMetadata } from "@nestjs/common";
 
-import { ConfigItem, LOGGER_LIBRARY, RepoMetadataDTO } from "../contracts";
+import { AnyConfig, LOGGER_LIBRARY, RepoMetadataDTO } from "../contracts";
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
-  configuration: Record<string, ConfigItem>;
+  configuration: Record<string, AnyConfig>;
   global?: boolean;
   library: symbol;
 }
