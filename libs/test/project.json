@@ -24,6 +24,26 @@
         "passWithNoTests": true
       }
     },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Test",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build test --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/test --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": [
