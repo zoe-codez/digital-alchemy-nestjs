@@ -9,7 +9,8 @@
     ]
   },
   "exclude": [
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "../../libs/boilerplate/**/*.spec.ts",
   ],
   "include": [
     "**/*.ts",

@@ -3,11 +3,16 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../dist/out-tsc",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
-  "exclude": ["**/*.spec.ts"],
+  "exclude": [
+    "**/*.spec.ts",
+    "../../libs/boilerplate/**/*.spec.ts",
+  ],
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
