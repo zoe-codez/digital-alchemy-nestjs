@@ -5,14 +5,13 @@ import { v4 as uuid } from "uuid";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
-  BaseConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
 } from "../contracts";
 import { AutoConfigService } from "../services/auto-config.service";
 
 export const CONFIG_PROVIDERS = new Set<Provider>();
-export const MESSY_INJECTED_CONFIGS = new Map<string, BaseConfig>();
+export const MESSY_INJECTED_CONFIGS = new Map<string, AnyConfig>();
 
 export function InjectConfig(
   /**

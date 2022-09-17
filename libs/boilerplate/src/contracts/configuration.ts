@@ -1,5 +1,5 @@
 export interface RepoMetadataDTO {
-  configuration: Record<string, BaseConfig>;
+  configuration: Record<string, AnyConfig>;
 }
 
 export type SteggyConfigTypes =

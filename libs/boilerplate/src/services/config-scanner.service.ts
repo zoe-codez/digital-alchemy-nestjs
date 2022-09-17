@@ -12,7 +12,7 @@ export class ConfigScanner {
     @InjectConfig(VERSION) private readonly printVersion: boolean,
   ) {}
 
-  protected rewire(
+  protected onRewire(
     app: INestApplication,
     options: BootstrapOptions,
   ): void | never {

@@ -126,7 +126,7 @@ export class ConfigSampler {
     await this.prompt.acknowledge();
   }
 
-  protected rewire(): void | never {
+  protected onRewire(): void | never {
     if (this.earlyAbort) {
       this.screen.print(faker.lorem.paragraphs(DEFAULT_LIMIT, `\n\n`));
       exit();

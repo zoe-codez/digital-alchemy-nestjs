@@ -68,7 +68,7 @@ export interface iSteggyProvider {
    * Intended for situations where application flow needs to be changed, and an early exit is performed.
    * Called prior to `onPreInit`, as to not cause race conditions.
    */
-  rewire?: (
+  onRewire?: (
     application: INestApplication,
     options: BootstrapOptions,
   ) => NO_RESULT;

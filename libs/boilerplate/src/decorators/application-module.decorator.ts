@@ -5,7 +5,7 @@ import { exit } from "process";
 
 import {
   ACTIVE_APPLICATION,
-  BaseConfig,
+  AnyConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
   StringConfig,
@@ -17,7 +17,7 @@ import { LibraryModule } from "./library-module.decorator";
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application?: symbol;
-  configuration?: Record<string, BaseConfig>;
+  configuration?: Record<string, AnyConfig>;
   /**
    * If omitted, will default to all
    */

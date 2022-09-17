@@ -7,9 +7,11 @@ Boilerplate provides a batteries included bootstrapping workflow for NestJS appl
 
 ## Extra Reading
 
-| | |
+| Link | Description |
 | --- | --- |
 | [Logger](./docs/logger.md) | API documentation for `AutoLogService` |
+| [Usage example](https://github.com/mp3three/quickscript) | Small terminal app in an external repo utilizing this boilerplate |
+| [Lifecycle events](./docs/lifecycle.md) | Startup lifecycle event flow for boilerplate & nestjs |
 
 ## Bootstrap
 
@@ -55,47 +57,6 @@ Bootstrap(ApplicationModule, {
   http: true,
   prettyLog: true
 })
-```
-
-### Lifecycle events
-
-The bootstrap flow provides additional lifecycle events to simplify some application wiring.
-When possible, it is recommended to use the standard nest lifecycle events.
-
-```typescript
-import { QuickScript } from "@steggy/boilerplate";
-
-@QuickScript()
-class ExampleScript {
-  // Intended for situations where application flow needs to be changed.
-  // Logic going here should either do nothing, or result in a process.exit()
-  rewire(app, bootstrapOptions) {
-    console.log("1");
-  }
-  // Called prior to kicking off the NestJS app.init()
-  // Logic that might have otherwise gone in your entrypoint file can fit in here
-  onPreInit(app, express, bootstrapOptions) {
-    console.log("2");
-  }
-  // NestJS lifecycle
-  onModuleInit() {
-    console.log("3");
-  }
-  // NestJS lifecycle
-  onApplicationBootstrap() {
-    console.log("4");
-  }
-  // Called after successful init
-  // Logic at the extreme end of boostrapping goes here. Ex: attaching webserver listeners
-  onPostInit(app, express, bootstrapOptions) {
-    console.log("5");
-  }
-  // Provided by `@QuickScript` only
-  // Very last method to run
-  exec() {
-    console.log("Hello world");
-  }
-}
 ```
 
 ## Configuration

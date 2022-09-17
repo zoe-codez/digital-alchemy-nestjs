@@ -1,9 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
-  ConfigItem,
+  AnyConfig,
+  BaseConfig,
+  BooleanConfig,
   InjectConfig,
   LibraryModule,
+  NumberConfig,
   StringConfig,
 } from "@steggy/boilerplate";
 import { DOWN, EMPTY, INCREMENT, is, TitleCase, UP } from "@steggy/utilities";
@@ -24,42 +27,7 @@ export class TerminalHelpService {
     @InjectConfig(HELP) private readonly showHelp: boolean,
   ) {}
 
-  protected printProject(
-    project: string,
-    configuration: Record<string, ConfigItem>,
-    LONGEST: number,
-  ) {
-    this.screen.printLine(
-      chalk`Provided by {magenta.bold ${TitleCase(project)}}`,
-    );
-    Object.entries(configuration)
-      .sort(([a], [b]) => (a > b ? UP : DOWN))
-      .forEach(([property, config]) => {
-        property = property
-          .replaceAll("-", "_")
-          .toLocaleLowerCase()
-          .padEnd(LONGEST, " ");
-        switch (config.type) {
-          case "number":
-            this.numberSwitch(property, config);
-            break;
-          case "string":
-          case "url":
-          case "password":
-            this.stringSwitch(property, config as ConfigItem<StringConfig>);
-            break;
-          case "boolean":
-            this.booleanSwitch(property, config);
-            break;
-          default:
-            return;
-            this.otherSwitch(property, config);
-        }
-        this.screen.down();
-      });
-  }
-
-  protected rewire(): void | never {
+  protected onRewire(): void | never {
     if (!this.showHelp) {
       return;
     }
@@ -90,11 +58,44 @@ export class TerminalHelpService {
     exit();
   }
 
-  private booleanSwitch(property: string, config: ConfigItem): void {
+  protected printProject(
+    project: string,
+    configuration: Record<string, AnyConfig>,
+    LONGEST: number,
+  ) {
+    this.screen.printLine(
+      chalk`Provided by {magenta.bold ${TitleCase(project)}}`,
+    );
+    Object.entries(configuration)
+      .sort(([a], [b]) => (a > b ? UP : DOWN))
+      .forEach(([property, config]) => {
+        property = property
+          .replaceAll("-", "_")
+          .toLocaleLowerCase()
+          .padEnd(LONGEST, " ");
+        switch (config.type) {
+          case "number":
+            this.numberSwitch(property, config as NumberConfig);
+            break;
+          case "string":
+            this.stringSwitch(property, config as StringConfig);
+            break;
+          case "boolean":
+            this.booleanSwitch(property, config as BooleanConfig);
+            break;
+          default:
+            return;
+            this.otherSwitch(property, config);
+        }
+        this.screen.down();
+      });
+  }
+
+  private booleanSwitch(property: string, config: BooleanConfig): void {
     const prefix = chalk`  {${
       config.required ? "red.bold" : "white"
     } --${property}} {gray [{bold boolean}}${
-      is.undefined(config.default as number)
+      is.undefined(config.default as boolean)
         ? ""
         : chalk`, {gray default}: {bold.green ${config.default}}`
     }{gray ]} `;
@@ -115,7 +116,7 @@ export class TerminalHelpService {
     );
   }
 
-  private numberSwitch(property: string, config: ConfigItem): void {
+  private numberSwitch(property: string, config: NumberConfig): void {
     const prefix = chalk`  {${
       config.required ? "red.bold" : "white"
     } --${property}} {gray [{bold number}}${
@@ -126,7 +127,7 @@ export class TerminalHelpService {
     this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 
-  private otherSwitch(property: string, config: ConfigItem) {
+  private otherSwitch(property: string, config: BaseConfig) {
     const prefix = chalk`  {${
       config.required ? "red.bold" : "white"
     } --${property}} {gray [other}${
@@ -139,10 +140,7 @@ export class TerminalHelpService {
     this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 
-  private stringSwitch(
-    property: string,
-    config: ConfigItem<StringConfig>,
-  ): void {
+  private stringSwitch(property: string, config: StringConfig): void {
     const prefix = chalk`  {${
       config.required ? "red.bold" : "white"
     } --${property}} {gray [{bold string}}${

@@ -34,13 +34,13 @@ export class LifecycleService {
   ): Promise<void> {
     const instances: Partial<iSteggyProvider>[] = [];
     this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
-      if (instance.onPreInit || instance.rewire) {
+      if (instance.onPreInit || instance.onRewire) {
         instances.push(instance);
       }
     });
     await eachSeries(instances, async instance => {
-      if (instance.rewire) {
-        await instance.rewire(app, options);
+      if (instance.onRewire) {
+        await instance.onRewire(app, options);
       }
     });
     await eachSeries(instances, async instance => {
