@@ -10,7 +10,7 @@ import {
   ConfigTypeDTO,
   CONSUMES_CONFIG,
 } from "../contracts/config";
-import { LOGGER_LIBRARY } from "../contracts/logger/constants";
+import { LOGGER_LIBRARY } from "../contracts/constants";
 import { LibraryModule, MESSY_INJECTED_CONFIGS } from "../decorators";
 import { ModuleScannerService } from "../services";
 

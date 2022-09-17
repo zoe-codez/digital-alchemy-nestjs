@@ -4,10 +4,10 @@ import {
   Injectable,
   NestInterceptor,
 } from "@nestjs/common";
-import { JSONFilterService } from "@steggy/boilerplate";
 import { map, Observable } from "rxjs";
 
 import { APIResponse } from "../contracts";
+import { JSONFilterService } from "../services";
 
 @Injectable()
 export class JSONFilterInterceptor implements NestInterceptor {

@@ -24,9 +24,14 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "dependencies",
+          "buildableProjectDepsInPackageJsonType": "peerDependencies",
           "updateBuildableProjectDepsInPackageJson": true,
-          "fileReplacements": []
+          "fileReplacements": [
+            {
+              "replace": "libs/boilerplate/README.md",
+              "with": "libs/boilerplate/docs/npm.md"
+            }
+          ]
         }
       }
     },

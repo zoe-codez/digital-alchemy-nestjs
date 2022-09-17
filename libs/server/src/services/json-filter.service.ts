@@ -15,7 +15,7 @@ import { isNumberString } from "class-validator";
 import dayjs from "dayjs";
 import { get } from "object-path";
 
-import { AutoLogService } from "./auto-log.service";
+import { AutoLogService } from "../../../boilerplate/src/services/auto-log.service";
 
 type RelativeCompare = number | Date | dayjs.Dayjs;
 

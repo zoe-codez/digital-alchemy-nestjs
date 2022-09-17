@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, RequestMethod } from "@nestjs/common";
-import { LibraryModule } from "@steggy/boilerplate";
+import { JSONFilterService, LibraryModule } from "@steggy/boilerplate";
 
 import {
   ADMIN_KEY,
@@ -117,6 +117,7 @@ import { MiddlewareService, RouteInjector, SwaggerService } from "../services";
     InitMiddleware,
     IsAuthorizedGuard,
     JSONFilterInterceptor,
+    JSONFilterService,
     LoggingInterceptor,
     MiddlewareService,
     RouteInjector,

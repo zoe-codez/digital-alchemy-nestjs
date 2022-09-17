@@ -1,24 +1,62 @@
+import { Injectable, Scope } from "@nestjs/common";
 import {
   FetchArguments,
   FetchParameterTypes,
+  FetchWith,
+  FIRST,
   is,
   ResultControlDTO,
 } from "@steggy/utilities";
-import { BodyInit, RequestInit, Response } from "node-fetch";
+import Bottleneck from "bottleneck";
+import { createWriteStream } from "fs";
+import fetch from "node-fetch";
 
-import { AutoLogService } from "../auto-log.service";
+import { TransientLogger } from "../decorators/inject-logger.decorator";
+import { AutoLogService } from "./auto-log.service";
 
 const DEFAULT_TRUNCATE_LENGTH = 200;
-const FIRST = 0;
+@Injectable({ scope: Scope.TRANSIENT })
+export class FetchService {
+  constructor(
+    @TransientLogger()
+    protected readonly logger: AutoLogService,
+  ) {}
 
-type FetchWith<T extends Record<never, string> = Record<never, string>> =
-  Partial<FetchArguments> & T;
-
-export class BaseFetchService {
   public BASE_URL: string;
   public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
-  protected readonly logger: AutoLogService;
+  private limiter: Bottleneck;
+
+  public bottleneck(options: Bottleneck.ConstructorOptions): void {
+    this.limiter = new Bottleneck(options);
+    this.limiter.on("error", error => {
+      this.logger.error({ ...error }, `Error caught in limiter`);
+    });
+  }
+
+  public async download({
+    destination,
+    ...fetchWith
+  }: Partial<FetchArguments> & { destination: string }): Promise<void> {
+    const url: string = await this.fetchCreateUrl(fetchWith);
+    const requestInit = await this.fetchCreateMeta(fetchWith);
+    const response = await fetch(url, requestInit);
+    await new Promise<void>((resolve, reject) => {
+      const fileStream = createWriteStream(destination);
+      response.body.pipe(fileStream);
+      response.body.on("error", error => reject(error));
+      fileStream.on("finish", () => resolve());
+    });
+  }
+
+  public async fetch<T>(fetchWith: Partial<FetchArguments>): Promise<T> {
+    if (this.limiter) {
+      return this.limiter.schedule(
+        async () => await this.immediateFetch(fetchWith),
+      );
+    }
+    return await this.immediateFetch(fetchWith);
+  }
 
   /**
    * Resolve url provided in args into a full path w/ domain
@@ -30,7 +68,6 @@ export class BaseFetchService {
     }
     return out;
   }
-
   /**
    * Resolve Filters and query params object into a query string.
    *
@@ -124,6 +161,23 @@ export class BaseFetchService {
     }
     const parsed = JSON.parse(text);
     return this.checkForHttpErrors<T>(parsed);
+  }
+
+  private async immediateFetch<T>(
+    fetchWith: Partial<FetchArguments>,
+  ): Promise<T> {
+    const url: string = await this.fetchCreateUrl(fetchWith);
+    const requestInit = await this.fetchCreateMeta(fetchWith);
+    try {
+      const response = await fetch(url, requestInit);
+      if (fetchWith.process === false) {
+        return response as unknown as T;
+      }
+      return await this.fetchHandleResponse(fetchWith, response);
+    } catch (error) {
+      this.logger.error({ error });
+      return undefined;
+    }
   }
 
   private cast(item: FetchParameterTypes): string {

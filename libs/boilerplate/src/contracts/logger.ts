@@ -1,4 +1,5 @@
 export type LogLevels = "info" | "debug" | "warn" | "trace" | "error" | "fatal";
+
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((

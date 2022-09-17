@@ -8,14 +8,8 @@ import { homedir } from "os";
 import { join } from "path";
 import { cwd, platform } from "process";
 
-import {
-  AbstractConfig,
-  ACTIVE_APPLICATION,
-  GenericVersionDTO,
-  PACKAGE_FILE,
-  PackageJsonDTO,
-} from "../contracts";
-import { LibraryModule } from "../decorators";
+import { AbstractConfig } from "../contracts/configuration";
+import { ACTIVE_APPLICATION } from "../contracts/constants";
 
 const extensions = ["json", "ini", "yaml", "yml"];
 
@@ -33,13 +27,8 @@ export class WorkspaceService {
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
   ) {}
   public IS_DEVELOPMENT = isDevelopment;
-  /**
-   * package.json
-   */
-  public PACKAGES = new Map<string, PackageJsonDTO>();
 
   private isWindows = platform === "win32";
-  private loaded = false;
 
   /**
    * Find files at:
@@ -86,14 +75,6 @@ export class WorkspaceService {
       ...this.withExtensions(join(homedir(), ".config", name, "config")),
     );
     return out;
-  }
-
-  public initMetadata(): void {
-    if (this.loaded) {
-      return;
-    }
-    this.loaded = true;
-    this.loadPackages();
   }
 
   public isApplication(project: string): boolean {
@@ -168,48 +149,6 @@ export class WorkspaceService {
       files.push(filePath);
     });
     return [out, files];
-  }
-
-  public path(project: string): string {
-    return isDevelopment
-      ? join(
-          cwd(),
-          `${this.isApplication(project) ? "apps" : "libs"}/${project}`,
-          PACKAGE_FILE,
-        )
-      : join(
-          __dirname,
-          "assets",
-          project ?? this.application.description,
-          PACKAGE_FILE,
-        );
-  }
-
-  public version(): GenericVersionDTO {
-    const versions: Record<string, string> = {};
-    this.PACKAGES.forEach(({ version }, name) => (versions[name] = version));
-    return {
-      projects: versions,
-      version: versions[this.application.description],
-    };
-  }
-
-  protected onModuleInit(): void {
-    this.initMetadata();
-  }
-
-  private loadPackages(): void {
-    LibraryModule.configs.forEach((meta, project) => {
-      const packageFile = this.path(project);
-      const exists = existsSync(packageFile);
-      if (!exists) {
-        return;
-      }
-      const data = JSON.parse(
-        readFileSync(packageFile, "utf8"),
-      ) as unknown as PackageJsonDTO;
-      this.PACKAGES.set(project, data);
-    });
   }
 
   private withExtensions(path: string): string[] {

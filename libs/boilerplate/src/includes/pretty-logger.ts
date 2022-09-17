@@ -7,7 +7,44 @@ import chalk from "chalk";
 import pino from "pino";
 import { cwd } from "process";
 
+// KEEP IMPORT AS DIRECT FROM FILE
 import { AutoLogService, LoggerFunction } from "../services/auto-log.service";
+
+/**
+ * # Description
+ *
+ * This file describes the crazy unreadable logic that goes into making the pretty logger look pretty.
+ * The basic expected format of a log message is this:
+ *
+ * [TIMESTAMP]:[LIBRARY:PROVIDER] MESSAGE {...DATA AS JSON}
+ *
+ * ## Timestamps
+ *
+ * - timestamp is white, not bold
+ * - timestamp formatted like "Sat 10:49:00.001"
+ *
+ * ## Context
+ *
+ * The context must be part of the data payload from the log wrapper, this file cannot automatically determine it.
+ * The context is bold, and the color is used to indicate the log level.
+ *
+ *   trace => grey
+ *   debug => blue.dim
+ *   warn => yellow.dim
+ *   error => red
+ *   info => green
+ *   fatal => magenta
+ *
+ * ## Message
+ *
+ * Message color is cyan by default.
+ * There are some provided formatters that can be used to modify text appearance and color.
+ *
+ * - magenta.bold: "[TEXT]"
+ *
+ * Typically used for noun references. Ex: "[Human Readable Name] did a thing!"
+ */
+
 const logger = pino(
   {
     level: AutoLogService.logger.level,
@@ -31,6 +68,7 @@ const logger = pino(
   },
   pino.destination({ sync: true }),
 );
+
 export type CONTEXT_COLORS =
   | "bgBlue.dim"
   | "bgYellow.dim"
@@ -38,11 +76,14 @@ export type CONTEXT_COLORS =
   | "bgRed"
   | "bgMagenta"
   | "bgGrey";
+
 export const highlightContext = (
   context: string,
   level: CONTEXT_COLORS,
 ): string => chalk`{bold.${level.slice(2).toLowerCase()} [${context}]}`;
+
 const NEST = "@nestjs";
+
 export const methodColors = new Map<pino.Level, CONTEXT_COLORS>([
   ["trace", "bgGrey"],
   ["debug", "bgBlue.dim"],

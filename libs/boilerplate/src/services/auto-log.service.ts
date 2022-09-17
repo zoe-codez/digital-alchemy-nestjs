@@ -1,6 +1,7 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { INQUIRER } from "@nestjs/core";
 import { is } from "@steggy/utilities";
+import { AsyncLocalStorage } from "async_hooks";
 import pino from "pino";
 
 import {
@@ -12,7 +13,8 @@ import {
   MISSING_CONTEXT,
 } from "../contracts";
 import { mappedContexts } from "../decorators";
-import { storage } from "../includes";
+
+export const storage = new AsyncLocalStorage<pino.Logger>();
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export type LoggerFunction =
