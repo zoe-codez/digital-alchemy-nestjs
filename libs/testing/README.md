@@ -1,4 +1,4 @@
-# @steggy/utilities
+# @steggy/testing
 
 ## Description
 

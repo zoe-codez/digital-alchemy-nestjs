@@ -11,12 +11,11 @@
       "options": {
         "outputPath": "dist/libs/server",
         "tsConfig": "libs/server/tsconfig.lib.json",
+        "packageJson": "libs/server/package.json",
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/server/package.json",
         "main": "libs/server/src/index.ts",
         "assets": [
-          "libs/server/*.md",
           "libs/server/package.json"
         ]
       },
@@ -24,20 +23,22 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "dependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
       "options": {
         "lintFilePatterns": [
           "libs/server/**/*.ts"
         ]
-      }
+      },
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
@@ -60,9 +61,6 @@
       }
     }
   },
-  "implicitDependencies": [
-    "!boilerplate"
-  ],
   "tags": [
     "nestjs"
   ]
