@@ -1,12 +1,10 @@
 import { INestApplication, Inject, Injectable } from "@nestjs/common";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
   WorkspaceService,
 } from "@steggy/boilerplate";
-import { TitleCase } from "@steggy/utilities";
 
 import { SWAGGER_PATH } from "../config";
 
@@ -27,20 +25,21 @@ export class SwaggerService {
   }
 
   protected onPreInit(app: INestApplication): void {
+    app;
     if (!this.swaggerPath) {
       return;
     }
-    this.workspace.initMetadata();
-    const data = this.workspace.PACKAGES.get(
-      this.activeApplication.description,
-    );
-    const { displayName, description, version } = data ?? {};
-    const config = new DocumentBuilder()
-      .setTitle(displayName ?? TitleCase(this.activeApplication.description))
-      .setDescription(description ?? "")
-      .setVersion(version ?? "")
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(this.swaggerPath, app, document);
+    // this.workspace.initMetadata();
+    // const data = this.workspace.PACKAGES.get(
+    //   this.activeApplication.description,
+    // );
+    // const { displayName, description, version } = data ?? {};
+    // const config = new DocumentBuilder()
+    //   .setTitle(displayName ?? TitleCase(this.activeApplication.description))
+    //   .setDescription(description ?? "")
+    //   .setVersion(version ?? "")
+    //   .build();
+    // const document = SwaggerModule.createDocument(app, config);
+    // SwaggerModule.setup(this.swaggerPath, app, document);
   }
 }

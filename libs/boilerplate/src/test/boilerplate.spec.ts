@@ -1,4 +1,4 @@
-import { Test } from "@steggy/test";
+import { Test } from "@steggy/testing";
 
 import { LibraryModule, QuickScriptOptions } from "../decorators";
 

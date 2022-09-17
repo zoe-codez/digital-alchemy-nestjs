@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Test } from "@steggy/test";
+import { Test } from "@steggy/testing";
 import { argv, env } from "process";
 
 import {

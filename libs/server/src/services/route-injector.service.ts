@@ -1,7 +1,7 @@
 import { Injectable, RequestMapping, RequestMethod } from "@nestjs/common";
 import { HTTP_METHODS } from "@steggy/utilities";
 
-// Conflict between compliler and linter
+// Conflict between compiler and linter
 /* eslint-disable @typescript-eslint/ban-types */
 
 interface MethodInjectOptions<T> {
@@ -20,7 +20,7 @@ interface MethodInjectOptions<T> {
 
 @Injectable()
 /**
- * Abusing application lifecycles for fun and profit.
+ * Abusing application life cycles for fun and profit.
  * Programmatically add http routes to methods by setting metadata for nest
  *
  * Only works if used onPreInit

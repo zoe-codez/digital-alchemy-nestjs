@@ -1,17 +1,15 @@
 {
-  "name": "@steggy/test",
-  "displayName": "Test",
-  "nx": {
-    "ignore": true
+  "author": {
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
   },
+  "name": "@steggy/testing",
+  "displayName": "Testing",
   "license": "MIT",
   "version": "22.38.2",
   "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mp3three/steggy.git"
-  },
-  "engines": {
-    "node": ">=16.0.0"
   }
 }

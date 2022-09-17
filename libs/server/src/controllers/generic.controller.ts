@@ -1,5 +1,5 @@
-import { Controller, Get, Inject, NotFoundException } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Controller, Get, Inject } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import {
   ACTIVE_APPLICATION,
   InjectConfig,
@@ -7,7 +7,6 @@ import {
 } from "@steggy/boilerplate";
 
 import { HIDE_VERSION } from "../config";
-import { VersionResponse } from "../contracts";
 
 @Controller()
 @ApiTags("generic")
@@ -24,21 +23,5 @@ export class GenericController {
   @Get(`/health`)
   public health(): unknown {
     return `OK`;
-  }
-
-  @Get(`/version`)
-  @ApiOperation({
-    description: `Retrieve some basic information about the server version`,
-  })
-  public version(): VersionResponse {
-    if (this.hideVersion) {
-      // Nothing to see here
-      throw new NotFoundException();
-    }
-    return {
-      application: this.activeApplication.description,
-      boot: this.BOOT_TIME,
-      ...this.workspace.version(),
-    };
   }
 }

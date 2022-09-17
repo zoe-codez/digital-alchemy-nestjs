@@ -1,6 +1,6 @@
 export default {
-  coverageDirectory: "../../coverage/libs/test",
-  displayName: "test",
+  coverageDirectory: "../../coverage/libs/ban",
+  displayName: "boilerplate",
   globals: {
     "ts-jest": {
       tsconfig: "<rootDir>/tsconfig.spec.json",

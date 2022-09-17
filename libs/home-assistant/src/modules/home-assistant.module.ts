@@ -36,12 +36,12 @@ const services: Provider[] = [
     [BASE_URL]: {
       default: "http://localhost:8123",
       description: "Url to reach Home Assistant at",
-      type: "url",
+      type: "string",
     },
     [CRASH_REQUESTS_PER_SEC]: {
       default: 500,
       description:
-        "Socket service will commit sudoku if more than this many outgoing messages are sent to Home Assistant in a second. Usually indicates accidental infinite loops.",
+        "Socket service will commit sudoku if more than this many outgoing messages are sent to Home Assistant in a second. Usually indicates runaway code.",
       type: "number",
     },
     [RENDER_TIMEOUT]: {
@@ -58,7 +58,7 @@ const services: Provider[] = [
     [TOKEN]: {
       // Not absolutely required, if the app does not intend to open a connection
       description: "Long lived access token to Home Assistant.",
-      type: "password",
+      type: "string",
     },
     [WARN_REQUESTS_PER_SEC]: {
       default: 300,

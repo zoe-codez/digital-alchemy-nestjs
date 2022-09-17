@@ -1,10 +1,5 @@
 /* eslint-disable radar/no-duplicate-string */
-import {
-  InjectConfig,
-  PACKAGE_FILE,
-  PackageJsonDTO,
-  QuickScript,
-} from "@steggy/boilerplate";
+import { InjectConfig, QuickScript } from "@steggy/boilerplate";
 import {
   PromptService,
   ScreenService,
@@ -22,7 +17,6 @@ import { exit } from "process";
 import { inc } from "semver";
 
 type AffectedList = { apps: string[]; libs: string[] };
-type PACKAGE = { version: string };
 
 /**
  * Basic build pipeline.
@@ -66,7 +60,9 @@ export class BuildPipelineService {
   }
 
   private readonly BUILT_APPS: string[] = [];
-  private WORKSPACE = JSON.parse(readFileSync("workspace.json", "utf8")) as {
+  private WORKSPACE = JSON.parse(
+    readFileSync("workspace.json", "utf8"),
+  ) as unknown as {
     projects: Record<string, string>;
   };
 
@@ -103,12 +99,14 @@ export class BuildPipelineService {
     }
     this.screen.printLine(chalk.bold.cyan`APPS`);
     affected.apps.forEach(line => {
-      const file = join("apps", line, PACKAGE_FILE);
+      const file = join("apps", line, "package.json");
       if (!existsSync(file)) {
         this.screen.printLine(chalk` {yellow - } ${line}`);
         return;
       }
-      const { version } = JSON.parse(readFileSync(file, "utf8")) as PACKAGE;
+      const { version } = JSON.parse(readFileSync(file, "utf8")) as unknown as {
+        version: string;
+      };
       this.screen.printLine(
         chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ""}${line}`,
       );
@@ -133,13 +131,13 @@ export class BuildPipelineService {
     update: string,
   ): Promise<void> {
     apps.forEach(application => {
-      const file = join("apps", application, PACKAGE_FILE);
+      const file = join("apps", application, "PACKAGE.JSON");
       if (!existsSync(file)) {
         return;
       }
-      const packageJSON = JSON.parse(
-        readFileSync(file, "utf8"),
-      ) as PackageJsonDTO;
+      const packageJSON = JSON.parse(readFileSync(file, "utf8")) as unknown as {
+        version: string;
+      };
       if (!is.string(packageJSON.version)) {
         return;
       }
@@ -162,10 +160,10 @@ export class BuildPipelineService {
       .filter(([, path]) => path?.startsWith("lib"))
       .map(([library]) => library);
     libraries.forEach(library => {
-      const file = join("libs", library, PACKAGE_FILE);
-      const packageJSON = JSON.parse(
-        readFileSync(file, "utf8"),
-      ) as PackageJsonDTO;
+      const file = join("libs", library, "package.json");
+      const packageJSON = JSON.parse(readFileSync(file, "utf8")) as unknown as {
+        version: string;
+      };
       this.logger.info(`[${library}] {${packageJSON.version}} => {${root}}`);
       packageJSON.version = root;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, "  ") + `\n`);
@@ -184,14 +182,16 @@ export class BuildPipelineService {
 
   private bumpRoot(): string {
     const packageJSON = JSON.parse(
-      readFileSync(PACKAGE_FILE, "utf8"),
-    ) as PACKAGE;
+      readFileSync("package.json", "utf8"),
+    ) as unknown as {
+      version: string;
+    };
     const prefix = dayjs().format("YY.ww");
     packageJSON.version = packageJSON.version.startsWith(prefix)
       ? inc(packageJSON.version, "patch")
       : `${prefix}.0`;
     writeFileSync(
-      PACKAGE_FILE,
+      "package.json",
       JSON.stringify(packageJSON, undefined, "  ") + `\n`,
     );
     return packageJSON.version;
@@ -204,7 +204,7 @@ export class BuildPipelineService {
     }
     const project = JSON.parse(
       readFileSync(join(target, "project.json"), "utf8"),
-    ) as { targets: Record<string, unknown> };
+    ) as unknown as { targets: Record<string, unknown> };
     return !is.undefined(project.targets.publish);
   }
 

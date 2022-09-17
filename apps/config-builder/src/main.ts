@@ -11,7 +11,6 @@ import {
 } from "@steggy/boilerplate";
 import {
   ApplicationManagerService,
-  FontAwesomeIcons,
   MainMenuEntry,
   MenuEntry,
   PromptService,
@@ -198,23 +197,15 @@ export class ConfigScanner implements iQuickScript {
         chalk` {cyan.bold > }${helpText}`,
       ].join(`\n`);
     }
-    let color = [defaultValue, undefined].includes(currentValue)
+    const color = [defaultValue, undefined].includes(currentValue)
       ? "white"
       : "green.bold";
-    let warnDefault = "";
     let required = "";
-    if (item.metadata.warnDefault && defaultValue === currentValue) {
-      color = "yellow.bold";
-      warnDefault = FontAwesomeIcons.warning + " ";
-    }
     if (item.metadata.required) {
       required = chalk.red`* `;
     }
     return {
-      entry: [
-        chalk`{${color} ${required}${warnDefault}${item.property}}`,
-        item,
-      ],
+      entry: [chalk`{${color} ${required}${item.property}}`, item],
       helpText,
       type:
         item.library === this.loadedApplication
@@ -253,8 +244,6 @@ export class ConfigScanner implements iQuickScript {
           ]),
         );
         break;
-      case "password":
-      case "url":
       case "string":
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)

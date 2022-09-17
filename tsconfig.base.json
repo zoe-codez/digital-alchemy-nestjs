@@ -44,8 +44,8 @@
       "@steggy/server": [
         "libs/server/src/index.ts"
       ],
-      "@steggy/test": [
-        "libs/test/src/index.ts"
+      "@steggy/testing": [
+        "libs/testing/src/index.ts"
       ],
       "@steggy/tty": [
         "libs/tty/src/index.ts"

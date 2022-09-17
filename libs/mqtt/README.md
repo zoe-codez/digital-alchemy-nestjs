@@ -1,4 +1,4 @@
-# @steggy/tty
+# @steggy/mqtt
 
 ## Description
 

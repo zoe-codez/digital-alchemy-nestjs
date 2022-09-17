@@ -120,7 +120,7 @@ export class ConfigDefinitionDTO {
   public config: ConfigTypeDTO[];
 }
 
-export class ConfigTypeDTO {
+export class ConfigTypeDTO<T = AnyConfig> {
   /**
    * Name of project
    */
@@ -128,7 +128,7 @@ export class ConfigTypeDTO {
   /**
    * Description of a single config item as passed into the module
    */
-  public metadata: BaseConfig;
+  public metadata: T;
   /**
    * Property name
    */

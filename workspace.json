@@ -11,7 +11,7 @@
     "mqtt": "libs/mqtt",
     "sampler-app": "apps/sampler-app",
     "server": "libs/server",
-    "test": "libs/test",
+    "testing": "libs/testing",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
   },

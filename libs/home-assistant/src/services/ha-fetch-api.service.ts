@@ -81,7 +81,7 @@ export class HomeAssistantFetchAPIService {
       { from: from.toISOString(), to: to.toISOString() },
       `[${entity_id}] Fetch entity history`,
     );
-    const [history] = await this.fetch({
+    const [history] = await this.fetch<[T[]]>({
       params: {
         end_time: to.toISOString(),
         filter_entity_id: entity_id,

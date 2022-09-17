@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/server/src",
+  "sourceRoot": "libs/testing/src",
   "projectType": "library",
   "targets": {
     "build": {
@@ -9,35 +9,36 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/server",
-        "tsConfig": "libs/server/tsconfig.lib.json",
+        "outputPath": "dist/libs/testing",
+        "tsConfig": "libs/testing/tsconfig.lib.json",
+        "packageJson": "libs/testing/package.json",
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/server/package.json",
-        "main": "libs/server/src/index.ts",
+        "main": "libs/testing/src/index.ts",
         "assets": [
-          "libs/server/*.md",
-          "libs/server/package.json"
+          "libs/testing/package.json"
         ]
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "dependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
       "options": {
         "lintFilePatterns": [
-          "libs/server/**/*.ts"
+          "libs/testing/**/*.ts"
         ]
-      }
+      },
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
@@ -45,24 +46,21 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Server",
+            "command": "npx figlet-cli -f Pagga Testing",
             "description": "Announce it"
           },
           {
-            "command": "npx nx build server --configuration=production",
+            "command": "npx nx build testing --configuration=production",
             "description": "Create production optimized build"
           },
           {
-            "command": "yarn publish --cwd dist/libs/server --non-interactive",
+            "command": "yarn publish --cwd dist/libs/testing --non-interactive",
             "description": "Publish it"
           }
         ]
       }
     }
   },
-  "implicitDependencies": [
-    "!boilerplate"
-  ],
   "tags": [
     "nestjs"
   ]

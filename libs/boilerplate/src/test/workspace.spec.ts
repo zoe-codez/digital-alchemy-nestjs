@@ -1,4 +1,4 @@
-import { Test } from "@steggy/test";
+import { Test } from "@steggy/testing";
 import { is } from "@steggy/utilities";
 import { homedir } from "os";
 import { join } from "path";
