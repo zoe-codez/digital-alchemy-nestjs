@@ -7,6 +7,7 @@ Boilerplate provides a batteries included bootstrapping workflow for NestJS appl
 
 ## Extra Reading
 
+| | |
 | --- | --- |
 | [Logger](./docs/logger.md) | API documentation for `AutoLogService` |
 
