@@ -4,6 +4,7 @@ import {
   DynamicModule,
   Inject,
 } from "@nestjs/common";
+import { Cache } from "cache-manager";
 
 import { CacheProviderService } from "../services";
 
