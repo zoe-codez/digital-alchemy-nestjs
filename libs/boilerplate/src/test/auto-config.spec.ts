@@ -11,7 +11,6 @@ import {
   REDIS_HOST,
   REDIS_PORT,
   SCAN_CONFIG,
-  VERSION,
 } from "../config";
 import { SKIP_CONFIG_INIT } from "../contracts";
 import { InjectConfig } from "../decorators";
@@ -65,7 +64,6 @@ describe("AutoConfig", () => {
       );
       expect(configService.get([LIB_BOILERPLATE, REDIS_PORT])).toBe(6379);
       expect(configService.get([LIB_BOILERPLATE, SCAN_CONFIG])).toBe(false);
-      expect(configService.get([LIB_BOILERPLATE, VERSION])).toBe(false);
     });
 
     it("can cast a boolean", () => {

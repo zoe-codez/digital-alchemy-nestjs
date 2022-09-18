@@ -10,8 +10,8 @@ import {
   LOGGER_LIBRARY,
   StringConfig,
 } from "../contracts";
+import { RegisterCache } from "../includes";
 import { BoilerplateModule } from "../modules";
-import { RegisterCache } from "../services";
 import { MESSY_INJECTED_CONFIGS } from "./inject-config.decorator";
 import { LibraryModule } from "./library-module.decorator";
 

@@ -23,7 +23,7 @@ export class BaseConfig {
    * If no other values are provided, what value should be injected?
    * This ensures a value is always provided, and checks for undefined don't need to happen
    */
-  public default?: unknown;
+  public declare default?: unknown;
   /**
    * Short descriptive text so humans can understand why this exists.
    * Ideally should fit on a single line
@@ -45,7 +45,7 @@ export class StringConfig extends BaseConfig {
     return config.type === "string";
   }
 
-  public default?: string;
+  public declare default?: string;
   /**
    * If provided, the value **MUST** appear in this list or the application will refuse to boot.
    */
@@ -54,15 +54,15 @@ export class StringConfig extends BaseConfig {
    * Currently no effect on runtime. Used as metadata for building `config-builder` app
    */
   public flags?: StringFlags[];
-  public override type: SteggyConfigTypes = "string";
+  public declare type: "string";
 }
 
 export class BooleanConfig extends BaseConfig {
   public static isConfig(config: BaseConfig): config is BooleanConfig {
     return config.type === "boolean";
   }
-  public default?: boolean;
-  public type: "boolean";
+  public declare default?: boolean;
+  public declare type: "boolean";
 }
 
 /**
@@ -79,8 +79,8 @@ export class InternalConfig extends BaseConfig {
     return config.type === "internal";
   }
 
-  public default?: unknown;
-  public type: "internal";
+  public declare default?: unknown;
+  public declare type: "internal";
 }
 
 export class NumberConfig extends BaseConfig {
@@ -88,8 +88,8 @@ export class NumberConfig extends BaseConfig {
     return config.type === "number";
   }
 
-  public default?: number;
-  public type: "number";
+  public declare default?: number;
+  public declare type: "number";
 }
 
 /**
@@ -100,15 +100,15 @@ export class RecordConfig extends BaseConfig {
     return config.type === "record";
   }
 
-  public type: "record";
+  public declare type: "record";
 }
 
 export class StringArrayConfig extends BaseConfig {
   public static isConfig(config: BaseConfig): config is StringArrayConfig {
     return config.type === "string[]";
   }
-  public default?: string[];
-  public type: "string[]";
+  public declare default?: string[];
+  public declare type: "string[]";
 }
 
 /**

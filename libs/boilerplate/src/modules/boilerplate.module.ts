@@ -10,24 +10,24 @@ import {
   REDIS_HOST,
   REDIS_PORT,
   SCAN_CONFIG,
-  VERSION,
 } from "../config";
 import { LOGGER_PROVIDERS } from "../decorators";
 import { CONFIG_PROVIDERS } from "../decorators/inject-config.decorator";
 import { LibraryModule } from "../decorators/library-module.decorator";
+import { RegisterCache } from "../includes";
 import {
   AutoConfigService,
   AutoLogService,
+  CacheProviderService,
   ConfigScanner,
   EventsExplorerService,
+  FetchService,
   LifecycleService,
   LogExplorerService,
   ModuleScannerService,
   ScheduleExplorerService,
   WorkspaceService,
 } from "../services";
-import { CacheProviderService, RegisterCache } from "../services/cache.service";
-import { FetchService } from "../services/fetch.service";
 
 @LibraryModule({
   configuration: {
@@ -69,11 +69,6 @@ import { FetchService } from "../services/fetch.service";
     [SCAN_CONFIG]: {
       default: false,
       description: "Find all application configurations and output as json",
-      type: "boolean",
-    },
-    [VERSION]: {
-      default: false,
-      description: "Print the application version, then exit",
       type: "boolean",
     },
   },
