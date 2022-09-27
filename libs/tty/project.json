@@ -5,7 +5,9 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/tty",
         "buildableProjectDepsInPackageJsonType": "dependencies",
@@ -13,7 +15,10 @@
         "tsConfig": "libs/tty/tsconfig.lib.json",
         "packageJson": "libs/tty/package.json",
         "main": "libs/tty/src/index.ts",
-        "assets": ["libs/tty/*.md", "libs/tty/package.json"]
+        "assets": [
+          "libs/tty/*.md",
+          "libs/tty/package.json"
+        ]
       },
       "configurations": {
         "production": {
@@ -26,15 +31,23 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/tty/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/tty/**/*.ts"
+        ]
       },
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat libs/tty/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/tty/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx figlet-cli -f Pagga TTY",
             "description": "Announce it"
@@ -51,5 +64,8 @@
       }
     }
   },
-  "tags": ["nestjs", "tty"]
+  "tags": [
+    "nestjs",
+    "tty"
+  ]
 }

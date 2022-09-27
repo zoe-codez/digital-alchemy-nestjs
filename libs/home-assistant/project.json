@@ -6,15 +6,23 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/home-assistant/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/home-assistant/**/*.ts"
+        ]
       },
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat libs/home-assistant/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/home-assistant/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx figlet-cli -f Pagga Home Assistant",
             "description": "Announce it"
@@ -32,7 +40,9 @@
     },
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/home-assistant",
         "tsConfig": "libs/home-assistant/tsconfig.lib.json",
@@ -54,5 +64,7 @@
       }
     }
   },
-  "tags": ["nestjs"]
+  "tags": [
+    "nestjs"
+  ]
 }

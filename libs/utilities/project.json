@@ -5,7 +5,9 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/utilities",
         "tsConfig": "libs/utilities/tsconfig.lib.json",
@@ -13,7 +15,9 @@
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/utilities/src/index.ts",
-        "assets": ["libs/utilities/package.json"]
+        "assets": [
+          "libs/utilities/package.json"
+        ]
       },
       "configurations": {
         "production": {
@@ -28,15 +32,23 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/utilities/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/utilities/**/*.ts"
+        ]
       },
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat libs/utilities/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/utilities/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx figlet-cli -f Pagga Utilities",
             "description": "Announce it"
@@ -53,5 +65,7 @@
       }
     }
   },
-  "tags": ["shared"]
+  "tags": [
+    "shared"
+  ]
 }

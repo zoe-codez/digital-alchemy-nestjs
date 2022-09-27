@@ -32,6 +32,7 @@ type tDateType = `${TTYDateTypes}`;
 export enum TTYFuzzyTypes {
   always = "always",
   never = "never",
+  default = "default",
   user = "user",
 }
 export interface DateEditorEditorOptions {
@@ -131,8 +132,9 @@ export class DateEditorService
     // default off
     // ? Make that @InjectConfig controlled?
     this.fuzzy =
-      (["datetime", "range"] as tDateType[]).includes(this.type) &&
-      config.fuzzy === "always";
+      config.fuzzy === "default" ||
+      ((["datetime", "range"] as tDateType[]).includes(this.type) &&
+        config.fuzzy === "always");
     this.complete = false;
     this.localDirty = false;
     this.value = dayjs(this.config.current);

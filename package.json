@@ -8,7 +8,7 @@
     "url": "https://github.com/mp3three/steggy"
   },
   "scripts": {
-    "pipeline": "node tools/scripts/pipeline.js",
+    "pipeline": "./tools/scripts/pipeline.sh",
     "lint": "nx run-many --all --target=lint --fix",
     "nx-migrate": "nx migrate latest"
   },

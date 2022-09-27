@@ -13,7 +13,9 @@
     },
     "build": {
       "executor": "@nrwl/node:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "assets": [],
         "outputPath": "dist/apps/sampler-app",
@@ -32,15 +34,23 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/sampler-app/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/sampler-app/**/*.ts"
+        ]
       },
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat apps/sampler-app/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/sampler-app/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx figlet-cli -f Pagga Sampler App",
             "description": "Announce it"
@@ -81,5 +91,7 @@
       }
     }
   },
-  "tags": ["terminal"]
+  "tags": [
+    "terminal"
+  ]
 }

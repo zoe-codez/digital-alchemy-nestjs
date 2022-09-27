@@ -5,7 +5,9 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/mqtt",
         "tsConfig": "libs/mqtt/tsconfig.lib.json",
@@ -13,7 +15,10 @@
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/mqtt/src/index.ts",
-        "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]
+        "assets": [
+          "libs/mqtt/*.md",
+          "libs/mqtt/package.json"
+        ]
       },
       "configurations": {
         "production": {
@@ -25,9 +30,13 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["libs/mqtt/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/mqtt/**/*.ts"
+        ]
       }
     },
     "publish": {
@@ -35,6 +44,10 @@
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat libs/mqtt/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/mqtt/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx figlet-cli -f Pagga MQTT",
             "description": "Announce it"
@@ -51,5 +64,7 @@
       }
     }
   },
-  "tags": ["nestjs"]
+  "tags": [
+    "nestjs"
+  ]
 }

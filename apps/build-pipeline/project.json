@@ -13,7 +13,9 @@
     },
     "build": {
       "executor": "@nrwl/node:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "assets": [],
         "outputPath": "dist/apps/build-pipeline",
@@ -32,15 +34,23 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/build-pipeline/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/build-pipeline/**/*.ts"
+        ]
       },
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
+          {
+            "command": "cat apps/build-pipeline/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/build-pipeline/package.json",
+            "description": "Sync versions"
+          },
           {
             "command": "npx nx build build-pipeline --configuration=production",
             "description": "Create build"
@@ -69,5 +79,7 @@
       }
     }
   },
-  "tags": ["terminal"]
+  "tags": [
+    "terminal"
+  ]
 }

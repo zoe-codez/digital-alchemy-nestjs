@@ -73,6 +73,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "cat apps/entity-inspector/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/entity-inspector/package.json",
+            "description": "Sync versions"
+          },
+          {
             "command": "npx figlet-cli -f Pagga Entity Inspector",
             "description": "Announce it"
           },
