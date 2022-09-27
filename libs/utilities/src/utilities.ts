@@ -38,13 +38,45 @@ export const DAY = 86_400_000;
 export const SECOND = 1000;
 export const PERCENT = 100;
 
+type SleepReturn = Promise<void> & {
+  /**
+   * not passing true will result in the sleep never finishing (acting similar to an early return)
+   */
+  stop: (execute?: boolean) => void;
+};
 /**
- * Defaults to 1000 (1 second)
+ * Defaults to 1000 (1 second).
  *
- * @example await sleep(5000);
+ * ## Simple usage
+ *
+ * ```typescript
+ * await sleep(5000);
+ * ```
+ *
+ * ## Early stop
+ *
+ * ```typescript
+ * const start = Date.now();
+ * const timer = sleep(5000);
+ * setTimeout(() => timer.stop(true),1000);
+ * await timer;
+ * const end = Date.now();
+ * console.log(end - start); // 1000, because we stopped it early and executed
+ * ```
  */
-export const sleep = (ms: number = SECOND): Promise<void> =>
-  new Promise(done => setTimeout(() => done(), ms));
+export function sleep(ms: number = SECOND): SleepReturn {
+  let done: () => void;
+  const out = new Promise<void>(i => (done = i)) as SleepReturn;
+  const timeout = setTimeout(() => done(), ms);
+  out.stop = (execute = false) => {
+    if (execute) {
+      done();
+    }
+    clearTimeout(timeout);
+    done = undefined;
+  };
+  return out;
+}
 
 /**
  * ## (re)peat
