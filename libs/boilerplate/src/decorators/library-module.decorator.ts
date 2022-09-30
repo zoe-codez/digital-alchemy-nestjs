@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 import { Global, ModuleMetadata } from "@nestjs/common";
+import { exit } from "process";
 
 import { AnyConfig, LOGGER_LIBRARY, RepoMetadataDTO } from "../contracts";
 
@@ -11,6 +13,16 @@ export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
 export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
   const propertiesKeys = Object.keys(metadata);
   const library = metadata.library.description;
+  if (LibraryModule.configs.has(library)) {
+    console.error(`Duplicate registration of library ${library}`);
+    console.error(
+      `Re-using the same library name across modules will cause conflicts in configuration definitions, potentially causing the app to not boot.`,
+    );
+    console.error(
+      `Each instance of @LibraryModule should have a unique library name`,
+    );
+    exit();
+  }
   LibraryModule.configs.set(library, { configuration: metadata.configuration });
   return target => {
     target[LOGGER_LIBRARY] = library;
