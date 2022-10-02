@@ -7,17 +7,21 @@ export enum TABLE_CELL_TYPE {
   list = "list",
 }
 
-export class TableBuilderElement<EXTRA = { options?: string[] }> {
+export class TableBuilderElement<
+  VALUE = object,
+  EXTRA = { options?: string[] },
+> {
   public extra?: EXTRA;
   public format?: (value: unknown) => string;
-  public name: string;
-  public path: string;
+  public helpText?: string;
+  public name?: string;
+  public path: Extract<keyof VALUE, string>;
   public type: `${TABLE_CELL_TYPE}`;
 }
 
-export class TableBuilderOptions<T extends unknown> {
-  public current?: T | T[];
-  public elements: TableBuilderElement[];
+export class TableBuilderOptions<VALUE extends object> {
+  public current?: VALUE | VALUE[];
+  public elements: TableBuilderElement<VALUE>[];
   public mode?: "single" | "multi";
 }
 

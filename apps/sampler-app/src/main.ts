@@ -10,6 +10,12 @@ import chalk from "chalk";
 
 import { ConfigSampler, MenuSampler, PromptSampler } from "./services";
 
+interface TestItem {
+  boolean: boolean;
+  number: number;
+  string: string;
+}
+
 // @QuickScript is derived from @Module from NestJS
 // imports, providers, controllers all work as expected
 //
@@ -41,9 +47,35 @@ export class SamplerApp {
 
   public async exec(value?: string): Promise<void> {
     this.application.setHeader("Sampler App");
-    await this.prompt.date({
-      //
+    const result = await this.prompt.objectBuilder<TestItem>({
+      current: {
+        boolean: false,
+        number: 5,
+        string: "foo",
+      },
+      elements: [
+        {
+          helpText: "A magic number",
+          name: "Number",
+          path: "number",
+          type: "number",
+        },
+        {
+          helpText: "some string",
+          name: "String",
+          path: "string",
+          type: "string",
+        },
+        {
+          helpText: "Foo",
+          name: "Boolean",
+          path: "boolean",
+          type: "boolean",
+        },
+      ],
     });
+    console.log(result);
+    await this.prompt.acknowledge();
     return;
     const action = await this.prompt.menu({
       condensed: true,

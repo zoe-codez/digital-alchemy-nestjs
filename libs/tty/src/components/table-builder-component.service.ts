@@ -10,6 +10,7 @@ import {
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
+import { MergeHelp } from "../includes";
 import {
   FormService,
   KeyboardManagerService,
@@ -91,7 +92,7 @@ export class TableBuilderComponentService<
       this.screen.render("", "");
       return;
     }
-    const mode = this.opt.mode ?? "multi";
+    const mode = this.opt.mode ?? "single ";
     if (mode === "single") {
       this.renderSingle();
       return;
@@ -229,8 +230,11 @@ export class TableBuilderComponentService<
   }
 
   private renderSingle(): void {
-    const message = this.text.pad(
-      this.form.renderForm(this.opt, this.value, this.selectedRow),
+    const message = MergeHelp(
+      this.text.pad(
+        this.form.renderForm(this.opt, this.value, this.selectedRow),
+      ),
+      this.opt.elements[this.selectedRow],
     );
     this.screen.render(
       message,

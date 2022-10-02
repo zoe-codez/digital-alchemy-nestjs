@@ -38,6 +38,16 @@ export class PromptService {
     await this.applicationManager.activateComponent("acknowledge", { message });
   }
 
+  public async arrayBuilder<VALUE extends object = object>(
+    options: Omit<TableBuilderOptions<VALUE>, "mode">,
+  ): Promise<VALUE[]> {
+    const result = await this.applicationManager.activateComponent<
+      TableBuilderOptions<VALUE>,
+      VALUE
+    >("table", { ...options, mode: "multi" });
+    return result as VALUE[];
+  }
+
   public async boolean(
     message: string,
     defaultValue?: boolean,
@@ -131,11 +141,13 @@ export class PromptService {
     } as NumberEditorRenderOptions);
   }
 
-  public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T> {
+  public async objectBuilder<VALUE extends object = object>(
+    options: Omit<TableBuilderOptions<VALUE>, "mode">,
+  ): Promise<VALUE> {
     const result = await this.applicationManager.activateComponent<
-      TableBuilderOptions<T>,
-      T
-    >("table", options);
+      TableBuilderOptions<VALUE>,
+      VALUE
+    >("table", { ...options, mode: "single" });
     return result;
   }
 

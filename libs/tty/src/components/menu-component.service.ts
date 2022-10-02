@@ -26,7 +26,7 @@ import {
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
+import { ansiMaxLength, ansiPadEnd, ansiStrip, MergeHelp } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -508,13 +508,7 @@ export class MenuComponentService<VALUE = unknown | string>
 
   private renderFinal() {
     const item = this.selectedEntry();
-    let message = "";
-    if (!is.empty(item?.helpText)) {
-      message += chalk`{blue.dim ?} ${item.helpText
-        .split(`\n`)
-        .map(line => line.replace(new RegExp("^ -"), chalk.cyan("   -")))
-        .join(`\n`)}\n`;
-    }
+    let message = MergeHelp("", item);
     message += chalk` {cyan >} `;
     if (!is.empty(item?.icon)) {
       message += `${item.icon} `;
@@ -532,18 +526,13 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderFind(updateValue = false): void {
     const rendered = this.renderSide(undefined, false, updateValue);
-    let message = [
-      ...this.textRender.searchBox(this.searchText),
-      ...rendered.map(({ entry }) => entry[LABEL]),
-    ].join(`\n`);
-    const selectedItem = rendered.find(i => GV(i.entry) === this.value);
-
-    if (!is.empty(selectedItem?.helpText)) {
-      message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
-        .split(`\n`)
-        .map(line => line.replace(new RegExp("^ -"), chalk.cyan("   -")))
-        .join(`\n`)}`;
-    }
+    const message = MergeHelp(
+      [
+        ...this.textRender.searchBox(this.searchText),
+        ...rendered.map(({ entry }) => entry[LABEL]),
+      ].join(`\n`),
+      rendered.find(i => GV(i.entry) === this.value),
+    );
     this.screen.render(message, this.keymap.keymapHelp({ message }));
   }
 
@@ -591,12 +580,7 @@ export class MenuComponentService<VALUE = unknown | string>
     const selectedItem = this.side().find(
       ({ entry }) => GV(entry) === this.value,
     );
-    if (!is.empty(selectedItem?.helpText)) {
-      message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
-        .split(`\n`)
-        .map(line => line.replace(new RegExp("^ -"), chalk.cyan("   -")))
-        .join(`\n`)}`;
-    }
+    message = MergeHelp(message, selectedItem);
     this.screen.render(
       message,
       !is.empty(extraContent)

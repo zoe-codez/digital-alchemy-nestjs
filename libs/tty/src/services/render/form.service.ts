@@ -22,12 +22,12 @@ const NAME_CELL = (i: TableBuilderElement, max?: number) =>
 export class FormService<VALUE extends object = Record<string, unknown>> {
   constructor(private readonly textRender: TextRenderingService) {}
 
-  private activeOptions: TableBuilderOptions<unknown>;
+  private activeOptions: TableBuilderOptions<VALUE>;
   private selectedRow: number;
   private value: VALUE;
 
   public renderForm(
-    options: TableBuilderOptions<unknown>,
+    options: TableBuilderOptions<VALUE>,
     row: VALUE,
     selectedRow: number = START,
   ): string {
@@ -49,8 +49,9 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
           this.textRender.type(get(this.value, i.path)),
         ),
       );
-    const columns = this.activeOptions.elements.map((i, index) =>
-      this.renderValue({ i, index, maxLabel, maxValue }),
+    const columns = this.activeOptions.elements.map(
+      (i: TableBuilderElement, index) =>
+        this.renderValue({ i, index, maxLabel, maxValue }),
     );
     const header = [
       TABLE_PARTS.top_left,

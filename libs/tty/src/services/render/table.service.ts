@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ARRAY_OFFSET, is, START } from "@steggy/utilities";
+import { ARRAY_OFFSET, is, START, TitleCase } from "@steggy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 
@@ -25,14 +25,14 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     private readonly textRender: TextRenderingService,
   ) {}
 
-  private activeOptions: TableBuilderOptions<unknown>;
+  private activeOptions: TableBuilderOptions<VALUE>;
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
   private values: VALUE[];
 
   public renderTable(
-    options: TableBuilderOptions<unknown>,
+    options: TableBuilderOptions<VALUE>,
     renderRows: VALUE[],
     selectedRow: number = START,
     selectedCell: number = START,
@@ -55,13 +55,12 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
         .join(TABLE_PARTS.mid_mid),
       TABLE_PARTS.right_mid,
     ].join("");
-    return [...header, r.join(`\n` + middle_bar + `\n`), this.footer()].join(
-      `\n`,
-    );
+    return [...header, r.join(`\n${middle_bar}\n`), this.footer()].join(`\n`);
   }
 
   private calcColumns(values: VALUE[]): void {
     this.columns = this.activeOptions.elements.map(item => {
+      item.name ??= TitleCase(item.path);
       return {
         maxWidth: Math.max(
           MIN_CELL_WIDTH,
@@ -79,7 +78,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
         ),
         name: item.name,
         path: item.path,
-      };
+      } as ColumnInfo;
     });
   }
 
@@ -98,7 +97,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
       return [
         TABLE_PARTS.left,
         ...this.activeOptions.elements.map((element, colIndex) => {
-          const value = get(i, element.path);
+          const value = get(i, String(element.path));
           const types = element.format
             ? element.format(value)
             : this.textRender.type(value);

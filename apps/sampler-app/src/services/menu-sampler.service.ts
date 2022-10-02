@@ -192,7 +192,6 @@ export class MenuSampler {
           type: "number",
         },
       ],
-      mode: "single",
     });
     const {
       optionsLeft,

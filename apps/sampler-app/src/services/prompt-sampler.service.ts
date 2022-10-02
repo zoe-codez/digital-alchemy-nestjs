@@ -186,7 +186,6 @@ export class PromptSampler {
           type: "enum",
         },
       ],
-      mode: "single",
     });
     const result = await this.prompt.date(options);
     this.screen.printLine(this.text.type(result));
