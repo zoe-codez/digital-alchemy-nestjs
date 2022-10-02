@@ -20,7 +20,6 @@ import {
   TableService,
   TextRenderingService,
 } from "../services";
-import { ToMenuEntry } from "./menu-component.service";
 
 const KEYMAP: tKeyMap = new Map([
   // While there is no editor
@@ -29,6 +28,8 @@ const KEYMAP: tKeyMap = new Map([
   [{ description: "cursor right", key: "right" }, "onRight"],
   [{ description: "cursor up", key: "up" }, "onUp"],
   [{ description: "cursor down", key: "down" }, "onDown"],
+  [{ description: "first row", key: "pageup" }, "onPageUp"],
+  [{ description: "last row", key: "pagedown" }, "onPageDown"],
   [{ description: "add row", key: "+" }, "add"],
   [{ description: "delete row", key: ["-", "delete"] }, "delete"],
   [{ description: "edit cell", key: "enter" }, "enableEdit"],
@@ -115,8 +116,12 @@ export class TableBuilderComponentService<
         return [column.path, value];
       }),
     );
+    const wasEmpty = is.empty(this.rows);
     this.rows.push(value as VALUE);
     this.setKeymap();
+    if (wasEmpty) {
+      this.selectedRow = this.rows.length - ARRAY_OFFSET;
+    }
     // ? Needs an extra render for some reason
     // Should be unnecessary
     this.render();
@@ -167,7 +172,7 @@ export class TableBuilderComponentService<
         case "enum":
           value = await this.prompt.pickOne(
             column.name,
-            ToMenuEntry(column.options.map(i => [i, i])),
+            column.options.map(i => ({ entry: [i] })),
             current,
           );
           break;
@@ -205,6 +210,14 @@ export class TableBuilderComponentService<
       return false;
     }
     this.selectedCell--;
+  }
+
+  protected onPageDown(): void {
+    this.selectedRow = this.rows.length - ARRAY_OFFSET;
+  }
+
+  protected onPageUp(): void {
+    this.selectedRow = START;
   }
 
   protected onRight(): boolean {

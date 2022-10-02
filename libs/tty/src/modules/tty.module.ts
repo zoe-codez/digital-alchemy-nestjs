@@ -15,6 +15,7 @@ import {
   LIB_TTY,
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
+  TABLE_RENDER_ROWS,
 } from "../config";
 import {
   DateEditorService,
@@ -66,6 +67,12 @@ import {
       default: "Pagga",
       description: "Figlet font",
       type: "string",
+    },
+    [TABLE_RENDER_ROWS]: {
+      default: 20,
+      description:
+        "Default quantity of rows to render in prompts like arrayBuilder",
+      type: "number",
     },
   },
   exports: [

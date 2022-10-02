@@ -37,9 +37,6 @@ import {
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 
-export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
-  return entries.map(entry => ({ entry } as MainMenuEntry<T>));
-}
 export type KeyMap<VALUE = string> = Record<string, PromptEntry<VALUE>>;
 
 /**

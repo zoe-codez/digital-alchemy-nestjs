@@ -12,11 +12,9 @@ import {
 import {
   ApplicationManagerService,
   MainMenuEntry,
-  MenuEntry,
   PromptService,
   ScreenService,
   SyncLoggerService,
-  ToMenuEntry,
   TTYModule,
 } from "@steggy/tty";
 import {
@@ -227,7 +225,10 @@ export class ConfigScanner implements iQuickScript {
         break;
       case "record":
         current = is.object(current) ? current : {};
-        result = await this.prompt.objectBuilder({
+        result = await this.prompt.arrayBuilder<{
+          key: string;
+          value: string;
+        }>({
           current: Object.entries(current).map(([key, value]) => ({
             key,
             value,
@@ -249,7 +250,7 @@ export class ConfigScanner implements iQuickScript {
         result = Array.isArray(metadata.enum)
           ? await this.prompt.pickOne(
               config.property,
-              ToMenuEntry(metadata.enum.map(i => [i, i])),
+              metadata.enum.map(i => ({ entry: [i] })),
               current,
             )
           : await this.prompt.string(config.property, current as string);
@@ -415,15 +416,11 @@ export class ConfigScanner implements iQuickScript {
     const action = await this.prompt.menu({
       headerMessage,
       keyMap: { d: ["done"] },
-      right: ToMenuEntry([
-        ["Add", "add"],
-        ...((is.empty(current)
-          ? []
-          : [
-              ["Remove single", "remove"],
-              ["Clear all", "truncate"],
-            ]) as MenuEntry[]),
-      ]),
+      right: [
+        { entry: ["Add", "add"] },
+        { entry: ["Remove single", "remove"] },
+        { entry: ["Clear all", "truncate"] },
+      ],
       value: lastAction,
     });
     if (action === "done") {
@@ -438,9 +435,9 @@ export class ConfigScanner implements iQuickScript {
       return await this.stringArray(config, [...current, value], action);
     }
     if (action === "remove") {
-      const value = await this.prompt.pickOne(
+      const value = await this.prompt.pickOne<number>(
         "Which item to remove?",
-        ToMenuEntry(current.map((i, index) => [i, index])),
+        current.map((i, index) => ({ entry: [i, index] })),
       );
       // Remove single item from array at index
       current.splice(value, SINGLE);
@@ -486,7 +483,7 @@ export class ConfigScanner implements iQuickScript {
     const defaultValue =
       this.loadedFiles[FIRST] ?? list.find(path => path.includes(".config"));
     const target = await this.prompt.menu({
-      right: ToMenuEntry(list.map(item => [item, item])),
+      right: list.map(item => ({ entry: [item] })),
       value: defaultValue,
     });
     this.writeConfig(target);

@@ -1,15 +1,23 @@
 import { Injectable } from "@nestjs/common";
-import { ARRAY_OFFSET, HALF, is, START, TitleCase } from "@steggy/utilities";
+import { InjectConfig } from "@steggy/boilerplate";
+import {
+  ARRAY_OFFSET,
+  HALF,
+  is,
+  SINGLE,
+  START,
+  TitleCase,
+} from "@steggy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 
+import { TABLE_RENDER_ROWS } from "../../config";
 import { ColumnInfo, TABLE_PARTS, TableBuilderOptions } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
-import { EnvironmentService } from "../meta/environment.service";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;
-
+const EXTRA = 2;
 const MIN_CELL_WIDTH = " undefined ".length;
 
 const NAME_CELL = (i: ColumnInfo, max?: number) =>
@@ -17,12 +25,13 @@ const NAME_CELL = (i: ColumnInfo, max?: number) =>
     (max ?? i.maxWidth) - PADDING,
     " ",
   )}}`;
+const BUFFER_SIZE = 3;
 
 @Injectable()
 export class TableService<VALUE extends object = Record<string, unknown>> {
   constructor(
-    private readonly environment: EnvironmentService,
     private readonly textRender: TextRenderingService,
+    @InjectConfig(TABLE_RENDER_ROWS) private readonly pageSize: number,
   ) {}
 
   private activeOptions: TableBuilderOptions<VALUE>;
@@ -68,9 +77,19 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
             ),
           TABLE_PARTS.right,
         ].join("");
-        return [top, content, middle_bar, emptyMessage, this.footer()].join(
-          `\n`,
-        );
+        return [
+          top,
+          content,
+          [
+            TABLE_PARTS.left_mid,
+            this.columns
+              .map(i => TABLE_PARTS.mid.repeat(i.maxWidth))
+              .join(TABLE_PARTS.bottom_mid),
+            TABLE_PARTS.right_mid,
+          ].join(""),
+          emptyMessage,
+          this.footer(TABLE_PARTS.bottom),
+        ].join(`\n`);
       }
       return [top, content, this.footer()].join(`\n`);
     }
@@ -101,39 +120,110 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     });
   }
 
-  private footer(): string {
+  private footer(join = TABLE_PARTS.bottom_mid): string {
     return [
       TABLE_PARTS.bottom_left,
-      this.columns
-        .map(i => TABLE_PARTS.bottom.repeat(i.maxWidth))
-        .join(TABLE_PARTS.bottom_mid),
+      this.columns.map(i => TABLE_PARTS.bottom.repeat(i.maxWidth)).join(join),
       TABLE_PARTS.bottom_right,
     ].join("");
   }
 
   private rows(): string[] {
-    return this.values.map((i, rowIndex) => {
-      return [
+    return this.selectRange(
+      this.values.map((i, rowIndex) => {
+        return [
+          TABLE_PARTS.left,
+          ...this.activeOptions.elements.map((element, colIndex) => {
+            const value = get(i, String(element.path));
+            const types = element.format
+              ? element.format(value)
+              : this.textRender.type(value);
+            const content =
+              " ".repeat(PADDING) +
+              (this.selectedRow === rowIndex && this.selectedCell === colIndex
+                ? chalk.inverse(types)
+                : types);
+            const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);
+            const append =
+              colIndex === this.columns.length - ARRAY_OFFSET
+                ? TABLE_PARTS.right
+                : TABLE_PARTS.middle;
+            return cell + append;
+          }),
+        ].join("");
+      }),
+    );
+  }
+
+  private selectRange(entries: string[]): string[] {
+    // This probably needs a refactor
+    if (entries.length <= this.pageSize) {
+      return entries;
+    }
+    let preMessage = `${this.selectedRow - BUFFER_SIZE} before`;
+    let postMessage = `${
+      this.values.length - this.selectedRow - Math.floor(this.pageSize * HALF)
+    } after`;
+    let preLength = ansiMaxLength(entries) - preMessage.length - EXTRA;
+    let postLength = ansiMaxLength(entries) - postMessage.length - EXTRA;
+    // <Top end of range>
+    if (this.selectedRow <= BUFFER_SIZE + SINGLE) {
+      const selected = entries.slice(START, this.pageSize - SINGLE);
+      postMessage = `${entries.length - selected.length} after`;
+      postLength = ansiMaxLength(entries) - postMessage.length - EXTRA;
+      postMessage = [
         TABLE_PARTS.left,
-        ...this.activeOptions.elements.map((element, colIndex) => {
-          const value = get(i, String(element.path));
-          const types = element.format
-            ? element.format(value)
-            : this.textRender.type(value);
-          const content =
-            " ".repeat(PADDING) +
-            (this.selectedRow === rowIndex && this.selectedCell === colIndex
-              ? chalk.inverse(types)
-              : types);
-          const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);
-          const append =
-            colIndex === this.columns.length - ARRAY_OFFSET
-              ? TABLE_PARTS.right
-              : TABLE_PARTS.middle;
-          return cell + append;
-        }),
+        postMessage
+          .padStart(postLength * HALF + postMessage.length, " ")
+          .padEnd(postLength + postMessage.length, " ")
+          .replace(` ${postMessage} `, chalk.bgCyan.black(` ${postMessage} `)),
+        TABLE_PARTS.right,
       ].join("");
-    });
+      return [...selected, postMessage];
+    }
+    // </Top end of range>
+    // <Bottom end of range>
+    if (
+      this.selectedRow >=
+      entries.length - this.pageSize + BUFFER_SIZE + SINGLE
+    ) {
+      const selected = entries.slice(entries.length - this.pageSize + PADDING);
+      preMessage = `${entries.length - selected.length} before`;
+      preLength = ansiMaxLength(entries) - preMessage.length - EXTRA;
+      preMessage = [
+        TABLE_PARTS.left,
+        preMessage
+          .padStart(preLength * HALF + preMessage.length, " ")
+          .padEnd(preLength + preMessage.length, " ")
+          .replace(` ${preMessage} `, chalk.bgCyan.black(` ${preMessage} `)),
+        TABLE_PARTS.right,
+      ].join("");
+      return [preMessage, ...selected];
+    }
+    // </Bottom end of range>
+    // <Middle of range>
+    const out = entries.slice(
+      this.selectedRow - BUFFER_SIZE,
+      this.pageSize + this.selectedRow - BUFFER_SIZE - EXTRA,
+    );
+    preMessage = [
+      TABLE_PARTS.left,
+      preMessage
+        .padStart(preLength * HALF + preMessage.length, " ")
+        .padEnd(preLength + preMessage.length, " ")
+        .replace(` ${preMessage} `, chalk.bgCyan.black(` ${preMessage} `)),
+      TABLE_PARTS.right,
+    ].join("");
+    postMessage = [
+      TABLE_PARTS.left,
+      postMessage
+        .padStart(postLength * HALF + postMessage.length, " ")
+        .padEnd(postLength + postMessage.length, " ")
+        .replace(` ${postMessage} `, chalk.bgCyan.black(` ${postMessage} `)),
+      TABLE_PARTS.right,
+    ].join("");
+    return [preMessage, ...out, postMessage];
+    // </Middle of range>
   }
 
   private tableHeader(): string[] {

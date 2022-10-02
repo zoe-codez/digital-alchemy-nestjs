@@ -2,11 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
-import {
-  ListBuilderOptions,
-  MenuComponentOptions,
-  ToMenuEntry,
-} from "../components";
+import { ListBuilderOptions, MenuComponentOptions } from "../components";
 import {
   ArrayBuilderOptions,
   MainMenuEntry,
@@ -61,10 +57,7 @@ export class PromptService {
       condensed: true,
       headerMessage: chalk`  {green ?} ${message}`,
       hideSearch: true,
-      right: ToMenuEntry([
-        ["true", true],
-        ["false", false],
-      ]),
+      right: [{ entry: ["true", true] }, { entry: ["false", false] }],
       value: defaultValue,
     })) as boolean;
   }
