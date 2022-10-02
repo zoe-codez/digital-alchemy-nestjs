@@ -7,7 +7,12 @@ import {
   MenuComponentOptions,
   ToMenuEntry,
 } from "../components";
-import { MainMenuEntry, TableBuilderOptions } from "../contracts";
+import {
+  ArrayBuilderOptions,
+  MainMenuEntry,
+  ObjectBuilderOptions,
+  TableBuilderOptions,
+} from "../contracts";
 import {
   DateEditorEditorOptions,
   NumberEditorRenderOptions,
@@ -39,7 +44,7 @@ export class PromptService {
   }
 
   public async arrayBuilder<VALUE extends object = object>(
-    options: Omit<TableBuilderOptions<VALUE>, "mode">,
+    options: Omit<ArrayBuilderOptions<VALUE>, "mode">,
   ): Promise<VALUE[]> {
     const result = await this.applicationManager.activateComponent<
       TableBuilderOptions<VALUE>,
@@ -142,7 +147,7 @@ export class PromptService {
   }
 
   public async objectBuilder<VALUE extends object = object>(
-    options: Omit<TableBuilderOptions<VALUE>, "mode">,
+    options: Omit<ObjectBuilderOptions<VALUE>, "mode">,
   ): Promise<VALUE> {
     const result = await this.applicationManager.activateComponent<
       TableBuilderOptions<VALUE>,

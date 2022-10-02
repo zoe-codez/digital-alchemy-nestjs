@@ -33,6 +33,11 @@ const KEYMAP: tKeyMap = new Map([
   [{ description: "delete row", key: ["-", "delete"] }, "delete"],
   [{ description: "edit cell", key: "enter" }, "enableEdit"],
 ] as [TTYKeypressOptions, string | DirectCB][]);
+const KEYMAP_LITE: tKeyMap = new Map([
+  // While there is no editor
+  [{ description: "done", key: "d" }, "onEnd"],
+  [{ description: "add row", key: "+" }, "add"],
+] as [TTYKeypressOptions, string | DirectCB][]);
 const FORM_KEYMAP: tKeyMap = new Map([
   // While there is no editor
   [{ description: "done", key: "d" }, "onEnd"],
@@ -81,10 +86,7 @@ export class TableBuilderComponentService<
     if (config.mode === "single") {
       this.value = (config.current as VALUE) ?? ({} as VALUE);
     }
-    this.keyboard.setKeyMap(
-      this,
-      this.opt.mode === "single" ? FORM_KEYMAP : KEYMAP,
-    );
+    this.setKeymap();
   }
 
   public render(): void {
@@ -105,7 +107,16 @@ export class TableBuilderComponentService<
   }
 
   protected add(): void {
-    this.rows.push({} as VALUE);
+    const value = Object.fromEntries(
+      this.columns.map(column => {
+        const value = is.function(column.default)
+          ? column.default()
+          : column.default;
+        return [column.path, value];
+      }),
+    );
+    this.rows.push(value as VALUE);
+    this.setKeymap();
     // ? Needs an extra render for some reason
     // Should be unnecessary
     this.render();
@@ -123,6 +134,7 @@ export class TableBuilderComponentService<
     if (this.selectedRow > this.rows.length - ARRAY_OFFSET) {
       this.selectedRow = this.rows.length - ARRAY_OFFSET;
     }
+    this.setKeymap();
     this.render();
     return false;
   }
@@ -131,7 +143,7 @@ export class TableBuilderComponentService<
     await this.screen.footerWrap(async () => {
       const column = this.opt.elements[
         this.opt.mode === "single" ? this.selectedRow : this.selectedCell
-      ] as TableBuilderElement<{ options: string[] }>;
+      ] as TableBuilderElement;
       const row =
         this.opt.mode === "single" ? this.value : this.rows[this.selectedRow];
       const current = get(is.object(row) ? row : {}, column.path);
@@ -155,7 +167,7 @@ export class TableBuilderComponentService<
         case "enum":
           value = await this.prompt.pickOne(
             column.name,
-            ToMenuEntry(column.extra.options.map(i => [i, i])),
+            ToMenuEntry(column.options.map(i => [i, i])),
             current,
           );
           break;
@@ -213,13 +225,16 @@ export class TableBuilderComponentService<
   }
 
   private renderMulti(): void {
-    const message = this.text.pad(
-      this.table.renderTable(
-        this.opt,
-        this.rows,
-        this.selectedRow,
-        this.selectedCell,
+    const message = MergeHelp(
+      this.text.pad(
+        this.table.renderTable(
+          this.opt,
+          this.rows,
+          this.selectedRow,
+          this.selectedCell,
+        ),
       ),
+      is.empty(this.rows) ? undefined : this.opt.elements[this.selectedCell],
     );
     this.screen.render(
       message,
@@ -242,5 +257,13 @@ export class TableBuilderComponentService<
         message,
       }),
     );
+  }
+
+  private setKeymap(): void {
+    if (this.opt.mode === "single") {
+      this.keyboard.setKeyMap(this, FORM_KEYMAP);
+      return;
+    }
+    this.keyboard.setKeyMap(this, is.empty(this.rows) ? KEYMAP_LITE : KEYMAP);
   }
 }

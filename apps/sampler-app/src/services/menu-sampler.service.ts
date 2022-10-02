@@ -175,14 +175,14 @@ export class MenuSampler {
           type: "boolean",
         },
         {
-          extra: { options: Object.values(FakerSources) },
           name: chalk.cyan("Options left"),
+          options: Object.values(FakerSources),
           path: "optionsLeft",
           type: "enum",
         },
         {
-          extra: { options: Object.values(FakerSources) },
           name: chalk.cyan("Options right"),
+          options: Object.values(FakerSources),
           path: "optionsRight",
           type: "enum",
         },

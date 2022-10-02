@@ -169,8 +169,8 @@ export class PromptSampler {
       },
       elements: [
         {
-          extra: { options: Object.values(TTYFuzzyTypes) },
           name: "Fuzzy",
+          options: Object.values(TTYFuzzyTypes),
           path: "fuzzy",
           type: "enum",
         },
@@ -180,8 +180,8 @@ export class PromptSampler {
           type: "string",
         },
         {
-          extra: { options: Object.values(TTYDateTypes) },
           name: "Date Type",
+          options: Object.values(TTYDateTypes),
           path: "type",
           type: "enum",
         },

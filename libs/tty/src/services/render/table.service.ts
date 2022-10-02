@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ARRAY_OFFSET, is, START, TitleCase } from "@steggy/utilities";
+import { ARRAY_OFFSET, HALF, is, START, TitleCase } from "@steggy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 
@@ -37,6 +37,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     selectedRow: number = START,
     selectedCell: number = START,
   ): string {
+    let emptyMessage = options.noRowsMessage;
     this.selectedCell = selectedCell;
     this.selectedRow = selectedRow;
     this.activeOptions = options;
@@ -44,10 +45,6 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     this.calcColumns(this.values);
     const header = this.tableHeader();
     const r = this.rows();
-    if (is.empty(r)) {
-      const [top, content] = header;
-      return [top, content, this.footer()].join(`\n`);
-    }
     const middle_bar = [
       TABLE_PARTS.left_mid,
       this.columns
@@ -55,6 +52,28 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
         .join(TABLE_PARTS.mid_mid),
       TABLE_PARTS.right_mid,
     ].join("");
+    if (is.empty(r)) {
+      const [top, content] = header;
+      if (!is.empty(emptyMessage)) {
+        const length =
+          ansiMaxLength(top) - emptyMessage.length - PADDING - PADDING;
+        emptyMessage = [
+          TABLE_PARTS.left,
+          emptyMessage
+            .padStart(length * HALF + emptyMessage.length, " ")
+            .padEnd(length + emptyMessage.length, " ")
+            .replace(
+              ` ${emptyMessage} `,
+              chalk.yellow.inverse(` ${emptyMessage} `),
+            ),
+          TABLE_PARTS.right,
+        ].join("");
+        return [top, content, middle_bar, emptyMessage, this.footer()].join(
+          `\n`,
+        );
+      }
+      return [top, content, this.footer()].join(`\n`);
+    }
     return [...header, r.join(`\n${middle_bar}\n`), this.footer()].join(`\n`);
   }
 

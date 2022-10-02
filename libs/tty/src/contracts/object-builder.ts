@@ -7,22 +7,37 @@ export enum TABLE_CELL_TYPE {
   list = "list",
 }
 
-export class TableBuilderElement<
-  VALUE = object,
-  EXTRA = { options?: string[] },
-> {
-  public extra?: EXTRA;
-  public format?: (value: unknown) => string;
-  public helpText?: string;
-  public name?: string;
-  public path: Extract<keyof VALUE, string>;
-  public type: `${TABLE_CELL_TYPE}`;
+export type ObjectBuilderDefault<T> = T | (() => T);
+
+export type TableBuilderElement<VALUE = object> = {
+  helpText?: string;
+  name?: string;
+  path: Extract<keyof VALUE, string>;
+  format?<T>(value: T): string;
+} & (
+  | { default?: ObjectBuilderDefault<string>; type: "string" }
+  | { default?: ObjectBuilderDefault<boolean>; type: "boolean" }
+  | { default?: ObjectBuilderDefault<number>; type: "number" }
+  | { default?: ObjectBuilderDefault<Date>; type: "date" }
+  | { default?: ObjectBuilderDefault<string>; options: string[]; type: "enum" }
+);
+
+export class ArrayBuilderOptions<VALUE extends object> {
+  public current?: VALUE[];
+  public elements: TableBuilderElement<VALUE>[];
+  public noRowsMessage?: string;
+}
+
+export class ObjectBuilderOptions<VALUE extends object> {
+  public current?: VALUE;
+  public elements: TableBuilderElement<VALUE>[];
 }
 
 export class TableBuilderOptions<VALUE extends object> {
   public current?: VALUE | VALUE[];
   public elements: TableBuilderElement<VALUE>[];
   public mode?: "single" | "multi";
+  public noRowsMessage?: string;
 }
 
 export class ColumnInfo {
@@ -49,11 +64,4 @@ export class ObjectBuilderElement {
   public options?: ObjectBuilderEnum;
   public path: string;
   public type: OBJECT_BUILDER_ELEMENT;
-}
-
-export class ObjectBuilderOptions<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> {
-  public current?: T | T[];
-  public elements: ObjectBuilderElement[];
 }

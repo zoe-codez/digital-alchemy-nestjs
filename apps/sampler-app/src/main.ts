@@ -24,12 +24,6 @@ interface TestItem {
 @QuickScript({
   application: Symbol("sampler-app"),
   bootstrap: {
-    // A configuration passed into bootstrap will be merged into the primary app config.
-    // Values provided here take priority over those provided at the config definition.
-    //
-    // Disagree with a default value a library uses? A build configuration have different requirements?
-    // Perfect spot to override the way things work.
-    // All user provided values take priority over this value.
     config: {
       application: { APPLICATION_OVERRIDE: faker.hacker.phrase() },
     },
@@ -47,14 +41,17 @@ export class SamplerApp {
 
   public async exec(value?: string): Promise<void> {
     this.application.setHeader("Sampler App");
-    const result = await this.prompt.objectBuilder<TestItem>({
-      current: {
-        boolean: false,
-        number: 5,
-        string: "foo",
-      },
+    const result = await this.prompt.arrayBuilder<TestItem>({
+      current: [
+        // {
+        //   boolean: false,
+        //   number: 5,
+        //   string: "foo",
+        // },
+      ],
       elements: [
         {
+          default: 5,
           helpText: "A magic number",
           name: "Number",
           path: "number",
@@ -73,6 +70,7 @@ export class SamplerApp {
           type: "boolean",
         },
       ],
+      noRowsMessage: "Enter some shit",
     });
     console.log(result);
     await this.prompt.acknowledge();
