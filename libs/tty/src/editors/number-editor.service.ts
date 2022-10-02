@@ -115,7 +115,7 @@ export class NumberEditorService
     const current = this.value;
     switch (key) {
       case "left":
-        this.cursor = this.cursor <= EMPTY ? EMPTY : this.cursor - SINGLE;
+        this.cursor = this.cursor <= START ? START : this.cursor - SINGLE;
         return;
       case "right":
         this.cursor =

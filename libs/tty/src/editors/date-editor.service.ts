@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
   ARRAY_OFFSET,
+  EMPTY,
   INCREMENT,
   INVERT_VALUE,
   is,
@@ -32,11 +33,21 @@ type tDateType = `${TTYDateTypes}`;
 export enum TTYFuzzyTypes {
   always = "always",
   never = "never",
-  default = "default",
   user = "user",
 }
 export interface DateEditorEditorOptions {
+  /**
+   * Current date in granular format
+   */
   current?: string;
+  /**
+   * String to represent the date in fuzzy format
+   */
+  currentFuzzy?: string;
+  /**
+   * fuzzy is default
+   */
+  defaultStyle?: "fuzzy" | "granular";
   /**
    * Interpret values with chrono-node
    */
@@ -45,9 +56,10 @@ export interface DateEditorEditorOptions {
   type?: tDateType;
 }
 
+// TODO: There is probably a way to make dayjs give me this info
+// Except, better, because it can account for stuff like leap years
 const MONTH_MAX = new Map([
   [1, 31],
-  // TODO: Caring about leap years
   [2, 29],
   [3, 31],
   [4, 30],
@@ -90,6 +102,7 @@ export class DateEditorService
   private chronoText: string;
   private complete = false;
   private config: DateEditorEditorOptions;
+  private cursor: number;
   private day: string;
   private done: (type: string | string[]) => void;
   private edit: DATE_TYPES = "year";
@@ -125,14 +138,16 @@ export class DateEditorService
     done: (type: unknown) => void,
   ): void {
     this.error = "";
-    this.chronoText = "";
+    this.chronoText = config.currentFuzzy ?? "";
+    this.cursor = this.chronoText.length;
     this.config = config;
     config.fuzzy ??= "user";
+    config.defaultStyle ??= config.fuzzy === "never" ? "granular" : "fuzzy";
     this.type = config.type ?? "datetime";
     // default off
     // ? Make that @InjectConfig controlled?
     this.fuzzy =
-      config.fuzzy === "default" ||
+      config.defaultStyle === "fuzzy" ||
       ((["datetime", "range"] as tDateType[]).includes(this.type) &&
         config.fuzzy === "always");
     this.complete = false;
@@ -273,13 +288,43 @@ export class DateEditorService
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
     this.error = "";
-    if (key === "backspace") {
-      this.chronoText = this.chronoText.slice(START, INVERT_VALUE);
-      return;
-    }
-    if (key === "space") {
-      this.chronoText += " ";
-      return;
+    switch (key) {
+      case "space":
+        key = " ";
+        break;
+      case "left":
+        this.cursor = this.cursor <= START ? START : this.cursor - SINGLE;
+        return;
+      case "right":
+        this.cursor =
+          this.cursor >= this.chronoText.length
+            ? this.chronoText.length
+            : this.cursor + SINGLE;
+        return;
+      case "home":
+        this.cursor = START;
+        return;
+      case "end":
+        this.cursor = this.chronoText.length;
+        return;
+      case "delete":
+        this.chronoText = [...this.chronoText]
+          .filter((char, index) => index !== this.cursor)
+          .join("");
+        // no need for cursor adjustments
+        return;
+      case "backspace":
+        if (shift) {
+          return;
+        }
+        if (this.cursor === EMPTY) {
+          return;
+        }
+        this.chronoText = [...this.chronoText]
+          .filter((char, index) => index !== this.cursor - ARRAY_OFFSET)
+          .join("");
+        this.cursor--;
+        return;
     }
     if (key === "tab") {
       return;
@@ -287,7 +332,13 @@ export class DateEditorService
     if (key.length > SINGLE) {
       return;
     }
-    this.chronoText += shift ? key.toUpperCase() : key;
+    const value = shift ? key.toUpperCase() : key;
+    this.chronoText = [
+      this.chronoText.slice(START, this.cursor),
+      value,
+      this.chronoText.slice(this.cursor),
+    ].join("");
+    this.cursor++;
   }
 
   protected onLeft(): void {
@@ -461,6 +512,14 @@ export class DateEditorService
       length = update.length;
     }
     const [result] = parse(this.chronoText.trim() || placeholder);
+
+    if (value !== DEFAULT_PLACEHOLDER) {
+      value = [
+        value.slice(START, this.cursor),
+        chalk.inverse(value[this.cursor] ?? " "),
+        value.slice(this.cursor + SINGLE),
+      ].join("");
+    }
     out.push(
       chalk` {cyan >} {bold Input value}`,
       chalk[is.empty(this.chronoText) ? "bgBlue" : "bgWhite"].black(
@@ -718,10 +777,10 @@ export class DateEditorService
       [{ description: "clear", key: "escape" }, "reset"],
       ...(this.config.fuzzy === "user"
         ? [
-            [{ description: "input formatted", key: "f3" }, "toggleChrono"] as [
-              TTYKeypressOptions,
-              string,
-            ],
+            [
+              { description: chalk.bold("granular input"), key: "tab" },
+              "toggleChrono",
+            ] as [TTYKeypressOptions, string],
           ]
         : []),
     ]);
@@ -738,10 +797,10 @@ export class DateEditorService
       ...(["datetime", "range"].includes(this.type) &&
       this.config.fuzzy === "user"
         ? [
-            [{ description: "natural parser", key: "f3" }, "toggleChrono"] as [
-              TTYKeypressOptions,
-              string,
-            ],
+            [
+              { description: chalk.bold("fuzzy input"), key: "tab" },
+              "toggleChrono",
+            ] as [TTYKeypressOptions, string],
           ]
         : []),
       ...(this.type === "range"

@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { DOWN, is, LABEL, UP, VALUE } from "@steggy/utilities";
+import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
 import {
@@ -7,11 +7,7 @@ import {
   MenuComponentOptions,
   ToMenuEntry,
 } from "../components";
-import {
-  MainMenuEntry,
-  PromptMenuItems,
-  TableBuilderOptions,
-} from "../contracts";
+import { MainMenuEntry, TableBuilderOptions } from "../contracts";
 import {
   DateEditorEditorOptions,
   NumberEditorRenderOptions,
@@ -56,22 +52,6 @@ export class PromptService {
       ]),
       value: defaultValue,
     })) as boolean;
-  }
-
-  /**
-   * For solving ternary spread casting madness more easily
-   *
-   * More for helping code read top to bottom more easily than solving a problem
-   */
-  public conditionalEntries<T extends unknown = string>(
-    test: boolean,
-    trueValue: PromptEntry<T>[] = [],
-    falseValue: PromptEntry<T>[] = [],
-  ): PromptEntry<T>[] {
-    if (test) {
-      return trueValue;
-    }
-    return falseValue;
   }
 
   public async confirm(
@@ -119,45 +99,6 @@ export class PromptService {
     return { from: new Date(from), to: new Date(to) };
   }
 
-  // /**
-  //  * @deprecated
-  //  */
-  // public async editor(message: string, defaultValue?: string): Promise<string> {
-  //   const { result } = await inquirer.prompt([
-  //     {
-  //       default: defaultValue,
-  //       message,
-  //       name,
-  //       type: 'editor',
-  //     },
-  //   ]);
-  //   return result.trim();
-  // }
-
-  public itemsFromEntries<T extends unknown = string>(
-    items: PromptEntry<T>[],
-    extendedShort = false,
-  ): PromptMenuItems<T> {
-    return items.map(item => {
-      if (Array.isArray(item)) {
-        const label = item[LABEL] as string | PROMPT_WITH_SHORT;
-        return is.string(label)
-          ? {
-              // Adding emoji can sometimes cause the final character to have rendering issues
-              // Insert sacrificial empty space to the end
-              name: `${label} `,
-              short: `${label}${extendedShort ? " " : ""}`,
-              value: item[VALUE] as T,
-            }
-          : {
-              ...(label as PROMPT_WITH_SHORT),
-              value: item[VALUE] as T,
-            };
-      }
-      return item;
-    });
-  }
-
   public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
     const result = await this.applicationManager.activateComponent<
       ListBuilderOptions<T>,
@@ -198,24 +139,12 @@ export class PromptService {
     return result;
   }
 
-  /**
-   * @deprecated
-   */
   public async password(
     label = `Password value`,
     defaultValue?: string,
   ): Promise<string> {
-    // const { result } = await inquirer.prompt([
-    //   {
-    //     default: defaultValue,
-    //     message,
-    //     name,
-    //     type: 'password',
-    //   },
-    // ]);
-    // return result;
     return await this.string(label, defaultValue, {
-      //
+      mask: "obfuscate",
     });
   }
 
@@ -239,15 +168,6 @@ export class PromptService {
       return defaultValue as T;
     }
     return result;
-  }
-
-  public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {
-    return entries.sort((a, b) => {
-      if (!Array.isArray(a) || !Array.isArray(b)) {
-        return DOWN;
-      }
-      return a[LABEL] > b[LABEL] ? UP : DOWN;
-    });
   }
 
   public async string(

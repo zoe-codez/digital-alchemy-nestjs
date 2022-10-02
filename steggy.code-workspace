@@ -6,7 +6,17 @@
   ],
   "launch": {
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [
+      {
+        "name": "Attach",
+        "port": 33343,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      }
+    ]
   },
   "extensions": {
     "recommendations": [

@@ -21,6 +21,7 @@ import {
 export interface StringEditorRenderOptions {
   current: string;
   label?: string;
+  mask?: "hide" | "obfuscate";
   // maxLength?: number;
   // minLength?: number;
   placeholder?: string;
@@ -102,7 +103,7 @@ export class StringEditorService
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
     switch (key) {
       case "left":
-        this.cursor = this.cursor <= EMPTY ? EMPTY : this.cursor - SINGLE;
+        this.cursor = this.cursor <= START ? START : this.cursor - SINGLE;
         return;
       case "right":
         this.cursor =
@@ -164,7 +165,6 @@ export class StringEditorService
     if (this.config.label) {
       out.push(chalk`{green ? } ${this.config.label}`);
     }
-
     const stripped = ansiStrip(value);
     let length = stripped.length;
     if (length > maxLength - ELLIPSES.length) {
@@ -173,15 +173,20 @@ export class StringEditorService
       value = value.replace(stripped, update);
       length = update.length;
     }
-    value =
-      value === DEFAULT_PLACEHOLDER
-        ? value
-        : [
-            value.slice(START, this.cursor),
-            chalk.inverse(value[this.cursor] ?? " "),
-            value.slice(this.cursor + SINGLE),
-          ].join("");
-
+    if (value !== DEFAULT_PLACEHOLDER) {
+      if (this.config.mask === "hide") {
+        value = "";
+      } else {
+        if (this.config.mask === "obfuscate") {
+          value = "*".repeat(value.length);
+        }
+        value = [
+          value.slice(START, this.cursor),
+          chalk.inverse(value[this.cursor] ?? " "),
+          value.slice(this.cursor + SINGLE),
+        ].join("");
+      }
+    }
     out.push(
       chalk[bgColor].black(
         ansiPadEnd(

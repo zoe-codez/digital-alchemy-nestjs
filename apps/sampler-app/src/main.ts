@@ -41,6 +41,10 @@ export class SamplerApp {
 
   public async exec(value?: string): Promise<void> {
     this.application.setHeader("Sampler App");
+    await this.prompt.date({
+      //
+    });
+    return;
     const action = await this.prompt.menu({
       condensed: true,
       hideSearch: true,
