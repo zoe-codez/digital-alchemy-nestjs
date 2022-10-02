@@ -1,4 +1,11 @@
-import { INVERT_VALUE, is, SINGLE, START } from "@steggy/utilities";
+import {
+  ARRAY_OFFSET,
+  EMPTY,
+  INVERT_VALUE,
+  is,
+  SINGLE,
+  START,
+} from "@steggy/utilities";
 import chalk from "chalk";
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
@@ -28,8 +35,8 @@ const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
-  [{ key: "escape" }, "reset"],
-  [{ key: "f3" }, "clear"],
+  [{ key: "f3" }, "reset"],
+  [{ key: "escape" }, "clear"],
   [{ key: "f4" }, "cancel"],
 ]);
 
@@ -46,6 +53,7 @@ export class StringEditorService
 
   private complete = false;
   private config: StringEditorRenderOptions;
+  private cursor: number;
   private done: (type: string) => void;
   private value: string;
 
@@ -58,6 +66,7 @@ export class StringEditorService
     this.value = this.config.current ?? "";
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
+    this.cursor = this.value.length;
   }
 
   public render(): void {
@@ -80,6 +89,7 @@ export class StringEditorService
 
   protected clear(): void {
     this.value = ``;
+    this.cursor = START;
   }
 
   protected onEnd() {
@@ -90,29 +100,59 @@ export class StringEditorService
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
-    if (key === "backspace") {
-      if (shift) {
-        // this.value = ``;
+    switch (key) {
+      case "left":
+        this.cursor = this.cursor <= EMPTY ? EMPTY : this.cursor - SINGLE;
         return;
-      }
-      this.value = this.value.slice(START, INVERT_VALUE);
-      return;
-    }
-    if (key === "space") {
-      this.value += " ";
-      return;
-    }
-    if (key === "tab") {
-      return;
+      case "right":
+        this.cursor =
+          this.cursor >= this.value.length
+            ? this.value.length
+            : this.cursor + SINGLE;
+        return;
+      case "home":
+        this.cursor = START;
+        return;
+      case "end":
+        this.cursor = this.value.length;
+        return;
+      case "delete":
+        this.value = [...this.value]
+          .filter((char, index) => index !== this.cursor)
+          .join("");
+        // no need for cursor adjustments
+        return;
+      case "backspace":
+        if (shift) {
+          return;
+        }
+        if (this.cursor === EMPTY) {
+          return;
+        }
+        this.value = [...this.value]
+          .filter((char, index) => index !== this.cursor - ARRAY_OFFSET)
+          .join("");
+        this.cursor--;
+        return;
+      case "space":
+        key = " ";
+        break;
     }
     if (key.length > SINGLE) {
       return;
     }
-    this.value += shift ? key.toUpperCase() : key;
+    const value = shift ? key.toUpperCase() : key;
+    this.value = [
+      this.value.slice(START, this.cursor),
+      value,
+      this.value.slice(this.cursor),
+    ].join("");
+    this.cursor++;
   }
 
   protected reset(): void {
     this.value = this.config.current;
+    this.cursor = this.config.current.length;
   }
 
   private renderBox(bgColor: string): void {
@@ -133,6 +173,14 @@ export class StringEditorService
       value = value.replace(stripped, update);
       length = update.length;
     }
+    value =
+      value === DEFAULT_PLACEHOLDER
+        ? value
+        : [
+            value.slice(START, this.cursor),
+            chalk.inverse(value[this.cursor] ?? " "),
+            value.slice(this.cursor + SINGLE),
+          ].join("");
 
     out.push(
       chalk[bgColor].black(
