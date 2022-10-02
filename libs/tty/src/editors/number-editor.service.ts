@@ -1,4 +1,12 @@
-import { EMPTY, INCREMENT, INVERT_VALUE, is, START } from "@steggy/utilities";
+import {
+  ARRAY_OFFSET,
+  EMPTY,
+  INCREMENT,
+  INVERT_VALUE,
+  is,
+  SINGLE,
+  START,
+} from "@steggy/utilities";
 import chalk from "chalk";
 
 import { tKeyMap, TTYKeypressOptions } from "../contracts";
@@ -48,6 +56,7 @@ export class NumberEditorService
 
   private complete = false;
   private config: NumberEditorRenderOptions;
+  private cursor: number;
   private done: (type: number) => void;
   private value: string;
 
@@ -59,6 +68,7 @@ export class NumberEditorService
     this.complete = false;
     this.reset();
     this.done = done;
+    this.cursor = this.value.length;
     this.keyboard.setKeyMap(this, KEYMAP);
   }
 
@@ -103,15 +113,50 @@ export class NumberEditorService
 
   protected onKeyPress(key: string): void {
     const current = this.value;
-    if (key === "." && current.includes(".")) {
-      // Only 1 decimal point per number!
-      return;
+    switch (key) {
+      case "left":
+        this.cursor = this.cursor <= EMPTY ? EMPTY : this.cursor - SINGLE;
+        return;
+      case "right":
+        this.cursor =
+          this.cursor >= this.value.length
+            ? this.value.length
+            : this.cursor + SINGLE;
+        return;
+      case ".":
+        if (current.includes(".")) {
+          return;
+        }
+        break;
+      case "home":
+        this.cursor = START;
+        return;
+      case "end":
+        this.cursor = this.value.length;
+        return;
+      case "delete":
+        this.value = [...this.value]
+          .filter((char, index) => index !== this.cursor)
+          .join("");
+        // no need for cursor adjustments
+        return;
+      case "backspace":
+        if (this.cursor === EMPTY) {
+          return;
+        }
+        this.value = [...this.value]
+          .filter((char, index) => index !== this.cursor - ARRAY_OFFSET)
+          .join("");
+        this.cursor--;
+        return;
     }
     if ([...".1234567890"].includes(key)) {
-      this.value += key;
-    }
-    if (key === "backspace" && !is.empty(current)) {
-      this.value = this.value.slice(START, INVERT_VALUE);
+      this.value = [
+        this.value.slice(START, this.cursor),
+        key,
+        this.value.slice(this.cursor),
+      ].join("");
+      this.cursor++;
     }
   }
 
@@ -139,6 +184,14 @@ export class NumberEditorService
       value = value.replace(stripped, update);
       length = update.length;
     }
+    value =
+      value === DEFAULT_PLACEHOLDER
+        ? value
+        : [
+            value.slice(START, this.cursor),
+            chalk.inverse(value[this.cursor] ?? " "),
+            value.slice(this.cursor + SINGLE),
+          ].join("");
 
     out.push(
       chalk[bgColor].black(
