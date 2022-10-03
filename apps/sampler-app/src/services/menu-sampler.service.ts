@@ -176,13 +176,13 @@ export class MenuSampler {
         },
         {
           name: chalk.cyan("Options left"),
-          options: Object.values(FakerSources),
+          options: Object.values(FakerSources).map(i => ({ entry: [i] })),
           path: "optionsLeft",
           type: "enum",
         },
         {
           name: chalk.cyan("Options right"),
-          options: Object.values(FakerSources),
+          options: Object.values(FakerSources).map(i => ({ entry: [i] })),
           path: "optionsRight",
           type: "enum",
         },

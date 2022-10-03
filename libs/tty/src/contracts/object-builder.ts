@@ -1,3 +1,5 @@
+import { MainMenuEntry } from "./keyboard";
+
 export enum TABLE_CELL_TYPE {
   string = "string",
   boolean = "boolean",
@@ -19,7 +21,11 @@ export type TableBuilderElement<VALUE = object> = {
   | { default?: ObjectBuilderDefault<boolean>; type: "boolean" }
   | { default?: ObjectBuilderDefault<number>; type: "number" }
   | { default?: ObjectBuilderDefault<Date>; type: "date" }
-  | { default?: ObjectBuilderDefault<string>; options: string[]; type: "enum" }
+  | {
+      default?: ObjectBuilderDefault<string>;
+      options: MainMenuEntry[];
+      type: "enum";
+    }
 );
 
 export class ArrayBuilderOptions<VALUE extends object> {

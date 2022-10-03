@@ -172,7 +172,7 @@ export class TableBuilderComponentService<
         case "enum":
           value = await this.prompt.pickOne(
             column.name,
-            column.options.map(i => ({ entry: [i] })),
+            column.options,
             current,
           );
           break;

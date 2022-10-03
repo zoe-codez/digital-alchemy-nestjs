@@ -170,7 +170,7 @@ export class PromptSampler {
       elements: [
         {
           name: "Fuzzy",
-          options: Object.values(TTYFuzzyTypes),
+          options: Object.values(TTYFuzzyTypes).map(i => ({ entry: [i] })),
           path: "fuzzy",
           type: "enum",
         },
@@ -181,7 +181,7 @@ export class PromptSampler {
         },
         {
           name: "Date Type",
-          options: Object.values(TTYDateTypes),
+          options: Object.values(TTYDateTypes).map(i => ({ entry: [i] })),
           path: "type",
           type: "enum",
         },
