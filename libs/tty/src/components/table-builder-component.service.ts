@@ -1,5 +1,5 @@
 import { forwardRef, Inject } from "@nestjs/common";
-import { ARRAY_OFFSET, is, START } from "@steggy/utilities";
+import { ARRAY_OFFSET, is, START, TitleCase } from "@steggy/utilities";
 import { get, set } from "object-path";
 
 import {
@@ -77,6 +77,10 @@ export class TableBuilderComponentService<
   ): void {
     this.complete = false;
     this.opt = config;
+    config.elements = config.elements.map(i => {
+      i.name ??= TitleCase(i.path);
+      return i;
+    });
     this.done = done;
     this.opt.current ??= [];
     this.selectedRow = START;

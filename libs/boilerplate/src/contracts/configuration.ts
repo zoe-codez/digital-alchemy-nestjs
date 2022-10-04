@@ -1,7 +1,3 @@
-export interface RepoMetadataDTO {
-  configuration: Record<string, AnyConfig>;
-}
-
 export type SteggyConfigTypes =
   | "string"
   | "boolean"

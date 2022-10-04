@@ -68,8 +68,10 @@ export function InjectConfig(
           : target[LOGGER_LIBRARY];
         if (library && library !== application.description) {
           configPath.push("libs", library);
+          config["loadProject"](library);
         } else {
           configPath.push("application");
+          config["loadProject"](application.description);
         }
         configPath.push(path);
         return config.get(configPath.join("."));

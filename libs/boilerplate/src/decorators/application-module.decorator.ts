@@ -1,5 +1,6 @@
 import { DynamicModule, ModuleMetadata, Provider } from "@nestjs/common";
 import { is } from "@steggy/utilities";
+import { ClassConstructor } from "class-transformer";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
 
@@ -8,7 +9,7 @@ import {
   AnyConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-  StringConfig,
+  MODULE_METADATA,
 } from "../contracts";
 import { RegisterCache } from "../includes";
 import { BoilerplateModule } from "../modules";
@@ -18,9 +19,6 @@ import { LibraryModule } from "./library-module.decorator";
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application?: symbol;
   configuration?: Record<string, AnyConfig>;
-  /**
-   * If omitted, will default to all
-   */
   globals?: Provider[];
 }
 export const NO_APPLICATION = Symbol("steggy_no_app");
@@ -38,6 +36,7 @@ export function ApplicationModule(
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.globals ??= [];
+  metadata.configuration ??= {};
   metadata.controllers ??= [];
   // metadata.
   [...metadata.providers, ...metadata.controllers].forEach(provider => {
@@ -62,20 +61,23 @@ export function ApplicationModule(
     RegisterCache(),
     ...metadata.imports,
   ];
-  LibraryModule.configs.set(metadata.application.description, {
-    configuration: metadata.configuration ?? {},
-  });
-  return target => {
+  // LibraryModule.configs.set(metadata.application.description, {
+  //   configuration: metadata.configuration ?? {},
+  // });
+  return (target: ClassConstructor<unknown>) => {
     target[LOGGER_LIBRARY] = metadata.application.description;
-    FindUnregisteredConfigurations(
+    target[MODULE_METADATA] = metadata;
+    LibraryModule.quickMap.set(metadata.application.description, target);
+    LibraryModule.loaded.set(target, metadata);
+    FindInlineConfigurations(
       [...metadata.providers, ...metadata.controllers],
-      metadata.application.description,
+      target,
       target.name,
     );
     // Reflect.defineMetadata("imports", metadata.imports, target);
-    Object.keys(metadata).forEach(property => {
-      Reflect.defineMetadata(property, metadata[property], target);
-    });
+    Object.entries(metadata).forEach(([property, value]) =>
+      Reflect.defineMetadata(property, value, target),
+    );
     return target;
   };
 }
@@ -90,12 +92,12 @@ export function ApplicationModule(
  * If trying to do a cross module config injection (`@InjectConfig('PROPERTY_NAME',TARGET_MODULE)`), and the target doesn't exist,
  * then exit early with error. Library modules shouldn't be taking the lazy way out.
  */
-function FindUnregisteredConfigurations(
+function FindInlineConfigurations(
   providers: Provider[],
-  application: string,
+  application: ClassConstructor<unknown>,
   providerName: string,
 ): void {
-  const metadata = LibraryModule.configs.get(application);
+  const metadata = LibraryModule.loaded.get(application);
   providers.forEach(provider => {
     const config = provider[CONSUMES_CONFIG] as [string, symbol][];
     if (!config) {
@@ -103,7 +105,8 @@ function FindUnregisteredConfigurations(
     }
     config.forEach(([path, project]) => {
       if (project) {
-        const reference = LibraryModule.configs.get(project.description);
+        const libraryModule = LibraryModule.quickMap.get(project.description);
+        const reference = LibraryModule.loaded.get(libraryModule);
         if (is.undefined(reference.configuration[path])) {
           // Pre-bootstrap error. Only option is to go to the console directly
           // eslint-disable-next-line no-console
@@ -114,12 +117,12 @@ function FindUnregisteredConfigurations(
         }
         return;
       }
-      metadata.configuration[path] ??=
-        MESSY_INJECTED_CONFIGS.get(path) ??
-        ({
-          description: "No description provided",
-          type: "string",
-        } as StringConfig);
+      metadata.configuration[path] = {
+        description: "No description provided",
+        type: "string",
+        ...MESSY_INJECTED_CONFIGS.get(path),
+        ...metadata.configuration[path],
+      } as AnyConfig;
     });
   });
 }

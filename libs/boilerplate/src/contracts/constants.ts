@@ -1,4 +1,5 @@
 export const LOGGER_LIBRARY = Symbol("LOGGER_LIBRARY");
+export const MODULE_METADATA = Symbol("MODULE_METADATA");
 export const LOG_CONTEXT = Symbol("LOG_CONTEXT");
 export const TRACE_LOG = Symbol("TRACE_LOG");
 export const DEBUG_LOG = Symbol("DEBUG_LOG");

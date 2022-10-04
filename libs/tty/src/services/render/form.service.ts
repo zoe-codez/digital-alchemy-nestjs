@@ -1,5 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { ARRAY_OFFSET, INCREMENT, START } from "@steggy/utilities";
+import {
+  ARRAY_OFFSET,
+  INCREMENT,
+  LABEL,
+  START,
+  VALUE,
+} from "@steggy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 
@@ -98,7 +104,13 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
     maxLabel: number;
     maxValue: number;
   }): string {
-    const raw = get(this.value, i.path);
+    let raw = get(this.value, i.path);
+    if (i.type === "enum") {
+      const option = i.options.find(({ entry }) => entry[VALUE] === raw);
+      if (option) {
+        raw = option.entry[LABEL];
+      }
+    }
     const v = this.textRender.type(raw);
     const lines = v.split(`\n`).length;
     const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(

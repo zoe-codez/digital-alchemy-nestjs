@@ -23,7 +23,7 @@ export function ScanConfig(
 
   const map = scanner.findWithSymbol<[string, symbol][]>(CONSUMES_CONFIG);
   const out: ConfigTypeDTO[] = [];
-  const { configs } = LibraryModule;
+
   map.forEach((config, instance) => {
     const ctor = instance.constructor;
     const library = ctor[LOGGER_LIBRARY] || "application";
@@ -34,8 +34,8 @@ export function ScanConfig(
         return;
       }
       used.add(joined);
-
-      const { configuration } = configs.get(target);
+      const loadedModule = LibraryModule.quickMap.get(target);
+      const { configuration } = LibraryModule.loaded.get(loadedModule);
       const metadata =
         configuration[property] ?? MESSY_INJECTED_CONFIGS.get(property);
       out.push({

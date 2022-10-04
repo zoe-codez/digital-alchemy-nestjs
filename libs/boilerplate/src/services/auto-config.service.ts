@@ -18,8 +18,8 @@ import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   BaseConfig,
-  BOOTSTRAP_OPTIONS,
   CONFIG_DEFAULTS,
+  LOGGER_LIBRARY,
   SKIP_CONFIG_INIT,
 } from "../contracts";
 import {
@@ -27,7 +27,6 @@ import {
   MESSY_INJECTED_CONFIGS,
   NO_APPLICATION,
 } from "../decorators";
-import { BootstrapOptions } from "../includes";
 import { AutoLogService } from "./auto-log.service";
 import { WorkspaceService } from "./workspace.service";
 
@@ -53,9 +52,6 @@ export class AutoConfigService {
     private readonly configDefaults: AbstractConfig = {},
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
-    @Inject(BOOTSTRAP_OPTIONS)
-    private readonly bootOptions: BootstrapOptions,
-    @Optional()
     @Inject(SKIP_CONFIG_INIT)
     skipInit: boolean,
     private readonly logger: AutoLogService,
@@ -76,6 +72,7 @@ export class AutoConfigService {
   public loadedConfigFiles: string[];
   private config: AbstractConfig = {};
   private loadedConfigPath: string;
+  private loadedProjects = new Set<string>();
   private switches: ReturnType<typeof minimist>;
 
   private get appName(): string {
@@ -126,8 +123,12 @@ export class AutoConfigService {
     }
   }
 
+  protected loadProject(project: string): void {
+    this.loadedProjects.add(project);
+  }
+
   protected onPreInit(): void {
-    this.sanityCheck();
+    this.sanityCheckRequired();
   }
 
   private cast(data: string | string[], type: string): unknown {
@@ -194,13 +195,13 @@ export class AutoConfigService {
   }
 
   private getConfiguration(path: string): BaseConfig {
-    const { configs } = LibraryModule;
+    const { loaded, quickMap } = LibraryModule;
     const parts = path.split(".");
     if (parts.length === SINGLE) {
       parts.unshift(this.appName);
     }
     if (parts.length === PAIR) {
-      const metadata = configs.get(this.appName);
+      const metadata = loaded.get(quickMap.get(this.appName));
       const config =
         metadata.configuration[parts[VALUE]] ??
         MESSY_INJECTED_CONFIGS.get(parts[VALUE]);
@@ -215,7 +216,7 @@ export class AutoConfigService {
       };
     }
     const [, library, property] = parts;
-    const metadata = configs.get(library);
+    const metadata = loaded.get(quickMap.get(library));
     if (!metadata) {
       throw new InternalServerErrorException(
         `Missing metadata asset for ${library} (via ${path})`,
@@ -258,8 +259,8 @@ export class AutoConfigService {
   private loadFromEnv(): void {
     const environmentKeys = Object.keys(env);
     const switchKeys = Object.keys(this.switches);
-    const configs = LibraryModule.configs;
-    configs.forEach(({ configuration }, project) => {
+    LibraryModule.loaded.forEach(({ configuration }, ctor) => {
+      const project = ctor[LOGGER_LIBRARY];
       configuration ??= {};
       const cleanedProject = project?.replaceAll("-", "_") || "unknown";
       const isApplication = this.APPLICATION?.description === project;
@@ -329,9 +330,10 @@ export class AutoConfigService {
     });
   }
 
-  private sanityCheck(): void | never {
-    const configs = LibraryModule.configs;
-    configs.forEach(({ configuration }, project) => {
+  private sanityCheckRequired(): void | never {
+    const configs = LibraryModule.loaded;
+    configs.forEach(({ configuration }, ctor) => {
+      const project = ctor[LOGGER_LIBRARY];
       configuration ??= {};
       Object.entries(configuration).forEach(([name, definition]) => {
         // It's fine that this symbol isn't the same as the real one
@@ -352,7 +354,8 @@ export class AutoConfigService {
    * Load defaults from the module definitions
    */
   private setDefaults(): void {
-    LibraryModule.configs.forEach(({ configuration }, project) => {
+    LibraryModule.loaded.forEach(({ configuration = {} }, ctor) => {
+      const project = ctor[LOGGER_LIBRARY];
       const isApplication = this.appName === project;
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {

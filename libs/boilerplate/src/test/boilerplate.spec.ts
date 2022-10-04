@@ -12,7 +12,10 @@ describe("Boilerplate", () => {
       },
     } as QuickScriptOptions;
     await Test.createTestingModule({ ...options }).compile();
-    const found = LibraryModule.configs.get(project).configuration;
-    expect(found).toEqual(expect.objectContaining(options.configuration));
+    const { loaded, quickMap } = LibraryModule;
+    const { configuration } = loaded.get(quickMap.get(project));
+    expect(configuration).toEqual(
+      expect.objectContaining(options.configuration),
+    );
   });
 });

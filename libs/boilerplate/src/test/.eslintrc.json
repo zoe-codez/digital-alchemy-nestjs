@@ -1,0 +1,40 @@
+{
+  "extends": [
+    "../../.eslintrc.json"
+  ],
+  "ignorePatterns": [
+    "!**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx"
+      ],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": "off"
+      },
+      "parserOptions": {
+        "project": [
+          "libs/boilerplate/tsconfig.spec.json"
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "rules": {}
+    },
+    {
+      "files": [
+        "*.js",
+        "*.jsx"
+      ],
+      "rules": {}
+    }
+  ]
+}

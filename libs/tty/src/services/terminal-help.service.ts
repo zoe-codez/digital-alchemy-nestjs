@@ -6,6 +6,7 @@ import {
   BooleanConfig,
   InjectConfig,
   LibraryModule,
+  LOGGER_LIBRARY,
   NumberConfig,
   StringConfig,
 } from "@steggy/boilerplate";
@@ -34,9 +35,9 @@ export class TerminalHelpService {
     const application = this.application.description;
     this.applicationManager.setHeader("Help");
     const ALL_SWITCHES: string[] = [];
-    const { configs } = LibraryModule;
+    const { loaded, quickMap } = LibraryModule;
 
-    configs.forEach(({ configuration }) =>
+    loaded.forEach(({ configuration }) =>
       ALL_SWITCHES.push(
         ...Object.entries(configuration).map(([property]) => property),
       ),
@@ -46,10 +47,11 @@ export class TerminalHelpService {
       Math.max(...ALL_SWITCHES.map(line => line.length)) + INCREMENT;
     this.printProject(
       application,
-      configs.get(application).configuration,
+      loaded.get(quickMap.get(application)).configuration,
       LONGEST,
     );
-    configs.forEach(({ configuration }, project) => {
+    loaded.forEach(({ configuration }, ctor) => {
+      const project = ctor[LOGGER_LIBRARY];
       if (project === application) {
         return;
       }

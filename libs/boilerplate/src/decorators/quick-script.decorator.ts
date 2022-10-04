@@ -46,29 +46,27 @@ export type QuickScriptOptions = ApplicationModuleMetadata & {
  */
 export function QuickScript({
   WAIT_TIME = WAIT_BOOTSTRAP * DEFAULT_LIMIT,
-  bootstrap,
+  bootstrap = {},
   controller,
-  PERSISTENT,
-  ...options
+  PERSISTENT = false,
+  ...metadata
 }: QuickScriptOptions = {}): ClassDecorator {
   // Add in the MainCLI module to enable TTY functionality
-  options.imports ??= [];
-  options.providers ??= [];
-  options.controllers ??= [];
-  options.application ??= Symbol("steggy-quick-script");
+  metadata.imports ??= [];
+  metadata.providers ??= [];
+  metadata.controllers ??= [];
+  metadata.application ??= Symbol("steggy-quick-script");
 
   // Corrective measures for loading metadata
-
-  LibraryModule.configs.set(options.application.description, {
-    configuration: options.configuration ?? {},
-  });
   return function (target: Type) {
+    LibraryModule.loaded.set(target, metadata);
+    LibraryModule.quickMap.set(metadata.application.description, target);
     // ? When TS is applying the @QuickScript annotation to the target class
     // Set up a fake application module that uses it as the only provider
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app
     //
     setTimeout(() => {
-      Bootstrap(CREATE_BOOT_MODULE(options), {
+      Bootstrap(CREATE_BOOT_MODULE(metadata), {
         nestNoopLogger: true,
         postInit: [
           app =>
@@ -87,9 +85,9 @@ export function QuickScript({
         ...bootstrap,
       });
     }, WAIT_BOOTSTRAP);
-    options.providers.push(target as unknown as Provider);
+    metadata.providers.push(target as unknown as Provider);
     if (bootstrap?.http && is.string(controller)) {
-      options.controllers.push(target);
+      metadata.controllers.push(target);
       return Controller(controller)(target);
     }
     return Injectable()(target);
