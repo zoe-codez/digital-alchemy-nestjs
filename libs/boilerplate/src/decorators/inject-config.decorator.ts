@@ -66,6 +66,10 @@ export function InjectConfig(
         const library: string = from
           ? from.description
           : target[LOGGER_LIBRARY];
+        // This can happen when libraries are having their types referenced, but not actually imported into the app
+        if (!config.configDefinitions.has(library)) {
+          return undefined;
+        }
         if (library && library !== application.description) {
           configPath.push("libs", library);
           config["loadProject"](library);

@@ -1,7 +1,7 @@
 {
   "name": "steggy",
   "publisher": "mp3three",
-  "version": "22.41.3",
+  "version": "22.41.4",
   "license": "MIT",
   "author": {
     "name": "mp3three",
@@ -10,6 +10,7 @@
   "scripts": {
     "pipeline": "./tools/scripts/pipeline.sh",
     "lint": "nx run-many --all --target=lint --fix",
+    "test": "nx run-many --all --target=test",
     "nx-migrate": "nx migrate latest"
   },
   "dependencies": {
