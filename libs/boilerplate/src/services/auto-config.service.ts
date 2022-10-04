@@ -223,9 +223,9 @@ export class AutoConfigService {
     const [, library, property] = parts;
     const configuration = this.configDefinitions.get(library);
     if (!configuration) {
-      this.logger.warn(
-        `[${library}] missing metadata definition for {${path}}`,
-      );
+      // this.logger.warn(
+      //   `[${library}] missing metadata definition for {${path}}`,
+      // );
       return { type: "string" };
     }
     return configuration[property];

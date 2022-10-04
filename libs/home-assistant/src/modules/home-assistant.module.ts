@@ -31,6 +31,11 @@ const services: Provider[] = [
   },
 ];
 
+/**
+ * General purpose module for all Home Assistant interactions.
+ *
+ * Interact with the proxy API, connect to the websocket, etc.
+ */
 @LibraryModule({
   configuration: {
     [BASE_URL]: {
