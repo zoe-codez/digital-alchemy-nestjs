@@ -6,48 +6,30 @@ import {
   ConfigDefinitionDTO,
   ConfigTypeDTO,
 } from "../contracts";
-import {
-  CONFIG_DEFAULTS,
-  CONSUMES_CONFIG,
-  LOGGER_LIBRARY,
-} from "../contracts/constants";
-import { LibraryModule, MESSY_INJECTED_CONFIGS } from "../decorators";
-import { ModuleScannerService } from "../services";
+import { CONFIG_DEFAULTS } from "../contracts/constants";
+import { AutoConfigService } from "../services";
 
 export function ScanConfig(
   app: INestApplication,
-  config?: AbstractConfig,
+  overrides?: AbstractConfig,
 ): ConfigDefinitionDTO {
-  const scanner = app.get(ModuleScannerService);
-  const used = new Set<string>();
+  const configService = app.get(AutoConfigService);
+  const { description } = app.get<symbol>(ACTIVE_APPLICATION);
 
-  const map = scanner.findWithSymbol<[string, symbol][]>(CONSUMES_CONFIG);
-  const out: ConfigTypeDTO[] = [];
+  const config: ConfigTypeDTO[] = [];
 
-  map.forEach((config, instance) => {
-    const ctor = instance.constructor;
-    const library = ctor[LOGGER_LIBRARY] || "application";
-    config.forEach(([property, from]) => {
-      const target = from ? from.description : library;
-      const joined = [target, property].join(".");
-      if (used.has(joined)) {
-        return;
-      }
-      used.add(joined);
-      const loadedModule = LibraryModule.quickMap.get(target);
-      const { configuration } = LibraryModule.loaded.get(loadedModule);
-      const metadata =
-        configuration[property] ?? MESSY_INJECTED_CONFIGS.get(property);
-      out.push({
-        library: from ? from.description : library,
+  configService.configDefinitions.forEach((configuration, library) =>
+    config.push(
+      ...Object.entries(configuration).map(([property, metadata]) => ({
+        library: library === description ? "application" : library,
         metadata,
         property,
-      });
-    });
-  });
+      })),
+    ),
+  );
   return {
     application: app.get<symbol>(ACTIVE_APPLICATION).description,
-    bootstrapOverrides: config ?? app.get(CONFIG_DEFAULTS),
-    config: out,
+    bootstrapOverrides: overrides ?? app.get(CONFIG_DEFAULTS),
+    config,
   };
 }

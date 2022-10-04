@@ -3,13 +3,12 @@ import { DEFAULT_LIMIT, is } from "@steggy/utilities";
 import { ClassConstructor } from "class-transformer";
 import { exit } from "process";
 
-import { iSteggyProvider } from "../contracts";
+import { iSteggyProvider, MODULE_METADATA } from "../contracts";
 import { Bootstrap, BootstrapOptions } from "../includes";
 import {
   ApplicationModule,
   ApplicationModuleMetadata,
 } from "./application-module.decorator";
-import { LibraryModule } from "./library-module.decorator";
 
 /**
  * Magic timeout makes things work. Don't know why process.nextTick() isn't sufficient
@@ -59,8 +58,7 @@ export function QuickScript({
 
   // Corrective measures for loading metadata
   return function (target: Type) {
-    LibraryModule.loaded.set(target, metadata);
-    LibraryModule.quickMap.set(metadata.application.description, target);
+    target[MODULE_METADATA] = metadata;
     // ? When TS is applying the @QuickScript annotation to the target class
     // Set up a fake application module that uses it as the only provider
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app

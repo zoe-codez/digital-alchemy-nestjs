@@ -2,11 +2,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
+  AutoConfigService,
   BaseConfig,
   BooleanConfig,
   InjectConfig,
-  LibraryModule,
-  LOGGER_LIBRARY,
   NumberConfig,
   StringConfig,
 } from "@steggy/boilerplate";
@@ -26,18 +25,19 @@ export class TerminalHelpService {
     private readonly applicationManager: ApplicationManagerService,
     private readonly screen: ScreenService,
     @InjectConfig(HELP) private readonly showHelp: boolean,
+    private readonly config: AutoConfigService,
   ) {}
 
   protected onRewire(): void | never {
     if (!this.showHelp) {
       return;
     }
+    const { configDefinitions } = this.config;
     const application = this.application.description;
     this.applicationManager.setHeader("Help");
     const ALL_SWITCHES: string[] = [];
-    const { loaded, quickMap } = LibraryModule;
 
-    loaded.forEach(({ configuration }) =>
+    configDefinitions.forEach(configuration =>
       ALL_SWITCHES.push(
         ...Object.entries(configuration).map(([property]) => property),
       ),
@@ -45,13 +45,8 @@ export class TerminalHelpService {
     this.screen.down();
     const LONGEST =
       Math.max(...ALL_SWITCHES.map(line => line.length)) + INCREMENT;
-    this.printProject(
-      application,
-      loaded.get(quickMap.get(application)).configuration,
-      LONGEST,
-    );
-    loaded.forEach(({ configuration }, ctor) => {
-      const project = ctor[LOGGER_LIBRARY];
+    this.printProject(application, configDefinitions.get(application), LONGEST);
+    configDefinitions.forEach((configuration, project) => {
       if (project === application) {
         return;
       }

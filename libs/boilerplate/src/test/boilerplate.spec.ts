@@ -1,6 +1,7 @@
 import { Test } from "@steggy/testing";
 
-import { LibraryModule, QuickScriptOptions } from "../decorators";
+import { QuickScriptOptions } from "../decorators";
+import { AutoConfigService } from "../services";
 
 describe("Boilerplate", () => {
   it("provides back bootstrap options", async () => {
@@ -11,10 +12,10 @@ describe("Boilerplate", () => {
         foo: { type: "string" },
       },
     } as QuickScriptOptions;
-    await Test.createTestingModule({ ...options }).compile();
-    const { loaded, quickMap } = LibraryModule;
-    const { configuration } = loaded.get(quickMap.get(project));
-    expect(configuration).toEqual(
+    const app = await Test.createTestingModule({ ...options }).compile();
+    const configService = app.get(AutoConfigService);
+
+    expect(configService.configDefinitions.get(project)).toEqual(
       expect.objectContaining(options.configuration),
     );
   });

@@ -16,8 +16,7 @@
       "rules": {},
       "parserOptions": {
         "project": [
-          "libs/boilerplate/tsconfig.lib.json",
-          "libs/boilerplate/tsconfig.spec.json"
+          "libs/boilerplate/tsconfig.lib.json"
         ]
       }
     },

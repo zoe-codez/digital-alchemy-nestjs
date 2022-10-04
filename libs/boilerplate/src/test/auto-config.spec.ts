@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { Test } from "@steggy/testing";
 import { argv, env } from "process";
 
@@ -13,8 +12,10 @@ import {
   SCAN_CONFIG,
 } from "../config";
 import { SKIP_CONFIG_INIT } from "../contracts";
-import { InjectConfig } from "../decorators";
 import { AutoConfigService } from "../services";
+import { CollisionAModule, CollisionBModule } from "./modules";
+import { InjectionInlineTest, InjectionModuleTest } from "./services";
+import { COLLISION_LIBRARY, TEST_CONFIG_A, TEST_CONFIG_B } from "./types";
 
 describe("AutoConfig", () => {
   let configService: AutoConfigService;
@@ -331,46 +332,47 @@ describe("AutoConfig", () => {
       expect(service.string).toBe("switch config");
     });
   });
+
+  describe("Edge Cases", () => {
+    describe("Do not include configurations from unloaded modules", () => {
+      it("module a", async () => {
+        const app = await Test.createTestingModule({
+          bootstrap: {
+            config: {
+              application: { foo: true },
+              libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            },
+          },
+          imports: [CollisionAModule],
+        }).compile();
+        const configService = app.get<AutoConfigService>(AutoConfigService);
+
+        expect(configService.get([COLLISION_LIBRARY, TEST_CONFIG_A])).toBe(
+          TEST_CONFIG_A,
+        );
+        expect(
+          configService.get([COLLISION_LIBRARY, TEST_CONFIG_B]),
+        ).toBeUndefined();
+      });
+      it("module b", async () => {
+        const app = await Test.createTestingModule({
+          bootstrap: {
+            config: {
+              application: { foo: true },
+              libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            },
+          },
+          imports: [CollisionBModule],
+        }).compile();
+        const configService = app.get<AutoConfigService>(AutoConfigService);
+
+        expect(configService.get([COLLISION_LIBRARY, TEST_CONFIG_B])).toBe(
+          TEST_CONFIG_B,
+        );
+        expect(
+          configService.get([COLLISION_LIBRARY, TEST_CONFIG_A]),
+        ).toBeUndefined();
+      });
+    });
+  });
 });
-
-@Injectable()
-class InjectionModuleTest {
-  constructor(
-    @InjectConfig("STRING_CONFIG")
-    public readonly string: string = "SHOULD NOT EVER HAVE THIS VALUE",
-    @InjectConfig("NUMBER_CONFIG")
-    public readonly number: number = Number.NaN,
-    @InjectConfig("BOOLEAN_CONFIG")
-    public readonly boolean: boolean = false,
-    @InjectConfig("STRING_CONFIG_NO_DEFAULT")
-    public readonly string_no_default: string = "class_defined_default",
-    @InjectConfig("STRING_ARRAY")
-    public readonly string_array: string[] = ["class_defined_default"],
-    @InjectConfig("RECORD")
-    public readonly record: object = { foo: "bar" },
-  ) {}
-}
-
-@Injectable()
-class InjectionInlineTest {
-  constructor(
-    @InjectConfig("STRING_CONFIG", { default: "default_value", type: "string" })
-    public readonly string: string = "SHOULD NOT EVER HAVE THIS VALUE",
-    @InjectConfig("NUMBER_CONFIG", { default: 50, type: "number" })
-    public readonly number: number = Number.NaN,
-    @InjectConfig("BOOLEAN_CONFIG", { default: true, type: "boolean" })
-    public readonly boolean: boolean = false,
-    @InjectConfig("STRING_CONFIG_NO_DEFAULT", { type: "string" })
-    public readonly string_no_default: string = "class_defined_default",
-    @InjectConfig("STRING_ARRAY", {
-      default: ["string"],
-      type: "string[]",
-    })
-    public readonly string_array: string[] = ["class_defined_default"],
-    @InjectConfig("RECORD", {
-      default: { hello: "world" },
-      type: "record",
-    })
-    public readonly record: object = { foo: "bar" },
-  ) {}
-}

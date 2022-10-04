@@ -1,10 +1,6 @@
 /* eslint-disable radar/no-identical-functions*/
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Optional,
-} from "@nestjs/common";
+import { Inject, Injectable, Optional } from "@nestjs/common";
+import { DiscoveryService } from "@nestjs/core";
 import { deepExtend, is, LABEL, PAIR, SINGLE, VALUE } from "@steggy/utilities";
 import { writeFileSync } from "fs";
 import { encode } from "ini";
@@ -17,13 +13,15 @@ import { LIB_BOILERPLATE, LOG_LEVEL } from "../config";
 import {
   AbstractConfig,
   ACTIVE_APPLICATION,
+  AnyConfig,
   BaseConfig,
   CONFIG_DEFAULTS,
   LOGGER_LIBRARY,
+  MODULE_METADATA,
   SKIP_CONFIG_INIT,
 } from "../contracts";
 import {
-  LibraryModule,
+  LibraryModuleMetadata,
   MESSY_INJECTED_CONFIGS,
   NO_APPLICATION,
 } from "../decorators";
@@ -56,7 +54,9 @@ export class AutoConfigService {
     skipInit: boolean,
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
+    private readonly scanner: DiscoveryService,
   ) {
+    this.scanModules();
     // AutoConfig is one of the first services to initialize
     // Running it here will force load the configuration at the earliest possible time
     //
@@ -68,6 +68,13 @@ export class AutoConfigService {
     AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
   }
 
+  /**
+   * module name,
+   */
+  public readonly configDefinitions = new Map<
+    string,
+    Record<string, AnyConfig>
+  >();
   public configFiles: string[];
   public loadedConfigFiles: string[];
   private config: AbstractConfig = {};
@@ -90,7 +97,7 @@ export class AutoConfigService {
       get(this.config, path) ?? this.getConfiguration(path)?.default;
     const config = this.getConfiguration(path);
 
-    return this.cast(value, config.type) as T;
+    return this.cast(value, config?.type ?? "string") as T;
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T | never {
@@ -195,16 +202,14 @@ export class AutoConfigService {
   }
 
   private getConfiguration(path: string): BaseConfig {
-    const { loaded, quickMap } = LibraryModule;
     const parts = path.split(".");
     if (parts.length === SINGLE) {
       parts.unshift(this.appName);
     }
     if (parts.length === PAIR) {
-      const metadata = loaded.get(quickMap.get(this.appName));
-      const config =
-        metadata.configuration[parts[VALUE]] ??
-        MESSY_INJECTED_CONFIGS.get(parts[VALUE]);
+      const configuration = this.configDefinitions.get(this.appName);
+      const config = configuration[parts[VALUE]] ??
+        MESSY_INJECTED_CONFIGS.get(parts[VALUE]) ?? { type: "string" };
       if (!is.empty(Object.keys(config ?? {}))) {
         return config;
       }
@@ -216,13 +221,14 @@ export class AutoConfigService {
       };
     }
     const [, library, property] = parts;
-    const metadata = loaded.get(quickMap.get(library));
-    if (!metadata) {
-      throw new InternalServerErrorException(
-        `Missing metadata asset for ${library} (via ${path})`,
+    const configuration = this.configDefinitions.get(library);
+    if (!configuration) {
+      this.logger.error(
+        `[${library}] missing metadata definition for {${path}}`,
       );
+      return { type: "string" };
     }
-    return metadata.configuration[property];
+    return configuration[property];
   }
 
   private loadAppDefault(property: string): unknown {
@@ -259,9 +265,7 @@ export class AutoConfigService {
   private loadFromEnv(): void {
     const environmentKeys = Object.keys(env);
     const switchKeys = Object.keys(this.switches);
-    LibraryModule.loaded.forEach(({ configuration }, ctor) => {
-      const project = ctor[LOGGER_LIBRARY];
-      configuration ??= {};
+    this.configDefinitions.forEach((configuration, project) => {
       const cleanedProject = project?.replaceAll("-", "_") || "unknown";
       const isApplication = this.APPLICATION?.description === project;
       const environmentPrefix = isApplication
@@ -331,9 +335,7 @@ export class AutoConfigService {
   }
 
   private sanityCheckRequired(): void | never {
-    const configs = LibraryModule.loaded;
-    configs.forEach(({ configuration }, ctor) => {
-      const project = ctor[LOGGER_LIBRARY];
+    this.configDefinitions.forEach((configuration, project) => {
       configuration ??= {};
       Object.entries(configuration).forEach(([name, definition]) => {
         // It's fine that this symbol isn't the same as the real one
@@ -350,12 +352,26 @@ export class AutoConfigService {
     });
   }
 
+  private scanModules(): void {
+    [...this.scanner.getControllers(), ...this.scanner.getProviders()].forEach(
+      wrapper => {
+        const ctor = wrapper?.instance?.constructor;
+        if (!ctor || is.undefined(ctor[MODULE_METADATA])) {
+          return;
+        }
+        const { configuration } = ctor[
+          MODULE_METADATA
+        ] as LibraryModuleMetadata;
+        this.configDefinitions.set(ctor[LOGGER_LIBRARY], configuration);
+      },
+    );
+  }
+
   /**
    * Load defaults from the module definitions
    */
   private setDefaults(): void {
-    LibraryModule.loaded.forEach(({ configuration = {} }, ctor) => {
-      const project = ctor[LOGGER_LIBRARY];
+    this.configDefinitions.forEach((configuration, project) => {
       const isApplication = this.appName === project;
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {
