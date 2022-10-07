@@ -16,7 +16,10 @@ import {
 } from "../contracts";
 
 const CACHE_KEY = `HOME_ASSISTANT_SERVICES`;
-type SendBody = { attributes?: Record<string, unknown>; state?: string };
+type SendBody<T extends string | number = string> = {
+  attributes?: Record<string, unknown>;
+  state?: T;
+};
 
 @Injectable()
 export class HomeAssistantFetchAPIService {
@@ -143,12 +146,12 @@ export class HomeAssistantFetchAPIService {
     return result;
   }
 
-  public async updateEntity(
+  public async updateEntity<STATE extends string | number = string>(
     entity_id: string,
-    { attributes, state }: SendBody,
+    { attributes, state }: SendBody<STATE>,
   ): Promise<void> {
-    const body: SendBody = {};
-    if (!is.empty(state)) {
+    const body: SendBody<STATE> = {};
+    if (!is.undefined(state)) {
       body.state = state;
     }
     if (!is.empty(attributes)) {
