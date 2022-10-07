@@ -727,12 +727,21 @@ export class MenuComponentService<VALUE = unknown | string>
               "numberSelect",
             ],
           ] as tMenuItem[])),
-      ...((this.opt.condensed || this.opt.keyOnly
-        ? []
-        : [
-            [{ key: ["end", "pagedown"] }, "bottom"],
-            [{ key: ["home", "pageup"] }, "top"],
-          ]) as tMenuItem[]),
+
+      [
+        {
+          key: ["end", "pagedown"],
+          powerUser: !(this.opt.condensed || this.opt.keyOnly),
+        },
+        "bottom",
+      ],
+      [
+        {
+          key: ["home", "pageup"],
+          powerUser: !(this.opt.condensed || this.opt.keyOnly),
+        },
+        "top",
+      ],
     ];
     const LEFT_RIGHT: tMenuItem[] = [
       [{ description: "left", key: "left" }, "onLeft"],
