@@ -21,6 +21,10 @@ import {
 
 export interface NumberEditorRenderOptions {
   current: number;
+  /**
+   * Text that should appear the blue bar of the help text
+   */
+  helpNotes?: string | ((current: number) => string);
   label?: string;
   locale?: boolean;
   max?: number;
@@ -55,16 +59,26 @@ export class NumberEditorService
   ) {}
 
   private complete = false;
-  private config: NumberEditorRenderOptions;
   private cursor: number;
   private done: (type: number) => void;
+  private opt: NumberEditorRenderOptions;
   private value: string;
+  private get notes(): string {
+    const { helpNotes } = this.opt;
+    if (is.string(helpNotes)) {
+      return helpNotes;
+    }
+    if (is.function(helpNotes)) {
+      return helpNotes(Number(this.value));
+    }
+    return `\n `;
+  }
 
   public configure(
     config: NumberEditorRenderOptions,
     done: (type: unknown) => void,
   ) {
-    this.config = config;
+    this.opt = config;
     this.complete = false;
     this.reset();
     this.done = done;
@@ -75,7 +89,7 @@ export class NumberEditorService
   public render(): void {
     if (this.complete) {
       this.screen.render(
-        chalk`{green ? } {bold ${this.config.label}} {gray ${Number(
+        chalk`{green ? } {bold ${this.opt.label}} {gray ${Number(
           this.value,
         ).toLocaleString()}}`,
       );
@@ -162,18 +176,18 @@ export class NumberEditorService
 
   protected reset(): void {
     this.value = (
-      is.number(this.config.current) ? this.config.current : EMPTY
+      is.number(this.opt.current) ? this.opt.current : EMPTY
     ).toString();
   }
 
   private renderBox(bgColor: string): void {
     let value = is.empty(this.value)
-      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
+      ? this.opt.placeholder ?? DEFAULT_PLACEHOLDER
       : this.value;
-    const maxLength = this.config.width - PADDING;
+    const maxLength = this.opt.width - PADDING;
     const out: string[] = [];
-    if (this.config.label) {
-      out.push(chalk`{green ? } ${this.config.label}`);
+    if (this.opt.label) {
+      out.push(chalk`{green ? } ${this.opt.label}`);
     }
 
     const stripped = ansiStrip(value);
@@ -206,6 +220,7 @@ export class NumberEditorService
       message,
       this.keymap.keymapHelp({
         message,
+        notes: this.notes,
       }),
     );
   }

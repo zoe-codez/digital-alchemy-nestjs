@@ -46,6 +46,9 @@ const FORM_KEYMAP: tKeyMap = new Map([
   [{ description: "cursor down", key: "down" }, "onDown"],
   [{ description: "edit cell", key: "enter" }, "enableEdit"],
 ] as [TTYKeypressOptions, string | DirectCB][]);
+const CANCELLABLE: tKeyMap = new Map([
+  [{ description: "cancel", key: "escape" }, "cancel"],
+]);
 
 @Component({ type: "table" })
 export class TableBuilderComponentService<
@@ -64,18 +67,30 @@ export class TableBuilderComponentService<
   ) {}
 
   private complete = false;
+  private dirty = false;
   private done: (type: VALUE | VALUE[]) => void;
   private opt: TableBuilderOptions<VALUE>;
   private rows: VALUE[];
   private selectedCell = START;
   private selectedRow = START;
   private value: VALUE;
+  private get notes(): string {
+    const { helpNotes } = this.opt;
+    if (is.string(helpNotes)) {
+      return helpNotes;
+    }
+    if (is.function(helpNotes)) {
+      return helpNotes(this.value);
+    }
+    return `\n `;
+  }
 
   public configure(
     config: TableBuilderOptions<VALUE>,
     done: (type: VALUE[]) => void,
   ): void {
     this.complete = false;
+    this.dirty = false;
     this.opt = config;
     config.elements = config.elements.map(i => {
       i.name ??= TitleCase(i.path);
@@ -129,6 +144,29 @@ export class TableBuilderComponentService<
     // ? Needs an extra render for some reason
     // Should be unnecessary
     this.render();
+  }
+
+  protected cancel(): void {
+    const { cancel, current } = this.opt;
+    if (is.function(cancel)) {
+      cancel(
+        value => {
+          this.value = value ?? current;
+          this.onEnd();
+        },
+        async (message = "Discard changes?") => {
+          let value: boolean;
+          await this.screen.footerWrap(async () => {
+            value = await this.prompt.confirm(message);
+          });
+          this.render();
+          return value;
+        },
+      );
+      return;
+    }
+    this.value = cancel as VALUE;
+    this.onEnd();
   }
 
   protected async delete(): Promise<boolean> {
@@ -257,6 +295,7 @@ export class TableBuilderComponentService<
       message,
       this.keymap.keymapHelp({
         message,
+        notes: this.notes,
       }),
     );
   }
@@ -272,15 +311,21 @@ export class TableBuilderComponentService<
       message,
       this.keymap.keymapHelp({
         message,
+        notes: this.notes,
       }),
     );
   }
 
   private setKeymap(): void {
+    const maps: tKeyMap[] = [];
     if (this.opt.mode === "single") {
-      this.keyboard.setKeyMap(this, FORM_KEYMAP);
-      return;
+      maps.push(FORM_KEYMAP);
+    } else {
+      maps.push(is.empty(this.rows) ? KEYMAP_LITE : KEYMAP);
     }
-    this.keyboard.setKeyMap(this, is.empty(this.rows) ? KEYMAP_LITE : KEYMAP);
+    if (!is.undefined(this.opt.cancel)) {
+      maps.push(CANCELLABLE);
+    }
+    this.keyboard.setKeyMap(this, ...maps);
   }
 }

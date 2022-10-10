@@ -71,6 +71,10 @@ export interface MenuComponentOptions<T = unknown> {
    */
   headerPadding?: number;
   /**
+   * Text that should appear the blue bar of the help text
+   */
+  helpNotes?: string | ((selected: T | string) => string);
+  /**
    * Disallow usage of fuzzy search
    */
   hideSearch?: boolean;
@@ -173,6 +177,16 @@ export class MenuComponentService<VALUE = unknown | string>
   private selectedType: "left" | "right" = "right";
   private sort: boolean;
   private value: VALUE;
+  private get notes(): string {
+    const { helpNotes } = this.opt;
+    if (is.string(helpNotes)) {
+      return helpNotes;
+    }
+    if (is.function(helpNotes)) {
+      return helpNotes(this.value);
+    }
+    return `\n `;
+  }
 
   public configure(
     config: MenuComponentOptions<VALUE>,
@@ -530,7 +544,10 @@ export class MenuComponentService<VALUE = unknown | string>
       ].join(`\n`),
       rendered.find(i => GV(i.entry) === this.value),
     );
-    this.screen.render(message, this.keymap.keymapHelp({ message }));
+    this.screen.render(
+      message,
+      this.keymap.keymapHelp({ message, notes: this.notes }),
+    );
   }
 
   /**
@@ -584,6 +601,7 @@ export class MenuComponentService<VALUE = unknown | string>
         ? extraContent
         : this.keymap.keymapHelp({
             message,
+            notes: this.notes,
             prefix: new Map(
               Object.entries(this.opt.keyMap).map(([description, item]) => {
                 if (!Array.isArray(item)) {

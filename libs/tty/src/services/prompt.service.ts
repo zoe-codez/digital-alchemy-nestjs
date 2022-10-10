@@ -39,11 +39,14 @@ export class PromptService {
     await this.applicationManager.activateComponent("acknowledge", { message });
   }
 
-  public async arrayBuilder<VALUE extends object = object>(
-    options: Omit<ArrayBuilderOptions<VALUE>, "mode">,
-  ): Promise<VALUE[]> {
+  public async arrayBuilder<
+    VALUE extends object = object,
+    CANCEL extends unknown = never,
+  >(
+    options: Omit<ArrayBuilderOptions<VALUE, CANCEL>, "mode">,
+  ): Promise<VALUE[] | CANCEL> {
     const result = await this.applicationManager.activateComponent<
-      TableBuilderOptions<VALUE>,
+      TableBuilderOptions<VALUE, CANCEL>,
       VALUE
     >("table", { ...options, mode: "multi" });
     return result as VALUE[];
@@ -139,11 +142,14 @@ export class PromptService {
     } as NumberEditorRenderOptions);
   }
 
-  public async objectBuilder<VALUE extends object = object>(
-    options: Omit<ObjectBuilderOptions<VALUE>, "mode">,
-  ): Promise<VALUE> {
+  public async objectBuilder<
+    VALUE extends object = object,
+    CANCEL extends unknown = never,
+  >(
+    options: Omit<ObjectBuilderOptions<VALUE, CANCEL>, "mode">,
+  ): Promise<VALUE | CANCEL> {
     const result = await this.applicationManager.activateComponent<
-      TableBuilderOptions<VALUE>,
+      TableBuilderOptions<VALUE, CANCEL>,
       VALUE
     >("table", { ...options, mode: "single" });
     return result;

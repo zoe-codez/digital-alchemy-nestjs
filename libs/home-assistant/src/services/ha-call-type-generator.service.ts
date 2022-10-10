@@ -43,6 +43,7 @@ export class HACallTypeGenerator {
 
   public ENABLED = true;
 
+  private domains: string[] = [];
   private lastBuild: string;
   private lastServices: string;
   private services: ServiceListItemDTO[] = [];
@@ -63,25 +64,7 @@ export class HACallTypeGenerator {
       {},
       {
         get: (t, domain: string) => {
-          if (
-            [
-              // promises
-              "then",
-              // random checks
-              "constructor",
-              // lifecycle events
-              "beforeApplicationShutdown",
-              "onApplicationBootstrap",
-              "onApplicationShutdown",
-              "onModuleDestroy",
-              "onModuleInit",
-              "onPostInit",
-              "onPreInit",
-            ].includes(domain) ||
-            // __proto__, __define...., etc
-            // None of these are relevant
-            domain.startsWith("__")
-          ) {
+          if (!this.domains.includes(domain)) {
             return undefined;
           }
           const domainItem: ServiceListItemDTO = this.services.find(
@@ -220,6 +203,7 @@ export class HACallTypeGenerator {
   protected async onModuleInit() {
     this.logger.info(`Fetching service list`);
     this.services = await this.fetchApi.listServices();
+    this.domains = this.services.map(i => i.domain);
     this.services.forEach(value => {
       this.logger.debug(`[${value.domain}]`);
       Object.entries(value.services).forEach(([serviceName]) =>

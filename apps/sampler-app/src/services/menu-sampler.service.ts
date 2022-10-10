@@ -14,10 +14,9 @@ import {
 import { is, PEAT, SECOND, SINGLE, sleep, TitleCase } from "@steggy/utilities";
 import chalk from "chalk";
 
-type tMenuOptions = MenuComponentOptions & { generateCount: number } & Record<
-    "optionsLeft" | "optionsRight",
-    FakerSources
-  >;
+type tMenuOptions = MenuComponentOptions & {
+  generateCount: number;
+} & Record<"optionsLeft" | "optionsRight", FakerSources>;
 const CHUNKY_LIST = 50;
 
 /**
@@ -131,7 +130,18 @@ export class MenuSampler {
   }
 
   private async basic(): Promise<void> {
-    this.menuOptions = await this.prompt.objectBuilder<tMenuOptions>({
+    const cancel = Date.now();
+    const menuOptions = await this.prompt.objectBuilder<
+      tMenuOptions,
+      typeof cancel
+    >({
+      async cancel(cancelFunction, confirm) {
+        const result = await confirm();
+        if (!result) {
+          return;
+        }
+        cancelFunction(cancel);
+      },
       current: this.menuOptions,
       elements: [
         {
@@ -193,6 +203,10 @@ export class MenuSampler {
         },
       ],
     });
+    if (!is.object(menuOptions)) {
+      return;
+    }
+    this.menuOptions = menuOptions;
     const {
       optionsLeft,
       optionsRight,
@@ -249,22 +263,20 @@ export class MenuSampler {
         const keys = Object.keys(faker.animal).filter(
           i => is.function(faker.animal[i]) && !["type"].includes(i),
         );
-        // faker.animal.t
         const animalType = keys[Math.floor(Math.random() * keys.length)];
         label = faker.animal[animalType]();
         type = animalType;
         break;
     }
-    const phrases = [
-      faker.hacker.phrase(),
-      faker.company.bs(),
-      faker.company.catchPhrase(),
-      faker.commerce.productDescription(),
-    ];
 
     return {
       entry: [label, value],
-      helpText: phrases[Math.floor(Math.random() * phrases.length)],
+      helpText: is.random([
+        faker.hacker.phrase(),
+        faker.company.bs(),
+        faker.company.catchPhrase(),
+        faker.commerce.productDescription(),
+      ]),
       type: TitleCase(type),
     };
   }

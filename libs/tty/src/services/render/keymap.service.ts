@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { DOWN, is, UP } from "@steggy/utilities";
+import { ARRAY_OFFSET, DOWN, is, UP } from "@steggy/utilities";
 import chalk from "chalk";
 
 import { tKeyMap } from "../../contracts";
@@ -12,6 +12,12 @@ type keyItem = {
   label: string;
 };
 const LINE_PADDING = 2;
+interface KeymapHelpOptions {
+  message?: string;
+  notes?: string;
+  onlyHelp?: boolean;
+  prefix?: tKeyMap;
+}
 
 @Injectable()
 export class KeymapService {
@@ -24,9 +30,10 @@ export class KeymapService {
 
   public keymapHelp({
     message = "",
+    notes = " ",
     prefix = new Map(),
     onlyHelp = false,
-  }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {}): string {
+  }: KeymapHelpOptions = {}): string {
     const map = this.keyboard.getCombinedKeyMap();
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
@@ -48,11 +55,16 @@ export class KeymapService {
     }
     const maxLength =
       ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING;
+    if (notes.charAt(notes.length - ARRAY_OFFSET) === "\n") {
+      // A trailing newline doesn't render right if it doesn't also include something that actually render
+      // Correct for forgetful dev, a blank space works fine
+      notes = notes + " ";
+    }
     return [
       chalk.blue.dim(
         "=".repeat(Math.max(maxLength, this.applicationManager.headerLength())),
       ),
-      ` `,
+      notes,
       this.textRendering.pad(help),
     ].join(`\n`);
   }

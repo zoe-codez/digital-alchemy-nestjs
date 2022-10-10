@@ -28,20 +28,64 @@ export type TableBuilderElement<VALUE = object> = {
     }
 );
 
-export class ArrayBuilderOptions<VALUE extends object> {
-  public current?: VALUE[];
+class BaseBuilderOptions<VALUE extends object, CANCEL extends unknown> {
+  /**
+   * If provided, the builder will present a cancel option.
+   *
+   * ## Function value
+   *
+   * Attempts to cancel the builder will result in the function being called.
+   * A cancel function will be provided as the argument.
+   * If ran, the builder will cancel, returning the value provided or original default value if not
+   * This can be done async
+   *
+   * A second method is also provided, which can be used to prompt the user for confirmation of the cancel.
+   *
+   * ## Any other non-undefined value
+   *
+   * Value will be returned immediately when a cancel attempt is made
+   */
+  public cancel?:
+    | CANCEL
+    | ((
+        cancelFunction: (cancelValue?: CANCEL) => void,
+        confirm: (message?: string) => Promise<boolean>,
+      ) => void | Promise<void>);
   public elements: TableBuilderElement<VALUE>[];
+}
+
+export class ArrayBuilderOptions<
+  VALUE extends object,
+  CANCEL extends unknown = never,
+> extends BaseBuilderOptions<VALUE, CANCEL> {
+  public current?: VALUE[];
+  /**
+   * Text that should appear the blue bar of the help text
+   */
+  public helpNotes?: string | ((current: VALUE[]) => string);
   public noRowsMessage?: string;
 }
 
-export class ObjectBuilderOptions<VALUE extends object> {
+export class ObjectBuilderOptions<
+  VALUE extends object,
+  CANCEL extends unknown = never,
+> extends BaseBuilderOptions<VALUE, CANCEL> {
   public current?: VALUE;
-  public elements: TableBuilderElement<VALUE>[];
+  /**
+   * Text that should appear the blue bar of the help text
+   */
+  public helpNotes?: string | ((current: VALUE) => string);
 }
 
-export class TableBuilderOptions<VALUE extends object> {
+export class TableBuilderOptions<
+  VALUE extends object,
+  CANCEL extends unknown = never,
+> extends BaseBuilderOptions<VALUE, CANCEL> {
   public current?: VALUE | VALUE[];
-  public elements: TableBuilderElement<VALUE>[];
+  /**
+   * Text that should appear the blue bar of the help text
+   */
+  public helpNotes?: string | ((current: VALUE | VALUE[]) => string);
   public mode?: "single" | "multi";
   public noRowsMessage?: string;
 }

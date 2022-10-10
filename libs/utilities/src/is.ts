@@ -5,18 +5,6 @@ import { EMPTY, EVEN, START } from "./utilities";
  * type testing and basic conversion tools
  */
 export class is {
-  public static hash = {
-    string(text: string): string {
-      let hash = START;
-      for (let i = START; i < text.length; i++) {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        hash = (hash << 5) - hash + text.codePointAt(i);
-        hash = Math.trunc(hash);
-      }
-      return hash.toString();
-    },
-  };
-
   public static boolean(test: unknown): test is boolean {
     return typeof test === "boolean";
   }
@@ -57,12 +45,26 @@ export class is {
     return typeof test === "function";
   }
 
+  public static hash(text: string): string {
+    let hash = START;
+    for (let i = START; i < text.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      hash = (hash << 5) - hash + text.codePointAt(i);
+      hash = Math.trunc(hash);
+    }
+    return hash.toString();
+  }
+
   public static number(test: unknown): test is number {
     return typeof test === "number" && !Number.isNaN(test);
   }
 
   public static object(test: unknown): test is object {
     return typeof test === "object" && test !== null && !Array.isArray(test);
+  }
+
+  public static random<T>(items: T[]): T {
+    return items[Math.floor(Math.random() * items.length)];
   }
 
   public static string(test: unknown): test is string {

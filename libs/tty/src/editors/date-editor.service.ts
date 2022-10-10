@@ -52,6 +52,10 @@ export interface DateEditorEditorOptions {
    * Interpret values with chrono-node
    */
   fuzzy?: `${TTYFuzzyTypes}`;
+  /**
+   * Text that should appear the blue bar of the help text
+   */
+  helpNotes?: string | ((current: Date | Date[]) => string);
   label?: string;
   type?: tDateType;
 }
@@ -101,7 +105,6 @@ export class DateEditorService
 
   private chronoText: string;
   private complete = false;
-  private config: DateEditorEditorOptions;
   private cursor: number;
   private day: string;
   private done: (type: string | string[]) => void;
@@ -119,10 +122,24 @@ export class DateEditorService
   private localDirty: boolean;
   private minute: string;
   private month: string;
+  private opt: DateEditorEditorOptions;
   private second: string;
   private type: tDateType;
   private value: dayjs.Dayjs | dayjs.Dayjs[];
   private year: string;
+  private get notes(): string {
+    const { helpNotes } = this.opt;
+    if (is.string(helpNotes)) {
+      return helpNotes;
+    }
+    if (is.function(helpNotes)) {
+      if (Array.isArray(this.value)) {
+        return helpNotes(this.value.map(i => i.toDate()));
+      }
+      return helpNotes(this.value.toDate());
+    }
+    return `\n `;
+  }
 
   private get editField(): string {
     if (this.end) {
@@ -140,7 +157,7 @@ export class DateEditorService
     this.error = "";
     this.chronoText = config.currentFuzzy ?? "";
     this.cursor = this.chronoText.length;
-    this.config = config;
+    this.opt = config;
     config.fuzzy ??= "user";
     config.defaultStyle ??= config.fuzzy === "never" ? "granular" : "fuzzy";
     this.type = config.type ?? "datetime";
@@ -152,7 +169,7 @@ export class DateEditorService
         config.fuzzy === "always");
     this.complete = false;
     this.localDirty = false;
-    this.value = dayjs(this.config.current);
+    this.value = dayjs(this.opt.current);
     this.done = done;
     this.setKeymap();
     const start = Array.isArray(this.value) ? this.value[START] : this.value;
@@ -499,8 +516,8 @@ export class DateEditorService
       this.type === "range" ? DEFAULT_RANGE_PLACEHOLDER : DEFAULT_PLACEHOLDER;
     let value = is.empty(this.chronoText) ? placeholder : this.chronoText;
     const out: string[] = [];
-    if (this.config.label) {
-      out.push(chalk`{green ? } ${this.config.label}`);
+    if (this.opt.label) {
+      out.push(chalk`{green ? } ${this.opt.label}`);
     }
 
     const stripped = ansiStrip(value);
@@ -549,6 +566,7 @@ export class DateEditorService
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
         this.keymap.keymapHelp({
           message,
+          notes: this.notes,
         }),
     );
   }
@@ -563,7 +581,7 @@ export class DateEditorService
         chalk`{bold   To:} ${to.toDate().toLocaleString()}`,
       ].join(`\n`);
     } else {
-      const label = this.config.label || this.type === "time" ? "Time" : "Date";
+      const label = this.opt.label || this.type === "time" ? "Time" : "Date";
       message += chalk`{green ? } {bold ${label}: }`;
       switch (this.type) {
         case "time":
@@ -586,7 +604,7 @@ export class DateEditorService
   // eslint-disable-next-line radar/cognitive-complexity
   private renderRangeSections(): void {
     let message = chalk`  {green ? } ${
-      this.config.label ?? chalk.bold`Enter date range`
+      this.opt.label ?? chalk.bold`Enter date range`
     }  \n{bold From:} `;
     // From
     if (["range", "date", "datetime"].includes(this.type)) {
@@ -686,6 +704,7 @@ export class DateEditorService
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
         this.keymap.keymapHelp({
           message,
+          notes: this.notes,
         }),
     );
   }
@@ -693,7 +712,7 @@ export class DateEditorService
   // eslint-disable-next-line radar/cognitive-complexity
   private renderSections(): void {
     let message = chalk`  {green ? } ${
-      this.config.label ?? (this.type === "time" ? "Enter time" : "Enter date")
+      this.opt.label ?? (this.type === "time" ? "Enter time" : "Enter date")
     }  `;
     if (["range", "date", "datetime"].includes(this.type)) {
       message +=
@@ -745,6 +764,7 @@ export class DateEditorService
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
         this.keymap.keymapHelp({
           message,
+          notes: this.notes,
         }),
     );
   }
@@ -775,7 +795,7 @@ export class DateEditorService
       [{ catchAll: true, powerUser: true }, "onKeyPress"],
       [{ description: "done", key: "enter" }, "onEnd"],
       [{ description: "clear", key: "escape" }, "reset"],
-      ...(this.config.fuzzy === "user"
+      ...(this.opt.fuzzy === "user"
         ? [
             [
               { description: chalk.bold("granular input"), key: "tab" },
@@ -794,8 +814,7 @@ export class DateEditorService
       [{ description: "cursor right", key: "right" }, "onRight"],
       // Other common keys, feels excessive to report them to the user
       [{ key: [":", "-", "space"], powerUser: true }, "onRight"],
-      ...(["datetime", "range"].includes(this.type) &&
-      this.config.fuzzy === "user"
+      ...(["datetime", "range"].includes(this.type) && this.opt.fuzzy === "user"
         ? [
             [
               { description: chalk.bold("fuzzy input"), key: "tab" },

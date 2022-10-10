@@ -53,9 +53,13 @@ export class KeyboardManagerService implements iStackProvider {
     return current;
   }
 
-  public setKeyMap(target: unknown, map: tKeyMap): void {
-    this.activeKeymaps.set(target, map);
-    map.forEach(key => {
+  public setKeyMap(target: unknown, ...mapList: tKeyMap[]): void {
+    const result: tKeyMap = new Map();
+    mapList.forEach(keMap =>
+      keMap.forEach((callback, options) => result.set(options, callback)),
+    );
+    this.activeKeymaps.set(target, result);
+    result.forEach(key => {
       if (is.string(key) && !is.function(target[key])) {
         this.screen.printLine(
           chalk.yellow.inverse` MISSING CALLBACK {bold ${key}} `,
