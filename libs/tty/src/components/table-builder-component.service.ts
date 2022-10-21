@@ -1,5 +1,11 @@
 import { forwardRef, Inject } from "@nestjs/common";
-import { ARRAY_OFFSET, is, START, TitleCase } from "@steggy/utilities";
+import {
+  ARRAY_OFFSET,
+  deepExtend,
+  is,
+  START,
+  TitleCase,
+} from "@steggy/utilities";
 import { get, set } from "object-path";
 
 import {
@@ -97,15 +103,17 @@ export class TableBuilderComponentService<
       return i;
     });
     this.done = done;
-    this.opt.current ??= [];
+    this.opt.current ??= (config.mode === "single" ? {} : []) as VALUE;
     this.selectedRow = START;
     this.selectedCell = START;
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
-    if (config.mode === "single") {
-      this.value = (config.current as VALUE) ?? ({} as VALUE);
-    }
+    this.value = (
+      config.mode === "single"
+        ? deepExtend({} as VALUE, this.opt.current)
+        : deepExtend([] as VALUE, this.opt.current)
+    ) as VALUE;
     this.setKeymap();
   }
 
