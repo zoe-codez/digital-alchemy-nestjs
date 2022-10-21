@@ -10,6 +10,7 @@ import { get, set } from "object-path";
 
 import {
   DirectCB,
+  GV,
   TableBuilderElement,
   TableBuilderOptions,
   tKeyMap,
@@ -49,12 +50,21 @@ const FORM_KEYMAP: tKeyMap = new Map([
   // While there is no editor
   [{ description: "done", key: "d" }, "onEnd"],
   [{ description: "cursor up", key: "up" }, "onUp"],
+  [
+    { description: "top", key: ["pageup", "home"], powerUser: true },
+    "onPageUp",
+  ],
+  [
+    { description: "bottom", key: ["pagedown", "end"], powerUser: true },
+    "onPageDown",
+  ],
   [{ description: "cursor down", key: "down" }, "onDown"],
   [{ description: "edit cell", key: "enter" }, "enableEdit"],
 ] as [TTYKeypressOptions, string | DirectCB][]);
 const CANCELLABLE: tKeyMap = new Map([
   [{ description: "cancel", key: "escape" }, "cancel"],
 ]);
+const HELP_ERASE_SIZE = 3;
 
 @Component({ type: "table" })
 export class TableBuilderComponentService<
@@ -225,6 +235,11 @@ export class TableBuilderComponentService<
             column.options,
             current,
           );
+          // TODO: WHY?!
+          const { helpText } = column.options.find(i => GV(i.entry) === value);
+          if (!is.empty(helpText)) {
+            this.screen.eraseLine(HELP_ERASE_SIZE);
+          }
           break;
       }
       set(is.object(row) ? row : {}, column.path, value);
@@ -263,7 +278,9 @@ export class TableBuilderComponentService<
   }
 
   protected onPageDown(): void {
-    this.selectedRow = this.rows.length - ARRAY_OFFSET;
+    this.selectedRow =
+      (this.opt.mode === "single" ? this.columns.length : this.rows.length) -
+      ARRAY_OFFSET;
   }
 
   protected onPageUp(): void {
