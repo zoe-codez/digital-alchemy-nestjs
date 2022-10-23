@@ -231,9 +231,16 @@ export class TableBuilderComponentService<
           value = await this.prompt.string(column.name, current);
           break;
         case "enum-array":
+          const currentValue = current ?? [];
+          const source = column.options.filter(
+            i => !currentValue.includes(GV(i)),
+          ) as MainMenuEntry<VALUE | string>[];
+          const selected = column.options.filter(i =>
+            currentValue.includes(GV(i)),
+          ) as MainMenuEntry<VALUE | string>[];
           value = await this.prompt.listBuild<VALUE>({
-            current,
-            source: column.options as MainMenuEntry<string | VALUE>[],
+            current: selected,
+            source,
           });
           break;
         case "enum":

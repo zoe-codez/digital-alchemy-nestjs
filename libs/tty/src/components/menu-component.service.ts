@@ -502,21 +502,6 @@ export class MenuComponentService<VALUE = unknown | string>
     return highlighted;
   }
 
-  /**
-   * Retrieve the currently selected menu entry
-   */
-  private getSelected(): MainMenuEntry {
-    const list = [
-      ...this.opt.left,
-      ...this.opt.right,
-      ...Object.values(this.opt.keyMap).map(
-        entry => ({ entry } as MainMenuEntry),
-      ),
-    ];
-    const out = list.find(i => GV(i.entry) === this.value);
-    return out ?? list[START];
-  }
-
   private renderFinal() {
     const item = this.selectedEntry();
     let message = MergeHelp("", item);
