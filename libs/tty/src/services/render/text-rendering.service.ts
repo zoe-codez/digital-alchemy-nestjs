@@ -9,14 +9,13 @@ import {
   START,
   TitleCase,
   UP,
-  VALUE,
 } from "@steggy/utilities";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
 
 import { PAGE_SIZE } from "../../config";
 import { GV, MainMenuEntry, MenuEntry } from "../../contracts";
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../../includes";
+import { ansiMaxLength, ansiPadEnd } from "../../includes";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");
@@ -37,44 +36,20 @@ const [OPEN, CLOSE] = chalk.bgBlueBright.black("_").split("_");
 export class TextRenderingService {
   constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {}
 
-  public appendHelp(
-    message: string,
-    base: MenuEntry[],
-    app: MenuEntry[] = [],
-  ): string {
-    const longestLine = Math.max(
-      ...message.split(`\n`).map(i => ansiStrip(i).length),
-    );
-    const list = [...base, ...app];
-    const max = ansiMaxLength(list.map(([label]) => label));
-    return [
-      message,
-      ...(longestLine < MIN_SIZE
-        ? []
-        : [chalk.blue.dim` ${"=".repeat(longestLine)}`]),
-      ` `,
-      ...list
-        .sort(([a], [b]) => {
-          if (a.length < b.length) {
-            return UP;
-          }
-          if (b.length < a.length) {
-            return DOWN;
-          }
-          return a > b ? UP : DOWN;
-        })
-        .map(i => {
-          return chalk` {blue.dim -} {yellow.dim ${i[LABEL].padEnd(
-            max,
-            " ",
-          ).replaceAll(",", chalk.whiteBright`, `)}}  {gray ${
-            GV(i)
-            // Leave space at end for rendering reasons
-          } }`;
-        }),
-    ].join(`\n`);
-  }
-
+  /**
+   * Helper method for component rendering
+   *
+   * Render:
+   *  - 2 vertical lists horizontally next to each other
+   *  - Place a dim blue line between them
+   *  - Prepend a search box (if appropriate)
+   *
+   *
+   * ## Note
+   *
+   * Right size is considered "primary" / "preferred".
+   * Left side is considered the "secondary" column
+   */
   public assemble(
     leftEntries: string[],
     rightEntries: string[],
@@ -116,6 +91,12 @@ export class TextRenderingService {
     return out;
   }
 
+  /**
+   * Fuzzy sorting for menu entries.
+   * More greedy than the basic `fuzzySort`
+   *
+   * Takes into account helpText and category in addition to label
+   */
   // eslint-disable-next-line radar/cognitive-complexity
   public fuzzyMenuSort<T extends unknown = string>(
     searchText: string,
@@ -145,46 +126,47 @@ export class TextRenderingService {
           item[1] ? item[1].score - 500 : -1000,
         );
       },
-      // There is some sort of black magic involved with picking this threshold
-      // So far, between -600 & -800 seems to produce acceptable results
-      //
-      // May require better dialing in the future.
-      // Definitely a magic number
-      //
-      threshold: -700,
+      threshold: -10_000,
     });
 
-    return results.map(result => {
-      const label = fuzzy.highlight(
-        is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ""),
-        OPEN,
-        CLOSE,
-      );
-      const help = fuzzy.highlight(
-        is.object(result[1]) ? result[1] : fuzzy.single(result.obj.help, ""),
-        OPEN,
-        CLOSE,
-      );
-      const type = fuzzy.highlight(
-        is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ""),
-        OPEN,
-        CLOSE,
-      );
-      /* eslint-enable @typescript-eslint/no-magic-numbers */
-      const out = {
-        // ! CORRECT USAGE OF `[VALUE]` HERE
-        // Don't replace
-        entry: [
-          label || result.obj.value.entry[LABEL],
-          result.obj.value.entry[VALUE],
-        ] as MenuEntry<T>,
-        helpText: help || result.obj.value.helpText,
-        type: type || result.obj.value.type,
-      };
-      return out;
-    });
+    return results
+      .filter(([label, help, type]) => {
+        // Bad results: those without anything to highlight
+        // These will have a score of -1000
+        // Not all -1000 score items have nothing to highlight though
+        return !(label === null && help === null && type === null);
+      })
+      .map(result => {
+        const label = fuzzy.highlight(
+          is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ""),
+          OPEN,
+          CLOSE,
+        );
+        const help = fuzzy.highlight(
+          is.object(result[1]) ? result[1] : fuzzy.single(result.obj.help, ""),
+          OPEN,
+          CLOSE,
+        );
+        const type = fuzzy.highlight(
+          is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ""),
+          OPEN,
+          CLOSE,
+        );
+        const out = {
+          entry: [
+            label || result.obj.value.entry[LABEL],
+            GV(result.obj.value),
+          ] as MenuEntry<T>,
+          helpText: help || result.obj.value.helpText,
+          type: type || result.obj.value.type,
+        };
+        return out;
+      });
   }
 
+  /**
+   * Take a listing of menu entries, and use fuzzy sort to filter & order results
+   */
   public fuzzySort<T extends unknown = string>(
     searchText: string,
     data: MainMenuEntry<T>[],
@@ -193,7 +175,9 @@ export class TextRenderingService {
       return data;
     }
     const formatted = data.map(i => ({
-      label: i[LABEL],
+      help: i.helpText,
+      label: i.entry[LABEL],
+      type: i.type,
       value: GV(i.entry),
     }));
     return fuzzy
@@ -201,10 +185,15 @@ export class TextRenderingService {
       .map(result => {
         return {
           entry: [fuzzy.highlight(result, OPEN, CLOSE), result.obj.value],
+          helpText: result.obj.help,
+          type: result.obj.type,
         } as MainMenuEntry<T>;
       });
   }
 
+  /**
+   * Take a multiline string, and add an appropriate number of spaces to the beginning of each line
+   */
   public pad(message: string, amount = MIN_SIZE): string {
     return message
       .split(`\n`)
@@ -212,6 +201,9 @@ export class TextRenderingService {
       .join(`\n`);
   }
 
+  /**
+   * Component rendering
+   */
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
     const text = is.empty(searchText)
       ? chalk.bgBlue`Type to filter`
@@ -227,6 +219,9 @@ export class TextRenderingService {
     ];
   }
 
+  /**
+   * Take return a an array slice based on the position of a given value, and PAGE_SIZE.
+   */
   public selectRange<T>(
     entries: MainMenuEntry<T>[],
     value: unknown,
@@ -247,6 +242,11 @@ export class TextRenderingService {
     );
   }
 
+  /**
+   * Take in a variable of unknown type, return formatted pretty text to print to console
+   *
+   * Recursively handles objects and arrays.
+   */
   // eslint-disable-next-line radar/cognitive-complexity
   public type(item: unknown, nested = START): string {
     if (is.undefined(item)) {
@@ -271,6 +271,9 @@ export class TextRenderingService {
       );
     }
     if (Array.isArray(item)) {
+      if (is.empty(item)) {
+        return chalk.gray(`empty array`);
+      }
       return (
         `\n` +
         item

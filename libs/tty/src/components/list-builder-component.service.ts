@@ -55,8 +55,8 @@ const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
   [{ description: "toggle selected", key: ["`", "f4", "space"] }, "toggle"],
   [{ key: "f12" }, "reset"],
-  [{ key: "c" }, "cancel"],
-  [{ description: "done", key: "d" }, "onEnd"],
+  [{ key: "escape" }, "cancel"],
+  [{ description: "done", key: "enter" }, "onEnd"],
   [{ description: "left", key: "left" }, "onLeft"],
   [{ description: "right", key: "right" }, "onRight"],
   [{ key: ["home", "pageup"] }, "top"],
@@ -104,11 +104,9 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.current = [...this.opt.current];
     this.source = [...this.opt.source];
     this.opt.items ??= `Items`;
-    this.value ??= (
-      is.empty(this.source)
-        ? GV(this.current.entries[START])
-        : GV(this.source.entries[START])
-    ) as VALUE;
+    this.mode = "select";
+    const items = this.side(is.empty(this.source) ? "current" : "source");
+    this.value ??= GV(items[START]) as VALUE;
     this.detectSide();
     this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
   }
@@ -384,7 +382,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     data: MainMenuEntry<VALUE>[],
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
-    const highlighted = this.textRender.fuzzySort(this.searchText, data);
+    const highlighted = this.textRender.fuzzyMenuSort(this.searchText, data);
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
     }
@@ -431,7 +429,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     const out: string[] = [];
     let menu = this.side(side, true);
     if (this.mode === "find" && !is.empty(this.searchText)) {
-      menu = this.filterMenu(menu, updateValue);
+      menu = this.filterMenu(this[side] as MainMenuEntry<VALUE>[], updateValue);
     }
     const maxLabel =
       ansiMaxLength(...menu.map(entry => entry.entry[LABEL])) + ARRAY_OFFSET;
@@ -460,7 +458,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       return this.textRender.selectRange(this.side(side, false), this.value);
     }
     if (this.mode === "find") {
-      return this.textRender.fuzzySort<VALUE>(
+      return this.textRender.fuzzyMenuSort<VALUE>(
         this.searchText,
         this[side] as MainMenuEntry<VALUE>[],
       );
