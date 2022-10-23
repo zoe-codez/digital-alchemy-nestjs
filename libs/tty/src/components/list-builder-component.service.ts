@@ -15,9 +15,9 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { GV, MenuEntry, tKeyMap, TTYKeypressOptions } from "../contracts";
+import { GV, MainMenuEntry, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { ansiMaxLength, ansiPadEnd, MergeHelp } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -28,9 +28,9 @@ import {
 const UNSORTABLE = new RegExp("[^A-Za-z0-9]", "g");
 
 export interface ListBuilderOptions<T = unknown> {
-  current?: MenuEntry<T | string>[];
+  current?: MainMenuEntry<T | string>[];
   items?: string;
-  source: MenuEntry<T | string>[];
+  source: MainMenuEntry<T | string>[];
 }
 
 const KEYMAP_FIND: tKeyMap = new Map<TTYKeypressOptions, string>([
@@ -79,7 +79,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     private readonly keyboard: KeyboardManagerService,
   ) {}
   private complete = false;
-  private current: MenuEntry<VALUE | string>[];
+  private current: MainMenuEntry<VALUE | string>[];
 
   private done: (type: VALUE[]) => void;
   private final = false;
@@ -88,7 +88,7 @@ export class ListBuilderComponentService<VALUE = unknown>
   private opt: ListBuilderOptions<VALUE>;
   private searchText = "";
   private selectedType: "current" | "source" = "source";
-  private source: MenuEntry<VALUE | string>[];
+  private source: MainMenuEntry<VALUE | string>[];
   private value: VALUE;
 
   public configure(
@@ -105,7 +105,9 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.source = [...this.opt.source];
     this.opt.items ??= `Items`;
     this.value ??= (
-      is.empty(this.source) ? GV(this.current[START]) : GV(this.source[START])
+      is.empty(this.source)
+        ? GV(this.current.entries[START])
+        : GV(this.source.entries[START])
     ) as VALUE;
     this.detectSide();
     this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
@@ -137,8 +139,10 @@ export class ListBuilderComponentService<VALUE = unknown>
       this.complete = true;
       return;
     }
+    const list = this.side();
+    const item = list.find(i => GV(i) === this.value);
     this.screen.render(
-      message.join(`\n`),
+      MergeHelp(message.join(`\n`), item),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
     );
   }
@@ -152,11 +156,11 @@ export class ListBuilderComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.source.find(
-      item => GV(item) === this.value,
-    ) as MenuEntry<string>;
+      item => GV(item.entry) === this.value,
+    ) as MainMenuEntry<string>;
     this.current.push(item);
     // Remove from source
-    this.source = this.source.filter(check => GV(check) !== this.value);
+    this.source = this.source.filter(check => GV(check.entry) !== this.value);
 
     // Find move item in original source list
     const index = source.findIndex(i => GV(i) === this.value);
@@ -252,7 +256,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.final = true;
     this.render();
     await sleep();
-    this.done(this.current.map(i => GV(i) as VALUE));
+    this.done(this.current.map(i => GV(i.entry) as VALUE));
   }
 
   protected onLeft(): void {
@@ -377,9 +381,9 @@ export class ListBuilderComponentService<VALUE = unknown>
   }
 
   private filterMenu(
-    data: MenuEntry<VALUE>[],
+    data: MainMenuEntry<VALUE>[],
     updateValue = false,
-  ): MenuEntry<VALUE>[] {
+  ): MainMenuEntry<VALUE>[] {
     const highlighted = this.textRender.fuzzySort(this.searchText, data);
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
@@ -397,11 +401,11 @@ export class ListBuilderComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.current.find(
-      item => GV(item) === this.value,
-    ) as MenuEntry<string>;
+      ({ entry }) => GV(entry) === this.value,
+    ) as MainMenuEntry<string>;
     this.source.push(item);
     // Remove from source
-    this.current = this.current.filter(check => GV(check) !== this.value);
+    this.current = this.current.filter(({ entry }) => GV(entry) !== this.value);
 
     // Find move item in original source list
     const index = current.findIndex(i => GV(i) === this.value);
@@ -430,13 +434,13 @@ export class ListBuilderComponentService<VALUE = unknown>
       menu = this.filterMenu(menu, updateValue);
     }
     const maxLabel =
-      ansiMaxLength(...menu.map(entry => entry[LABEL])) + ARRAY_OFFSET;
+      ansiMaxLength(...menu.map(entry => entry.entry[LABEL])) + ARRAY_OFFSET;
     if (is.empty(menu)) {
       out.push(chalk.bold` {gray.inverse  List is empty } `);
     }
     menu.forEach(item => {
       const inverse = GV(item) === this.value;
-      const padded = ansiPadEnd(item[LABEL], maxLabel);
+      const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
       if (this.selectedType === side) {
         out.push(
           chalk` {${inverse ? "bgCyanBright.black" : "white"}  ${padded} }`,
@@ -451,20 +455,21 @@ export class ListBuilderComponentService<VALUE = unknown>
   private side(
     side: "current" | "source" = this.selectedType,
     range = false,
-  ): MenuEntry<VALUE>[] {
+  ): MainMenuEntry<VALUE>[] {
     if (range) {
       return this.textRender.selectRange(this.side(side, false), this.value);
     }
     if (this.mode === "find") {
       return this.textRender.fuzzySort<VALUE>(
         this.searchText,
-        this[side] as MenuEntry<VALUE>[],
+        this[side] as MainMenuEntry<VALUE>[],
       );
     }
     return this[side].sort((a, b) => {
-      return a[LABEL].replace(UNSORTABLE, "") > b[LABEL].replace(UNSORTABLE, "")
+      return a.entry[LABEL].replace(UNSORTABLE, "") >
+        b.entry[LABEL].replace(UNSORTABLE, "")
         ? UP
         : DOWN;
-    }) as MenuEntry<VALUE>[];
+    }) as MainMenuEntry<VALUE>[];
   }
 }

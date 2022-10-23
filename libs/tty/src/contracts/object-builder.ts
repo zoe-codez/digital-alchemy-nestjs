@@ -5,6 +5,7 @@ export enum TABLE_CELL_TYPE {
   boolean = "boolean",
   number = "number",
   enum = "enum",
+  enumarray = "enum-array",
   date = "date",
   list = "list",
 }
@@ -13,6 +14,7 @@ export type ObjectBuilderDefault<T> = T | (() => T);
 
 export type TableBuilderElement<VALUE = object> = {
   helpText?: string;
+  hidden?: (value: VALUE) => boolean;
   name?: string;
   path: Extract<keyof VALUE, string>;
   format?<T>(value: T): string;
@@ -22,9 +24,14 @@ export type TableBuilderElement<VALUE = object> = {
   | { default?: ObjectBuilderDefault<number>; type: "number" }
   | { default?: ObjectBuilderDefault<Date>; type: "date" }
   | {
-      default?: ObjectBuilderDefault<string>;
+      default?: ObjectBuilderDefault<unknown>;
       options: MainMenuEntry[];
       type: "enum";
+    }
+  | {
+      default?: ObjectBuilderDefault<unknown[]>;
+      options: MainMenuEntry[];
+      type: "enum-array";
     }
 );
 

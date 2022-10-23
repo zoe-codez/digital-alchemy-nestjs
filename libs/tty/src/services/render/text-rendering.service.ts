@@ -187,24 +187,22 @@ export class TextRenderingService {
 
   public fuzzySort<T extends unknown = string>(
     searchText: string,
-    data: MenuEntry<T>[],
-  ): MenuEntry<T>[] {
+    data: MainMenuEntry<T>[],
+  ): MainMenuEntry<T>[] {
     if (is.empty(searchText)) {
       return data;
     }
     const formatted = data.map(i => ({
       label: i[LABEL],
-      value: GV(i),
+      value: GV(i.entry),
     }));
     return fuzzy
       .go(searchText, formatted, { all: true, key: "label" })
-      .map(
-        result =>
-          [
-            fuzzy.highlight(result, OPEN, CLOSE),
-            result.obj.value,
-          ] as MenuEntry<T>,
-      );
+      .map(result => {
+        return {
+          entry: [fuzzy.highlight(result, OPEN, CLOSE), result.obj.value],
+        } as MainMenuEntry<T>;
+      });
   }
 
   public pad(message: string, amount = MIN_SIZE): string {
@@ -230,9 +228,9 @@ export class TextRenderingService {
   }
 
   public selectRange<T>(
-    entries: MenuEntry<T>[],
+    entries: MainMenuEntry<T>[],
     value: unknown,
-  ): MenuEntry<T>[] {
+  ): MainMenuEntry<T>[] {
     if (entries.length <= this.pageSize) {
       return entries;
     }

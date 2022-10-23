@@ -633,10 +633,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.mode === "find" && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
-    const temporary = this.textRender.selectRange(
-      menu.map(({ entry }) => entry),
-      this.value,
-    );
+    const temporary = this.textRender.selectRange(menu, this.value);
     menu = temporary.map(i => menu.find(({ entry }) => GV(i) === GV(entry)));
 
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));

@@ -11,6 +11,7 @@ import { get, set } from "object-path";
 import {
   DirectCB,
   GV,
+  MainMenuEntry,
   TableBuilderElement,
   TableBuilderOptions,
   tKeyMap,
@@ -228,6 +229,12 @@ export class TableBuilderComponentService<
           break;
         case "string":
           value = await this.prompt.string(column.name, current);
+          break;
+        case "enum-array":
+          value = await this.prompt.listBuild<VALUE>({
+            current,
+            source: column.options as MainMenuEntry<string | VALUE>[],
+          });
           break;
         case "enum":
           value = await this.prompt.pickOne(

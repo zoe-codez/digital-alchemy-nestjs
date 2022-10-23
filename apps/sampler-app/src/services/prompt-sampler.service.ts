@@ -1,17 +1,18 @@
+/* eslint-disable radar/no-identical-functions */
 /* eslint-disable radar/no-duplicate-string */
 import { faker } from "@faker-js/faker";
 import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   DateEditorEditorOptions,
-  MenuEntry,
+  MainMenuEntry,
   PromptService,
   ScreenService,
   TextRenderingService,
   TTYDateTypes,
   TTYFuzzyTypes,
 } from "@steggy/tty";
-import { PEAT } from "@steggy/utilities";
+import { HALF, PEAT } from "@steggy/utilities";
 import chalk from "chalk";
 
 import { MenuSampler } from "./menu-sampler.service";
@@ -201,9 +202,16 @@ export class PromptSampler {
         { entry: ["custom label", "label"] },
       ],
     });
-    const source = PEAT(LIST_LENGTH).map(
-      i => [faker.company.companyName(), `${i}`] as MenuEntry,
-    );
+    const source = PEAT(LIST_LENGTH).map(i => {
+      const element = faker.science.chemicalElement();
+      return {
+        entry: [element.name, `${i}`],
+        helpText:
+          Math.random() > HALF
+            ? `${element.atomicNumber} ${element.symbol}`
+            : undefined,
+      } as MainMenuEntry<string>;
+    });
     let result: string[];
     switch (action) {
       case "default":
@@ -213,9 +221,13 @@ export class PromptSampler {
         break;
       case "selected":
         result = await this.prompt.listBuild({
-          current: PEAT(LIST_LENGTH).map(
-            i => [faker.science.chemicalElement().name, `${i}`] as MenuEntry,
-          ),
+          current: PEAT(LIST_LENGTH).map(i => {
+            const element = faker.science.chemicalElement();
+            return {
+              entry: [element.name, `${i}`],
+              helpText: `${element.atomicNumber} ${element.symbol}`,
+            } as MainMenuEntry<string>;
+          }),
           source,
         });
         break;

@@ -70,6 +70,7 @@
               "bg",
               "bitrate",
               "bson",
+              "enumarray",
               "cachable",
               "calc",
               "cancelled",
