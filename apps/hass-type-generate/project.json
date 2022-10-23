@@ -48,10 +48,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat apps/hass-type-generate/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/hass-type-generate/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga HASS Type Generate",
             "description": "Announce it"
           },

@@ -59,10 +59,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat apps/log-formatter/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/log-formatter/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga Log Formatter",
             "description": "Announce it"
           },

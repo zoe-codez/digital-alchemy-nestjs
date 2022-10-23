@@ -46,10 +46,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat libs/utilities/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/utilities/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga Utilities",
             "description": "Announce it"
           },

@@ -48,10 +48,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat apps/sampler-app/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/sampler-app/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga Sampler App",
             "description": "Announce it"
           },

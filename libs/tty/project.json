@@ -45,10 +45,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat libs/tty/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/tty/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga TTY",
             "description": "Announce it"
           },

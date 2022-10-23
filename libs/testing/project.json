@@ -46,10 +46,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat libs/testing/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > libs/testing/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga Testing",
             "description": "Announce it"
           },

@@ -48,10 +48,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat apps/build-pipeline/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/build-pipeline/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx nx build build-pipeline --configuration=production",
             "description": "Create build"
           },

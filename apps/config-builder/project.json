@@ -75,10 +75,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "cat apps/config-builder/package.json | jq '.version = $version' --arg version $(cat package.json | jq '.version' | xargs) > apps/config-builder/package.json",
-            "description": "Sync versions"
-          },
-          {
             "command": "npx figlet-cli -f Pagga Config Builder",
             "description": "Announce it"
           },
