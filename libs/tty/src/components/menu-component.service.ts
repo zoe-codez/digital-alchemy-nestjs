@@ -266,10 +266,13 @@ export class MenuComponentService<VALUE = unknown | string>
     const selectedItem = this.side().find(
       ({ entry }) => GV(entry) === this.value,
     );
-    const result = await callback(
-      GV(keyMap[mixed]) as unknown as string,
-      selectedItem?.entry,
-    );
+    const result = await (!selectedItem
+      ? callback(GV(keyMap[mixed]) as unknown as string, [undefined, undefined])
+      : callback(GV(keyMap[mixed]) as unknown as string, [
+          // Force a value entry to be present
+          selectedItem.entry[LABEL],
+          GV(selectedItem),
+        ]));
     if (is.string(result)) {
       this.callbackOutput = result;
       this.callbackTimestamp = dayjs();
