@@ -244,9 +244,69 @@ export class PromptSampler {
     this.application.setHeader("Object builder");
     this.screen.printLine(`An example of the object builder in table mode.`);
     const result = await this.prompt.objectBuilder({
+      current: {
+        check: false,
+        column1: "",
+        column2: "",
+        column3: "",
+        extra: ["bar", "baz"],
+        key: "",
+        value: 5,
+      },
       elements: [
-        { name: "Key", path: "key", type: "string" },
-        { name: "Value", path: "value", type: "string" },
+        {
+          helpText: "key",
+          name: "Key",
+          path: "key",
+          type: "string",
+        },
+        {
+          helpText: "value",
+          name: "Value",
+          path: "value",
+          type: "number",
+        },
+        {
+          helpText: "extra",
+          hidden(i) {
+            return !!i.key;
+          },
+          name: "Extra",
+          options: [
+            { entry: ["foo"] },
+            { entry: ["bar"] },
+            {
+              entry: ["baz"],
+              helpText: chalk`I am only visible when {blue key} is blank`,
+            },
+          ],
+          path: "extra",
+          type: "enum-array",
+        },
+        {
+          helpText: "check",
+          name: "Check",
+          path: "check",
+          type: "boolean",
+        },
+        {
+          helpText: "column1",
+          name: "Column 1",
+          path: "column1",
+          type: "string",
+        },
+        {
+          helpText: "column2",
+          name: "Column 2",
+          path: "column2",
+          type: "string",
+        },
+        {
+          helpText: "column3",
+          name: "Column 3",
+          path: "column3",
+          type: "string",
+        },
       ],
     });
     this.screen.printLine(this.text.type(result));

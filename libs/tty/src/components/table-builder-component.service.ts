@@ -12,7 +12,6 @@ import {
   DirectCB,
   GV,
   MainMenuEntry,
-  TableBuilderElement,
   TableBuilderOptions,
   tKeyMap,
   TTYKeypressOptions,
@@ -145,6 +144,15 @@ export class TableBuilderComponentService<
     return this.opt.elements;
   }
 
+  private get visibleColumns() {
+    return this.columns.filter(i => {
+      if (!i.hidden) {
+        return true;
+      }
+      return !i.hidden(this.value);
+    });
+  }
+
   protected add(): void {
     const value = Object.fromEntries(
       this.columns.map(column => {
@@ -207,9 +215,10 @@ export class TableBuilderComponentService<
 
   protected async enableEdit(): Promise<void> {
     await this.screen.footerWrap(async () => {
-      const column = this.opt.elements[
-        this.opt.mode === "single" ? this.selectedRow : this.selectedCell
-      ] as TableBuilderElement;
+      const column =
+        this.opt.mode === "single"
+          ? this.visibleColumns[this.selectedRow]
+          : this.columns[this.selectedCell];
       const row =
         this.opt.mode === "single" ? this.value : this.rows[this.selectedRow];
       const current = get(is.object(row) ? row : {}, column.path);
@@ -250,6 +259,7 @@ export class TableBuilderComponentService<
             current,
           );
           // TODO: WHY?!
+          // The auto erase should catch this... but it doesn't for some reason
           const { helpText } = column.options.find(i => GV(i.entry) === value);
           if (!is.empty(helpText)) {
             this.screen.eraseLine(HELP_ERASE_SIZE);
@@ -267,7 +277,7 @@ export class TableBuilderComponentService<
         this.selectedRow = START;
         return;
       }
-    } else if (this.selectedRow === this.opt.elements.length - ARRAY_OFFSET) {
+    } else if (this.selectedRow === this.visibleColumns.length - ARRAY_OFFSET) {
       this.selectedRow = START;
       return;
     }
@@ -293,8 +303,9 @@ export class TableBuilderComponentService<
 
   protected onPageDown(): void {
     this.selectedRow =
-      (this.opt.mode === "single" ? this.columns.length : this.rows.length) -
-      ARRAY_OFFSET;
+      (this.opt.mode === "single"
+        ? this.visibleColumns.length
+        : this.rows.length) - ARRAY_OFFSET;
   }
 
   protected onPageUp(): void {
@@ -310,9 +321,11 @@ export class TableBuilderComponentService<
 
   protected onUp(): boolean {
     if (this.selectedRow === START) {
-      this.selectedRow =
-        (this.opt.mode === "multi" ? this.rows.length : this.columns.length) -
-        ARRAY_OFFSET;
+      if (this.opt.mode === "multi") {
+        this.selectedRow = this.rows.length - ARRAY_OFFSET;
+        return;
+      }
+      this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
       return;
     }
     this.selectedRow--;
@@ -342,9 +355,16 @@ export class TableBuilderComponentService<
   private renderSingle(): void {
     const message = MergeHelp(
       this.text.pad(
-        this.form.renderForm(this.opt, this.value, this.selectedRow),
+        this.form.renderForm(
+          {
+            ...this.opt,
+            elements: this.visibleColumns,
+          },
+          this.value,
+          this.selectedRow,
+        ),
       ),
-      this.opt.elements[this.selectedRow],
+      this.visibleColumns[this.selectedRow],
     );
     this.screen.render(
       message,

@@ -10,11 +10,6 @@ import chalk from "chalk";
 
 import { ConfigSampler, MenuSampler, PromptSampler } from "./services";
 
-// @QuickScript is derived from @Module from NestJS
-// imports, providers, controllers all work as expected
-//
-// After bootstrapping, it will automatically run `exec` on the annotated class
-//
 @QuickScript({
   application: Symbol("sampler-app"),
   bootstrap: {

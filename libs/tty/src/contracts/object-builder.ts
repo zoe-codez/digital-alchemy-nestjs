@@ -14,6 +14,9 @@ export type ObjectBuilderDefault<T> = T | (() => T);
 
 export type TableBuilderElement<VALUE = object> = {
   helpText?: string;
+  /**
+   * Only works with single object builder mode.
+   */
   hidden?: (value: VALUE) => boolean;
   name?: string;
   path: Extract<keyof VALUE, string>;

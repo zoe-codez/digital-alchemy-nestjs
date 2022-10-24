@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   INCREMENT,
-  is,
   LABEL,
   START,
   VALUE,
@@ -49,12 +48,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
   }
 
   private formBody(maxLabel: number): string[] {
-    const elements = this.activeOptions.elements.filter(i => {
-      if (!is.function(i.hidden)) {
-        return true;
-      }
-      return !i.hidden(this.value);
-    });
+    const elements = this.activeOptions.elements;
     const maxValue =
       DOUBLE_PADDING +
       ansiMaxLength(
@@ -117,7 +111,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
         raw = option.entry[LABEL];
       }
     }
-    const v = this.textRender.type(raw);
+    const v = this.textRender.type(raw).trim();
     const lines = v.split(`\n`).length;
     const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
       `\n`,
