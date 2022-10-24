@@ -94,7 +94,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
     ];
   }
 
-  private getRenderValue(element: TableBuilderElement<VALUE>): string {
+  private getRenderValue(element: TableBuilderElement<VALUE>): unknown {
     const raw = get(this.value, element.path);
     if (element.type === "enum") {
       const option = element.options.find(({ entry }) => entry[VALUE] === raw);
@@ -106,15 +106,13 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
       if (!Array.isArray(raw)) {
         return raw;
       }
-      return raw
-        .map(item => {
-          const option = element.options.find(i => GV(i) === item);
-          if (!option) {
-            return item;
-          }
-          return option?.entry[LABEL];
-        })
-        .join(`\n`);
+      return raw.map(item => {
+        const option = element.options.find(i => GV(i) === item);
+        if (!option) {
+          return item;
+        }
+        return option?.entry[LABEL];
+      });
     }
     return raw;
   }
