@@ -10,6 +10,7 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import {
+  GV,
   TABLE_PARTS,
   TableBuilderElement,
   TableBuilderOptions,
@@ -53,7 +54,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
       DOUBLE_PADDING +
       ansiMaxLength(
         ...elements.map(i => {
-          return this.textRender.type(get(this.value, i.path));
+          return this.textRender.type(this.getRenderValue(i));
         }),
       );
     const columns = elements.map((i: TableBuilderElement, index) =>
@@ -93,6 +94,31 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
     ];
   }
 
+  private getRenderValue(element: TableBuilderElement<VALUE>): string {
+    const raw = get(this.value, element.path);
+    if (element.type === "enum") {
+      const option = element.options.find(({ entry }) => entry[VALUE] === raw);
+      if (option) {
+        return option.entry[LABEL];
+      }
+    }
+    if (element.type === "enum-array") {
+      if (!Array.isArray(raw)) {
+        return raw;
+      }
+      return raw
+        .map(item => {
+          const option = element.options.find(i => GV(i) === item);
+          if (!option) {
+            return item;
+          }
+          return option?.entry[LABEL];
+        })
+        .join(`\n`);
+    }
+    return raw;
+  }
+
   private renderValue({
     i,
     index,
@@ -104,13 +130,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
     maxLabel: number;
     maxValue: number;
   }): string {
-    let raw = get(this.value, i.path);
-    if (i.type === "enum") {
-      const option = i.options.find(({ entry }) => entry[VALUE] === raw);
-      if (option) {
-        raw = option.entry[LABEL];
-      }
-    }
+    const raw = this.getRenderValue(i);
     const v = this.textRender.type(raw).trim();
     const lines = v.split(`\n`).length;
     const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
