@@ -291,7 +291,8 @@ export class TextRenderingService {
     }
     if (is.object(item)) {
       const maxKey =
-        Math.max(...Object.keys(item).map(i => i.length)) + INCREMENT;
+        Math.max(...Object.keys(item).map(i => TitleCase(i).length)) +
+        INCREMENT;
       return (
         (nested ? `\n` : "") +
         Object.keys(item)
