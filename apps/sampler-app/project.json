@@ -12,16 +12,16 @@
       }
     },
     "build": {
-      "executor": "@nrwl/node:webpack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
       "options": {
         "assets": [],
         "outputPath": "dist/apps/sampler-app",
         "generatePackageJson": true,
         "main": "apps/sampler-app/src/main.ts",
-        "tsConfig": "apps/sampler-app/tsconfig.app.json"
+        "tsConfig": "apps/sampler-app/tsconfig.app.json",
+        "target": "node",
+        "compiler": "tsc"
       },
       "configurations": {
         "production": {
@@ -34,16 +34,12 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": [
-          "apps/sampler-app/**/*.ts"
-        ]
+        "lintFilePatterns": ["apps/sampler-app/**/*.ts"]
       },
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
@@ -71,7 +67,7 @@
       }
     },
     "scan-config": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
@@ -87,7 +83,5 @@
       }
     }
   },
-  "tags": [
-    "terminal"
-  ]
+  "tags": ["terminal"]
 }

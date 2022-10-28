@@ -5,9 +5,7 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/mqtt",
         "tsConfig": "libs/mqtt/tsconfig.lib.json",
@@ -15,10 +13,7 @@
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/mqtt/src/index.ts",
-        "assets": [
-          "libs/mqtt/*.md",
-          "libs/mqtt/package.json"
-        ]
+        "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]
       },
       "configurations": {
         "production": {
@@ -30,17 +25,13 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "libs/mqtt/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/mqtt/**/*.ts"]
       }
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
@@ -60,7 +51,5 @@
       }
     }
   },
-  "tags": [
-    "nestjs"
-  ]
+  "tags": ["nestjs"]
 }

@@ -5,9 +5,7 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/server",
         "tsConfig": "libs/server/tsconfig.lib.json",
@@ -15,9 +13,7 @@
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/server/src/index.ts",
-        "assets": [
-          "libs/server/package.json"
-        ]
+        "assets": ["libs/server/package.json"]
       },
       "configurations": {
         "production": {
@@ -32,16 +28,12 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": [
-          "libs/server/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/server/**/*.ts"]
       },
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
@@ -61,7 +53,5 @@
       }
     }
   },
-  "tags": [
-    "nestjs"
-  ]
+  "tags": ["nestjs"]
 }

@@ -5,9 +5,7 @@
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/boilerplate",
         "tsConfig": "libs/boilerplate/tsconfig.lib.json",
@@ -38,16 +36,12 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": [
-          "libs/boilerplate/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/boilerplate/**/*.ts"]
       },
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
@@ -68,19 +62,13 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": [
-        "coverage/libs/boilerplate"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/libs/boilerplate"],
       "options": {
         "jestConfig": "libs/boilerplate/jest.config.ts",
         "passWithNoTests": true
       }
     }
   },
-  "implicitDependencies": [
-    "!testing"
-  ],
-  "tags": [
-    "nestjs"
-  ]
+  "implicitDependencies": ["!testing"],
+  "tags": ["nestjs"]
 }
