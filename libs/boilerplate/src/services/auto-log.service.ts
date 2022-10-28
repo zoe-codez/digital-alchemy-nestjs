@@ -6,9 +6,9 @@ import pino from "pino";
 
 import {
   ACTIVE_APPLICATION,
+  GetLogContext,
   iLogger,
   iLoggerCore,
-  LOG_CONTEXT,
   LogLevels,
   MISSING_CONTEXT,
 } from "../contracts";
@@ -217,6 +217,6 @@ export class AutoLogService implements iLogger {
     if (this.contextId) {
       return mappedContexts.get(this.contextId);
     }
-    return this.parent?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+    return GetLogContext(this.parent) ?? MISSING_CONTEXT;
   }
 }

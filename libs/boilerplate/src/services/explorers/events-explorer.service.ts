@@ -5,7 +5,7 @@ import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { isProxy } from "util/types";
 
-import { LOG_CONTEXT } from "../../contracts";
+import { GetLogContext } from "../../contracts";
 import {
   EVENT_LISTENER_METADATA,
   OnEventMetadata,
@@ -68,7 +68,7 @@ export class EventsExplorerService {
       return;
     }
     const { event } = eventListenerMetadata;
-    const context = instance.constructor[LOG_CONTEXT];
+    const context = GetLogContext(instance);
     const list = Array.isArray(event) ? event : [event];
     this.logger.debug(
       `${context}#${key} event subscribe ${list

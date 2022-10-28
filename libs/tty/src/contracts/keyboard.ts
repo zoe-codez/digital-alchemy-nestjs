@@ -3,8 +3,18 @@ export type KeyDescriptor = { key: Key; value?: string };
 export type MenuEntry<T extends unknown = string> = [string, T] | [string];
 export interface MainMenuEntry<T = unknown> {
   entry: MenuEntry<T>;
+  /**
+   * Additional help text to display when this entry is selected
+   */
   helpText?: string;
   icon?: string;
+  /**
+   * sort by priority (default = 0) > sort by label
+   */
+  priority?: number;
+  /**
+   * Used to group entries into categories
+   */
   type?: string;
 }
 export type tKeyMap = Map<TTYKeypressOptions, string | DirectCB>;

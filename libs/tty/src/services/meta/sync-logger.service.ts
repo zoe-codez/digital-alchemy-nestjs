@@ -2,10 +2,10 @@ import { Inject, Injectable, Scope } from "@nestjs/common";
 import { INQUIRER } from "@nestjs/core";
 import {
   ACTIVE_APPLICATION,
+  GetLogContext,
   iLogger,
   InjectConfig,
   LIB_BOILERPLATE,
-  LOG_CONTEXT,
   LOG_LEVEL,
   LoggerFunction,
   LogLevels,
@@ -157,7 +157,7 @@ export class SyncLoggerService implements iLogger {
     // if (this.contextId) {
     //   return mappedContexts.get(this.contextId);
     // }
-    return this.parent?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+    return GetLogContext(this.parent) ?? MISSING_CONTEXT;
   }
 
   private log(level: LogLevels, ...parameters: Parameters<LoggerFunction>) {

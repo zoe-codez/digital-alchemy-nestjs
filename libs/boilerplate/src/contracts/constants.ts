@@ -13,3 +13,6 @@ export const CONSUMES_CONFIG = Symbol("CONSUMES_CONFIG");
 export const CONFIG_DEFAULTS = Symbol("CONFIG_DEFAULTS");
 
 export const ACTIVE_APPLICATION = Symbol("ACTIVE_APPLICATION");
+
+export const GetLogContext = (i: unknown): string =>
+  i?.constructor[LOG_CONTEXT];

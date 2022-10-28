@@ -2,6 +2,7 @@ import { forwardRef, Inject } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   DOWN,
+  EMPTY,
   FIRST,
   INCREMENT,
   INVERT_VALUE,
@@ -765,6 +766,7 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   // this used to do more
+  // eslint-disable-next-line radar/cognitive-complexity
   private side(
     side: "left" | "right" = this.selectedType,
     noRecurse = false,
@@ -787,6 +789,11 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.sort) {
       temp = temp.sort(([a, aLabel], [b, bLabel]) => {
         if (a.type === b.type) {
+          const aPriority = a.priority ?? EMPTY;
+          const bPriority = b.priority ?? EMPTY;
+          if (aPriority !== bPriority) {
+            return aPriority > bPriority ? UP : DOWN;
+          }
           return aLabel > bLabel ? UP : DOWN;
         }
         if (a.type > b.type) {

@@ -6,7 +6,7 @@ import { CRON_SCHEDULE } from "@steggy/utilities";
 import { CronJob } from "cron";
 import { isProxy } from "util/types";
 
-import { LOG_CONTEXT } from "../../contracts";
+import { GetLogContext } from "../../contracts";
 import { AutoLogService } from "../auto-log.service";
 
 /**
@@ -43,7 +43,7 @@ export class ScheduleExplorerService {
             return;
           }
           this.logger.debug(
-            `${instance.constructor[LOG_CONTEXT]}#${key} cron {${schedule}}`,
+            `${GetLogContext(instance)}#${key} cron {${schedule}}`,
           );
           const cronJob = new CronJob(schedule, () => instance[key]());
           cronJob.start();

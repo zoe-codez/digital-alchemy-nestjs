@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner } from "@nestjs/core";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
-import { AutoLogService, LOG_CONTEXT } from "@steggy/boilerplate";
+import { AutoLogService, GetLogContext } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
@@ -95,7 +95,7 @@ export class MQTTExplorerService {
               : subscribeOptions.topic;
             topics.forEach(topic => {
               this.logger.debug(
-                `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${topic}}`,
+                `${GetLogContext(instance)}#${key} subscribe {${topic}}`,
               );
               this.mqtt.subscribe(
                 topic,
