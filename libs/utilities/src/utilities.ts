@@ -24,6 +24,7 @@ export const SAME = 0;
 export const LABEL = 0;
 // Generic start of something
 export const START = 0;
+export const NONE = 0;
 export const FIRST = 0;
 export const EMPTY = 0;
 export const NO_CHANGE = 0;

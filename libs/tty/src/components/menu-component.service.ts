@@ -8,6 +8,7 @@ import {
   INVERT_VALUE,
   is,
   LABEL,
+  NONE,
   NOT_FOUND,
   PAIR,
   SINGLE,
@@ -765,7 +766,13 @@ export class MenuComponentService<VALUE = unknown | string>
     this.keyboard.setKeyMap(this, keymap);
   }
 
-  // this used to do more
+  /**
+   * Retrieve the list of entries. Default is current side, aware of find mode
+   *
+   * Sorting logic:
+   *  - Type sorting: priority set by highest level item inside type, then alphabetical
+   *  - Items sorted within types, priority first, then ansi stripped label
+   */
   // eslint-disable-next-line radar/cognitive-complexity
   private side(
     side: "left" | "right" = this.selectedType,
@@ -774,19 +781,16 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.mode === "find" && !noRecurse) {
       return [...this.side("right", true), ...this.side("left", true)];
     }
-    // TODO: find way of caching the replacements
-    // Might be an issue in large lists
-    let temp = this.opt[side].map(
-      item =>
-        [
-          item,
-          ansiStrip(item.entry[LABEL]).replace(
-            new RegExp("[^A-Za-z0-9]", "g"),
-            "",
-          ),
-        ] as [MainMenuEntry, string],
-    );
+    let temp = this.opt[side].map(item => [
+      item,
+      ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),
+    ]) as [MainMenuEntry, string][];
     if (this.sort) {
+      const sortedTypes: Record<string, number> = {};
+      temp.forEach(([{ priority = NONE, type }]) => {
+        const current = sortedTypes[type] ?? NONE;
+        sortedTypes[type] = priority > current ? priority : current;
+      });
       temp = temp.sort(([a, aLabel], [b, bLabel]) => {
         if (a.type === b.type) {
           const aPriority = a.priority ?? EMPTY;
@@ -796,12 +800,15 @@ export class MenuComponentService<VALUE = unknown | string>
           }
           return aLabel > bLabel ? UP : DOWN;
         }
+        if (sortedTypes[a.type] !== sortedTypes[b.type]) {
+          return sortedTypes[a.type] > sortedTypes[b.type] ? UP : DOWN;
+        }
         if (a.type > b.type) {
           return UP;
         }
         return DOWN;
       });
     }
-    return temp.map(([item]) => item) as MainMenuEntry<VALUE>[];
+    return temp.map(([item]) => item as MainMenuEntry<VALUE>);
   }
 }
