@@ -796,12 +796,12 @@ export class MenuComponentService<VALUE = unknown | string>
           const aPriority = a.priority ?? EMPTY;
           const bPriority = b.priority ?? EMPTY;
           if (aPriority !== bPriority) {
-            return aPriority > bPriority ? UP : DOWN;
+            return aPriority < bPriority ? UP : DOWN;
           }
           return aLabel > bLabel ? UP : DOWN;
         }
         if (sortedTypes[a.type] !== sortedTypes[b.type]) {
-          return sortedTypes[a.type] > sortedTypes[b.type] ? UP : DOWN;
+          return sortedTypes[a.type] < sortedTypes[b.type] ? UP : DOWN;
         }
         if (a.type > b.type) {
           return UP;
