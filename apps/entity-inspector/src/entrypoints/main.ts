@@ -31,7 +31,7 @@ export class EntityInspector {
     this.application.setHeader("Entity Inspector");
     const action = await this.prompt.menu({
       condensed: true,
-      keyMap: { d: ["done"] },
+      keyMap: { escape: ["done"] },
       right: [{ entry: ["Current state by id", "id"] }, { entry: ["done"] }],
       value,
     });

@@ -40,7 +40,7 @@ export class PromptSampler {
       ].join(`\n`),
       keyMap: {
         a: ["all"],
-        d: ["done"],
+        escape: ["done"],
       },
       right: [
         {

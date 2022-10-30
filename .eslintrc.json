@@ -36,6 +36,7 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
+        "unicorn/switch-case-braces": "off",
         "spellcheck/spell-checker": [
           "warn",
           {

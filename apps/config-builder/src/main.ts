@@ -106,7 +106,7 @@ export class ConfigScanner implements iQuickScript {
     }
     const action = await this.prompt.menu({
       hideSearch: true,
-      keyMap: { d: ["done"] },
+      keyMap: { escape: ["done"] },
       right: entries,
       value: defaultValue,
     });
@@ -354,7 +354,7 @@ export class ConfigScanner implements iQuickScript {
   private async selectConfig(initial?: ConfigTypeDTO): Promise<void> {
     const mergedConfig = this.config;
     const item = await this.prompt.menu({
-      keyMap: { d: ["done"] },
+      keyMap: { escape: ["done"] },
       right: this.configDefinition.config.map(item => {
         const prefix =
           this.loadedApplication === item.library
@@ -415,7 +415,7 @@ export class ConfigScanner implements iQuickScript {
     }
     const action = await this.prompt.menu({
       headerMessage,
-      keyMap: { d: ["done"] },
+      keyMap: { escape: ["done"] },
       right: [
         { entry: ["Add", "add"] },
         { entry: ["Remove single", "remove"] },

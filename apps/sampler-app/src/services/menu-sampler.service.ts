@@ -94,7 +94,7 @@ export class MenuSampler {
       keyMap: {
         a: [chalk.magenta.inverse("do a little dance"), "dance"],
         b: [chalk.magenta.inverse("paint some colors"), "colors"],
-        d: ["done"],
+        escape: ["done"],
       },
       keyMapCallback: async (
         action,
