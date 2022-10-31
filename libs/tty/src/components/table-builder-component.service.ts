@@ -180,7 +180,7 @@ export class TableBuilderComponentService<
       cancel(
         value => {
           this.value = value ?? current;
-          this.onEnd();
+          this.onEnd(true);
         },
         async (message = "Discard changes?") => {
           let value: boolean;
@@ -286,10 +286,13 @@ export class TableBuilderComponentService<
   }
 
   protected onEnd(cancelled = false): void {
+    // ! mental note:
+    // cancelled can be non-boolean values
+    // this method is ALSO called by the keyboard manager, which passes in the key that was pressed
     this.complete = true;
     this.render();
     if (this.opt.mode === "single") {
-      if (this.opt.sanitize === "none" || cancelled) {
+      if (this.opt.sanitize === "none" || cancelled === true) {
         this.done(this.value);
         return;
       }

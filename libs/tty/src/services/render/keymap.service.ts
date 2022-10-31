@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ARRAY_OFFSET, DOWN, is, UP } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { tKeyMap } from "../../contracts";
+import { GV, tKeyMap } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 import { ApplicationManagerService, KeyboardManagerService } from "../meta";
 import { TextRenderingService } from "./text-rendering.service";
@@ -13,6 +13,7 @@ type keyItem = {
 };
 const LINE_PADDING = 2;
 interface KeymapHelpOptions {
+  current?: unknown;
   message?: string;
   notes?: string;
   onlyHelp?: boolean;
@@ -29,14 +30,15 @@ export class KeymapService {
   ) {}
 
   public keymapHelp({
+    current,
     message = "",
     notes = " ",
     prefix = new Map(),
     onlyHelp = false,
   }: KeymapHelpOptions = {}): string {
     const map = this.keyboard.getCombinedKeyMap();
-    const a = this.buildLines(prefix);
-    const b = this.buildLines(map);
+    const a = this.buildLines(prefix, current);
+    const b = this.buildLines(map, current);
 
     const biggestLabel = ansiMaxLength(
       a.map(i => i.label),
@@ -69,7 +71,7 @@ export class KeymapService {
     ].join(`\n`);
   }
 
-  private buildLines(map: tKeyMap): keyItem[] {
+  private buildLines(map: tKeyMap, current: unknown): keyItem[] {
     return [...map.entries()]
       .filter(([{ powerUser, active }]) => {
         if (powerUser) {
@@ -95,8 +97,18 @@ export class KeymapService {
             )
               .map(i => chalk.yellow.dim(i))
               .join(chalk.gray(", "));
+        let description: string = (config.description ?? target) as string;
+
+        if (config.highlight) {
+          description =
+            config.matchValue === current
+              ? config.highlight.valueMatch(description)
+              : config.highlight.normal(description);
+        } else {
+          description = chalk.gray(description);
+        }
         return {
-          description: chalk.gray(config.description ?? target),
+          description,
           label: activate,
         };
       })

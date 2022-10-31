@@ -39,7 +39,27 @@ import {
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 
-export type KeyMap<VALUE = string> = Record<string, PromptEntry<VALUE>>;
+export type HighlightCallbacks = Record<
+  "valueMatch" | "normal",
+  (value: string) => string
+>;
+
+export type AdvancedKeymap<VALUE = string> = {
+  entry: PromptEntry<VALUE>;
+  highlight?: "auto" | HighlightCallbacks;
+};
+
+export type KeymapOptions<VALUE = string> =
+  | PromptEntry<VALUE>
+  | AdvancedKeymap<VALUE>;
+
+function isAdvanced<VALUE = string>(
+  options: KeymapOptions<VALUE>,
+): options is AdvancedKeymap<VALUE> {
+  return is.object(options);
+}
+
+export type KeyMap<VALUE = string> = Record<string, KeymapOptions<VALUE>>;
 
 /**
  * - true to terminate menu
@@ -543,6 +563,7 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Rendering for while not in find mode
    */
+  // eslint-disable-next-line radar/cognitive-complexity
   private renderSelect(extraContent?: string) {
     let message = "";
 
@@ -590,19 +611,41 @@ export class MenuComponentService<VALUE = unknown | string>
       !is.empty(extraContent)
         ? extraContent
         : this.keymap.keymapHelp({
+            current: this.value,
             message,
             notes: this.notes,
             prefix: new Map(
-              Object.entries(this.opt.keyMap).map(([description, item]) => {
-                if (!Array.isArray(item)) {
-                  return;
-                }
-                const [label] = item;
-                return [
-                  { description: (label + "  ") as string, key: description },
-                  "",
-                ];
-              }),
+              Object.entries(this.opt.keyMap)
+                .map(function ([description, item]: [
+                  string,
+                  KeymapOptions<VALUE>,
+                ]): [TTYKeypressOptions, string] {
+                  let highlight: HighlightCallbacks;
+                  if (isAdvanced(item as AdvancedKeymap)) {
+                    const advanced = item as AdvancedKeymap;
+                    highlight = is.string(advanced.highlight)
+                      ? {
+                          normal: chalk.green.dim,
+                          valueMatch: chalk.green.bold,
+                        }
+                      : advanced.highlight;
+                    item = advanced.entry;
+                  }
+                  if (!Array.isArray(item)) {
+                    return undefined;
+                  }
+                  const [label] = item;
+                  return [
+                    {
+                      description: (label + "  ") as string,
+                      highlight,
+                      key: description,
+                      matchValue: GV(item),
+                    },
+                    "",
+                  ];
+                })
+                .filter(item => !is.undefined(item)),
             ),
           }),
     );

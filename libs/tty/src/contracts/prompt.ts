@@ -1,7 +1,6 @@
 import { is, LABEL, SINGLE, VALUE } from "@steggy/utilities";
 
 import { PromptEntry } from "../services";
-import { MainMenuEntry } from "./keyboard";
 
 export const DONE = "cancel";
 /**
@@ -17,7 +16,9 @@ export type PromptMenuItems<T extends unknown = string> = {
 }[];
 
 // oof
-export function GV<T = string>(item: MainMenuEntry<T> | PromptEntry<T>): T {
+export function GV<T = string>(
+  item: { entry: PromptEntry<T> } | PromptEntry<T>,
+): T {
   if (!Array.isArray(item)) {
     item = item?.entry;
   }

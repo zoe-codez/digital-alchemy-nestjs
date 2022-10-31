@@ -62,6 +62,16 @@ export class MenuSampler {
   public async exec(): Promise<void> {
     this.application.setHeader("Menu Sampler");
     const action = await this.prompt.menu({
+      keyMap: {
+        a: ["async"],
+        b: {
+          entry: ["basic"],
+          highlight: {
+            normal: chalk.green.dim,
+            valueMatch: chalk.green.bold,
+          },
+        },
+      },
       right: [
         { entry: ["basic"] },
         {

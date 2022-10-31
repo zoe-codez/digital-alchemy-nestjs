@@ -33,7 +33,23 @@ export class SamplerApp {
     const action = await this.prompt.menu({
       condensed: true,
       hideSearch: true,
-      keyMap: { escape: ["done"] },
+      keyMap: {
+        c: {
+          entry: ["config"],
+          highlight: {
+            normal: chalk.green.dim,
+            valueMatch: chalk.green.bold,
+          },
+        },
+        escape: ["done"],
+        p: {
+          entry: ["prompts"],
+          highlight: {
+            normal: chalk.green.dim,
+            valueMatch: chalk.green.bold,
+          },
+        },
+      },
       right: [
         {
           entry: ["Prompts", "prompts"],
