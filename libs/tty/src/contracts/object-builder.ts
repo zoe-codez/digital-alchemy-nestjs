@@ -85,6 +85,20 @@ export class ObjectBuilderOptions<
    * Text that should appear the blue bar of the help text
    */
   public helpNotes?: string | ((current: VALUE) => string);
+  /**
+   * ## none
+   *
+   * Any data passed in as part of current values will be passed through
+   *
+   * ## visible paths
+   *
+   * only properties from visible properties will be returned
+   *
+   * ## defined paths
+   *
+   * all properties passed in pas part of elements will be returned
+   */
+  public sanitize?: "none" | "visible-paths" | "defined-paths";
 }
 
 export class TableBuilderOptions<

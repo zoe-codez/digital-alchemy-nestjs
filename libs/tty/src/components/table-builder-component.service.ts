@@ -194,7 +194,7 @@ export class TableBuilderComponentService<
       return;
     }
     this.value = cancel as VALUE;
-    this.onEnd();
+    this.onEnd(true);
   }
 
   protected async delete(): Promise<boolean> {
@@ -285,11 +285,11 @@ export class TableBuilderComponentService<
     this.selectedRow++;
   }
 
-  protected onEnd(): void {
+  protected onEnd(cancelled = false): void {
     this.complete = true;
     this.render();
     if (this.opt.mode === "single") {
-      if (this.opt.sanitize === "none") {
+      if (this.opt.sanitize === "none" || cancelled) {
         this.done(this.value);
         return;
       }
