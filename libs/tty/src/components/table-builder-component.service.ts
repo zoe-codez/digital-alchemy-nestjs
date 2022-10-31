@@ -113,6 +113,7 @@ export class TableBuilderComponentService<
       return i;
     });
     this.done = done;
+    this.opt.sanitize ??= "defined-paths";
     this.opt.current ??= (config.mode === "single" ? {} : []) as VALUE;
     this.selectedRow = START;
     this.selectedCell = START;
@@ -288,9 +289,31 @@ export class TableBuilderComponentService<
     this.complete = true;
     this.render();
     if (this.opt.mode === "single") {
-      this.done(this.value as VALUE);
+      if (this.opt.sanitize === "none") {
+        this.done(this.value);
+        return;
+      }
+      if (this.opt.sanitize === "defined-paths") {
+        this.done(
+          Object.fromEntries(
+            Object.entries(this.value).filter(([key]) =>
+              this.columns.some(({ path }) => path === key),
+            ),
+          ) as VALUE,
+        );
+        return;
+      }
+      // Only return properties for
+      this.done(
+        Object.fromEntries(
+          Object.entries(this.value).filter(([key]) =>
+            this.visibleColumns.some(({ path }) => path === key),
+          ),
+        ) as VALUE,
+      );
       return;
     }
+    // TODO: Sanitize logic
     this.done(this.rows);
   }
 
