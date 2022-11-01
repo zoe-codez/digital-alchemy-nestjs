@@ -263,7 +263,9 @@ export class MenuComponentService<VALUE = unknown | string>
       (this.opt.left.some(({ type }) => !is.empty(type)) ||
         this.opt.right.some(({ type }) => !is.empty(type)));
 
-    const defaultValue = GV(this.side("right")[START]?.entry);
+    const defaultValue = GV(
+      this.side("right")[START]?.entry ?? this.side("left")[START]?.entry,
+    );
     this.value ??= defaultValue;
     this.detectSide();
     this.done = done;
@@ -783,7 +785,7 @@ export class MenuComponentService<VALUE = unknown | string>
 
   private setKeymap(): void {
     // show if keyOnly, or falsy condensed
-    const hidden = !(!this.opt.condensed || this.opt.keyOnly);
+    const hidden = this.opt.keyOnly || this.opt.condensed;
     const PARTIAL_LIST: tMenuItem[] = [
       [{ catchAll: true, powerUser: true }, "activateKeyMap"],
       ...(this.opt.keyOnly
