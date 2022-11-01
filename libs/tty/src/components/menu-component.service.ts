@@ -69,7 +69,7 @@ export type KeyMap<VALUE = string> = Record<string, KeymapOptions<VALUE>>;
 export type MainMenuCB<T = unknown> = (
   action: string,
   /**
-   * The currently selected value
+   * The currently selected value. For consistency, this will ALWAYS contain a value
    */
   value: MenuEntry<T>,
 ) => (string | boolean) | Promise<string | boolean>;
@@ -108,8 +108,32 @@ export interface MenuComponentOptions<T = unknown> {
   /**
    * When provided, all keymap commands will be passed through this first.
    *
-   * - `return true` to use default handler logic
-   * - `return string` to report back a status message to the user (for background operations)
+   * - `return true` to exit out of menu, returning keypress value
+   * - `return string` to report back a status message to the user (for background operations), but not exit
+   * - `return false` to ignore keypress
+   *
+   * ## Example
+   *
+   * ```typescript
+   * {
+   *   // value is always provided in this callback
+   *   // even if the original menu item didn't explicitly define it
+   *   keyMapCallback: (action, [label, value]) => {
+   *     // don't get involved with other actions
+   *     // switch statements work great here too
+   *     if (action !== "delete") {
+   *       return true;
+   *     }
+   *     // validation logic
+   *     if (value.type !== "special") {
+   *       return "Can only use this action on special types";
+   *     }
+   *     // pass id reference to higher scoped variable
+   *     deleteId = value.id;
+   *     return true;
+   *   }
+   * }
+   * ```
    */
   keyMapCallback?: MainMenuCB;
   /**
@@ -758,6 +782,8 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   private setKeymap(): void {
+    // show if keyOnly, or falsy condensed
+    const hidden = !(!this.opt.condensed || this.opt.keyOnly);
     const PARTIAL_LIST: tMenuItem[] = [
       [{ catchAll: true, powerUser: true }, "activateKeyMap"],
       ...(this.opt.keyOnly
@@ -779,14 +805,14 @@ export class MenuComponentService<VALUE = unknown | string>
       [
         {
           key: ["end", "pagedown"],
-          powerUser: !(this.opt.condensed || this.opt.keyOnly),
+          powerUser: hidden,
         },
         "bottom",
       ],
       [
         {
           key: ["home", "pageup"],
-          powerUser: !(this.opt.condensed || this.opt.keyOnly),
+          powerUser: hidden,
         },
         "top",
       ],
@@ -829,11 +855,12 @@ export class MenuComponentService<VALUE = unknown | string>
       ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),
     ]) as [MainMenuEntry, string][];
     if (this.sort) {
-      const sortedTypes: Record<string, number> = {};
+      // Run through all the menu items, and find the highest priority for each type
+      const maxPriority: Record<string, number> = {};
       temp.forEach(([{ priority = NONE, type }]) => {
-        const current = sortedTypes[type] ?? NONE;
-        sortedTypes[type] = priority > current ? priority : current;
+        maxPriority[type] = Math.max(maxPriority[type] ?? NONE, priority);
       });
+      // type priority > type alphabetical > item priority > item alphabetical
       temp = temp.sort(([a, aLabel], [b, bLabel]) => {
         if (a.type === b.type) {
           const aPriority = a.priority ?? EMPTY;
@@ -843,8 +870,8 @@ export class MenuComponentService<VALUE = unknown | string>
           }
           return aLabel > bLabel ? UP : DOWN;
         }
-        if (sortedTypes[a.type] !== sortedTypes[b.type]) {
-          return sortedTypes[a.type] < sortedTypes[b.type] ? UP : DOWN;
+        if (maxPriority[a.type] !== maxPriority[b.type]) {
+          return maxPriority[a.type] < maxPriority[b.type] ? UP : DOWN;
         }
         if (a.type > b.type) {
           return UP;
