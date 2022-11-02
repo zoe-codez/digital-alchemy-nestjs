@@ -66,8 +66,14 @@ const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ key: [..."0123456789"], powerUser: true }, "numericSelect"],
 ]);
 
-@Component({ type: "list" })
-export class ListBuilderComponentService<VALUE = unknown>
+/**
+ * ## Pick many widget
+ *
+ * Renders 2 lists side by side.
+ * One contains a source, one contains a list of selected values.
+ */
+@Component({ type: "pick-many" })
+export class PickManyComponentService<VALUE = unknown>
   implements iComponent<ListBuilderOptions<VALUE>, VALUE>
 {
   constructor(

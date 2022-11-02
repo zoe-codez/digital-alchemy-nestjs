@@ -4,3 +4,4 @@ export const PAGE_SIZE = "PAGE_SIZE";
 export const HELP = "HELP";
 export const LIB_TTY = Symbol("tty");
 export const TABLE_RENDER_ROWS = "TABLE_RENDER_ROWS";
+export const USE_FONTAWESOME_ICONS = "USE_FONTAWESOME_ICONS";

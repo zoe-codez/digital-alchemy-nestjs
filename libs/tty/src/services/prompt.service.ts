@@ -134,17 +134,6 @@ export class PromptService {
   }
 
   /**
-   * Pick many values from a list of options
-   */
-  public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
-    const result = await this.applicationManager.activateComponent<
-      ListBuilderOptions<T>,
-      T[]
-    >("list", options);
-    return result;
-  }
-
-  /**
    * Menus, keyboard shortcuts, and general purpose tool
    */
   public async menu<T extends unknown = string>(
@@ -181,7 +170,7 @@ export class PromptService {
     const result = await this.applicationManager.activateComponent<
       ObjectBuilderOptions<VALUE, CANCEL>,
       VALUE
-    >("table", options);
+    >("object", options);
     return result;
   }
 
@@ -197,6 +186,17 @@ export class PromptService {
       label,
       width: DEFAULT_WIDTH,
     } as StringEditorRenderOptions);
+  }
+
+  /**
+   * Pick many values from a list of options
+   */
+  public async pickMany<T>(options: ListBuilderOptions<T>): Promise<T[]> {
+    const result = await this.applicationManager.activateComponent<
+      ListBuilderOptions<T>,
+      T[]
+    >("pick-many", options);
+    return result;
   }
 
   /**

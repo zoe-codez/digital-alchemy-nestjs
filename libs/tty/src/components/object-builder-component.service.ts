@@ -24,7 +24,6 @@ import {
   KeymapService,
   PromptService,
   ScreenService,
-  TableService,
   TextRenderingService,
 } from "../services";
 
@@ -48,13 +47,12 @@ const CANCELLABLE: tKeyMap = new Map([
 ]);
 const HELP_ERASE_SIZE = 3;
 
-@Component({ type: "table" })
-export class TableBuilderComponentService<
+@Component({ type: "object" })
+export class ObjectBuilderComponentService<
   VALUE extends object = Record<string, unknown>,
 > implements iComponent<ObjectBuilderOptions<VALUE>, VALUE>
 {
   constructor(
-    private readonly table: TableService<VALUE>,
     private readonly form: FormService<VALUE>,
     private readonly text: TextRenderingService,
     private readonly keymap: KeymapService,
@@ -222,7 +220,7 @@ export class TableBuilderComponentService<
           const selected = column.options.filter(i =>
             currentValue.includes(TTY.GV(i)),
           ) as MainMenuEntry<VALUE | string>[];
-          value = await this.prompt.listBuild<VALUE>({
+          value = await this.prompt.pickMany<VALUE>({
             current: selected,
             source,
           });

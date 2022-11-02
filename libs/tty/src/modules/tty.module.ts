@@ -4,10 +4,9 @@ import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 import {
   AcknowledgeComponentService,
   ConfirmComponentService,
-  FooterEditorService,
-  ListBuilderComponentService,
   MenuComponentService,
-  TableBuilderComponentService,
+  ObjectBuilderComponentService,
+  PickManyComponentService,
 } from "../components";
 import {
   DEFAULT_HEADER_FONT,
@@ -16,6 +15,7 @@ import {
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
   TABLE_RENDER_ROWS,
+  USE_FONTAWESOME_ICONS,
 } from "../config";
 import {
   DateEditorService,
@@ -25,6 +25,7 @@ import {
 } from "../editors";
 import {
   ApplicationManagerService,
+  ArrayBuilderService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
@@ -33,6 +34,7 @@ import {
   EnvironmentService,
   FormService,
   GitService,
+  IconService,
   KeyboardManagerService,
   KeymapService,
   LayoutManagerService,
@@ -74,6 +76,12 @@ import {
         "Default quantity of rows to render in prompts like arrayBuilder",
       type: "number",
     },
+    [USE_FONTAWESOME_ICONS]: {
+      default: true,
+      description:
+        "Utilize font awesome icons in prompts. Requires font to be installed.",
+      type: "boolean",
+    },
   },
   exports: [
     ApplicationManagerService,
@@ -96,6 +104,7 @@ import {
   providers: [
     AcknowledgeComponentService,
     ApplicationManagerService,
+    ArrayBuilderService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,
@@ -104,24 +113,24 @@ import {
     DateEditorService,
     EditorExplorerService,
     EnvironmentService,
-    FooterEditorService,
     FormService,
     GitService,
+    IconService,
     KeyboardManagerService,
     KeymapService,
     LayoutManagerService,
-    ListBuilderComponentService,
     MenuComponentService,
     NumberEditorService,
+    ObjectBuilderComponentService,
     PasswordEditorService,
+    PickManyComponentService,
     PromptService,
     ScreenService,
     StackService,
     StringEditorService,
-    TerminalHelpService,
     SyncLoggerService,
-    TableBuilderComponentService,
     TableService,
+    TerminalHelpService,
     TextRenderingService,
   ],
 })

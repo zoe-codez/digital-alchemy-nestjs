@@ -64,14 +64,6 @@ type BaseBuilderOptions<VALUE extends object, CANCEL extends unknown> = {
   elements: TableBuilderElement<VALUE>[];
 };
 
-export type ArrayBuilderOptions<
-  VALUE extends object,
-  CANCEL extends unknown = never,
-> = Omit<ObjectBuilderOptions<VALUE, CANCEL>, "current"> & {
-  current?: VALUE[];
-  noRowsMessage?: string;
-};
-
 export type ObjectBuilderOptions<
   VALUE extends object,
   CANCEL extends unknown = never,

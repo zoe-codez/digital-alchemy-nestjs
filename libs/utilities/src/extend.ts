@@ -42,9 +42,9 @@ function safeGetProperty(object: unknown, key: string) {
     : (object as Record<string, unknown>)[key];
 }
 
-export function deepExtend<T>(target: T, object: T): T {
+export function deepExtend<A, B>(target: A, object: B): A & B {
   if (typeof object !== "object" || object === null || Array.isArray(object)) {
-    return target;
+    return target as A & B;
   }
   Object.keys(object).forEach(key => {
     const source = safeGetProperty(target, key);
@@ -74,5 +74,5 @@ export function deepExtend<T>(target: T, object: T): T {
     }
     (target as Record<string, unknown>)[key] = deepExtend(source, value);
   });
-  return target;
+  return target as A & B;
 }
