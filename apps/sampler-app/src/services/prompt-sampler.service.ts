@@ -39,7 +39,6 @@ export class PromptSampler {
         chalk` This service uses pre-built widgets to gather information from the user.`,
       ].join(`\n`),
       keyMap: {
-        a: ["all"],
         escape: ["done"],
       },
       right: [
@@ -107,28 +106,34 @@ export class PromptSampler {
   }
 
   private async acknowledge(): Promise<void> {
-    const action = await this.prompt.menu({
-      condensed: true,
-      right: [
+    this.application.setHeader("Acknowledge");
+    const action = await this.prompt.pickOne({
+      headerMessage: "Type",
+      options: [
         { entry: ["custom text", "custom"] },
         { entry: ["default text", "default"] },
       ],
     });
     switch (action) {
       case "custom":
-        const text = await this.prompt.string("Message");
-        await this.prompt.acknowledge(text);
+        const message = await this.prompt.string({ label: "Message" });
+        this.application.setHeader("Custom Acknowledge");
+        this.screen.printLine(`\n \n `);
+        await this.prompt.acknowledge({ label: message });
         return;
       case "default":
+        this.application.setHeader("Default Acknowledge");
+        this.screen.printLine(`\n \n `);
         await this.prompt.acknowledge();
         return;
     }
   }
 
   private async boolean(): Promise<void> {
-    const result = await this.prompt.boolean(
-      "Pineapple is acceptable on pizza?",
-    );
+    this.application.setHeader("Boolean");
+    const result = await this.prompt.boolean({
+      label: "Pineapple is acceptable on pizza?",
+    });
     this.screen.print(this.text.type(result));
     this.screen.printLine(result ? "" : `, it really is tho`);
     await this.prompt.acknowledge();
@@ -146,15 +151,15 @@ export class PromptSampler {
     let result: boolean;
     switch (action) {
       case "custom":
-        const text = await this.prompt.string("Message");
-        result = await this.prompt.confirm(text);
+        const text = await this.prompt.string({ label: "Message" });
+        result = await this.prompt.confirm({ label: text });
         break;
       case "default":
         result = await this.prompt.confirm();
         break;
       case "state":
-        const state = await this.prompt.boolean("Default state");
-        result = await this.prompt.confirm(undefined, state);
+        const state = await this.prompt.boolean({ label: "Default state" });
+        result = await this.prompt.confirm({ current: state });
         break;
     }
     this.screen.printLine(this.text.type(result));
@@ -162,6 +167,7 @@ export class PromptSampler {
   }
 
   private async date(): Promise<void> {
+    this.application.setHeader("Date");
     const options = await this.prompt.objectBuilder<DateEditorEditorOptions>({
       current: {
         fuzzy: "user",
@@ -194,6 +200,7 @@ export class PromptSampler {
   }
 
   private async lists(): Promise<void> {
+    this.application.setHeader("List Builder");
     const action = await this.prompt.menu({
       condensed: true,
       right: [
@@ -232,7 +239,7 @@ export class PromptSampler {
         });
         break;
       case "label":
-        const items = await this.prompt.string("Label");
+        const items = await this.prompt.string({ label: "Label" });
         result = await this.prompt.listBuild({ items, source });
         break;
     }
@@ -241,7 +248,7 @@ export class PromptSampler {
   }
 
   private async objectBuilder(): Promise<void> {
-    this.application.setHeader("Object builder");
+    this.application.setHeader("Object Builder");
     this.screen.printLine(`An example of the object builder in table mode.`);
     const result = await this.prompt.objectBuilder({
       current: {
@@ -314,7 +321,9 @@ export class PromptSampler {
   }
 
   private async string(): Promise<void> {
-    const result = await this.prompt.string("Requesting some text", undefined, {
+    this.application.setHeader("String");
+    const result = await this.prompt.string({
+      label: "Requesting some text",
       placeholder: "placeholder text",
     });
     this.screen.printLine(this.text.type(result));

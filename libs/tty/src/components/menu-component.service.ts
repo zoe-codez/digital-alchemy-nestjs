@@ -21,10 +21,10 @@ import dayjs from "dayjs";
 
 import {
   DirectCB,
-  GV,
   MainMenuEntry,
   MenuEntry,
   tKeyMap,
+  TTY,
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
@@ -263,16 +263,16 @@ export class MenuComponentService<VALUE = unknown | string>
       (this.opt.left.some(({ type }) => !is.empty(type)) ||
         this.opt.right.some(({ type }) => !is.empty(type)));
 
-    const defaultValue = GV(
+    const current = TTY.GV(
       this.side("right")[START]?.entry ?? this.side("left")[START]?.entry,
     );
-    this.value ??= defaultValue;
+    this.value ??= current;
     this.detectSide();
     this.done = done;
     this.setKeymap();
-    const contained = this.side().find(i => GV(i.entry) === this.value);
+    const contained = this.side().find(i => TTY.GV(i.entry) === this.value);
     if (!contained) {
-      this.value = defaultValue;
+      this.value = current;
     }
   }
 
@@ -307,19 +307,22 @@ export class MenuComponentService<VALUE = unknown | string>
       return false;
     }
     if (is.undefined(callback)) {
-      this.value = GV(keyMap[mixed]);
+      this.value = TTY.GV(keyMap[mixed]);
       this.onEnd();
       return false;
     }
     const selectedItem = this.side().find(
-      ({ entry }) => GV(entry) === this.value,
+      ({ entry }) => TTY.GV(entry) === this.value,
     );
     const result = await (!selectedItem
-      ? callback(GV(keyMap[mixed]) as unknown as string, [undefined, undefined])
-      : callback(GV(keyMap[mixed]) as unknown as string, [
+      ? callback(TTY.GV(keyMap[mixed]) as unknown as string, [
+          undefined,
+          undefined,
+        ])
+      : callback(TTY.GV(keyMap[mixed]) as unknown as string, [
           // Force a value entry to be present
           selectedItem.entry[LABEL],
-          GV(selectedItem),
+          TTY.GV(selectedItem),
         ]));
     if (is.string(result)) {
       this.callbackOutput = result;
@@ -327,7 +330,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     if (result) {
-      this.value = GV(keyMap[mixed]);
+      this.value = TTY.GV(keyMap[mixed]);
       this.onEnd();
       return false;
     }
@@ -338,7 +341,7 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   protected bottom(): void {
     const list = this.side();
-    this.value = GV(list[list.length - ARRAY_OFFSET].entry);
+    this.value = TTY.GV(list[list.length - ARRAY_OFFSET].entry);
   }
 
   /**
@@ -351,24 +354,26 @@ export class MenuComponentService<VALUE = unknown | string>
       available = all;
     }
     if (["pageup", "home"].includes(key)) {
-      this.value = GV(available[START].entry);
+      this.value = TTY.GV(available[START].entry);
       return;
     }
     if (["pagedown", "end"].includes(key)) {
-      this.value = GV(available[available.length - ARRAY_OFFSET].entry);
+      this.value = TTY.GV(available[available.length - ARRAY_OFFSET].entry);
       return;
     }
-    const index = available.findIndex(({ entry }) => GV(entry) === this.value);
+    const index = available.findIndex(
+      ({ entry }) => TTY.GV(entry) === this.value,
+    );
     if (index === NOT_FOUND) {
-      this.value = GV(available[START].entry);
+      this.value = TTY.GV(available[START].entry);
       return;
     }
     if (index === START && key === "up") {
-      this.value = GV(available[available.length - ARRAY_OFFSET].entry);
+      this.value = TTY.GV(available[available.length - ARRAY_OFFSET].entry);
     } else if (index === available.length - ARRAY_OFFSET && key === "down") {
-      this.value = GV(available[START].entry);
+      this.value = TTY.GV(available[START].entry);
     } else {
-      this.value = GV(
+      this.value = TTY.GV(
         available[key === "up" ? index - INCREMENT : index + INCREMENT].entry,
       );
     }
@@ -379,24 +384,24 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   protected next(): void {
     const list = this.side();
-    const index = list.findIndex(i => GV(i.entry) === this.value);
+    const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = GV(list[FIRST].entry);
+      this.value = TTY.GV(list[FIRST].entry);
       return;
     }
     if (index === list.length - ARRAY_OFFSET) {
       // Loop around
-      this.value = GV(list[FIRST].entry);
+      this.value = TTY.GV(list[FIRST].entry);
       return;
     }
-    this.value = GV(list[index + INCREMENT].entry);
+    this.value = TTY.GV(list[index + INCREMENT].entry);
   }
 
   protected numberSelect(mixed: string): boolean {
     const list = this.side();
     const item = list[Number(is.empty(mixed) ? "1" : mixed) - ARRAY_OFFSET];
     const entry = item?.entry;
-    this.value = entry ? GV(entry) : this.value;
+    this.value = entry ? TTY.GV(entry) : this.value;
     return true;
   }
 
@@ -421,7 +426,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     this.selectedType = "left";
-    let current = right.findIndex(i => GV(i.entry) === this.value);
+    let current = right.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -430,8 +435,8 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     this.value =
       left.length - ARRAY_OFFSET < current
-        ? GV(left[left.length - ARRAY_OFFSET].entry)
-        : GV(left[current].entry);
+        ? TTY.GV(left[left.length - ARRAY_OFFSET].entry)
+        : TTY.GV(left[current].entry);
   }
 
   /**
@@ -443,7 +448,7 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     const [right, left] = [this.side("right"), this.side("left")];
     this.selectedType = "right";
-    let current = left.findIndex(i => GV(i.entry) === this.value);
+    let current = left.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -452,8 +457,8 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     this.value =
       right.length - ARRAY_OFFSET < current
-        ? GV(right[right.length - ARRAY_OFFSET].entry)
-        : GV(right[current].entry);
+        ? TTY.GV(right[right.length - ARRAY_OFFSET].entry)
+        : TTY.GV(right[current].entry);
   }
 
   /**
@@ -478,7 +483,7 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     if (key.length > SINGLE) {
       if (!is.undefined(this.opt.keyMap[key])) {
-        this.value = GV(this.opt.keyMap[key]);
+        this.value = TTY.GV(this.opt.keyMap[key]);
         this.onEnd();
       }
       return;
@@ -493,17 +498,17 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   protected previous(): void {
     const list = this.side();
-    const index = list.findIndex(i => GV(i.entry) === this.value);
+    const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = GV(list[FIRST].entry);
+      this.value = TTY.GV(list[FIRST].entry);
       return;
     }
     if (index === FIRST) {
       // Loop around
-      this.value = GV(list[list.length - ARRAY_OFFSET].entry);
+      this.value = TTY.GV(list[list.length - ARRAY_OFFSET].entry);
       return;
     }
-    this.value = GV(list[index - INCREMENT].entry);
+    this.value = TTY.GV(list[index - INCREMENT].entry);
   }
 
   /**
@@ -525,14 +530,16 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   protected top(): void {
     const list = this.side();
-    this.value = GV(list[FIRST].entry);
+    this.value = TTY.GV(list[FIRST].entry);
   }
 
   /**
    * Auto detect selectedType based on the current value
    */
   private detectSide(): void {
-    const isLeftSide = this.side("left").some(i => GV(i.entry) === this.value);
+    const isLeftSide = this.side("left").some(
+      i => TTY.GV(i.entry) === this.value,
+    );
     this.selectedType = isLeftSide ? "left" : "right";
   }
 
@@ -548,7 +555,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (updateValue) {
       this.value = is.empty(highlighted)
         ? undefined
-        : GV(highlighted[START].entry);
+        : TTY.GV(highlighted[START].entry);
     }
     return highlighted;
   }
@@ -578,7 +585,7 @@ export class MenuComponentService<VALUE = unknown | string>
         ...this.textRender.searchBox(this.searchText),
         ...rendered.map(({ entry }) => entry[LABEL]),
       ].join(`\n`),
-      rendered.find(i => GV(i.entry) === this.value),
+      rendered.find(i => TTY.GV(i.entry) === this.value),
     );
     this.screen.render(
       message,
@@ -629,7 +636,7 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     message += out.map(i => `  ${i}`).join(`\n`);
     const selectedItem = this.side().find(
-      ({ entry }) => GV(entry) === this.value,
+      ({ entry }) => TTY.GV(entry) === this.value,
     );
     message = MergeHelp(message, selectedItem);
     this.screen.render(
@@ -666,7 +673,7 @@ export class MenuComponentService<VALUE = unknown | string>
                       description: (label + "  ") as string,
                       highlight,
                       key: description,
-                      matchValue: GV(item),
+                      matchValue: TTY.GV(item),
                     },
                     "",
                   ];
@@ -693,7 +700,9 @@ export class MenuComponentService<VALUE = unknown | string>
       menu = this.filterMenu(menu, updateValue);
     }
     const temporary = this.textRender.selectRange(menu, this.value);
-    menu = temporary.map(i => menu.find(({ entry }) => GV(i) === GV(entry)));
+    menu = temporary.map(i =>
+      menu.find(({ entry }) => TTY.GV(i) === TTY.GV(entry)),
+    );
 
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));
     let last = "";
@@ -728,7 +737,7 @@ export class MenuComponentService<VALUE = unknown | string>
       if (this.mode === "find") {
         prefix = ``;
       }
-      const inverse = GV(item.entry) === this.value;
+      const inverse = TTY.GV(item.entry) === this.value;
       const padded = ansiPadEnd(
         (is.empty(item.icon) ? "" : `${item.icon} `) + item.entry[LABEL],
         maxLabel,
@@ -740,14 +749,14 @@ export class MenuComponentService<VALUE = unknown | string>
             chalk` {magenta.bold ${prefix}} {${
               inverse ? "bgCyanBright.black" : "white"
             }  ${padded}}`,
-            GV(item.entry),
+            TTY.GV(item.entry),
           ],
         });
         return;
       }
       out.push({
         ...item,
-        entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, GV(item.entry)],
+        entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, TTY.GV(item.entry)],
       });
     });
     const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
@@ -780,7 +789,7 @@ export class MenuComponentService<VALUE = unknown | string>
       ...Object.values(this.opt.keyMap).map((entry: MenuEntry<VALUE>) => ({
         entry,
       })),
-    ].find(item => GV(item.entry) === this.value);
+    ].find(item => TTY.GV(item.entry) === this.value);
   }
 
   private setKeymap(): void {

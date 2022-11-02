@@ -38,7 +38,7 @@ export type TableBuilderElement<VALUE = object> = {
     }
 );
 
-class BaseBuilderOptions<VALUE extends object, CANCEL extends unknown> {
+type BaseBuilderOptions<VALUE extends object, CANCEL extends unknown> = {
   /**
    * If provided, the builder will present a cancel option.
    *
@@ -55,36 +55,32 @@ class BaseBuilderOptions<VALUE extends object, CANCEL extends unknown> {
    *
    * Value will be returned immediately when a cancel attempt is made
    */
-  public cancel?:
+  cancel?:
     | CANCEL
     | ((
         cancelFunction: (cancelValue?: CANCEL) => void,
         confirm: (message?: string) => Promise<boolean>,
       ) => void | Promise<void>);
-  public elements: TableBuilderElement<VALUE>[];
-}
+  elements: TableBuilderElement<VALUE>[];
+};
 
-export class ArrayBuilderOptions<
+export type ArrayBuilderOptions<
   VALUE extends object,
   CANCEL extends unknown = never,
-> extends BaseBuilderOptions<VALUE, CANCEL> {
-  public current?: VALUE[];
+> = Omit<ObjectBuilderOptions<VALUE, CANCEL>, "current"> & {
+  current?: VALUE[];
+  noRowsMessage?: string;
+};
+
+export type ObjectBuilderOptions<
+  VALUE extends object,
+  CANCEL extends unknown = never,
+> = BaseBuilderOptions<VALUE, CANCEL> & {
+  current?: VALUE;
   /**
    * Text that should appear the blue bar of the help text
    */
-  public helpNotes?: string | ((current: VALUE[]) => string);
-  public noRowsMessage?: string;
-}
-
-export class ObjectBuilderOptions<
-  VALUE extends object,
-  CANCEL extends unknown = never,
-> extends BaseBuilderOptions<VALUE, CANCEL> {
-  public current?: VALUE;
-  /**
-   * Text that should appear the blue bar of the help text
-   */
-  public helpNotes?: string | ((current: VALUE) => string);
+  helpNotes?: string | ((current: VALUE) => string);
   /**
    * ## none
    *
@@ -98,58 +94,30 @@ export class ObjectBuilderOptions<
    *
    * all properties passed in pas part of elements will be returned
    */
-  public sanitize?: "none" | "visible-paths" | "defined-paths";
-}
+  sanitize?: "none" | "visible-paths" | "defined-paths";
+};
 
-export class TableBuilderOptions<
-  VALUE extends object,
-  CANCEL extends unknown = never,
-> extends BaseBuilderOptions<VALUE, CANCEL> {
-  public current?: VALUE | VALUE[];
-  /**
-   * Text that should appear the blue bar of the help text
-   */
-  public helpNotes?: string | ((current: VALUE | VALUE[]) => string);
-  public mode?: "single" | "multi";
-  public noRowsMessage?: string;
-  /**
-   * ## none
-   *
-   * Any data passed in as part of current values will be passed through
-   *
-   * ## visible paths
-   *
-   * only properties from visible properties will be returned
-   *
-   * ## defined paths
-   *
-   * all properties passed in pas part of elements will be returned
-   */
-  public sanitize?: "none" | "visible-paths" | "defined-paths";
-}
+export type ColumnInfo = {
+  maxWidth: number;
+  name: string;
+  path: string;
+};
 
-export class ColumnInfo {
-  public maxWidth: number;
-  public name: string;
-  public path: string;
-}
+type BASIC_OBJECT_BUILDER_ELEMENT = "string" | "boolean" | "number" | "date";
 
-export enum OBJECT_BUILDER_ELEMENT {
-  string = "string",
-  boolean = "boolean",
-  number = "number",
-  enum = "enum",
-  date = "date",
-  list = "list",
-}
-
-export class ObjectBuilderEnum {
-  public enum: string[];
-}
-
-export class ObjectBuilderElement {
-  public name: string;
-  public options?: ObjectBuilderEnum;
-  public path: string;
-  public type: OBJECT_BUILDER_ELEMENT;
-}
+export type ObjectBuilderElement = {
+  name: string;
+  path: string;
+} & (
+  | {
+      type: BASIC_OBJECT_BUILDER_ELEMENT;
+    }
+  | {
+      options: string[];
+      type: "enum";
+    }
+  | {
+      options: MainMenuEntry[];
+      type: "list";
+    }
+);

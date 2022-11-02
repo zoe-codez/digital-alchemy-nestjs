@@ -10,10 +10,10 @@ import { get, set } from "object-path";
 
 import {
   DirectCB,
-  GV,
   MainMenuEntry,
-  TableBuilderOptions,
+  ObjectBuilderOptions,
   tKeyMap,
+  TTY,
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
@@ -28,24 +28,6 @@ import {
   TextRenderingService,
 } from "../services";
 
-const KEYMAP: tKeyMap = new Map([
-  // While there is no editor
-  [{ description: "done", key: "d" }, "onEnd"],
-  [{ description: "cursor left", key: "left" }, "onLeft"],
-  [{ description: "cursor right", key: "right" }, "onRight"],
-  [{ description: "cursor up", key: "up" }, "onUp"],
-  [{ description: "cursor down", key: "down" }, "onDown"],
-  [{ description: "first row", key: "pageup" }, "onPageUp"],
-  [{ description: "last row", key: "pagedown" }, "onPageDown"],
-  [{ description: "add row", key: "+" }, "add"],
-  [{ description: "delete row", key: ["-", "delete"] }, "delete"],
-  [{ description: "edit cell", key: "enter" }, "enableEdit"],
-] as [TTYKeypressOptions, string | DirectCB][]);
-const KEYMAP_LITE: tKeyMap = new Map([
-  // While there is no editor
-  [{ description: "done", key: "d" }, "onEnd"],
-  [{ description: "add row", key: "+" }, "add"],
-] as [TTYKeypressOptions, string | DirectCB][]);
 const FORM_KEYMAP: tKeyMap = new Map([
   // While there is no editor
   [{ description: "done", key: "d" }, "onEnd"],
@@ -69,7 +51,7 @@ const HELP_ERASE_SIZE = 3;
 @Component({ type: "table" })
 export class TableBuilderComponentService<
   VALUE extends object = Record<string, unknown>,
-> implements iComponent<TableBuilderOptions<VALUE>, VALUE>
+> implements iComponent<ObjectBuilderOptions<VALUE>, VALUE>
 {
   constructor(
     private readonly table: TableService<VALUE>,
@@ -85,7 +67,7 @@ export class TableBuilderComponentService<
   private complete = false;
   private dirty = false;
   private done: (type: VALUE | VALUE[]) => void;
-  private opt: TableBuilderOptions<VALUE>;
+  private opt: ObjectBuilderOptions<VALUE>;
   private rows: VALUE[];
   private selectedCell = START;
   private selectedRow = START;
@@ -102,7 +84,7 @@ export class TableBuilderComponentService<
   }
 
   public configure(
-    config: TableBuilderOptions<VALUE>,
+    config: ObjectBuilderOptions<VALUE>,
     done: (type: VALUE[]) => void,
   ): void {
     this.complete = false;
@@ -114,17 +96,13 @@ export class TableBuilderComponentService<
     });
     this.done = done;
     this.opt.sanitize ??= "defined-paths";
-    this.opt.current ??= (config.mode === "single" ? {} : []) as VALUE;
+    this.opt.current ??= {} as VALUE;
     this.selectedRow = START;
     this.selectedCell = START;
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
-    this.value = (
-      config.mode === "single"
-        ? deepExtend({} as VALUE, this.opt.current)
-        : deepExtend([] as VALUE, this.opt.current)
-    ) as VALUE;
+    this.value = deepExtend({} as VALUE, this.opt.current) as VALUE;
     this.setKeymap();
   }
 
@@ -133,12 +111,7 @@ export class TableBuilderComponentService<
       this.screen.render("", "");
       return;
     }
-    const mode = this.opt.mode ?? "single ";
-    if (mode === "single") {
-      this.renderSingle();
-      return;
-    }
-    this.renderMulti();
+    this.renderSingle();
   }
 
   private get columns() {
@@ -185,7 +158,7 @@ export class TableBuilderComponentService<
         async (message = "Discard changes?") => {
           let value: boolean;
           await this.screen.footerWrap(async () => {
-            value = await this.prompt.confirm(message);
+            value = await this.prompt.confirm({ label: message });
           });
           this.render();
           return value;
@@ -199,7 +172,9 @@ export class TableBuilderComponentService<
 
   protected async delete(): Promise<boolean> {
     const result = await this.screen.footerWrap(async () => {
-      return await this.prompt.confirm("Are you sure you want to delete this?");
+      return await this.prompt.confirm({
+        label: "Are you sure you want to delete this?",
+      });
     });
     if (!result) {
       this.render();
@@ -216,12 +191,8 @@ export class TableBuilderComponentService<
 
   protected async enableEdit(): Promise<void> {
     await this.screen.footerWrap(async () => {
-      const column =
-        this.opt.mode === "single"
-          ? this.visibleColumns[this.selectedRow]
-          : this.columns[this.selectedCell];
-      const row =
-        this.opt.mode === "single" ? this.value : this.rows[this.selectedRow];
+      const column = this.visibleColumns[this.selectedRow];
+      const row = this.value;
       const current = get(is.object(row) ? row : {}, column.path);
       let value: unknown;
       switch (column.type) {
@@ -232,21 +203,24 @@ export class TableBuilderComponentService<
           });
           break;
         case "number":
-          value = await this.prompt.number(column.name, current);
+          value = await this.prompt.number({ current, label: column.name });
           break;
         case "boolean":
-          value = await this.prompt.boolean(column.name, current);
+          value = await this.prompt.boolean({
+            current: current,
+            label: column.name,
+          });
           break;
         case "string":
-          value = await this.prompt.string(column.name, current);
+          value = await this.prompt.string({ current, label: column.name });
           break;
         case "enum-array":
           const currentValue = current ?? [];
           const source = column.options.filter(
-            i => !currentValue.includes(GV(i)),
+            i => !currentValue.includes(TTY.GV(i)),
           ) as MainMenuEntry<VALUE | string>[];
           const selected = column.options.filter(i =>
-            currentValue.includes(GV(i)),
+            currentValue.includes(TTY.GV(i)),
           ) as MainMenuEntry<VALUE | string>[];
           value = await this.prompt.listBuild<VALUE>({
             current: selected,
@@ -254,14 +228,16 @@ export class TableBuilderComponentService<
           });
           break;
         case "enum":
-          value = await this.prompt.pickOne(
-            column.name,
-            column.options,
-            current,
-          );
+          value = await this.prompt.pickOne({
+            current: current,
+            headerMessage: column.name,
+            options: column.options,
+          });
           // TODO: WHY?!
           // The auto erase should catch this... but it doesn't for some reason
-          const { helpText } = column.options.find(i => GV(i.entry) === value);
+          const { helpText } = column.options.find(
+            i => TTY.GV(i.entry) === value,
+          );
           if (!is.empty(helpText)) {
             this.screen.eraseLine(HELP_ERASE_SIZE);
           }
@@ -273,12 +249,7 @@ export class TableBuilderComponentService<
   }
 
   protected onDown(): boolean {
-    if (this.opt.mode !== "single") {
-      if (this.selectedRow === this.rows.length - ARRAY_OFFSET) {
-        this.selectedRow = START;
-        return;
-      }
-    } else if (this.selectedRow === this.visibleColumns.length - ARRAY_OFFSET) {
+    if (this.selectedRow === this.visibleColumns.length - ARRAY_OFFSET) {
       this.selectedRow = START;
       return;
     }
@@ -286,38 +257,33 @@ export class TableBuilderComponentService<
   }
 
   protected onEnd(cancelled = false): void {
-    // ! mental note:
+    // ? mental note:
     // cancelled can be non-boolean values
     // this method is ALSO called by the keyboard manager, which passes in the key that was pressed
     this.complete = true;
     this.render();
-    if (this.opt.mode === "single") {
-      if (this.opt.sanitize === "none" || cancelled === true) {
-        this.done(this.value);
-        return;
-      }
-      if (this.opt.sanitize === "defined-paths") {
-        this.done(
-          Object.fromEntries(
-            Object.entries(this.value).filter(([key]) =>
-              this.columns.some(({ path }) => path === key),
-            ),
-          ) as VALUE,
-        );
-        return;
-      }
-      // Only return properties for
+    if (this.opt.sanitize === "none" || cancelled === true) {
+      this.done(this.value);
+      return;
+    }
+    if (this.opt.sanitize === "defined-paths") {
       this.done(
         Object.fromEntries(
           Object.entries(this.value).filter(([key]) =>
-            this.visibleColumns.some(({ path }) => path === key),
+            this.columns.some(({ path }) => path === key),
           ),
         ) as VALUE,
       );
       return;
     }
-    // TODO: Sanitize logic
-    this.done(this.rows);
+    // Only return properties for
+    this.done(
+      Object.fromEntries(
+        Object.entries(this.value).filter(([key]) =>
+          this.visibleColumns.some(({ path }) => path === key),
+        ),
+      ) as VALUE,
+    );
   }
 
   protected onLeft(): boolean {
@@ -328,10 +294,7 @@ export class TableBuilderComponentService<
   }
 
   protected onPageDown(): void {
-    this.selectedRow =
-      (this.opt.mode === "single"
-        ? this.visibleColumns.length
-        : this.rows.length) - ARRAY_OFFSET;
+    this.selectedRow = this.visibleColumns.length;
   }
 
   protected onPageUp(): void {
@@ -347,35 +310,10 @@ export class TableBuilderComponentService<
 
   protected onUp(): boolean {
     if (this.selectedRow === START) {
-      if (this.opt.mode === "multi") {
-        this.selectedRow = this.rows.length - ARRAY_OFFSET;
-        return;
-      }
       this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
       return;
     }
     this.selectedRow--;
-  }
-
-  private renderMulti(): void {
-    const message = MergeHelp(
-      this.text.pad(
-        this.table.renderTable(
-          this.opt,
-          this.rows,
-          this.selectedRow,
-          this.selectedCell,
-        ),
-      ),
-      is.empty(this.rows) ? undefined : this.opt.elements[this.selectedCell],
-    );
-    this.screen.render(
-      message,
-      this.keymap.keymapHelp({
-        message,
-        notes: this.notes,
-      }),
-    );
   }
 
   private renderSingle(): void {
@@ -403,11 +341,7 @@ export class TableBuilderComponentService<
 
   private setKeymap(): void {
     const maps: tKeyMap[] = [];
-    if (this.opt.mode === "single") {
-      maps.push(FORM_KEYMAP);
-    } else {
-      maps.push(is.empty(this.rows) ? KEYMAP_LITE : KEYMAP);
-    }
+    maps.push(FORM_KEYMAP);
     if (!is.undefined(this.opt.cancel)) {
       maps.push(CANCELLABLE);
     }

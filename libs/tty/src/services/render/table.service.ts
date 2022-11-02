@@ -12,7 +12,7 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import { TABLE_RENDER_ROWS } from "../../config";
-import { ColumnInfo, TABLE_PARTS, TableBuilderOptions } from "../../contracts";
+import { ColumnInfo, ObjectBuilderOptions, TABLE_PARTS } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 import { TextRenderingService } from "./text-rendering.service";
 
@@ -34,19 +34,19 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     @InjectConfig(TABLE_RENDER_ROWS) private readonly pageSize: number,
   ) {}
 
-  private activeOptions: TableBuilderOptions<VALUE>;
+  private activeOptions: ObjectBuilderOptions<VALUE>;
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
   private values: VALUE[];
 
   public renderTable(
-    options: TableBuilderOptions<VALUE>,
+    options: ObjectBuilderOptions<VALUE>,
     renderRows: VALUE[],
     selectedRow: number = START,
     selectedCell: number = START,
   ): string {
-    let emptyMessage = options.noRowsMessage;
+    let emptyMessage = "No rows";
     this.selectedCell = selectedCell;
     this.selectedRow = selectedRow;
     this.activeOptions = options;

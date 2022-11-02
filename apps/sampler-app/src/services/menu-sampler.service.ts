@@ -5,7 +5,6 @@ import {
   ApplicationManagerService,
   ColorsService,
   FontAwesomeIcons,
-  GV,
   MainMenuCB,
   MainMenuEntry,
   MenuComponentOptions,
@@ -13,6 +12,7 @@ import {
   ScreenService,
   template,
   TextRenderingService,
+  TTY,
 } from "@steggy/tty";
 import { is, PEAT, SECOND, SINGLE, sleep, TitleCase } from "@steggy/utilities";
 import chalk from "chalk";
@@ -207,7 +207,7 @@ export class MenuSampler {
     );
     if (is.object(value)) {
       const type = value.type;
-      value = GV(types.find(i => GV(i).type === type));
+      value = TTY.GV(types.find(i => TTY.GV(i).type === type));
     }
     let selectedValue: AdvancedMenuResult;
     const result = await this.prompt.menu<string | { type: string }>({

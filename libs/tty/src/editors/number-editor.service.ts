@@ -20,7 +20,7 @@ import {
 } from "../services";
 
 export interface NumberEditorRenderOptions {
-  current: number;
+  current?: number;
   /**
    * Text that should appear the blue bar of the help text
    */

@@ -19,7 +19,7 @@ import {
 } from "../services";
 
 export interface StringEditorRenderOptions {
-  current: string;
+  current?: string;
   label?: string;
   mask?: "hide" | "obfuscate";
   // maxLength?: number;

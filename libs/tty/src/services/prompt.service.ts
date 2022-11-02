@@ -4,10 +4,13 @@ import chalk from "chalk";
 
 import { ListBuilderOptions, MenuComponentOptions } from "../components";
 import {
-  ArrayBuilderOptions,
-  MainMenuEntry,
   ObjectBuilderOptions,
-  TableBuilderOptions,
+  PromptAcknowledgeOptions,
+  PromptBooleanOptions,
+  PromptConfirmOptions,
+  PromptPasswordOptions,
+  PromptPickOneOptions,
+  PromptTimeOptions,
 } from "../contracts";
 import {
   DateEditorEditorOptions,
@@ -35,47 +38,60 @@ export class PromptService {
    *
    * Good for giving the user time to read a message before a screen clear happens
    */
-  public async acknowledge(message?: string): Promise<void> {
+  public async acknowledge({
+    label: message,
+  }: PromptAcknowledgeOptions = {}): Promise<void> {
     await this.applicationManager.activateComponent("acknowledge", { message });
   }
 
-  public async arrayBuilder<
-    VALUE extends object = object,
-    CANCEL extends unknown = never,
-  >(
-    options: Omit<ArrayBuilderOptions<VALUE, CANCEL>, "mode">,
-  ): Promise<VALUE[] | CANCEL> {
-    const result = await this.applicationManager.activateComponent<
-      TableBuilderOptions<VALUE, CANCEL>,
-      VALUE
-    >("table", { ...options, mode: "multi" });
-    return result as VALUE[];
-  }
+  // public async arrayBuilder<
+  //   VALUE extends object = object,
+  //   CANCEL extends unknown = never,
+  // >(
+  //   options: Omit<ArrayBuilderOptions<VALUE, CANCEL>, "mode">,
+  // ): Promise<VALUE[] | CANCEL> {
+  //   const result = await this.applicationManager.activateComponent<
+  //     ObjectBuilderOptions<VALUE, CANCEL>,
+  //     VALUE
+  //   >("table", { ...options, mode: "multi" });
+  //   return result as VALUE[];
+  // }
 
-  public async boolean(
-    message: string,
-    defaultValue?: boolean,
-  ): Promise<boolean> {
+  /**
+   * prompt for a true / false value
+   */
+  public async boolean({
+    label: message,
+    current = false,
+  }: PromptBooleanOptions): Promise<boolean> {
     return (await this.menu({
       condensed: true,
       headerMessage: chalk`  {green ?} ${message}`,
       hideSearch: true,
       right: [{ entry: ["true", true] }, { entry: ["false", false] }],
-      value: defaultValue,
+      value: current,
     })) as boolean;
   }
 
-  public async confirm(
-    message = `Are you sure?`,
-    defaultValue = false,
-  ): Promise<boolean> {
+  /**
+   * similar to boolean, but different format for the question to the user
+   */
+  public async confirm({
+    label: message = "Are you sure?",
+    current = false,
+  }: PromptConfirmOptions = {}): Promise<boolean> {
     return await this.applicationManager.activateComponent("confirm", {
-      defaultValue,
+      current,
       message,
     });
   }
 
-  public async date<T extends Date | [Date, Date] = Date>({
+  /**
+   * Retrieve a single date from the user.
+   *
+   * Can be used to retrieve date range also
+   */
+  public async date<T extends Date | { from: Date; to: Date } = Date>({
     current,
     label,
     ...options
@@ -89,11 +105,18 @@ export class PromptService {
       ...options,
     });
     if (Array.isArray(result)) {
-      return result.map(i => new Date(i)) as T;
+      const [from, to] = result;
+      return {
+        from: new Date(from),
+        to: new Date(to),
+      } as T;
     }
     return new Date(result) as T;
   }
 
+  /**
+   * Retrieve date range from user
+   */
   public async dateRange({
     current,
     label,
@@ -110,6 +133,9 @@ export class PromptService {
     return { from: new Date(from), to: new Date(to) };
   }
 
+  /**
+   * Pick many values from a list of options
+   */
   public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
     const result = await this.applicationManager.activateComponent<
       ListBuilderOptions<T>,
@@ -118,6 +144,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * Menus, keyboard shortcuts, and general purpose tool
+   */
   public async menu<T extends unknown = string>(
     options: MenuComponentOptions<T | string>,
   ): Promise<T | string> {
@@ -129,85 +158,96 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * Retrieve a number value
+   */
   public async number(
-    label = `Number value`,
-    current?: number,
-    options: Omit<NumberEditorRenderOptions, "label" | "current"> = {},
+    options: NumberEditorRenderOptions = {},
   ): Promise<number> {
     return await this.applicationManager.activateEditor("number", {
-      current,
-      label,
+      label: `Number value`,
       width: DEFAULT_WIDTH,
       ...options,
     } as NumberEditorRenderOptions);
   }
 
+  /**
+   * Build a single object inside a table
+   */
   public async objectBuilder<
     VALUE extends object = object,
     CANCEL extends unknown = never,
-  >(
-    options: Omit<ObjectBuilderOptions<VALUE, CANCEL>, "mode">,
-  ): Promise<VALUE | CANCEL> {
+  >(options: ObjectBuilderOptions<VALUE, CANCEL>): Promise<VALUE | CANCEL> {
     const result = await this.applicationManager.activateComponent<
-      TableBuilderOptions<VALUE, CANCEL>,
+      ObjectBuilderOptions<VALUE, CANCEL>,
       VALUE
-    >("table", { ...options, mode: "single" });
+    >("table", options);
     return result;
   }
 
-  public async password(
+  /**
+   * Take in a string value, hiding the individual characters from the screen
+   */
+  public async password({
     label = `Password value`,
-    defaultValue?: string,
-  ): Promise<string> {
-    return await this.string(label, defaultValue, {
-      mask: "obfuscate",
-    });
+    current,
+  }: PromptPasswordOptions): Promise<string> {
+    return await this.applicationManager.activateEditor("string", {
+      current,
+      label,
+      width: DEFAULT_WIDTH,
+    } as StringEditorRenderOptions);
   }
 
-  public async pickOne<T extends unknown = string>(
-    message = `Pick one`,
-    options: MainMenuEntry<T>[],
-    defaultValue?: string | T,
-  ): Promise<T> {
+  /**
+   * Pick a single item out of a list
+   */
+  public async pickOne<T extends unknown = string>({
+    options,
+    current,
+    headerMessage = `Pick one`,
+  }: PromptPickOneOptions<T>): Promise<T> {
     if (is.empty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
     const cancel = Symbol();
     const result = (await this.menu({
-      keyMap: { f4: ["Cancel", cancel as T] },
+      headerMessage: chalk`{blue ?} ${headerMessage}`,
+      keyMap: { escape: ["Cancel", cancel as T] },
       right: options,
-      rightHeader: message,
-      value: defaultValue,
+      value: current,
     })) as T;
     if (result === cancel) {
-      return defaultValue as T;
+      return current as T;
     }
     return result;
   }
 
+  /**
+   * Plain string value
+   */
   public async string(
-    label = `String value`,
-    current?: string,
-    options: Omit<StringEditorRenderOptions, "label" | "current"> = {},
+    options: StringEditorRenderOptions = {},
   ): Promise<string> {
     return await this.applicationManager.activateEditor("string", {
-      current,
-      label,
+      label: `String value`,
       width: DEFAULT_WIDTH,
       ...options,
     } as StringEditorRenderOptions);
   }
 
   /**
-   * @deprecated
+   * Retrieve a date object that is used to show time.
+   *
+   * Day value will be for today
    */
-  public async time(
+  public async time({
     label = `Time value`,
-    defaultValue = new Date(),
-  ): Promise<Date> {
+    current = new Date(),
+  }: PromptTimeOptions = {}): Promise<Date> {
     return await this.date({
-      current: defaultValue.toISOString(),
+      current: current.toISOString(),
       label,
       type: "time",
     });

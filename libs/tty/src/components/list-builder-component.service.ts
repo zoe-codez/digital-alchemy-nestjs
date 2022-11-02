@@ -15,7 +15,7 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { GV, MainMenuEntry, tKeyMap, TTYKeypressOptions } from "../contracts";
+import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../contracts";
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd, MergeHelp } from "../includes";
 import {
@@ -106,7 +106,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.opt.items ??= `Items`;
     this.mode = "select";
     const items = this.side(is.empty(this.source) ? "current" : "source");
-    this.value ??= GV(items[START]) as VALUE;
+    this.value ??= TTY.GV(items[START]) as VALUE;
     this.detectSide();
     this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
   }
@@ -138,7 +138,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       return;
     }
     const list = this.side();
-    const item = list.find(i => GV(i) === this.value);
+    const item = list.find(i => TTY.GV(i) === this.value);
     this.screen.render(
       MergeHelp(message.join(`\n`), item),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
@@ -154,14 +154,16 @@ export class ListBuilderComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.source.find(
-      item => GV(item.entry) === this.value,
+      item => TTY.GV(item.entry) === this.value,
     ) as MainMenuEntry<string>;
     this.current.push(item);
     // Remove from source
-    this.source = this.source.filter(check => GV(check.entry) !== this.value);
+    this.source = this.source.filter(
+      check => TTY.GV(check.entry) !== this.value,
+    );
 
     // Find move item in original source list
-    const index = source.findIndex(i => GV(i) === this.value);
+    const index = source.findIndex(i => TTY.GV(i) === this.value);
 
     // If at bottom, move up one
     if (index === source.length - ARRAY_OFFSET) {
@@ -170,16 +172,16 @@ export class ListBuilderComponentService<VALUE = unknown>
         this.selectedType = "current";
         return;
       }
-      this.value = GV(source[index - INCREMENT]);
+      this.value = TTY.GV(source[index - INCREMENT]);
       return;
     }
     // If not bottom, move down one
-    this.value = GV(source[index + INCREMENT]);
+    this.value = TTY.GV(source[index + INCREMENT]);
   }
 
   protected bottom(): void {
     const list = this.side();
-    this.value = GV(list[list.length - ARRAY_OFFSET]);
+    this.value = TTY.GV(list[list.length - ARRAY_OFFSET]);
   }
 
   protected cancel(): void {
@@ -201,24 +203,24 @@ export class ListBuilderComponentService<VALUE = unknown>
       available = all;
     }
     if (["pageup", "home"].includes(key)) {
-      this.value = GV(available[START]);
+      this.value = TTY.GV(available[START]);
       return this.render();
     }
     if (["pagedown", "end"].includes(key)) {
-      this.value = GV(available[available.length - ARRAY_OFFSET]);
+      this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
       return this.render();
     }
-    const index = available.findIndex(entry => GV(entry) === this.value);
+    const index = available.findIndex(entry => TTY.GV(entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = GV(available[START]);
+      this.value = TTY.GV(available[START]);
       return this.render();
     }
     if (index === START && key === "up") {
-      this.value = GV(available[available.length - ARRAY_OFFSET]);
+      this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
     } else if (index === available.length - ARRAY_OFFSET && key === "down") {
-      this.value = GV(available[START]);
+      this.value = TTY.GV(available[START]);
     } else {
-      this.value = GV(
+      this.value = TTY.GV(
         available[key === "up" ? index - INCREMENT : index + INCREMENT],
       );
     }
@@ -226,17 +228,17 @@ export class ListBuilderComponentService<VALUE = unknown>
 
   protected next(): void {
     const list = this.side();
-    const index = list.findIndex(i => GV(i) === this.value);
+    const index = list.findIndex(i => TTY.GV(i) === this.value);
     if (index === NOT_FOUND) {
-      this.value = GV(list[FIRST]);
+      this.value = TTY.GV(list[FIRST]);
       return;
     }
     if (index === list.length - ARRAY_OFFSET) {
       // Loop around
-      this.value = GV(list[FIRST]);
+      this.value = TTY.GV(list[FIRST]);
       return;
     }
-    this.value = GV(list[index + INCREMENT]);
+    this.value = TTY.GV(list[index + INCREMENT]);
   }
 
   protected numericSelect(mixed: string): void {
@@ -246,7 +248,7 @@ export class ListBuilderComponentService<VALUE = unknown>
         Number(is.empty(this.numericSelection) ? "1" : this.numericSelection) -
           ARRAY_OFFSET
       ];
-    this.value = is.object(item) ? GV(item) : this.value;
+    this.value = is.object(item) ? TTY.GV(item) : this.value;
   }
 
   protected async onEnd(): Promise<void> {
@@ -254,7 +256,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.final = true;
     this.render();
     await sleep();
-    this.done(this.current.map(i => GV(i.entry) as VALUE));
+    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
   }
 
   protected onLeft(): void {
@@ -266,7 +268,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       return;
     }
     this.selectedType = "current";
-    let current = right.findIndex(i => GV(i) === this.value);
+    let current = right.findIndex(i => TTY.GV(i) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -275,8 +277,8 @@ export class ListBuilderComponentService<VALUE = unknown>
     }
     this.value =
       left.length < current
-        ? GV(left[left.length - ARRAY_OFFSET])
-        : GV(left[current]);
+        ? TTY.GV(left[left.length - ARRAY_OFFSET])
+        : TTY.GV(left[current]);
   }
 
   protected onRight(): void {
@@ -288,7 +290,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       return;
     }
     this.selectedType = "source";
-    let current = left.findIndex(i => GV(i) === this.value);
+    let current = left.findIndex(i => TTY.GV(i) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -297,23 +299,23 @@ export class ListBuilderComponentService<VALUE = unknown>
     }
     this.value =
       right.length - ARRAY_OFFSET < current
-        ? GV(right[right.length - ARRAY_OFFSET])
-        : GV(right[current]);
+        ? TTY.GV(right[right.length - ARRAY_OFFSET])
+        : TTY.GV(right[current]);
   }
 
   protected previous(): void {
     const list = this.side();
-    const index = list.findIndex(i => GV(i) === this.value);
+    const index = list.findIndex(i => TTY.GV(i) === this.value);
     if (index === NOT_FOUND) {
-      this.value = GV(list[FIRST]);
+      this.value = TTY.GV(list[FIRST]);
       return;
     }
     if (index === FIRST) {
       // Loop around
-      this.value = GV(list[list.length - ARRAY_OFFSET]);
+      this.value = TTY.GV(list[list.length - ARRAY_OFFSET]);
       return;
     }
-    this.value = GV(list[index - INCREMENT]);
+    this.value = TTY.GV(list[index - INCREMENT]);
   }
 
   protected reset(): void {
@@ -370,11 +372,11 @@ export class ListBuilderComponentService<VALUE = unknown>
 
   protected top(): void {
     const list = this.side();
-    this.value = GV(list[FIRST]);
+    this.value = TTY.GV(list[FIRST]);
   }
 
   private detectSide(): void {
-    const isLeftSide = this.side("current").some(i => GV(i) === this.value);
+    const isLeftSide = this.side("current").some(i => TTY.GV(i) === this.value);
     this.selectedType = isLeftSide ? "current" : "source";
   }
 
@@ -386,7 +388,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
     }
-    this.value = GV(highlighted[START]);
+    this.value = TTY.GV(highlighted[START]);
     return highlighted;
   }
 
@@ -399,14 +401,16 @@ export class ListBuilderComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.current.find(
-      ({ entry }) => GV(entry) === this.value,
+      ({ entry }) => TTY.GV(entry) === this.value,
     ) as MainMenuEntry<string>;
     this.source.push(item);
     // Remove from source
-    this.current = this.current.filter(({ entry }) => GV(entry) !== this.value);
+    this.current = this.current.filter(
+      ({ entry }) => TTY.GV(entry) !== this.value,
+    );
 
     // Find move item in original source list
-    const index = current.findIndex(i => GV(i) === this.value);
+    const index = current.findIndex(i => TTY.GV(i) === this.value);
 
     // If at bottom, move up one
     if (index === current.length - ARRAY_OFFSET) {
@@ -415,11 +419,11 @@ export class ListBuilderComponentService<VALUE = unknown>
         this.selectedType = "current";
         return;
       }
-      this.value = GV(current[index - INCREMENT]);
+      this.value = TTY.GV(current[index - INCREMENT]);
       return;
     }
     // If not bottom, move down one
-    this.value = GV(current[index + INCREMENT]);
+    this.value = TTY.GV(current[index + INCREMENT]);
   }
 
   private renderSide(
@@ -437,7 +441,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       out.push(chalk.bold` {gray.inverse  List is empty } `);
     }
     menu.forEach(item => {
-      const inverse = GV(item) === this.value;
+      const inverse = TTY.GV(item) === this.value;
       const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
       if (this.selectedType === side) {
         out.push(

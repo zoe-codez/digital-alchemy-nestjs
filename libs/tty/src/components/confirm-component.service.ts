@@ -11,19 +11,19 @@ export class ConfirmComponentService implements iComponent {
   private complete = false;
   private done: (state: boolean) => void;
   private initialState = false;
-  private message = ``;
+  private label = ``;
 
   public configure(
     config: {
-      defaultValue?: boolean;
-      message?: string;
+      current?: boolean;
+      label?: string;
     },
     callback,
   ): void {
     this.complete = false;
     this.done = callback;
-    this.message = config.message;
-    this.initialState = config.defaultValue;
+    this.label = config.label;
+    this.initialState = config.current;
     this.keyboard.setKeyMap(
       this,
       new Map([
@@ -38,9 +38,7 @@ export class ConfirmComponentService implements iComponent {
     if (this.complete) {
       return;
     }
-    this.screen.render(
-      `${this.message} (${this.initialState ? "Y/n" : "y/N"})`,
-    );
+    this.screen.render(`${this.label} (${this.initialState ? "Y/n" : "y/N"})`);
   }
 
   protected accept(): void {

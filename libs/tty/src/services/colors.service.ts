@@ -25,16 +25,41 @@ export class ColorsService {
   constructor(private readonly prompt: PromptService) {}
 
   public async buildHex(current: string): Promise<string> {
-    return await this.prompt.string(`Hex Color`, current);
+    return await this.prompt.string({
+      current,
+      label: `Hex Color`,
+    });
   }
 
-  public async buildRGB(
-    { r, g, b }: RGB = { b: OFF, g: OFF, r: OFF },
-  ): Promise<RGB> {
-    r = await this.prompt.number("Red", r);
-    g = await this.prompt.number("Green", g);
-    b = await this.prompt.number("Blue", b);
-    return { b, g, r };
+  public async buildRGB(current: RGB): Promise<RGB> {
+    return await this.prompt.objectBuilder<RGB>({
+      current: {
+        b: OFF,
+        g: OFF,
+        r: OFF,
+        ...current,
+      },
+      elements: [
+        {
+          helpText: "0-255",
+          name: "Red",
+          path: "r",
+          type: "number",
+        },
+        {
+          helpText: "0-255",
+          name: "Green",
+          path: "g",
+          type: "number",
+        },
+        {
+          helpText: "0-255",
+          name: "Blue",
+          path: "b",
+          type: "number",
+        },
+      ],
+    });
   }
 
   public hexToRGB(hex = "000000"): RGB {

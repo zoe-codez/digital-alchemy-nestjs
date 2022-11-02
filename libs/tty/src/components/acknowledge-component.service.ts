@@ -12,12 +12,12 @@ export class AcknowledgeComponentService implements iComponent {
 
   private done: () => void;
   private isDone = false;
-  private message: string;
+  private label: string;
 
-  public configure(config: { message: string }, callback): void {
+  public configure(config: { label: string }, callback): void {
     this.isDone = false;
     this.done = callback;
-    this.message = config.message;
+    this.label = config.label;
     this.keyboard.setKeyMap(this, new Map([[{}, "complete"]]));
   }
 
@@ -25,7 +25,7 @@ export class AcknowledgeComponentService implements iComponent {
     if (this.isDone) {
       return;
     }
-    this.screen.printLine(this.message ?? chalk.bold`Any key to continue `);
+    this.screen.printLine(this.label ?? chalk.bold`Any key to continue `);
   }
 
   protected complete(): boolean {

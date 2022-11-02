@@ -10,10 +10,10 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import {
-  GV,
+  ObjectBuilderOptions,
   TABLE_PARTS,
   TableBuilderElement,
-  TableBuilderOptions,
+  TTY,
 } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 import { TextRenderingService } from "./text-rendering.service";
@@ -29,12 +29,12 @@ const NAME_CELL = (i: TableBuilderElement, max?: number) =>
 export class FormService<VALUE extends object = Record<string, unknown>> {
   constructor(private readonly textRender: TextRenderingService) {}
 
-  private activeOptions: TableBuilderOptions<VALUE>;
+  private activeOptions: ObjectBuilderOptions<VALUE>;
   private selectedRow: number;
   private value: VALUE;
 
   public renderForm(
-    options: TableBuilderOptions<VALUE>,
+    options: ObjectBuilderOptions<VALUE>,
     row: VALUE,
     selectedRow: number = START,
   ): string {
@@ -107,7 +107,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
         return raw;
       }
       return raw.map(item => {
-        const option = element.options.find(i => GV(i) === item);
+        const option = element.options.find(i => TTY.GV(i) === item);
         if (!option) {
           return item;
         }

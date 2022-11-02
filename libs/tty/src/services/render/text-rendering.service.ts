@@ -14,7 +14,7 @@ import chalk from "chalk";
 import fuzzy from "fuzzysort";
 
 import { PAGE_SIZE } from "../../config";
-import { GV, MainMenuEntry, MenuEntry } from "../../contracts";
+import { MainMenuEntry, MenuEntry, TTY } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 
 const MAX_SEARCH_SIZE = 50;
@@ -155,7 +155,7 @@ export class TextRenderingService {
         const out = {
           entry: [
             label || result.obj.value.entry[LABEL],
-            GV(result.obj.value),
+            TTY.GV(result.obj.value),
           ] as MenuEntry<T>,
           helpText: help || result.obj.value.helpText,
           type: type || result.obj.value.type,
@@ -178,7 +178,7 @@ export class TextRenderingService {
       help: i.helpText,
       label: i.entry[LABEL],
       type: i.type,
-      value: GV(i.entry),
+      value: TTY.GV(i.entry),
     }));
     return fuzzy
       .go(searchText, formatted, { all: true, key: "label" })
@@ -229,7 +229,7 @@ export class TextRenderingService {
     if (entries.length <= this.pageSize) {
       return entries;
     }
-    const index = entries.findIndex(i => GV(i) === value);
+    const index = entries.findIndex(i => TTY.GV(i) === value);
     if (index <= BUFFER_SIZE) {
       return entries.slice(START, this.pageSize);
     }
