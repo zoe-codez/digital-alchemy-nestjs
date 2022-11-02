@@ -296,7 +296,7 @@ export class MenuSampler {
       tMenuOptions,
       typeof cancel
     >({
-      async cancel(cancelFunction, confirm) {
+      async cancel({ cancelFunction, confirm }) {
         const result = await confirm();
         if (!result) {
           return;
@@ -364,14 +364,14 @@ export class MenuSampler {
           name: chalk.cyan("Options left"),
           options: Object.values(FakerSources).map(i => ({ entry: [i] })),
           path: "optionsLeft",
-          type: "enum",
+          type: "pick-one",
         },
         {
           helpText: "Generate fake data",
           name: chalk.cyan("Options right"),
           options: Object.values(FakerSources).map(i => ({ entry: [i] })),
           path: "optionsRight",
-          type: "enum",
+          type: "pick-one",
         },
         {
           helpText: "Generate fake data",

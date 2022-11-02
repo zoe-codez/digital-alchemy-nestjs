@@ -40,10 +40,7 @@ export const SECOND = 1000;
 export const PERCENT = 100;
 
 type SleepReturn = Promise<void> & {
-  /**
-   * not passing true will result in the sleep never finishing (acting similar to an early return)
-   */
-  stop: (execute?: boolean) => void;
+  kill: (execute: "stop" | "continue") => void;
 };
 /**
  * Defaults to 1000 (1 second).
@@ -59,18 +56,23 @@ type SleepReturn = Promise<void> & {
  * ```typescript
  * const start = Date.now();
  * const timer = sleep(5000);
- * setTimeout(() => timer.stop(true),1000);
+ * setTimeout(() => timer.kill("continue"),1000);
  * await timer;
  * const end = Date.now();
  * console.log(end - start); // 1000, because we stopped it early and executed
  * ```
  */
 export function sleep(ms: number = SECOND): SleepReturn {
+  // done function from promise
   let done: () => void;
-  const out = new Promise<void>(i => (done = i)) as SleepReturn;
+
   const timeout = setTimeout(() => done(), ms);
-  out.stop = (execute = false) => {
-    if (execute) {
+
+  // Take a normal promise, add a `.kill` to it
+  // You can await as normal, or call the function
+  const out = new Promise<void>(i => (done = i)) as SleepReturn;
+  out.kill = (execute = "stop") => {
+    if (execute === "continue") {
       done();
     }
     clearTimeout(timeout);

@@ -12,13 +12,18 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import { TABLE_RENDER_ROWS } from "../../config";
-import { ColumnInfo, ObjectBuilderOptions, TABLE_PARTS } from "../../contracts";
+import {
+  ObjectBuilderOptions,
+  TABLE_PARTS,
+  TableBuilderElement,
+} from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;
 const EXTRA = 2;
 const MIN_CELL_WIDTH = " undefined ".length;
+type ColumnInfo = TableBuilderElement & { maxWidth: number };
 
 const NAME_CELL = (i: ColumnInfo, max?: number) =>
   chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(

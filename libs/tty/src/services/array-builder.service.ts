@@ -17,6 +17,10 @@ export type ArrayBuilderOptions<VALUE extends object> = Omit<
   "cancel" | "current"
 > & {
   /**
+   * On cancel attempt for building an object, what message should be displayed?
+   */
+  cancelMessage?: string;
+  /**
    * Current list of values
    */
   current?: VALUE[];
@@ -65,6 +69,8 @@ export class ArrayBuilderService<VALUE extends object> {
     this.selectedRow = START;
     this.disabledTypes = [];
     this.options = options;
+    options.cancelMessage ??=
+      "Are you sure you want to cancel building this object?";
     options.header ??= "Array builder";
     options.valuesLabel ??= "Values";
     await this.menuStep();
@@ -254,6 +260,9 @@ export class ArrayBuilderService<VALUE extends object> {
   ): Promise<VALUE | CANCEL> {
     const value = await this.prompt.objectBuilder({
       ...this.options,
+      cancel(cancelFunction, confirm) {
+        return;
+      },
       current,
     });
     return cancel;

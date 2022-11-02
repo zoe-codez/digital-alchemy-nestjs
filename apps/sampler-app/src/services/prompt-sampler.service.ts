@@ -30,6 +30,7 @@ export class PromptSampler {
   ) {}
 
   public async exec(value?: string): Promise<void> {
+    await this.objectBuilder();
     this.application.setHeader("TTY Sampler");
 
     const action = await this.prompt.menu({
@@ -179,7 +180,7 @@ export class PromptSampler {
           name: "Fuzzy",
           options: Object.values(TTYFuzzyTypes).map(i => ({ entry: [i] })),
           path: "fuzzy",
-          type: "enum",
+          type: "pick-one",
         },
         {
           name: "Label",
@@ -190,7 +191,7 @@ export class PromptSampler {
           name: "Date Type",
           options: Object.values(TTYDateTypes).map(i => ({ entry: [i] })),
           path: "type",
-          type: "enum",
+          type: "pick-one",
         },
       ],
     });
@@ -222,12 +223,12 @@ export class PromptSampler {
     let result: string[];
     switch (action) {
       case "default":
-        result = await this.prompt.listBuild({
+        result = await this.prompt.pickMany({
           source,
         });
         break;
       case "selected":
-        result = await this.prompt.listBuild({
+        result = await this.prompt.pickMany({
           current: PEAT(LIST_LENGTH).map(i => {
             const element = faker.science.chemicalElement();
             return {
@@ -240,7 +241,7 @@ export class PromptSampler {
         break;
       case "label":
         const items = await this.prompt.string({ label: "Label" });
-        result = await this.prompt.listBuild({ items, source });
+        result = await this.prompt.pickMany({ items, source });
         break;
     }
     this.screen.printLine(this.text.type(result));
@@ -249,7 +250,6 @@ export class PromptSampler {
 
   private async objectBuilder(): Promise<void> {
     this.application.setHeader("Object Builder");
-    this.screen.printLine(`An example of the object builder in table mode.`);
     const result = await this.prompt.objectBuilder({
       current: {
         check: false,
@@ -288,7 +288,7 @@ export class PromptSampler {
             },
           ],
           path: "extra",
-          type: "enum-array",
+          type: "pick-many",
         },
         {
           helpText: "check",
@@ -315,6 +315,7 @@ export class PromptSampler {
           type: "string",
         },
       ],
+      headerMessage: `An example of the object builder in table mode.`,
     });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();

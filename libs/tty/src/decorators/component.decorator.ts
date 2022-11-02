@@ -12,10 +12,14 @@ export function Component(options: ComponentOptions): ClassDecorator {
     return Injectable()(target);
   };
 }
-export interface iComponent<ACTIVE_CONFIG = unknown, VALUE_TYPE = unknown> {
+export interface iComponent<
+  ACTIVE_CONFIG = unknown,
+  VALUE_TYPE = unknown,
+  CANCEL extends unknown = never,
+> {
   configure(
     config: ACTIVE_CONFIG,
-    done: (type: VALUE_TYPE | VALUE_TYPE[]) => void,
+    done: (type: VALUE_TYPE | VALUE_TYPE[] | CANCEL) => void,
   ): void;
   render(): void;
 }

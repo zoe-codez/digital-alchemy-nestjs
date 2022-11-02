@@ -22,19 +22,22 @@ const PADDING = 1;
 const DOUBLE_PADDING = 2;
 const TRIPLE_PADDING = 3;
 
-const NAME_CELL = (i: TableBuilderElement, max?: number) =>
-  chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(max - PADDING, " ")}}`;
+// const NAME_CELL = (i: TableBuilderElement, max?: number) =>
+//   chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(max - PADDING, " ")}}`;
 
 @Injectable()
-export class FormService<VALUE extends object = Record<string, unknown>> {
+export class FormService<
+  VALUE extends object = Record<string, unknown>,
+  CANCEL extends unknown = never,
+> {
   constructor(private readonly textRender: TextRenderingService) {}
 
-  private activeOptions: ObjectBuilderOptions<VALUE>;
+  private activeOptions: ObjectBuilderOptions<VALUE, CANCEL>;
   private selectedRow: number;
   private value: VALUE;
 
   public renderForm(
-    options: ObjectBuilderOptions<VALUE>,
+    options: ObjectBuilderOptions<VALUE, CANCEL>,
     row: VALUE,
     selectedRow: number = START,
   ): string {
@@ -57,7 +60,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
           return this.textRender.type(this.getRenderValue(i));
         }),
       );
-    const columns = elements.map((i: TableBuilderElement, index) =>
+    const columns = elements.map((i: TableBuilderElement<VALUE>, index) =>
       this.renderValue({ i, index, maxLabel, maxValue }),
     );
     const header = [
@@ -96,13 +99,13 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
 
   private getRenderValue(element: TableBuilderElement<VALUE>): unknown {
     const raw = get(this.value, element.path);
-    if (element.type === "enum") {
+    if (element.type === "pick-one") {
       const option = element.options.find(({ entry }) => entry[VALUE] === raw);
       if (option) {
         return option.entry[LABEL];
       }
     }
-    if (element.type === "enum-array") {
+    if (element.type === "pick-many") {
       if (!Array.isArray(raw)) {
         return raw;
       }
@@ -117,13 +120,20 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
     return raw;
   }
 
+  private nameCell(i: TableBuilderElement<VALUE>, max?: number) {
+    return chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(
+      max - PADDING,
+      " ",
+    )}}`;
+  }
+
   private renderValue({
     i,
     index,
     maxLabel,
     maxValue,
   }: {
-    i: TableBuilderElement;
+    i: TableBuilderElement<VALUE>;
     index: number;
     maxLabel: number;
     maxValue: number;
@@ -135,7 +145,7 @@ export class FormService<VALUE extends object = Record<string, unknown>> {
       `\n`,
     );
     const labels = (
-      NAME_CELL(i, maxLabel) + `\n`.repeat(lines - INCREMENT)
+      this.nameCell(i, maxLabel) + `\n`.repeat(lines - INCREMENT)
     ).split(`\n`);
     return labels
       .map((labelLine, labelIndex) => {

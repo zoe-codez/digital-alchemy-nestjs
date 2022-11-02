@@ -3,14 +3,19 @@ import {
   ARRAY_OFFSET,
   deepExtend,
   is,
+  SECOND,
+  sleep,
   START,
   TitleCase,
 } from "@steggy/utilities";
+import chalk from "chalk";
 import { get, set } from "object-path";
 
 import {
+  BuilderCancelOptions,
   DirectCB,
   MainMenuEntry,
+  ObjectBuilderMessagePositions,
   ObjectBuilderOptions,
   tKeyMap,
   TTY,
@@ -27,6 +32,10 @@ import {
   TextRenderingService,
 } from "../services";
 
+type HelpText = {
+  helpText: string;
+};
+
 const FORM_KEYMAP: tKeyMap = new Map([
   // While there is no editor
   [{ description: "done", key: "d" }, "onEnd"],
@@ -41,19 +50,27 @@ const FORM_KEYMAP: tKeyMap = new Map([
   ],
   [{ description: "cursor down", key: "down" }, "onDown"],
   [{ description: "edit cell", key: "enter" }, "enableEdit"],
+  [{ description: "reset field", key: "r" }, "resetField"],
+  [
+    { description: "set to default", key: "r", modifiers: { ctrl: true } },
+    "resetFieldHard",
+  ],
 ] as [TTYKeypressOptions, string | DirectCB][]);
 const CANCELLABLE: tKeyMap = new Map([
   [{ description: "cancel", key: "escape" }, "cancel"],
 ]);
 const HELP_ERASE_SIZE = 3;
+const DEFAULT_MESSAGE_TIMEOUT = 3;
+const NORMAL_EXIT = Symbol();
 
 @Component({ type: "object" })
 export class ObjectBuilderComponentService<
   VALUE extends object = Record<string, unknown>,
-> implements iComponent<ObjectBuilderOptions<VALUE>, VALUE>
+  CANCEL extends unknown = never,
+> implements iComponent<ObjectBuilderOptions<VALUE, CANCEL>, VALUE, CANCEL>
 {
   constructor(
-    private readonly form: FormService<VALUE>,
+    private readonly form: FormService<VALUE, CANCEL>,
     private readonly text: TextRenderingService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
@@ -62,15 +79,66 @@ export class ObjectBuilderComponentService<
     private readonly prompt: PromptService,
   ) {}
 
+  /**
+   * Stop processing actions, render a static message
+   */
   private complete = false;
-  private dirty = false;
-  private done: (type: VALUE | VALUE[]) => void;
-  private opt: ObjectBuilderOptions<VALUE>;
-  private rows: VALUE[];
-  private selectedCell = START;
+  /**
+   * A message sent by calling code
+   */
+  private displayMessage: string;
+  /**
+   * Where to position the message relative to normal rendering
+   */
+  private displayMessagePosition: ObjectBuilderMessagePositions;
+  /**
+   * Timeout until the message is removed
+   */
+  private displayMessageTimeout: ReturnType<typeof sleep>;
+  /**
+   * Method to call when complete
+   */
+  private done: (type: VALUE | CANCEL) => void;
+  /**
+   * Options passed in to configure the current run
+   */
+  private opt: ObjectBuilderOptions<VALUE, CANCEL>;
+  /**
+   * Selected row relative to visible elements
+   */
   private selectedRow = START;
+  /**
+   * The current working value
+   */
   private value: VALUE;
-  private get notes(): string {
+
+  private get dirtyProperties(): (keyof VALUE)[] {
+    const original = this.opt.current ?? {};
+    const current = this.value;
+    return this.columns
+      .filter(({ path }) => get(original, path) !== get(current, path))
+      .map(({ path }) => path);
+  }
+
+  private get headerMessage(): string {
+    const { headerMessage } = this.opt;
+    if (is.string(headerMessage)) {
+      if (headerMessage.endsWith(`\n`)) {
+        return headerMessage;
+      }
+      return headerMessage + `\n`;
+    }
+    if (is.function(headerMessage)) {
+      const out = headerMessage(this.value);
+      if (out.endsWith(`\n`)) {
+        return out;
+      }
+      return out + `\n`;
+    }
+    return ``;
+  }
+
+  private get helpNotes(): string {
     const { helpNotes } = this.opt;
     if (is.string(helpNotes)) {
       return helpNotes;
@@ -82,25 +150,27 @@ export class ObjectBuilderComponentService<
   }
 
   public configure(
-    config: ObjectBuilderOptions<VALUE>,
-    done: (type: VALUE[]) => void,
+    config: ObjectBuilderOptions<VALUE, CANCEL>,
+    done: (type: VALUE | CANCEL) => void,
   ): void {
+    // Reset from last run
     this.complete = false;
-    this.dirty = false;
+    this.displayMessage = "";
     this.opt = config;
+    this.done = done;
+    this.selectedRow = START;
+
+    // Build up some defaults on the elements
     config.elements = config.elements.map(i => {
       i.name ??= TitleCase(i.path);
       return i;
     });
-    this.done = done;
-    this.opt.sanitize ??= "defined-paths";
-    this.opt.current ??= {} as VALUE;
-    this.selectedRow = START;
-    this.selectedCell = START;
-    this.rows = Array.isArray(this.opt.current)
-      ? this.opt.current
-      : [this.opt.current];
-    this.value = deepExtend({} as VALUE, this.opt.current) as VALUE;
+
+    // Set up defaults
+    config.sanitize ??= "defined-paths";
+
+    //
+    this.value = deepExtend({}, config.current ?? {}) as VALUE;
     this.setKeymap();
   }
 
@@ -109,7 +179,55 @@ export class ObjectBuilderComponentService<
       this.screen.render("", "");
       return;
     }
-    this.renderSingle();
+    const aboveBar =
+      this.displayMessagePosition === "above-bar" &&
+      !is.empty(this.displayMessage)
+        ? { helpText: this.displayMessage }
+        : (this.visibleColumns[this.selectedRow] as HelpText);
+
+    const belowBar =
+      this.displayMessagePosition === "below-bar" &&
+      !is.empty(this.displayMessage)
+        ? this.displayMessage
+        : this.helpNotes;
+
+    const message = MergeHelp(
+      this.text.pad(
+        this.form.renderForm(
+          {
+            ...this.opt,
+            elements: this.visibleColumns,
+          },
+          this.value,
+          this.selectedRow,
+        ),
+      ),
+      aboveBar,
+    );
+
+    let headerMessage = "";
+    if (this.displayMessagePosition === "header-replace") {
+      headerMessage = !is.empty(this.displayMessage)
+        ? this.displayMessage
+        : this.headerMessage;
+    } else {
+      headerMessage = this.headerMessage;
+      if (!is.empty(this.displayMessage)) {
+        if (this.displayMessagePosition === "header-append") {
+          headerMessage = headerMessage + this.displayMessage;
+        } else if (this.displayMessagePosition === "header-prepend") {
+          headerMessage = this.displayMessage + headerMessage;
+        }
+      }
+    }
+
+    this.screen.render(
+      headerMessage + message,
+      this.keymap.keymapHelp({
+        message,
+        notes: belowBar,
+      }),
+    );
   }
 
   private get columns() {
@@ -125,35 +243,28 @@ export class ObjectBuilderComponentService<
     });
   }
 
-  protected add(): void {
-    const value = Object.fromEntries(
-      this.columns.map(column => {
-        const value = is.function(column.default)
-          ? column.default()
-          : column.default;
-        return [column.path, value];
-      }),
-    );
-    const wasEmpty = is.empty(this.rows);
-    this.rows.push(value as VALUE);
-    this.setKeymap();
-    if (wasEmpty) {
-      this.selectedRow = this.rows.length - ARRAY_OFFSET;
-    }
-    // ? Needs an extra render for some reason
-    // Should be unnecessary
-    this.render();
-  }
-
+  /**
+   * available as keyboard shortcut if options.cancel is defined
+   *
+   * ## Provided as function
+   *
+   * Call w/ some extra parameters, and bail out early.
+   * Calling code can utilize parameters to call an end to this widget at any time, do validation, or present confirmations.
+   * It is intended to be async
+   *
+   * ## Provided as anything else
+   *
+   * Immediate end, return cancel value
+   */
   protected cancel(): void {
     const { cancel, current } = this.opt;
     if (is.function(cancel)) {
-      cancel(
-        value => {
-          this.value = value ?? current;
-          this.onEnd(true);
+      const options: BuilderCancelOptions<VALUE> = {
+        cancelFunction: cancelValue => {
+          this.value = cancelValue ?? current;
+          this.end(cancelValue ?? current);
         },
-        async (message = "Discard changes?") => {
+        confirm: async (message = "Discard changes?") => {
           let value: boolean;
           await this.screen.footerWrap(async () => {
             value = await this.prompt.confirm({ label: message });
@@ -161,32 +272,44 @@ export class ObjectBuilderComponentService<
           this.render();
           return value;
         },
-      );
+        current: this.value,
+        dirtyProperties: this.dirtyProperties,
+        original: current,
+        /**
+         * - if there is an existing timer, stop it
+         * - set the new message position and text
+         * - immediate
+         */
+        sendMessage: async ({
+          message,
+          timeout = DEFAULT_MESSAGE_TIMEOUT,
+          position = "below-bar",
+          immediateClear = false,
+        }) => {
+          if (this.displayMessageTimeout) {
+            this.displayMessageTimeout.kill("stop");
+          }
+          this.displayMessagePosition = position;
+          this.displayMessage = message;
+          this.render();
+          this.displayMessageTimeout = sleep(timeout * SECOND);
+          await this.displayMessageTimeout;
+          this.displayMessage = undefined;
+          this.displayMessageTimeout = undefined;
+          if (immediateClear) {
+            this.render();
+          }
+        },
+      };
+      cancel(options);
       return;
     }
-    this.value = cancel as VALUE;
-    this.onEnd(true);
+    this.end(cancel);
   }
 
-  protected async delete(): Promise<boolean> {
-    const result = await this.screen.footerWrap(async () => {
-      return await this.prompt.confirm({
-        label: "Are you sure you want to delete this?",
-      });
-    });
-    if (!result) {
-      this.render();
-      return;
-    }
-    this.rows = this.rows.filter((item, index) => index !== this.selectedRow);
-    if (this.selectedRow > this.rows.length - ARRAY_OFFSET) {
-      this.selectedRow = this.rows.length - ARRAY_OFFSET;
-    }
-    this.setKeymap();
-    this.render();
-    return false;
-  }
-
+  /**
+   * keyboard event
+   */
   protected async enableEdit(): Promise<void> {
     await this.screen.footerWrap(async () => {
       const column = this.visibleColumns[this.selectedRow];
@@ -212,7 +335,7 @@ export class ObjectBuilderComponentService<
         case "string":
           value = await this.prompt.string({ current, label: column.name });
           break;
-        case "enum-array":
+        case "pick-many":
           const currentValue = current ?? [];
           const source = column.options.filter(
             i => !currentValue.includes(TTY.GV(i)),
@@ -225,7 +348,7 @@ export class ObjectBuilderComponentService<
             source,
           });
           break;
-        case "enum":
+        case "pick-one":
           value = await this.prompt.pickOne({
             current: current,
             headerMessage: column.name,
@@ -246,6 +369,9 @@ export class ObjectBuilderComponentService<
     this.render();
   }
 
+  /**
+   * keyboard event
+   */
   protected onDown(): boolean {
     if (this.selectedRow === this.visibleColumns.length - ARRAY_OFFSET) {
       this.selectedRow = START;
@@ -254,14 +380,141 @@ export class ObjectBuilderComponentService<
     this.selectedRow++;
   }
 
-  protected onEnd(cancelled = false): void {
-    // ? mental note:
-    // cancelled can be non-boolean values
-    // this method is ALSO called by the keyboard manager, which passes in the key that was pressed
+  /**
+   * keyboard event
+   */
+  protected async onEnd(): Promise<void> {
+    const { validate, current } = this.opt;
+    if (is.function(validate)) {
+      const result = await validate({
+        confirm: async (label = "Are you done?") => {
+          let value: boolean;
+          await this.screen.footerWrap(async () => {
+            value = await this.prompt.confirm({ label });
+          });
+          this.render();
+          return value;
+        },
+        current: this.value,
+        dirtyProperties: this.dirtyProperties,
+        original: current,
+        sendMessage: async ({
+          message,
+          timeout = DEFAULT_MESSAGE_TIMEOUT,
+          position = "below-bar",
+          immediateClear = false,
+          // FIXME:
+          // eslint-disable-next-line radar/no-identical-functions
+        }) => {
+          if (this.displayMessageTimeout) {
+            this.displayMessageTimeout.kill("stop");
+          }
+          this.displayMessagePosition = position;
+          this.displayMessage = message;
+          this.render();
+          this.displayMessageTimeout = sleep(timeout * SECOND);
+          await this.displayMessageTimeout;
+          this.displayMessage = undefined;
+          this.displayMessageTimeout = undefined;
+          if (immediateClear) {
+            this.render();
+          }
+        },
+      });
+      if (!result) {
+        return;
+      }
+    }
+    this.end(NORMAL_EXIT);
+  }
+
+  /**
+   * keyboard event
+   */
+  protected onPageDown(): void {
+    this.selectedRow = this.visibleColumns.length;
+  }
+
+  /**
+   * keyboard event
+   */
+  protected onPageUp(): void {
+    this.selectedRow = START;
+  }
+
+  /**
+   * keyboard event
+   */
+  protected onUp(): boolean {
+    if (this.selectedRow === START) {
+      this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
+      return;
+    }
+    this.selectedRow--;
+  }
+
+  /**
+   * Undo any changes done during the current editing session
+   */
+  protected async resetField(): Promise<void> {
+    let value: boolean;
+    const field = this.visibleColumns[this.selectedRow];
+    const original = get(this.opt.current ?? {}, field.path);
+    const current = get(this.value, field.path);
+    if (original === current) {
+      // nothing to do
+      return;
+    }
+    await this.screen.footerWrap(async () => {
+      value = await this.prompt.confirm({
+        label: [
+          chalk`Are you sure you want to reset {bold ${field.name}} ({gray ${field.path}})`,
+          chalk`{cyan.bold Current Value:} ${this.text.type(current)}`,
+          chalk`{cyan.bold Original Value:} ${this.text.type(original)}`,
+          ``,
+        ].join(`\n`),
+      });
+    });
+    if (!value) {
+      return;
+    }
+    set(this.value, field.path, original);
+  }
+
+  /**
+   * Restore a value to the column defined default
+   */
+  protected async resetFieldHard(): Promise<void> {
+    let value: boolean;
+    const field = this.visibleColumns[this.selectedRow];
+    const original = is.function(field.default)
+      ? field.default(this.value)
+      : field.default;
+    const current = get(this.value, field.path);
+    await this.screen.footerWrap(async () => {
+      value = await this.prompt.confirm({
+        label: [
+          chalk`Are you sure you want to reset {bold ${field.name}} ({gray ${field.path}})`,
+          chalk`{cyan.bold Current Value:} ${this.text.type(current)}`,
+          chalk`{cyan.bold Reset Value:} ${this.text.type(original)}`,
+          ``,
+        ].join(`\n`),
+      });
+    });
+    if (!value) {
+      return;
+    }
+    set(this.value, field.path, original);
+  }
+
+  /**
+   * Terminate editor
+   */
+  private end(code: unknown): void {
     this.complete = true;
     this.render();
-    if (this.opt.sanitize === "none" || cancelled === true) {
-      this.done(this.value);
+    if (this.opt.sanitize === "none" || code !== NORMAL_EXIT) {
+      this.done(code ? (code as VALUE) : this.value);
       return;
     }
     if (this.opt.sanitize === "defined-paths") {
@@ -284,59 +537,9 @@ export class ObjectBuilderComponentService<
     );
   }
 
-  protected onLeft(): boolean {
-    if (this.selectedCell === START) {
-      return false;
-    }
-    this.selectedCell--;
-  }
-
-  protected onPageDown(): void {
-    this.selectedRow = this.visibleColumns.length;
-  }
-
-  protected onPageUp(): void {
-    this.selectedRow = START;
-  }
-
-  protected onRight(): boolean {
-    if (this.selectedCell === this.columns.length - ARRAY_OFFSET) {
-      return false;
-    }
-    this.selectedCell++;
-  }
-
-  protected onUp(): boolean {
-    if (this.selectedRow === START) {
-      this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
-      return;
-    }
-    this.selectedRow--;
-  }
-
-  private renderSingle(): void {
-    const message = MergeHelp(
-      this.text.pad(
-        this.form.renderForm(
-          {
-            ...this.opt,
-            elements: this.visibleColumns,
-          },
-          this.value,
-          this.selectedRow,
-        ),
-      ),
-      this.visibleColumns[this.selectedRow],
-    );
-    this.screen.render(
-      message,
-      this.keymap.keymapHelp({
-        message,
-        notes: this.notes,
-      }),
-    );
-  }
-
+  /**
+   * Build up a keymap to match the current conditions
+   */
   private setKeymap(): void {
     const maps: tKeyMap[] = [];
     maps.push(FORM_KEYMAP);
