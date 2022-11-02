@@ -45,6 +45,7 @@ export type HighlightCallbacks = Record<
 >;
 
 export type AdvancedKeymap<VALUE = string> = {
+  alias?: string[];
   entry: PromptEntry<VALUE>;
   highlight?: "auto" | HighlightCallbacks;
 };
@@ -654,6 +655,7 @@ export class MenuComponentService<VALUE = unknown | string>
                   KeymapOptions<VALUE>,
                 ]): [TTYKeypressOptions, string] {
                   let highlight: HighlightCallbacks;
+                  const aliases: string[] = [];
                   if (isAdvanced(item as AdvancedKeymap)) {
                     const advanced = item as AdvancedKeymap;
                     highlight = is.string(advanced.highlight)
@@ -663,6 +665,7 @@ export class MenuComponentService<VALUE = unknown | string>
                         }
                       : advanced.highlight;
                     item = advanced.entry;
+                    aliases.push(...advanced.alias);
                   }
                   if (!Array.isArray(item)) {
                     return undefined;
@@ -672,7 +675,7 @@ export class MenuComponentService<VALUE = unknown | string>
                     {
                       description: (label + "  ") as string,
                       highlight,
-                      key: description,
+                      key: [description, ...aliases],
                       matchValue: TTY.GV(item),
                     },
                     "",
