@@ -84,6 +84,11 @@ export interface MenuComponentOptions<T = unknown> {
    */
   condensed?: boolean;
   /**
+   * Specific text to display when there are no entries in the right column.
+   * Best utilized when there is a dynamic quantity of rows
+   */
+  emptyMessage?: string;
+  /**
    * Static text to stick at the top of the component.
    *
    * If passed as array, each item is it's own line
@@ -665,7 +670,9 @@ export class MenuComponentService<VALUE = unknown | string>
                         }
                       : advanced.highlight;
                     item = advanced.entry;
-                    aliases.push(...advanced.alias);
+                    if (!is.empty(advanced.alias)) {
+                      aliases.push(...advanced.alias);
+                    }
                   }
                   if (!Array.isArray(item)) {
                     return undefined;
@@ -719,7 +726,8 @@ export class MenuComponentService<VALUE = unknown | string>
     if (is.empty(menu) && !this.opt.keyOnly) {
       out.push({
         entry: [
-          chalk.bold` {yellowBright.inverse  No ${this.opt.item} to select from }`,
+          this.opt.emptyMessage ??
+            chalk.bold` {yellowBright.inverse  No ${this.opt.item} to select from }`,
         ],
       });
     }

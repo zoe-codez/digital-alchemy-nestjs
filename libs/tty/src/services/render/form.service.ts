@@ -7,6 +7,7 @@ import {
   VALUE,
 } from "@steggy/utilities";
 import chalk from "chalk";
+import equal from "deep-equal";
 import { get } from "object-path";
 
 import {
@@ -39,6 +40,7 @@ export class FormService<
   public renderForm(
     options: ObjectBuilderOptions<VALUE, CANCEL>,
     row: VALUE,
+    original: VALUE,
     selectedRow: number = START,
   ): string {
     this.value = row;
@@ -47,11 +49,11 @@ export class FormService<
     const maxLength = ansiMaxLength(
       ...this.activeOptions.elements.map(({ name }) => name),
     );
-    const header = this.formBody(maxLength);
+    const header = this.formBody(maxLength, original);
     return [...header].join(`\n`);
   }
 
-  private formBody(maxLabel: number): string[] {
+  private formBody(maxLabel: number, original: VALUE): string[] {
     const elements = this.activeOptions.elements;
     const maxValue =
       DOUBLE_PADDING +
@@ -61,7 +63,7 @@ export class FormService<
         }),
       );
     const columns = elements.map((i: TableBuilderElement<VALUE>, index) =>
-      this.renderValue({ i, index, maxLabel, maxValue }),
+      this.renderValue({ i, index, maxLabel, maxValue }, original),
     );
     const header = [
       TABLE_PARTS.top_left,
@@ -120,24 +122,31 @@ export class FormService<
     return raw;
   }
 
-  private nameCell(i: TableBuilderElement<VALUE>, max?: number) {
-    return chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(
+  private nameCell(
+    i: TableBuilderElement<VALUE>,
+    color: "blue" | "green",
+    max?: number,
+  ) {
+    return chalk`${" ".repeat(PADDING)}{bold.${color} ${i.name.padEnd(
       max - PADDING,
       " ",
     )}}`;
   }
 
-  private renderValue({
-    i,
-    index,
-    maxLabel,
-    maxValue,
-  }: {
-    i: TableBuilderElement<VALUE>;
-    index: number;
-    maxLabel: number;
-    maxValue: number;
-  }): string {
+  private renderValue(
+    {
+      i,
+      index,
+      maxLabel,
+      maxValue,
+    }: {
+      i: TableBuilderElement<VALUE>;
+      index: number;
+      maxLabel: number;
+      maxValue: number;
+    },
+    original: VALUE,
+  ): string {
     const raw = this.getRenderValue(i);
     const v = this.textRender.type(raw).trim();
     const lines = v.split(`\n`).length;
@@ -145,7 +154,11 @@ export class FormService<
       `\n`,
     );
     const labels = (
-      this.nameCell(i, maxLabel) + `\n`.repeat(lines - INCREMENT)
+      this.nameCell(
+        i,
+        equal(get(original, i.path), raw) ? "blue" : "green",
+        maxLabel,
+      ) + `\n`.repeat(lines - INCREMENT)
     ).split(`\n`);
     return labels
       .map((labelLine, labelIndex) => {

@@ -1,4 +1,3 @@
-export * from "./array-builder.service";
 export * from "./colors.service";
 export * from "./comparison-tools.service";
 export * from "./explorers";

@@ -17,6 +17,7 @@ import {
   MainMenuEntry,
   ObjectBuilderMessagePositions,
   ObjectBuilderOptions,
+  TableBuilderElement,
   tKeyMap,
   TTY,
   TTYKeypressOptions,
@@ -38,7 +39,7 @@ type HelpText = {
 
 const FORM_KEYMAP: tKeyMap = new Map([
   // While there is no editor
-  [{ description: "done", key: "d" }, "onEnd"],
+  [{ description: "done", key: "x", modifiers: { ctrl: true } }, "onEnd"],
   [{ description: "cursor up", key: "up" }, "onUp"],
   [
     { description: "top", key: ["pageup", "home"], powerUser: true },
@@ -49,11 +50,14 @@ const FORM_KEYMAP: tKeyMap = new Map([
     "onPageDown",
   ],
   [{ description: "cursor down", key: "down" }, "onDown"],
-  [{ description: "edit cell", key: "enter" }, "enableEdit"],
-  [{ description: "reset field", key: "r" }, "resetField"],
+  [{ description: chalk.blue.dim("edit cell"), key: "enter" }, "enableEdit"],
   [
-    { description: "set to default", key: "r", modifiers: { ctrl: true } },
-    "resetFieldHard",
+    {
+      description: chalk.blue.dim("reset"),
+      key: "r",
+      modifiers: { ctrl: true },
+    },
+    "resetField",
   ],
 ] as [TTYKeypressOptions, string | DirectCB][]);
 const CANCELLABLE: tKeyMap = new Map([
@@ -169,8 +173,27 @@ export class ObjectBuilderComponentService<
     // Set up defaults
     config.sanitize ??= "defined-paths";
 
-    //
+    // Set up the current value
     this.value = deepExtend({}, config.current ?? {}) as VALUE;
+    this.value = Object.fromEntries(
+      Object.entries(this.value).map(([key, value]) => {
+        if (is.undefined(value)) {
+          const column = config.elements.find(
+            ({ path }) => path === key,
+          ) as TableBuilderElement<VALUE>;
+          if (!column || is.undefined(column.default)) {
+            // junk data / nothing to do
+            return [key, value];
+          }
+          if (is.function(column.default)) {
+            return [key, column.default(this.value)];
+          }
+          return [key, column.default];
+        }
+        return [key, value];
+      }),
+    ) as VALUE;
+
     this.setKeymap();
   }
 
@@ -199,6 +222,7 @@ export class ObjectBuilderComponentService<
             elements: this.visibleColumns,
           },
           this.value,
+          this.opt.current,
           this.selectedRow,
         ),
       ),
@@ -466,40 +490,15 @@ export class ObjectBuilderComponentService<
       return;
     }
     await this.screen.footerWrap(async () => {
-      value = await this.prompt.confirm({
-        label: [
-          chalk`Are you sure you want to reset {bold ${field.name}} ({gray ${field.path}})`,
-          chalk`{cyan.bold Current Value:} ${this.text.type(current)}`,
-          chalk`{cyan.bold Original Value:} ${this.text.type(original)}`,
-          ``,
-        ].join(`\n`),
-      });
-    });
-    if (!value) {
-      return;
-    }
-    set(this.value, field.path, original);
-  }
-
-  /**
-   * Restore a value to the column defined default
-   */
-  protected async resetFieldHard(): Promise<void> {
-    let value: boolean;
-    const field = this.visibleColumns[this.selectedRow];
-    const original = is.function(field.default)
-      ? field.default(this.value)
-      : field.default;
-    const current = get(this.value, field.path);
-    await this.screen.footerWrap(async () => {
-      value = await this.prompt.confirm({
-        label: [
-          chalk`Are you sure you want to reset {bold ${field.name}} ({gray ${field.path}})`,
-          chalk`{cyan.bold Current Value:} ${this.text.type(current)}`,
-          chalk`{cyan.bold Reset Value:} ${this.text.type(original)}`,
-          ``,
-        ].join(`\n`),
-      });
+      const label = [
+        chalk`Are you sure you want to reset {bold ${field.name}} {cyan (path:} {gray .${field.path}}{cyan )}?`,
+        chalk`{cyan.bold Current Value:} ${this.text.type(current)}`,
+        chalk`{cyan.bold Original Value:} ${this.text.type(original)}`,
+        ``,
+      ].join(`\n`);
+      value = await this.prompt.confirm({ label });
+      // FIXME: This shouldn't be necessary
+      this.screen.eraseLine(label.split(`\n`).length + ARRAY_OFFSET);
     });
     if (!value) {
       return;

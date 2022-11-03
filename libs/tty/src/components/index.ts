@@ -1,4 +1,5 @@
 export * from "./acknowledge-component.service";
+export * from "./array-builder.service";
 export * from "./confirm-component.service";
 export * from "./menu-component.service";
 export * from "./object-builder-component.service";

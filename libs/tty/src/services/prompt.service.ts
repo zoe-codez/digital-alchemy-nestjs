@@ -2,7 +2,11 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { ListBuilderOptions, MenuComponentOptions } from "../components";
+import {
+  ArrayBuilderOptions,
+  ListBuilderOptions,
+  MenuComponentOptions,
+} from "../components";
 import {
   ObjectBuilderOptions,
   PromptAcknowledgeOptions,
@@ -44,18 +48,15 @@ export class PromptService {
     await this.applicationManager.activateComponent("acknowledge", { message });
   }
 
-  // public async arrayBuilder<
-  //   VALUE extends object = object,
-  //   CANCEL extends unknown = never,
-  // >(
-  //   options: Omit<ArrayBuilderOptions<VALUE, CANCEL>, "mode">,
-  // ): Promise<VALUE[] | CANCEL> {
-  //   const result = await this.applicationManager.activateComponent<
-  //     ObjectBuilderOptions<VALUE, CANCEL>,
-  //     VALUE
-  //   >("table", { ...options, mode: "multi" });
-  //   return result as VALUE[];
-  // }
+  public async arrayBuilder<VALUE extends object = object>(
+    options: ArrayBuilderOptions<VALUE>,
+  ): Promise<VALUE[]> {
+    const result = await this.applicationManager.activateComponent<
+      ArrayBuilderOptions<VALUE>,
+      VALUE
+    >("array", options);
+    return result as VALUE[];
+  }
 
   /**
    * prompt for a true / false value
@@ -77,12 +78,12 @@ export class PromptService {
    * similar to boolean, but different format for the question to the user
    */
   public async confirm({
-    label: message = "Are you sure?",
+    label = "Are you sure?",
     current = false,
   }: PromptConfirmOptions = {}): Promise<boolean> {
     return await this.applicationManager.activateComponent("confirm", {
       current,
-      message,
+      label,
     });
   }
 

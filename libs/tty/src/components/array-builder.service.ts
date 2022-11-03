@@ -1,14 +1,15 @@
-import { Injectable } from "@nestjs/common";
 import { deepExtend, is, START } from "@steggy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 
 import { KeyMap, MainMenuCB } from "../components";
 import { MainMenuEntry, ObjectBuilderOptions, TTY } from "../contracts";
-import { IconService } from "./icon.service";
-import { ApplicationManagerService } from "./meta";
-import { PromptService } from "./prompt.service";
-
+import { Component } from "../decorators";
+import {
+  ApplicationManagerService,
+  IconService,
+  PromptService,
+} from "../services";
 type MagicHeader = string | [string, string];
 type TypeToggle = { type: string };
 
@@ -47,7 +48,7 @@ export type ArrayBuilderOptions<VALUE extends object> = Omit<
   valuesLabel?: string;
 };
 
-@Injectable()
+@Component({ type: "array" })
 export class ArrayBuilderService<VALUE extends object> {
   constructor(
     private readonly prompt: PromptService,
@@ -64,7 +65,7 @@ export class ArrayBuilderService<VALUE extends object> {
     return this.rows[this.selectedRow];
   }
 
-  public async exec(options: ArrayBuilderOptions<VALUE>): Promise<void> {
+  public configure(options: ArrayBuilderOptions<VALUE>): void {
     this.rows = deepExtend([], options.current ?? []);
     this.selectedRow = START;
     this.disabledTypes = [];
@@ -73,31 +74,18 @@ export class ArrayBuilderService<VALUE extends object> {
       "Are you sure you want to cancel building this object?";
     options.header ??= "Array builder";
     options.valuesLabel ??= "Values";
-    await this.menuStep();
-  }
-
-  private header(): void {
-    const message = this.options.header;
-    if (is.string(message)) {
-      this.application.setHeader(message);
-      return;
-    }
-    const [a, b] = message;
-    this.application.setHeader(a, b);
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
-  private async menuStep(): Promise<void> {
+  public async render(): Promise<void> {
     this.header();
     const keyMapExtras: KeyMap = {};
     type ValueToggle = { value: VALUE };
     type MenuResult = ValueToggle | TypeToggle | string;
     const right: MainMenuEntry<MenuResult>[] = [];
     let toggles: MainMenuEntry<TypeToggle>[] = [];
-
     if (!is.empty(this.rows)) {
       keyMapExtras.r = {
-        alias: ["-", "d"],
         entry: [chalk.blue("remove row"), "remove"],
       };
       keyMapExtras.e = {
@@ -138,7 +126,7 @@ export class ArrayBuilderService<VALUE extends object> {
       return {
         entry: [get(row, String(this.options.labelPath)), { value: row }],
         // Maybe one day dot notation will actually be relevant to this
-        type: is.empty(this.options.typePath as string)
+        type: !is.empty(this.options.typePath as string)
           ? String(get(row, String(this.options.typePath)))
           : undefined,
       } as MainMenuEntry<{ value: VALUE }>;
@@ -165,9 +153,9 @@ export class ArrayBuilderService<VALUE extends object> {
     };
 
     let result = await this.prompt.menu<MenuResult>({
+      emptyMessage: chalk` {yellow.bold.inverse  No items in array }`,
       keyMap: {
         a: {
-          alias: ["+", "c"],
           entry: ["add row", "add"],
         },
         escape: ["done"],
@@ -209,7 +197,7 @@ export class ArrayBuilderService<VALUE extends object> {
         ) {
           this.rows = this.rows.filter(row => row !== valueRemove.value);
         }
-        return await this.menuStep();
+        return await this.render();
 
       // create a new row
       case "add":
@@ -220,7 +208,7 @@ export class ArrayBuilderService<VALUE extends object> {
         if (add !== cancel) {
           this.rows.push(add);
         }
-        return await this.menuStep();
+        return await this.render();
 
       // toggle visibility of a type category
       case "toggle":
@@ -229,17 +217,17 @@ export class ArrayBuilderService<VALUE extends object> {
         )
           ? this.disabledTypes.filter(type => type !== String(typeToggle.type))
           : [...this.disabledTypes, String(typeToggle.type)];
-        return await this.menuStep();
+        return await this.render();
 
       // toggle on all type categories
       case "toggle_on":
         this.disabledTypes = toggles.map(i => String(TTY.GV(i).type));
-        return await this.menuStep();
+        return await this.render();
 
       // toggle off all type categories
       case "toggle_off":
         this.disabledTypes = [];
-        return await this.menuStep();
+        return await this.render();
 
       // edit a row
       case "edit":
@@ -250,22 +238,46 @@ export class ArrayBuilderService<VALUE extends object> {
         if (build !== cancel) {
           this.rows[this.selectedRow] = build;
         }
-        return await this.menuStep();
+        return await this.render();
     }
+  }
+
+  private header(): void {
+    const message = this.options.header;
+    if (is.string(message)) {
+      this.application.setHeader(message);
+      return;
+    }
+    const [a, b] = message;
+    this.application.setHeader(a, b);
   }
 
   private async objectBuild<CANCEL = symbol>(
     current: VALUE,
     cancel?: CANCEL,
   ): Promise<VALUE | CANCEL> {
-    const value = await this.prompt.objectBuilder({
-      ...this.options,
-      cancel(cancelFunction, confirm) {
-        return;
+    const { elements, headerMessage, helpNotes, sanitize, validate } =
+      this.options;
+    return await this.prompt.objectBuilder<VALUE, CANCEL>({
+      async cancel({ dirtyProperties, cancelFunction, confirm }) {
+        if (is.empty(dirtyProperties)) {
+          cancelFunction(cancel);
+          return;
+        }
+        const status = await confirm(
+          "Are you sure you want to discard changes?",
+        );
+        if (status) {
+          cancelFunction(cancel);
+        }
       },
       current,
+      elements,
+      headerMessage,
+      helpNotes,
+      sanitize,
+      validate,
     });
-    return cancel;
   }
 
   private onEnd(): void {

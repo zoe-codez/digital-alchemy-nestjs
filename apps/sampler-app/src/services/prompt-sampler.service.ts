@@ -30,7 +30,7 @@ export class PromptSampler {
   ) {}
 
   public async exec(value?: string): Promise<void> {
-    await this.objectBuilder();
+    await this.array();
     this.application.setHeader("TTY Sampler");
 
     const action = await this.prompt.menu({
@@ -43,6 +43,11 @@ export class PromptSampler {
         escape: ["done"],
       },
       right: [
+        {
+          entry: ["array"],
+          helpText:
+            "The unholy union of the menu and object builder prompts to create an array builder.",
+        },
         {
           entry: ["acknowledge"],
           helpText: "A basic request for interaction before continuing",
@@ -77,6 +82,9 @@ export class PromptSampler {
       value,
     });
     switch (action) {
+      case "array":
+        await this.array();
+        return await this.exec(action);
       case "acknowledge":
         await this.acknowledge();
         return await this.exec(action);
@@ -128,6 +136,32 @@ export class PromptSampler {
         await this.prompt.acknowledge();
         return;
     }
+  }
+
+  private async array(): Promise<void> {
+    this.application.setHeader("TTY Sampler");
+    await this.prompt.arrayBuilder<{ foo: string; type: string }>({
+      current: [],
+      elements: [
+        {
+          path: "foo",
+          type: "string",
+        },
+        {
+          options: [
+            { entry: ["a"] },
+            { entry: ["b"] },
+            { entry: ["c"] },
+            { entry: ["d"] },
+          ],
+          path: "type",
+          type: "pick-one",
+        },
+      ],
+      labelPath: "foo",
+      typePath: "type",
+    });
+    //
   }
 
   private async boolean(): Promise<void> {

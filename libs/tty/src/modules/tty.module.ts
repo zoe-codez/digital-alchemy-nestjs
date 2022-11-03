@@ -3,6 +3,7 @@ import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 
 import {
   AcknowledgeComponentService,
+  ArrayBuilderService,
   ConfirmComponentService,
   MenuComponentService,
   ObjectBuilderComponentService,
@@ -25,7 +26,6 @@ import {
 } from "../editors";
 import {
   ApplicationManagerService,
-  ArrayBuilderService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
