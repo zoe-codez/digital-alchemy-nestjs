@@ -21,7 +21,7 @@ function cloneSpecificValue(value) {
   throw new TypeError("Unexpected situation");
 }
 
-function deepCloneArray(array: Array<unknown>) {
+export function deepCloneArray(array: Array<unknown>) {
   return array.map(item => {
     if (is.object(item)) {
       if (Array.isArray(item)) {

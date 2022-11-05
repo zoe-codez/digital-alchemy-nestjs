@@ -56,7 +56,9 @@ export class KeyboardManagerService implements iStackProvider {
   public setKeyMap(target: unknown, ...mapList: tKeyMap[]): void {
     const result: tKeyMap = new Map();
     mapList.forEach(keMap =>
-      keMap.forEach((callback, options) => result.set(options, callback)),
+      keMap.forEach((callback, options) => {
+        result.set(options, callback);
+      }),
     );
     this.activeKeymaps.set(target, result);
     result.forEach(key => {

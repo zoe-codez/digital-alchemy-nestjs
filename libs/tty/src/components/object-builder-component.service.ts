@@ -1,6 +1,7 @@
 import { forwardRef, Inject } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
+  deepCloneArray,
   deepExtend,
   is,
   SECOND,
@@ -175,24 +176,7 @@ export class ObjectBuilderComponentService<
 
     // Set up the current value
     this.value = deepExtend({}, config.current ?? {}) as VALUE;
-    this.value = Object.fromEntries(
-      Object.entries(this.value).map(([key, value]) => {
-        if (is.undefined(value)) {
-          const column = config.elements.find(
-            ({ path }) => path === key,
-          ) as TableBuilderElement<VALUE>;
-          if (!column || is.undefined(column.default)) {
-            // junk data / nothing to do
-            return [key, value];
-          }
-          if (is.function(column.default)) {
-            return [key, column.default(this.value)];
-          }
-          return [key, column.default];
-        }
-        return [key, value];
-      }),
-    ) as VALUE;
+    this.columns.forEach(column => this.setDefault(column));
 
     this.setKeymap();
   }
@@ -534,6 +518,34 @@ export class ObjectBuilderComponentService<
         ),
       ) as VALUE,
     );
+  }
+
+  private setDefault(column: TableBuilderElement<VALUE>): void {
+    const value = get(this.value, column.path);
+    if (!is.undefined(value)) {
+      return;
+    }
+    // It's going to render this option anyways
+    // Might as well make it the official default
+    if (is.undefined(column.default)) {
+      if (column.type === "pick-one") {
+        set(this.value, column.path, TTY.GV(column.options[START]));
+      }
+      return;
+    }
+    let defaultValue: unknown = is.function(column.default)
+      ? column.default(this.value)
+      : column.default;
+    if (is.function(column.default)) {
+      set(this.value, column.path, column.default(this.value));
+      return;
+    }
+    if (Array.isArray(defaultValue)) {
+      defaultValue = deepCloneArray(defaultValue);
+    } else if (is.object(defaultValue)) {
+      defaultValue = deepExtend({}, defaultValue);
+    }
+    set(this.value, column.path, defaultValue);
   }
 
   /**

@@ -18,6 +18,13 @@ import chalk from "chalk";
 import { MenuSampler } from "./menu-sampler.service";
 
 const LIST_LENGTH = 10;
+const GENERAS: string[] = [];
+while (GENERAS.length < LIST_LENGTH) {
+  const item = faker.music.genre();
+  if (!GENERAS.includes(item)) {
+    GENERAS.push(item);
+  }
+}
 
 @Injectable()
 export class PromptSampler {
@@ -30,7 +37,6 @@ export class PromptSampler {
   ) {}
 
   public async exec(value?: string): Promise<void> {
-    await this.array();
     this.application.setHeader("TTY Sampler");
 
     const action = await this.prompt.menu({
@@ -140,22 +146,33 @@ export class PromptSampler {
 
   private async array(): Promise<void> {
     this.application.setHeader("TTY Sampler");
-    await this.prompt.arrayBuilder<{ foo: string; type: string }>({
+    await this.prompt.arrayBuilder<{
+      foo: string;
+      type: string;
+      variety: string;
+    }>({
       current: [],
       elements: [
         {
+          default: "",
           path: "foo",
           type: "string",
         },
         {
           options: [
-            { entry: ["a"] },
-            { entry: ["b"] },
-            { entry: ["c"] },
-            { entry: ["d"] },
+            { entry: ["Apple"] },
+            { entry: ["Banana"] },
+            { entry: ["Carrot"] },
+            { entry: ["Dog"] },
           ],
           path: "type",
           type: "pick-one",
+        },
+        {
+          default: [],
+          options: GENERAS.map(i => ({ entry: [i] })),
+          path: "variety",
+          type: "pick-many",
         },
       ],
       labelPath: "foo",

@@ -29,7 +29,6 @@ export class SamplerApp {
   ) {}
 
   public async exec(value?: string): Promise<void> {
-    await this.promptSampler.exec();
     this.application.setHeader("Sampler App");
     const action = await this.prompt.menu({
       condensed: true,

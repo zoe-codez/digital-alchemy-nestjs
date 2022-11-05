@@ -15,6 +15,7 @@ import {
   START,
   TitleCase,
   UP,
+  VALUE,
 } from "@steggy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
@@ -309,11 +310,12 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   protected async activateKeyMap(mixed: string): Promise<boolean> {
     const { keyMap, keyMapCallback: callback } = this.opt;
-    if (is.undefined(keyMap[mixed])) {
+    const entry = this.findKeyEntry(keyMap, mixed);
+    if (!entry) {
       return false;
     }
     if (is.undefined(callback)) {
-      this.value = TTY.GV(keyMap[mixed]);
+      this.value = TTY.GV(entry);
       this.onEnd();
       return false;
     }
@@ -321,11 +323,8 @@ export class MenuComponentService<VALUE = unknown | string>
       ({ entry }) => TTY.GV(entry) === this.value,
     );
     const result = await (!selectedItem
-      ? callback(TTY.GV(keyMap[mixed]) as unknown as string, [
-          undefined,
-          undefined,
-        ])
-      : callback(TTY.GV(keyMap[mixed]) as unknown as string, [
+      ? callback(TTY.GV(entry) as string, [undefined, undefined])
+      : callback(TTY.GV(entry) as string, [
           // Force a value entry to be present
           selectedItem.entry[LABEL],
           TTY.GV(selectedItem),
@@ -336,7 +335,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     if (result) {
-      this.value = TTY.GV(keyMap[mixed]);
+      this.value = TTY.GV(entry);
       this.onEnd();
       return false;
     }
@@ -415,11 +414,15 @@ export class MenuComponentService<VALUE = unknown | string>
    * Terminate the editor
    */
   protected onEnd(): boolean {
+    if (!this.done) {
+      return;
+    }
     this.final = true;
     this.mode = "select";
     this.callbackOutput = "";
     this.done(this.value);
     this.render();
+    this.done = undefined;
     return false;
   }
 
@@ -564,6 +567,20 @@ export class MenuComponentService<VALUE = unknown | string>
         : TTY.GV(highlighted[START].entry);
     }
     return highlighted;
+  }
+
+  private findKeyEntry(map: KeyMap<VALUE>, key: string) {
+    if (map[key]) {
+      return map[key];
+    }
+    const item = Object.entries(map).find(([, item]) => {
+      if (Array.isArray(item)) {
+        return false;
+      }
+      const alias = item.alias ?? [];
+      return alias.includes(key);
+    });
+    return item ? (item[VALUE] as AdvancedKeymap).entry : undefined;
   }
 
   private renderFinal() {
