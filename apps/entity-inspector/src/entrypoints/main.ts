@@ -49,12 +49,12 @@ export class EntityInspector {
   }
 
   private async printEntity(): Promise<void> {
-    const item = await this.prompt.pickOne(
-      "Pick an entity",
-      this.entities.map(i => {
+    const item = await this.prompt.pickOne({
+      headerMessage: "Pick an entity",
+      options: this.entities.map(i => {
         return { entry: [i.entity_id, i] };
       }),
-    );
+    });
     this.screen.printLine(this.textRendering.type(item));
     await this.prompt.acknowledge();
   }

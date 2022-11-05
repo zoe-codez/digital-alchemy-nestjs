@@ -218,10 +218,16 @@ export class ConfigScanner implements iQuickScript {
     let result: unknown;
     switch (config.metadata.type) {
       case "boolean":
-        result = await this.prompt.boolean(config.property, current as boolean);
+        result = await this.prompt.boolean({
+          current: Boolean(current),
+          label: config.property,
+        });
         break;
       case "number":
-        result = await this.prompt.number(config.property, current as number);
+        result = await this.prompt.number({
+          current: Number(current),
+          label: config.property,
+        });
         break;
       case "record":
         current = is.object(current) ? current : {};
@@ -237,6 +243,7 @@ export class ConfigScanner implements iQuickScript {
             { name: "Key", path: "key", type: "string" },
             { name: "Value", path: "value", type: "string" },
           ],
+          labelPath: "key",
         });
         result = Object.fromEntries(
           (result as { key: string; value: string }[]).map(({ key, value }) => [
@@ -248,12 +255,15 @@ export class ConfigScanner implements iQuickScript {
       case "string":
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
-          ? await this.prompt.pickOne(
-              config.property,
-              metadata.enum.map(i => ({ entry: [i] })),
+          ? await this.prompt.pickOne({
               current,
-            )
-          : await this.prompt.string(config.property, current as string);
+              headerMessage: config.property,
+              options: metadata.enum.map(i => ({ entry: [i] })),
+            })
+          : await this.prompt.string({
+              current: String(current),
+              label: config.property,
+            });
         break;
       case "string[]":
         result = await this.stringArray(
@@ -262,9 +272,9 @@ export class ConfigScanner implements iQuickScript {
         );
         break;
       default:
-        await this.prompt.acknowledge(
-          chalk.red`"${config.metadata.type}" editor not supported`,
-        );
+        await this.prompt.acknowledge({
+          label: chalk.red`"${config.metadata.type}" editor not supported`,
+        });
     }
     // await sleep(5000);
     set(this.config, path, result);
@@ -427,18 +437,18 @@ export class ConfigScanner implements iQuickScript {
       return current;
     }
     if (action === "add") {
-      const value = await this.prompt.string(
-        config.property,
-        String(config.metadata.default ?? ""),
-        { placeholder: config.metadata.description },
-      );
+      const value = await this.prompt.string({
+        current: String(config.metadata.default ?? ""),
+        label: config.property,
+        placeholder: config.metadata.description,
+      });
       return await this.stringArray(config, [...current, value], action);
     }
     if (action === "remove") {
-      const value = await this.prompt.pickOne<number>(
-        "Which item to remove?",
-        current.map((i, index) => ({ entry: [i, index] })),
-      );
+      const value = await this.prompt.pickOne<number>({
+        headerMessage: "Which item to remove?",
+        options: current.map((i, index) => ({ entry: [i, index] })),
+      });
       // Remove single item from array at index
       current.splice(value, SINGLE);
       return await this.stringArray(config, current, action);
