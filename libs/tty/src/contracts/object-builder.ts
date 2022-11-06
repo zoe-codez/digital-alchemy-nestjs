@@ -1,3 +1,5 @@
+import { Get } from "type-fest";
+
 import { MainMenuEntry } from "./keyboard";
 
 // * <Column Definitions>
@@ -8,7 +10,10 @@ export type ObjectBuilderDefault<PROP_DEFAULT, CURRENT extends object> =
   | PROP_DEFAULT
   | ((current: CURRENT) => PROP_DEFAULT);
 
-export type TableBuilderElement<VALUE extends object = object> = {
+export type TableBuilderElement<
+  VALUE extends object = object,
+  PATH extends Extract<keyof VALUE, string> = Extract<keyof VALUE, string>,
+> = {
   /**
    * Help text will be displayed above the blue bar
    */
@@ -20,7 +25,7 @@ export type TableBuilderElement<VALUE extends object = object> = {
    */
   hidden?: (value: VALUE) => boolean;
   name?: string;
-  path: Extract<keyof VALUE, string>;
+  path: PATH;
   format?<T>(value: T): string;
 } & (
   | { default?: ObjectBuilderDefault<string, VALUE>; type: "string" }
@@ -28,13 +33,13 @@ export type TableBuilderElement<VALUE extends object = object> = {
   | { default?: ObjectBuilderDefault<number, VALUE>; type: "number" }
   | { default?: ObjectBuilderDefault<Date, VALUE>; type: "date" }
   | {
-      default?: ObjectBuilderDefault<unknown, VALUE>;
-      options: MainMenuEntry<VALUE>[];
+      default?: ObjectBuilderDefault<Get<VALUE, PATH>, VALUE>;
+      options: MainMenuEntry<Get<VALUE, PATH>>[];
       type: "pick-one";
     }
   | {
-      default?: ObjectBuilderDefault<unknown[], VALUE>;
-      options: MainMenuEntry<VALUE>[];
+      default?: ObjectBuilderDefault<Get<VALUE, PATH>[], VALUE>;
+      options: MainMenuEntry<Get<VALUE, PATH>>[];
       type: "pick-many";
     }
 );

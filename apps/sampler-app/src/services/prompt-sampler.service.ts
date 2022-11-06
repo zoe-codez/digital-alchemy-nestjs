@@ -301,8 +301,19 @@ export class PromptSampler {
 
   private async objectBuilder(): Promise<void> {
     this.application.setHeader("Object Builder");
-    const result = await this.prompt.objectBuilder({
+    type ObjectResult = {
+      another: number;
+      check: boolean;
+      column1: string;
+      column2: string;
+      column3: string;
+      extra: string[];
+      key: string;
+      value: number;
+    };
+    const result = await this.prompt.objectBuilder<ObjectResult>({
       current: {
+        another: 6,
         check: false,
         column1: "",
         column2: "",
@@ -364,6 +375,15 @@ export class PromptSampler {
           name: "Column 3",
           path: "column3",
           type: "string",
+        },
+        {
+          options: [
+            {
+              entry: ["1", 5],
+            },
+          ],
+          path: "another",
+          type: "pick-one",
         },
       ],
       headerMessage: `An example of the object builder in table mode.`,
