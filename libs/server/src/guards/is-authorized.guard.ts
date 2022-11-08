@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { InjectConfig } from "@steggy/boilerplate";
-import { Observable } from "rxjs";
 
 import { AUTH_BYPASS } from "../config";
 import { APIResponse } from "../contracts";
@@ -11,9 +10,7 @@ export class IsAuthorizedGuard implements CanActivate {
     @InjectConfig(AUTH_BYPASS) private readonly authBypass: boolean,
   ) {}
 
-  public canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  public canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return locals.authenticated || this.authBypass;
   }

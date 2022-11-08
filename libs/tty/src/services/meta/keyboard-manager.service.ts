@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { each, is } from "@steggy/utilities";
 import chalk from "chalk";
-import { fromEvent, takeUntil } from "rxjs";
 
 import {
   ApplicationStackProvider,
@@ -87,9 +86,9 @@ export class KeyboardManagerService implements iStackProvider {
 
   protected onApplicationBootstrap(): void {
     const rl = this.screen.rl;
-    fromEvent(rl.input, "keypress", (value, key = {}) => ({ key, value }))
-      .pipe(takeUntil(fromEvent(rl, "close")))
-      .forEach(descriptor => this.keyPressHandler(descriptor));
+    rl.input.on("keypress", (value, key = {}) => {
+      this.keyPressHandler({ key, value });
+    });
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
