@@ -40,15 +40,47 @@ import {
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 
-export type HighlightCallbacks = Record<
-  "valueMatch" | "normal",
-  (value: string) => string
->;
+export type HighlightCallbacks<VALUE = string> = {
+  /**
+   * Provide alternate highlighting logic.
+   *
+   * ## return boolean
+   *
+   * if `true`: use valueMatch highlight
+   *
+   * if `false`: use normal highlight
+   *
+   * ```typescript
+   * {
+   *   highlightMatch: ({ numberProperty }) => numberProperty > 50,
+   *   normal: chalk.blue,
+   *   valueMatch: chalk.yellow
+   * }
+   * ```
+   *
+   * ## return function
+   *
+   * ignore normal highlighting, use provided instead
+   *
+   * >  equivalent to other example
+   *
+   * ```typescript
+   * {
+   *   highlightMatch: ({ numberProperty }) => numberProperty > 50? chalk.yellow : chalk.blue,
+   * }
+   * ```
+   */
+  highlightMatch?: (
+    value: VALUE,
+  ) => boolean | ((description: string) => string);
+  normal?: (description: string) => string;
+  valueMatch?: (description: string) => string;
+};
 
 export type AdvancedKeymap<VALUE = string> = {
   alias?: string[];
   entry: PromptEntry<VALUE>;
-  highlight?: "auto" | HighlightCallbacks;
+  highlight?: "auto" | HighlightCallbacks<VALUE>;
 };
 
 export type KeymapOptions<VALUE = string> =

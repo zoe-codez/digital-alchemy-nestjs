@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ARRAY_OFFSET, DOWN, is, UP } from "@steggy/utilities";
 import chalk from "chalk";
 
+import { HighlightCallbacks } from "../../components";
 import { tKeyMap } from "../../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../../includes";
 import { ApplicationManagerService, KeyboardManagerService } from "../meta";
@@ -71,7 +72,10 @@ export class KeymapService {
     ].join(`\n`);
   }
 
-  private buildLines(map: tKeyMap, current: unknown): keyItem[] {
+  private buildLines<VALUE extends unknown = unknown>(
+    map: tKeyMap,
+    current: VALUE,
+  ): keyItem[] {
     return [...map.entries()]
       .filter(([{ powerUser, active }]) => {
         if (powerUser) {
@@ -100,10 +104,23 @@ export class KeymapService {
         let description: string = (config.description ?? target) as string;
 
         if (config.highlight) {
-          description =
-            config.matchValue === current
-              ? config.highlight.valueMatch(description)
-              : config.highlight.normal(description);
+          const {
+            valueMatch = chalk.green.bold,
+            normal = chalk.green,
+            highlightMatch,
+          } = config.highlight as HighlightCallbacks<VALUE>;
+          let matched = config.matchValue === current;
+          if (highlightMatch) {
+            const result = highlightMatch(current);
+            if (is.function(result)) {
+              return {
+                description: result(description),
+                label: activate,
+              };
+            }
+            matched = result;
+          }
+          description = matched ? valueMatch(description) : normal(description);
         } else {
           description = chalk.gray(description);
         }
