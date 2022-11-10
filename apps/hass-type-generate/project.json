@@ -1,4 +1,5 @@
 {
+  "name": "hass-type-generate",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/hass-type-generate/src",
   "projectType": "application",

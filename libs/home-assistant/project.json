@@ -1,4 +1,5 @@
 {
+  "name": "home-assistant",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/home-assistant/src",
   "projectType": "library",

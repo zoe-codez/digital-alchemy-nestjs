@@ -1,4 +1,5 @@
 {
+  "name": "log-formatter",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/log-formatter/src",
   "projectType": "application",
