@@ -23,6 +23,7 @@ import {
 } from "../contracts";
 import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
 import { HASocketAPIService } from "./ha-socket-api.service";
+import { InterruptService } from "./interrupt.service";
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(
@@ -39,9 +40,8 @@ export class HACallTypeGenerator {
     private readonly logger: AutoLogService,
     private readonly fetchApi: HomeAssistantFetchAPIService,
     private readonly socketApi: HASocketAPIService,
+    private readonly interrupt: InterruptService,
   ) {}
-
-  public ENABLED = true;
 
   private domains: string[] = [];
   private lastBuild: string;
@@ -79,7 +79,7 @@ export class HACallTypeGenerator {
             service: string,
             service_data: Record<string, unknown>,
           ) => {
-            if (!this.ENABLED) {
+            if (!this.interrupt.PROXY) {
               this.logger.debug({ service_data }, `[${domain}].{${service}}`);
               return;
             }

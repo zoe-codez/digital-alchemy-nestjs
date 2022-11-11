@@ -17,13 +17,15 @@ import {
   HACallTypeGenerator,
   HASocketAPIService,
   HomeAssistantFetchAPIService,
+  InterruptService,
 } from "../services";
 
 const services: Provider[] = [
   EntityManagerService,
-  HomeAssistantFetchAPIService,
-  HASocketAPIService,
   HACallTypeGenerator,
+  HASocketAPIService,
+  HomeAssistantFetchAPIService,
+  InterruptService,
   {
     inject: [HACallTypeGenerator],
     provide: CALL_PROXY,

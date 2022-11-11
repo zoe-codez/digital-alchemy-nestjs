@@ -34,7 +34,28 @@ import {
   SOCKET_READY,
   SocketMessageDTO,
 } from "../contracts";
+import { EntityManagerService } from "./entity-manager.service";
+import { InterruptService } from "./interrupt.service";
 
+/**
+ * Tracking for recent message traffic.
+ * Helps to ensure that the application doesn't go out of control in an infinite loop somewhere.
+ *
+ * This array will keep track of all messages over a X time period, ensuring it doesn't exceed an average rate (configurable).
+ * If rate is exceeded, a warning will be emitted.
+ * If rate is significantly exceeded, application will terminate with a fatal error.
+ *
+ * ---
+ *
+ * This is a safety feature, intended to stop foot gun scenarios.
+ * If a use case requires a lot of traffic to be sent very quickly, then increase the configuration variable values.
+ *
+ * ---
+ *
+ * There's probably a better strategy for dealing with this, maybe a moving average of some sort.
+ * Will track down a strategy later, if it bothers me.
+ * Open an issue if you have thoughts
+ */
 let MESSAGE_TIMESTAMPS: number[] = [];
 
 @Injectable()
@@ -53,6 +74,8 @@ export class HASocketAPIService {
     @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
+    private readonly interrupt: InterruptService,
+    private readonly entityManager: EntityManagerService,
   ) {}
 
   public CONNECTION_ACTIVE = false;
@@ -167,6 +190,10 @@ export class HASocketAPIService {
       );
       return;
     }
+    // Application has disallowed outgoing commands
+    if (!this.interrupt.SOCKET && data.type !== HASSIO_WS_COMMAND.ping) {
+      return;
+    }
     const json = JSON.stringify(data);
     // if (data.type === HASSIO_WS_COMMAND.get_states) {
     //   this.logger.debug(`Sending ${HASSIO_WS_COMMAND.get_states}`);
@@ -196,14 +223,20 @@ export class HASocketAPIService {
     });
   }
 
+  /**
+   * Keep the running running count of recent messages
+   */
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  protected cleanup(): void {
+    const now = Date.now();
+    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND);
+  }
+
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
     if (!this.CONNECTION_ACTIVE) {
       return;
     }
-    const now = Date.now();
-    // Prune old data
-    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND);
     try {
       const pong = await this.sendMessage({
         type: HASSIO_WS_COMMAND.ping,
@@ -311,7 +344,10 @@ export class HASocketAPIService {
 
   private onMessageEvent(id: number, message: SocketMessageDTO) {
     if (message.event.event_type === HassEvents.state_changed) {
-      this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
+      this.entityManager.onEntityUpdate(message.event);
+      if (this.interrupt.EVENTS) {
+        this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
+      }
     }
     if (this.waitingCallback.has(id)) {
       const f = this.waitingCallback.get(id);

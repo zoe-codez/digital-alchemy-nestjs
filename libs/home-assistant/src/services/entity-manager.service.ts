@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, OnEvent } from "@steggy/boilerplate";
+import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 
@@ -7,12 +7,12 @@ import {
   domain,
   ENTITY_STATE,
   GenericEntityDTO,
-  HA_EVENT_STATE_CHANGE,
   HassEventDTO,
   PICK_ENTITY,
 } from "../contracts";
 import { ENTITY_SETUP } from "../dynamic";
 import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
+import { InterruptService } from "./interrupt.service";
 
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
@@ -26,8 +26,11 @@ export class EntityManagerService {
     private readonly fetch: HomeAssistantFetchAPIService,
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
+    private readonly interrupt: InterruptService,
   ) {}
+
   public readonly ENTITIES = new Map<PICK_ENTITY, GenericEntityDTO>();
+
   /**
    * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
    */
@@ -81,6 +84,37 @@ export class EntityManagerService {
     );
   }
 
+  /**
+   * Listen in on the HA_EVENT_STATE_CHANGE event
+   *
+   * This happens any time any entity has an update.
+   * Global collection of updates
+   */
+  public onEntityUpdate(event: HassEventDTO): void {
+    const { entity_id, new_state, old_state } = event.data;
+    const [domain, id] = entity_id.split(".");
+
+    this.MASTER_STATE[domain] ??= {};
+    this.MASTER_STATE[domain][id] = new_state;
+    if (this.WATCHERS.has(entity_id)) {
+      this.logger.debug(
+        { attributes: new_state.attributes },
+        `[${entity_id}] state change {${new_state.state}}`,
+      );
+      this.WATCHERS.get(entity_id).push(new_state.state);
+      return;
+    }
+    this.ENTITIES.set(entity_id, new_state);
+    if (this.interrupt.EVENTS) {
+      this.eventEmitter.emit(
+        `${entity_id}/update`,
+        new_state,
+        old_state,
+        event,
+      );
+    }
+  }
+
   protected async onModuleInit(): Promise<void> {
     const states = await this.fetch.getAllEntities();
     Object.keys(this.MASTER_STATE).forEach(
@@ -97,30 +131,5 @@ export class EntityManagerService {
       }
       this.ENTITIES.set(entity.entity_id as PICK_ENTITY, entity);
     });
-  }
-
-  /**
-   * Listen in on the HA_EVENT_STATE_CHANGE event
-   *
-   * This happens any time any entity has an update.
-   * Global collection of updates
-   */
-  @OnEvent(HA_EVENT_STATE_CHANGE)
-  protected onUpdate(event: HassEventDTO): void {
-    const { entity_id, new_state, old_state } = event.data;
-    const [domain, id] = entity_id.split(".");
-
-    this.MASTER_STATE[domain] ??= {};
-    this.MASTER_STATE[domain][id] = new_state;
-    if (this.WATCHERS.has(entity_id)) {
-      this.logger.debug(
-        { attributes: new_state.attributes },
-        `[${entity_id}] state change {${new_state.state}}`,
-      );
-      this.WATCHERS.get(entity_id).push(new_state.state);
-      return;
-    }
-    this.ENTITIES.set(entity_id, new_state);
-    this.eventEmitter.emit(`${entity_id}/update`, new_state, old_state, event);
   }
 }
