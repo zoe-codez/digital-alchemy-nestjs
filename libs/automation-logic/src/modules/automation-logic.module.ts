@@ -66,7 +66,12 @@ import {
       type: "number",
     },
   },
-  exports: [CircadianService, SceneRoomService, SolarCalcService],
+  exports: [
+    CircadianService,
+    QuickActionService,
+    SceneRoomService,
+    SolarCalcService,
+  ],
   imports: [HomeAssistantModule, DiscoveryModule, RegisterCache()],
   library: Symbol("automation-logic"),
   providers: [
