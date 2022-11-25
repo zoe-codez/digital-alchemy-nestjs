@@ -13,7 +13,7 @@ These are these are special providers that are intended to represent their real 
 Replacement for the `@Injectable` annotation that normally is applied to providers.
 This annotation will register the provider, along with some metadata, as a "room" w/ `SceneRoomService`.
 
-> [Example room](libs/automation-logic/docs/living.room.ts)
+> [Example room](./docs/living.room.ts)
 
 ### `@SequenceWatcher`
 
