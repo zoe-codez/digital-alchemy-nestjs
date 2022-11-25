@@ -2,4 +2,4 @@
 
 ## Description
 
-TODO: Fill in
+HTTP + Websocket bindings for Home Assistant

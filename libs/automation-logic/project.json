@@ -1,0 +1,46 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/automation-logic/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/automation-logic/**/*.ts"
+        ]
+      },
+      "outputs": [
+        "{options.outputFile}"
+      ]
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/automation-logic",
+        "tsConfig": "libs/automation-logic/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "packageJson": "libs/automation-logic/package.json",
+        "main": "libs/automation-logic/src/index.ts",
+        "assets": [
+          "libs/automation-logic/*.md",
+          "libs/automation-logic/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    }
+  },
+  "tags": [
+    "nestjs"
+  ]
+}

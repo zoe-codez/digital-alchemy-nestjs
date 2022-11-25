@@ -2,6 +2,7 @@
   "version": 2,
   "projects": {
     "boilerplate": "libs/boilerplate",
+    "automation-logic": "libs/automation-logic",
     "build-pipeline": "apps/build-pipeline",
     "config-builder": "apps/config-builder",
     "entity-inspector": "apps/entity-inspector",

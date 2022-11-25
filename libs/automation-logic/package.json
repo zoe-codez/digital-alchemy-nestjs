@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "mp3three"
+  },
+  "name": "@steggy/automation-logic",
+  "displayName": "Automation Logic",
+  "license": "MIT",
+  "version": "22.46.3",
+  "scripts": {
+    "postinstall": "hass-type-generate || exit 0"
+  },
+  "description": "HELLO WORLD"
+}
