@@ -10,7 +10,7 @@ import chalk from "chalk";
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip } from "../includes";
+import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -30,7 +30,6 @@ export interface StringEditorRenderOptions {
 }
 
 const DEFAULT_PLACEHOLDER = "enter value";
-const ELLIPSES = "...";
 const INTERNAL_PADDING = " ";
 const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([

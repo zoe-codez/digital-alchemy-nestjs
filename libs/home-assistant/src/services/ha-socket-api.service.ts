@@ -183,7 +183,7 @@ export class HASocketAPIService {
       // You want know how annoying this one was to debug?!
       data.id = counter;
     }
-    if (this.connection.readyState !== WS.OPEN) {
+    if (this.connection?.readyState !== WS.OPEN) {
       this.logger.error(
         { data },
         `Cannot send message, connection is not open`,

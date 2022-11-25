@@ -7,7 +7,7 @@
   "license": "MIT",
   "version": "22.46.3",
   "scripts": {
-    "postinstall": "npx hass-type-generate"
+    "postinstall": "hass-type-generate || exit 0"
   },
   "description": "HELLO WORLD"
 }

@@ -497,7 +497,7 @@ export class ObjectBuilderComponentService<
     this.complete = true;
     this.render();
     if (this.opt.sanitize === "none" || code !== NORMAL_EXIT) {
-      this.done(code ? (code as VALUE) : this.value);
+      this.done(!is.undefined(code) ? (code as VALUE) : this.value);
       return;
     }
     if (this.opt.sanitize === "defined-paths") {

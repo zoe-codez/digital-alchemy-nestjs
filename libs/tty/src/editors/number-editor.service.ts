@@ -11,7 +11,7 @@ import chalk from "chalk";
 
 import { tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip } from "../includes";
+import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -33,7 +33,6 @@ export interface NumberEditorRenderOptions {
   width?: number;
 }
 
-const ELLIPSES = "...";
 const PADDING = 4;
 const DEFAULT_PLACEHOLDER = "enter value";
 const INTERNAL_PADDING = " ";

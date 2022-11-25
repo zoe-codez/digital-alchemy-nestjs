@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip } from "../includes";
+import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -78,7 +78,6 @@ const MONTH_MAX = new Map([
 ]);
 const DEFAULT_PLACEHOLDER = "tomorrow at noon";
 const DEFAULT_RANGE_PLACEHOLDER = "tomorrow at noon to next friday";
-const ELLIPSES = "...";
 const INTERNAL_PADDING = " ";
 const PADDING = 46; // 50-4
 
