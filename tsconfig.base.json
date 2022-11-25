@@ -41,6 +41,9 @@
       "@steggy/mqtt": [
         "libs/mqtt/src/index.ts"
       ],
+      "@steggy/automation-logic": [
+        "libs/automation-logic/src/index.ts"
+      ],
       "@steggy/server": [
         "libs/server/src/index.ts"
       ],

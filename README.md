@@ -10,6 +10,11 @@ It provides a quick bootstrapping interface, which provides:
 
 ## Libraries
 
+### [Automation Logic](libs/automation-logic)
+
+A set of tools for more cohesively bringing together `@steggy/home assistant` with home automation logic.
+Build out rooms with scenes, managed circadian lighting, and more.
+
 ### [Boilerplate](libs/boilerplate)
 
 NestJS application bootstrapping functions, configuration, logging, and general purpose tools.

@@ -1,4 +1,5 @@
 {
+  "name": "automation-logic",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/automation-logic/src",
   "projectType": "library",
@@ -6,19 +7,33 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": [
-          "libs/automation-logic/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/automation-logic/**/*.ts"]
       },
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Automation Logic",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build automation-logic --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/automation-logic --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
     },
     "build": {
       "executor": "@nrwl/js:tsc",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/automation-logic",
         "tsConfig": "libs/automation-logic/tsconfig.lib.json",
@@ -40,7 +55,5 @@
       }
     }
   },
-  "tags": [
-    "nestjs"
-  ]
+  "tags": ["nestjs"]
 }
