@@ -20,6 +20,7 @@ import {
   HASocketAPIService,
   HomeAssistantFetchAPIService,
   InterruptService,
+  NotificationService,
 } from "../services";
 
 const services: Provider[] = [
@@ -30,6 +31,7 @@ const services: Provider[] = [
   HASocketAPIService,
   HomeAssistantFetchAPIService,
   InterruptService,
+  NotificationService,
   {
     inject: [HACallTypeGenerator],
     provide: CALL_PROXY,

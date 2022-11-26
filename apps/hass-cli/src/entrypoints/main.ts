@@ -93,6 +93,9 @@ export class HassCLI {
       case "backups":
         await this.backup.exec();
         return await this.exec(action);
+      case "notifications":
+        await this.notification.exec();
+        return await this.exec(action);
     }
   }
 

@@ -94,12 +94,6 @@ export class HASocketAPIService {
     });
   }
 
-  public async getNotifications(): Promise<HassNotificationDTO[]> {
-    return await this.sendMessage({
-      type: HASSIO_WS_COMMAND.persistent_notification,
-    });
-  }
-
   /**
    * Set up a new websocket connection to home assistant
    */
