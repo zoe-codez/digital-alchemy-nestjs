@@ -19,5 +19,6 @@ export function OnEntityUpdate(...list: PICK_ENTITY[]): MethodDecorator {
   if (is.empty(list)) {
     return OnEvent(HA_EVENT_STATE_CHANGE);
   }
-  return OnEvent(...list.map(entity => `${entity}/update`));
+  return OnEvent(...list.map(entity => OnEntityUpdate.updateEvent(entity)));
 }
+OnEntityUpdate.updateEvent = (entity: string) => `${entity}/update`;

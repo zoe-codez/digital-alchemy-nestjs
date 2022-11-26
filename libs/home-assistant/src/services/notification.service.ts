@@ -3,6 +3,9 @@ import { Injectable } from "@nestjs/common";
 import { HASSIO_WS_COMMAND, HassNotificationDTO } from "../contracts";
 import { HASocketAPIService } from "./ha-socket-api.service";
 
+/**
+ * Use the proxy api for a more full featured experience
+ */
 @Injectable()
 export class NotificationService {
   constructor(private readonly socket: HASocketAPIService) {}

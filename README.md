@@ -26,7 +26,7 @@ Has the ability to transform it's internal type definitions and code api to matc
 
 ### [MQTT](libs/mqtt)
 
-Simple MQTT bindings to match the repository standards.
+Simple MQTT bindings.
 
 ### [Server](libs/server)
 

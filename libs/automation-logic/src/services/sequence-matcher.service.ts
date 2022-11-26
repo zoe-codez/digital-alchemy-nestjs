@@ -44,6 +44,7 @@ export class SequenceActivateService {
   private ACTIVE_MATCHERS = new Map<string, SequenceSensorEvent[]>();
   private TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
   private WATCHED_SENSORS = new Map<string, SequenceWatcher[]>();
+  private readonly WATCHERS = new Map<string, unknown[]>();
 
   protected onApplicationBootstrap(): void {
     const instanceWrappers: InstanceWrapper[] = [
@@ -93,14 +94,19 @@ export class SequenceActivateService {
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
-    if (!this.WATCHED_SENSORS.has(data.entity_id)) {
-      return;
-    }
-    if (this.entityManager.WATCHERS.has(data.entity_id)) {
+    if (this.WATCHERS.has(data.entity_id)) {
+      this.logger.debug(
+        { attributes: data.new_state.attributes },
+        `[${data.entity_id}] state change {${data.new_state.state}}`,
+      );
+      this.WATCHERS.get(data.entity_id).push(data.new_state.state);
       this.logger.debug(
         { entity_id: data.entity_id },
         `Blocked event from sensor being recorded`,
       );
+      return;
+    }
+    if (!this.WATCHED_SENSORS.has(data.entity_id)) {
       return;
     }
     this.initWatchers(data.entity_id);

@@ -6,7 +6,7 @@ export class AreaDTO {
   public name: string;
 }
 
-export class EntityListItemDTO {
+export class EntityRegistryItem {
   public area_id: string;
   public config_entry_id: string;
   public device_id: string;
@@ -56,19 +56,21 @@ export class SocketMessageDTO {
 
 export class SendSocketMessageDTO {
   public access_token?: string;
+  public disabled_by?: "user";
   public domain?: string;
+  public hidden_by?: "user";
   public service?: string;
   public service_data?: unknown;
   public type: HASSIO_WS_COMMAND;
 }
 
 export class UpdateEntityMessageDTO {
-  public area_id?: number;
+  public area_id?: string;
   public entity_id: string;
   public icon?: string;
   public name: string;
   public new_entity_id: string;
-  public type: HASSIO_WS_COMMAND.entity_update;
+  public type: HASSIO_WS_COMMAND.registry_update;
 }
 
 export class FindRelatedDTO {

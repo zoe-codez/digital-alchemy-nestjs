@@ -21,12 +21,10 @@ import {
   AreaDTO,
   CONNECTION_RESET,
   DeviceListItemDTO,
-  EntityListItemDTO,
   HA_EVENT_STATE_CHANGE,
   HassConfig,
   HassEvents,
   HASSIO_WS_COMMAND,
-  HassNotificationDTO,
   HassSocketMessageTypes,
   SOCKET_MESSAGES,
   SOCKET_READY,
@@ -142,12 +140,6 @@ export class HASocketAPIService {
     });
   }
 
-  public async listEntities(): Promise<EntityListItemDTO[]> {
-    return await this.sendMessage({
-      type: HASSIO_WS_COMMAND.entity_list,
-    });
-  }
-
   public async renderTemplate(template: string): Promise<string> {
     return await this.sendMessage({
       template,
@@ -195,20 +187,6 @@ export class HASocketAPIService {
       return;
     }
     return new Promise(done => this.waitingCallback.set(counter, done));
-  }
-
-  public async updateEntity(
-    entity: string,
-    data: { name?: string; new_entity_id?: string },
-  ): Promise<{ entity_entry: unknown }> {
-    return await this.sendMessage({
-      area_id: null,
-      entity_id: entity,
-      icon: null,
-      name: data.name,
-      new_entity_id: data.new_entity_id || entity,
-      type: HASSIO_WS_COMMAND.entity_update,
-    });
   }
 
   /**
@@ -341,7 +319,9 @@ export class HASocketAPIService {
 
   private onMessageEvent(id: number, message: SocketMessageDTO) {
     if (message.event.event_type === HassEvents.state_changed) {
-      this.entityManager.onEntityUpdate(message.event);
+      // Always keep entity manager up to date
+      // It also implements the interrupt internally
+      this.entityManager["onEntityUpdate"](message.event);
       if (this.interrupt.EVENTS) {
         this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
       }

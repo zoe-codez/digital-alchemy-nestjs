@@ -58,11 +58,11 @@ export class HassCLI {
           entry: ["backups"],
           highlight: "auto",
         },
-        escape: ["done"],
-        i: {
+        e: {
           entry: ["entity information", "entity_inspect"],
           highlight: "auto",
         },
+        escape: ["done"],
         n: {
           entry: ["notifications"],
           highlight: "auto",

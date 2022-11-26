@@ -10,6 +10,7 @@ import {
   HassEventDTO,
   PICK_ENTITY,
 } from "../contracts";
+import { OnEntityUpdate } from "../decorators";
 import { ENTITY_SETUP } from "../dynamic";
 import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
 import { InterruptService } from "./interrupt.service";
@@ -34,19 +35,26 @@ export class EntityManagerService {
   /**
    * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
    */
-  public readonly MASTER_STATE: Record<
-    string,
-    Record<string, GenericEntityDTO>
-  > = {};
-  public readonly WATCHERS = new Map<string, unknown[]>();
+  public MASTER_STATE: Record<string, Record<string, GenericEntityDTO>> = {};
 
-  public findByDomain<T extends GenericEntityDTO = GenericEntityDTO>(
-    target: keyof typeof ENTITY_SETUP,
-  ): T[] {
-    const out: T[] = [];
+  /**
+   * Retrieve an entity's state
+   */
+  public byId<T extends PICK_ENTITY>(id: T): ENTITY_STATE<T> {
+    return this.ENTITIES.get(id) as ENTITY_STATE<T>;
+  }
+
+  /**
+   * list all entities by domain
+   */
+  public findByDomain<
+    DOMAIN extends keyof typeof ENTITY_SETUP = keyof typeof ENTITY_SETUP,
+    STATES extends ENTITY_STATE<DOMAIN> = ENTITY_STATE<DOMAIN>,
+  >(target: DOMAIN): STATES[] {
+    const out: STATES[] = [];
     this.ENTITIES.forEach((state, key) => {
       if (domain(key) === target) {
-        out.push(state as T);
+        out.push(state as STATES);
       }
     });
     return out.filter(i => is.object(i));
@@ -62,61 +70,41 @@ export class EntityManagerService {
   }
 
   /**
-   * Retrieve an entity's state
+   * is id a valid entity?
    */
-  public getEntity<T extends PICK_ENTITY>(id: T): ENTITY_STATE<T> {
-    return this.ENTITIES.get(id) as ENTITY_STATE<T>;
-  }
-
   public isEntity(entityId: string): entityId is PICK_ENTITY {
     return this.ENTITIES.has(entityId as PICK_ENTITY);
   }
 
+  /**
+   * Simple listing of all entity ids
+   */
   public listEntities(): PICK_ENTITY[] {
     return [...this.ENTITIES.keys()];
   }
 
-  public async nextState<T extends GenericEntityDTO = GenericEntityDTO>(
-    entityId: string,
-  ): Promise<T> {
-    return await new Promise<T>(done =>
-      this.eventEmitter.once(`${entityId}/update`, result => done(result)),
+  /**
+   * Wait for this entity to change state.
+   * Returns next state (however long it takes for that to happen)
+   */
+  public async nextState<ID extends PICK_ENTITY = PICK_ENTITY>(
+    entity_id: ID,
+  ): Promise<ENTITY_STATE<ID>> {
+    return await new Promise<ENTITY_STATE<ID>>(done =>
+      this.eventEmitter.once(OnEntityUpdate.updateEvent(entity_id), result =>
+        done(result),
+      ),
     );
   }
 
   /**
-   * Listen in on the HA_EVENT_STATE_CHANGE event
+   * Clear out the current state, and request a refresh.
    *
-   * This happens any time any entity has an update.
-   * Global collection of updates
+   * Refresh occurs through home assistant rest api, and is not bound by the websocket lifecycle
    */
-  public onEntityUpdate(event: HassEventDTO): void {
-    const { entity_id, new_state, old_state } = event.data;
-    const [domain, id] = entity_id.split(".");
-
-    this.MASTER_STATE[domain] ??= {};
-    this.MASTER_STATE[domain][id] = new_state;
-    if (this.WATCHERS.has(entity_id)) {
-      this.logger.debug(
-        { attributes: new_state.attributes },
-        `[${entity_id}] state change {${new_state.state}}`,
-      );
-      this.WATCHERS.get(entity_id).push(new_state.state);
-      return;
-    }
-    this.ENTITIES.set(entity_id, new_state);
-    if (this.interrupt.EVENTS) {
-      this.eventEmitter.emit(
-        `${entity_id}/update`,
-        new_state,
-        old_state,
-        event,
-      );
-    }
-  }
-
-  protected async onModuleInit(): Promise<void> {
+  public async refresh(): Promise<void> {
     const states = await this.fetch.getAllEntities();
+    this.MASTER_STATE = {};
     Object.keys(this.MASTER_STATE).forEach(
       key => delete this.MASTER_STATE[key],
     );
@@ -131,5 +119,32 @@ export class EntityManagerService {
       }
       this.ENTITIES.set(entity.entity_id as PICK_ENTITY, entity);
     });
+  }
+
+  /**
+   * Pretend like this has an `@OnEvent(HA_EVENT_STATE_CHANGE)` on it.
+   * Socket service calls this separately from the event to ensure data is available here first.
+   *
+   * Leave as protected method to hide from editor auto complete
+   */
+  protected onEntityUpdate(event: HassEventDTO): void {
+    const { entity_id, new_state, old_state } = event.data;
+    const [domain, id] = entity_id.split(".");
+
+    this.MASTER_STATE[domain] ??= {};
+    this.MASTER_STATE[domain][id] = new_state;
+    this.ENTITIES.set(entity_id, new_state);
+    if (this.interrupt.EVENTS) {
+      this.eventEmitter.emit(
+        OnEntityUpdate.updateEvent(entity_id),
+        new_state,
+        old_state,
+        event,
+      );
+    }
+  }
+
+  protected async onModuleInit(): Promise<void> {
+    await this.refresh();
   }
 }
