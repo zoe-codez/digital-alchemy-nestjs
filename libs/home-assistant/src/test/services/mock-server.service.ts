@@ -36,6 +36,14 @@ export class MockServerService {
     });
   }
 
+  public async nextMessage<T>(connection: WebSocket): Promise<T> {
+    return await new Promise<T>(done => {
+      connection.once("message", response => {
+        done(JSON.parse(response.toString()));
+      });
+    });
+  }
+
   public sendAuthOk(connection: WebSocket): void {
     connection.send(JSON.stringify({ type: HassSocketMessageTypes.auth_ok }));
   }

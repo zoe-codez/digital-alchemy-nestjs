@@ -55,6 +55,7 @@
       "activate": "examples",
       "adapters": "custom",
       "app": "vscode",
+      "hass-cli": "debug",
       "boilerplate": "core",
       "build-pipeline": "pipe",
       "canvas": "interface",

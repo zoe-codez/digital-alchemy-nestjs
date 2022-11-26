@@ -1,3 +1,4 @@
+export * from "./backup";
 export * from "./config.dto";
 export * from "./constants";
 export * from "./hass-state.dto";

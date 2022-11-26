@@ -49,9 +49,19 @@ export class HomeAssistantFetchAPIService {
       url: `/api/config/core/check_config`,
     });
   }
-  /**
-   * Wrapper to set baseUrl
-   */
+
+  public async download(
+    destination: string,
+    fetchWitch: FetchWith,
+  ): Promise<void> {
+    return await this.fetchService.download({
+      baseUrl: this.baseUrl,
+      destination,
+      headers: { Authorization: `Bearer ${this.bearer}` },
+      ...fetchWitch,
+    });
+  }
+
   public async fetch<T>(fetchWitch: FetchWith): Promise<T> {
     return await this.fetchService.fetch<T>({
       baseUrl: this.baseUrl,

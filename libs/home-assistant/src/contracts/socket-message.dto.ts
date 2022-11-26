@@ -41,15 +41,9 @@ export class HassNotificationDTO {
   public title: string;
 }
 
-// {
-// 	"0": {
-// 		"notification_id": "config_entry_reconfigure",
-// 		"message": "At least one of your integrations requires reconfiguration to continue functioning. [Check it out](/config/integrations).",
-// 		"status": "unread",
-// 		"title": "Integration requires reconfiguration",
-// 		"created_at": "2021-11-28T16:33:15.366370+00:00"
-// 	}
-// }
+export interface SignRequestResponse {
+  path: string;
+}
 
 export class SocketMessageDTO {
   public error?: Record<string, unknown>;
@@ -63,7 +57,6 @@ export class SocketMessageDTO {
 export class SendSocketMessageDTO {
   public access_token?: string;
   public domain?: string;
-  public id?: number;
   public service?: string;
   public service_data?: unknown;
   public type: HASSIO_WS_COMMAND;
@@ -73,14 +66,12 @@ export class UpdateEntityMessageDTO {
   public area_id?: number;
   public entity_id: string;
   public icon?: string;
-  public id?: number;
   public name: string;
   public new_entity_id: string;
   public type: HASSIO_WS_COMMAND.entity_update;
 }
 
 export class FindRelatedDTO {
-  public id?: number;
   public item_id: string;
   public item_type: string;
   public type: HASSIO_WS_COMMAND.search_related;
@@ -88,34 +79,43 @@ export class FindRelatedDTO {
 
 export class RegistryGetDTO {
   public entity_id: string;
-  public id?: number;
   public type: HASSIO_WS_COMMAND.registry_get;
 }
 
 export class RenderTemplateDTO {
-  public id?: number;
   public template: string;
   public timeout: number;
   public type: HASSIO_WS_COMMAND.render_template;
 }
 
 export class SubscribeTriggerDTO {
-  public id?: number;
   public trigger: Record<string, unknown>;
   public type: HASSIO_WS_COMMAND.subscribe_trigger;
 }
 
 export class UnsubscribeEventsDTO {
-  public id?: number;
   public subscription: number;
   public type: HASSIO_WS_COMMAND.unsubscribe_events;
 }
 
-export type SOCKET_MESSAGES =
-  | SendSocketMessageDTO
-  | RenderTemplateDTO
-  | UnsubscribeEventsDTO
-  | SubscribeTriggerDTO
-  | UpdateEntityMessageDTO
+export class SignPathDTO {
+  public path: string;
+  public type: HASSIO_WS_COMMAND.download_backup;
+}
+
+export class RemoveBackupDTO {
+  public slug: string;
+  public type: HASSIO_WS_COMMAND.remove_backup;
+}
+
+export type SOCKET_MESSAGES = { id?: number } & (
   | FindRelatedDTO
-  | RegistryGetDTO;
+  | RegistryGetDTO
+  | RemoveBackupDTO
+  | RenderTemplateDTO
+  | SendSocketMessageDTO
+  | SignPathDTO
+  | SubscribeTriggerDTO
+  | UnsubscribeEventsDTO
+  | UpdateEntityMessageDTO
+);

@@ -14,13 +14,7 @@ import { HASSIO_WS_COMMAND, HassSocketMessageTypes } from "../contracts";
 import { HomeAssistantModule } from "../modules";
 import { ConnectionBuilderService, HASocketAPIService } from "../services";
 import { MockServerService } from "./services";
-
-/**
- * This number may need to be tweaked in the future.
- * It is chosen as a reasonable delay for the websocket to properly establish a connection to localhost.
- * Results were pretty intermittent in some tets using `10`.
- */
-const SLEEP_SHORT = 100;
+import { SLEEP_SHORT } from "./types";
 
 describe("SocketApi", () => {
   let base: string;

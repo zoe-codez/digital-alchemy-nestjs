@@ -65,7 +65,7 @@
   ],
   "references": [
     {
-      "path": "./apps/entity-inspector/tsconfig.json"
+      "path": "./apps/hass-cli/tsconfig.json"
     },
     {
       "path": "./apps/build-pipeline/tsconfig.json"

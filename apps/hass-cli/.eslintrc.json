@@ -9,20 +9,10 @@
           "warn",
           // The numbers really are magic here
           { "ignoreArrayIndexes": true }
-        ],
-        "spellcheck/spell-checker": [
-          "warn",
-          {
-            // CSS selectors are a headache
-            "strings": false,
-            "templates": false,
-            // Wish these would inherit
-            "skipWords": ["lang", "bitrate", "ansi", "ellipsize", "execa"]
-          }
         ]
       },
       "parserOptions": {
-        "project": ["apps/entity-inspector/tsconfig.app.json"]
+        "project": ["apps/hass-cli/tsconfig.app.json"]
       }
     },
     {

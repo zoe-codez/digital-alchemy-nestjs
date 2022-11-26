@@ -6,7 +6,8 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "resolveJsonModule": true
   },
   "include": [
     "jest.config.ts",

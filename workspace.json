@@ -1,11 +1,11 @@
 {
   "version": 2,
   "projects": {
-    "boilerplate": "libs/boilerplate",
     "automation-logic": "libs/automation-logic",
+    "boilerplate": "libs/boilerplate",
     "build-pipeline": "apps/build-pipeline",
     "config-builder": "apps/config-builder",
-    "entity-inspector": "apps/entity-inspector",
+    "hass-cli": "apps/hass-cli",
     "hass-type-generate": "apps/hass-type-generate",
     "home-assistant": "libs/home-assistant",
     "log-formatter": "apps/log-formatter",

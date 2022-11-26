@@ -1,13 +1,13 @@
 {
-  "name": "entity-inspector",
+  "name": "hass-cli",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/entity-inspector/src",
+  "sourceRoot": "apps/hass-cli/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "entity-inspector:build",
+        "buildTarget": "hass-cli:build",
         "inspect": "inspect",
         "port": 33342
       }
@@ -17,7 +17,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx nx build entity-inspector --configuration=scan-config"
+            "command": "npx nx build hass-cli --configuration=scan-config"
           }
         ]
       }
@@ -26,16 +26,16 @@
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/entity-inspector",
+        "outputPath": "dist/apps/hass-cli",
         "generatePackageJson": true,
         "fileReplacements": [
           {
-            "replace": "apps/entity-inspector/src/environments/environment.ts",
-            "with": "apps/entity-inspector/src/environments/develop.environment.ts"
+            "replace": "apps/hass-cli/src/environments/environment.ts",
+            "with": "apps/hass-cli/src/environments/develop.environment.ts"
           }
         ],
-        "main": "apps/entity-inspector/src/entrypoints/main.ts",
-        "tsConfig": "apps/entity-inspector/tsconfig.app.json",
+        "main": "apps/hass-cli/src/entrypoints/main.ts",
+        "tsConfig": "apps/hass-cli/tsconfig.app.json",
         "target": "node",
         "compiler": "tsc"
       },
@@ -47,11 +47,11 @@
           "fileReplacements": []
         },
         "scan-config": {
-          "outputPath": "dist/scan-config/entity-inspector",
+          "outputPath": "dist/scan-config/hass-cli",
           "fileReplacements": [
             {
-              "replace": "apps/entity-inspector/src/environments/environment.ts",
-              "with": "apps/entity-inspector/src/environments/scanner.environment.ts"
+              "replace": "apps/hass-cli/src/environments/environment.ts",
+              "with": "apps/hass-cli/src/environments/scanner.environment.ts"
             }
           ]
         }
@@ -60,7 +60,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/entity-inspector/**/*.ts"]
+        "lintFilePatterns": ["apps/hass-cli/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     },
@@ -70,23 +70,23 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Entity Inspector",
+            "command": "npx figlet-cli -f Pagga Hass CLI",
             "description": "Announce it"
           },
           {
-            "command": "npx nx build entity-inspector --configuration=production",
+            "command": "npx nx build hass-cli --configuration=production",
             "description": "Create production optimized build"
           },
           {
-            "command": "npx terser dist/apps/entity-inspector/main.js -c -m --keep-classnames --module > dist/apps/entity-inspector/minified.js",
+            "command": "npx terser dist/apps/hass-cli/main.js -c -m --keep-classnames --module > dist/apps/hass-cli/minified.js",
             "description": "Minify it"
           },
           {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/entity-inspector/main.js; cat dist/apps/entity-inspector/minified.js >> dist/apps/entity-inspector/main.js",
+            "command": "echo '#!/usr/bin/env node' > dist/apps/hass-cli/main.js; cat dist/apps/hass-cli/minified.js >> dist/apps/hass-cli/main.js",
             "description": "Replace output (can't be done in previous step)"
           },
           {
-            "command": "npx yarn publish --cwd dist/apps/entity-inspector --non-interactive",
+            "command": "npx yarn publish --cwd dist/apps/hass-cli --non-interactive",
             "description": "Publish it"
           }
         ]
@@ -98,11 +98,11 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build entity-inspector --configuration=scan-config",
+            "command": "npx nx build hass-cli --configuration=scan-config",
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/scan-config/entity-inspector/main.js > dist/configs/entity-inspector.json",
+            "command": "mkdir -p dist/configs; node dist/scan-config/hass-cli/main.js > dist/configs/hass-cli.json",
             "description": "Scan config, output to dist"
           }
         ]

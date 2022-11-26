@@ -63,6 +63,12 @@ Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but
 
 Demonstration of the capabilities of the TTY library.
 
+### [Hass CLI](apps/hass-cli)
+
+Basic interactions with Home Assistant, in the form of a terminal app.
+Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
+
 ### [Hass Type Generate](apps/hass-type-generate)
 
 Companion application to `@steggy/home-assisant`. Intended to rewrite library type definitions to match a specific home assistant install.
+Installed separately from the library.

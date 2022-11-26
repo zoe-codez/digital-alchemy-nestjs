@@ -1,8 +1,8 @@
 {
   "bin": {
-    "entity-inspector": "main.js"
+    "hass-cli": "main.js"
   },
-  "name": "@steggy/entity-inspector",
+  "name": "@steggy/hass-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Entity Inspector",
