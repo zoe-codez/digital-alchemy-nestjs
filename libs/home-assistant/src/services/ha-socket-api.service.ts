@@ -5,19 +5,17 @@ import {
   InjectConfig,
   InjectLogger,
 } from "@steggy/boilerplate";
-import { CronExpression, is, SECOND, sleep, START } from "@steggy/utilities";
+import { CronExpression, SECOND, sleep, START } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
 import WS from "ws";
 
 import {
-  BASE_URL,
   CRASH_REQUESTS_PER_SEC,
   RENDER_TIMEOUT,
   RETRY_INTERVAL,
   TOKEN,
   WARN_REQUESTS_PER_SEC,
-  WEBSOCKET_URL,
 } from "../config";
 import {
   AreaDTO,
@@ -34,29 +32,9 @@ import {
   SOCKET_READY,
   SocketMessageDTO,
 } from "../contracts";
+import { ConnectionBuilderService } from "./connection-builder.service";
 import { EntityManagerService } from "./entity-manager.service";
 import { InterruptService } from "./interrupt.service";
-
-/**
- * Tracking for recent message traffic.
- * Helps to ensure that the application doesn't go out of control in an infinite loop somewhere.
- *
- * This array will keep track of all messages over a X time period, ensuring it doesn't exceed an average rate (configurable).
- * If rate is exceeded, a warning will be emitted.
- * If rate is significantly exceeded, application will terminate with a fatal error.
- *
- * ---
- *
- * This is a safety feature, intended to stop foot gun scenarios.
- * If a use case requires a lot of traffic to be sent very quickly, then increase the configuration variable values.
- *
- * ---
- *
- * There's probably a better strategy for dealing with this, maybe a moving average of some sort.
- * Will track down a strategy later, if it bothers me.
- * Open an issue if you have thoughts
- */
-let MESSAGE_TIMESTAMPS: number[] = [];
 
 @Injectable()
 export class HASocketAPIService {
@@ -64,22 +42,40 @@ export class HASocketAPIService {
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
-    @InjectConfig(BASE_URL)
-    private readonly baseUrl: string,
     @InjectConfig(TOKEN)
     private readonly token: string,
     @InjectConfig(WARN_REQUESTS_PER_SEC) private readonly WARN_REQUESTS: number,
     @InjectConfig(CRASH_REQUESTS_PER_SEC)
     private readonly CRASH_REQUESTS: number,
-    @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
     private readonly interrupt: InterruptService,
     private readonly entityManager: EntityManagerService,
+    private readonly builder: ConnectionBuilderService,
   ) {}
 
   public CONNECTION_ACTIVE = false;
   private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
+  /**
+   * Tracking for recent message traffic.
+   * Helps to ensure that the application doesn't go out of control in an infinite loop somewhere.
+   *
+   * This array will keep track of all messages over a X time period, ensuring it doesn't exceed an average rate (configurable).
+   * If rate is exceeded, a warning will be emitted.
+   * If rate is significantly exceeded, application will terminate with a fatal error.
+   *
+   * ---
+   *
+   * This is a safety feature, intended to stop foot gun scenarios.
+   * If a use case requires a lot of traffic to be sent very quickly, then increase the configuration variable values.
+   *
+   * ---
+   *
+   * There's probably a better strategy for dealing with this, maybe a moving average of some sort.
+   * Will track down a strategy later, if it bothers me.
+   * Open an issue if you have thoughts
+   */
+  private MESSAGE_TIMESTAMPS: number[] = [];
   private connection: WS;
   private messageCount = START;
   private subscribeEvents = false;
@@ -107,7 +103,7 @@ export class HASocketAPIService {
   /**
    * Set up a new websocket connection to home assistant
    */
-  public initConnection(reset = false): void {
+  public async initConnection(reset = false): Promise<void> {
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.connection = undefined;
@@ -117,16 +113,10 @@ export class HASocketAPIService {
     }
     this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
     this.CONNECTION_ACTIVE = false;
-    const url = new URL(this.baseUrl);
     try {
       this.messageCount = START;
       this.logger.info("Creating new socket connection");
-      this.connection = new WS(
-        this.websocketUrl ||
-          `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
-            url.port ? `:${url.port}` : ``
-          }/api/websocket`,
-      );
+      this.connection = this.builder.build();
       let first = true;
       this.connection.addEventListener("message", message => {
         if (first) {
@@ -142,6 +132,10 @@ export class HASocketAPIService {
           await sleep(this.retryInterval);
           await this.initConnection(reset);
         }
+      });
+
+      return await new Promise(done => {
+        this.connection.once("open", () => done());
       });
     } catch (error) {
       this.logger.error({ error }, `initConnection error`);
@@ -177,6 +171,10 @@ export class HASocketAPIService {
     waitForResponse = true,
     subscription?: () => void,
   ): Promise<T> {
+    if (!this.connection) {
+      this.logger.error("Cannot send messages before socket is initialized");
+      return undefined;
+    }
     this.countMessage();
     const counter = this.messageCount;
     if (data.type !== HASSIO_WS_COMMAND.auth) {
@@ -195,12 +193,8 @@ export class HASocketAPIService {
       return;
     }
     const json = JSON.stringify(data);
-    // if (data.type === HASSIO_WS_COMMAND.get_states) {
-    //   this.logger.debug(`Sending ${HASSIO_WS_COMMAND.get_states}`);
-    // }
     this.connection.send(json);
     if (subscription) {
-      // ( this.subscriptionCallbacks.set(counter, done));
       return data.id as T;
     }
     if (!waitForResponse) {
@@ -229,7 +223,9 @@ export class HASocketAPIService {
   @Cron(CronExpression.EVERY_5_SECONDS)
   protected cleanup(): void {
     const now = Date.now();
-    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND);
+    this.MESSAGE_TIMESTAMPS = this.MESSAGE_TIMESTAMPS.filter(
+      time => time > now - SECOND,
+    );
   }
 
   @Cron(CronExpression.EVERY_10_SECONDS)
@@ -256,21 +252,28 @@ export class HASocketAPIService {
   private countMessage(): void | never {
     this.messageCount++;
     const now = Date.now();
-    MESSAGE_TIMESTAMPS.push(now);
-    const count = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND).length;
+    this.MESSAGE_TIMESTAMPS.push(now);
+    const count = this.MESSAGE_TIMESTAMPS.filter(
+      time => time > now - SECOND,
+    ).length;
     if (count > this.CRASH_REQUESTS) {
-      // TODO: Attempt to emit a notification via home assistant prior to dying
-      // "HALP!"
       this.logger.fatal(
         `FATAL ERROR: Exceeded {CRASH_REQUESTS_PER_MIN} threshold.`,
       );
-      exit();
+      this.die();
     }
     if (count > this.WARN_REQUESTS) {
       this.logger.warn(
         `Message traffic ${this.CRASH_REQUESTS}>${count}>${this.WARN_REQUESTS}`,
       );
     }
+  }
+
+  /**
+   * extracted for unit testing
+   */
+  private die() {
+    exit();
   }
 
   /**
@@ -360,22 +363,12 @@ export class HASocketAPIService {
     }
   }
 
-  private async onMessageResult(id: number, message: SocketMessageDTO) {
+  private onMessageResult(id: number, message: SocketMessageDTO) {
     if (this.waitingCallback.has(id)) {
       if (message.error) {
         this.logger.error({ message });
       }
-      if (message.result === null || !is.undefined(message.result)) {
-        // This happens with template rendering requests
-        // Home Assistant initially replies back with an invalid result
-        // Then follows up with an event using the same id, which contains the real result
-        //
-        // See if the event will claim this callback first.
-        await sleep(this.renderTimeout + SECOND);
-        if (!this.waitingCallback.has(id)) {
-          return;
-        }
-      }
+
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);
       // if (!this.caught) {
@@ -385,6 +378,7 @@ export class HASocketAPIService {
       // if (!this.caught) {
       //   this.logger.debug('post callback');
       // }
+      // console.log("end");
     }
   }
 

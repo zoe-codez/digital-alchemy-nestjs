@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { LOG_LEVEL } from "@steggy/boilerplate";
 import { Test } from "@steggy/testing";
 import { DEFAULT_LIMIT } from "@steggy/utilities";
 import dayjs from "dayjs";
@@ -19,6 +20,9 @@ describe("FetchApi", () => {
       bootstrap: {
         config: {
           libs: {
+            boilerplate: {
+              [LOG_LEVEL]: "silent",
+            },
             "home-assistant": {
               [BASE_URL]: base,
               [TOKEN]: token,

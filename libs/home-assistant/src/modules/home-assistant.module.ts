@@ -14,6 +14,7 @@ import {
 import { CALL_PROXY } from "../decorators";
 import {
   BackupService,
+  ConnectionBuilderService,
   EntityManagerService,
   HACallTypeGenerator,
   HASocketAPIService,
@@ -22,12 +23,13 @@ import {
 } from "../services";
 
 const services: Provider[] = [
+  BackupService,
+  ConnectionBuilderService,
   EntityManagerService,
   HACallTypeGenerator,
   HASocketAPIService,
   HomeAssistantFetchAPIService,
   InterruptService,
-  BackupService,
   {
     inject: [HACallTypeGenerator],
     provide: CALL_PROXY,
