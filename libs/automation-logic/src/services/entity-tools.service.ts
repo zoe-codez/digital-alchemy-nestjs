@@ -35,7 +35,7 @@ export class EntityToolsService {
     }
 
     if (!allowOff) {
-      const entity = this.entity.getEntity(entity_id);
+      const entity = this.entity.byId(entity_id);
       if (entity.state === "off") {
         return false;
       }

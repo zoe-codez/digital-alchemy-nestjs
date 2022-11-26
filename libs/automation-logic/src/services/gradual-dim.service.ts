@@ -46,7 +46,7 @@ export class GradualDimService {
   }: GradualDimOptions): Promise<void> {
     const runId = v4();
     // Setup & sanity check
-    const entity = this.entityManager.getEntity(entity_id);
+    const entity = this.entityManager.byId(entity_id);
     if (!entity) {
       this.logger.error(`[${entity}] could not look up!`);
       return;

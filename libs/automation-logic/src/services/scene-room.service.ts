@@ -110,7 +110,7 @@ export class SceneRoomService<
     const lights: PICK_ENTITY<"light">[] = [];
     const scene = this.scenes.get(this.current) ?? {};
     Object.keys(scene).forEach((id: PICK_ENTITY<"light">) => {
-      const current = this.entityManager.getEntity(id);
+      const current = this.entityManager.byId(id);
       if (current.state !== "on" && !includeOff) {
         return;
       }
@@ -168,7 +168,7 @@ export class SceneRoomService<
     }
     const lights = this.dimmableLights();
     await each(lights, async entity_id => {
-      const entity = this.entityManager.getEntity(entity_id);
+      const entity = this.entityManager.byId(entity_id);
       let { brightness = OFF } = entity.attributes as { brightness?: number };
       brightness += amount;
       if (brightness > MAX_BRIGHTNESS) {
@@ -267,7 +267,7 @@ export class SceneRoomService<
 
     // Run through all the lights defined in current scene
     Object.keys(scene).forEach((id: PICK_ENTITY<"light">) => {
-      const entity = this.entityManager.getEntity(id);
+      const entity = this.entityManager.byId(id);
       if (!entity) {
         this.logger.error(`[${id}] not found`);
         return;
