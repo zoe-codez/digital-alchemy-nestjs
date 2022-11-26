@@ -13,10 +13,12 @@
         "*.js",
         "*.jsx"
       ],
-      "rules": {},
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": "off"
+      },
       "parserOptions": {
         "project": [
-          "libs/home-assistant/tsconfig.lib.json"
+          "libs/home-assistant/tsconfig.spec.json"
         ]
       }
     },

@@ -1,19 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "../../.vscode/dist/out-tsc",
+    "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": [
-      "node"
-    ],
-    "target": "ESNext"
+    "types": [],
+    "target": "ES2022"
   },
-  "exclude": [
-    "**/*.spec.ts"
-  ],
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "**/*.ts"
+  ],
+  "exclude": [
+    "jest.config.ts",
+    "**/test/*.ts"
   ]
 }

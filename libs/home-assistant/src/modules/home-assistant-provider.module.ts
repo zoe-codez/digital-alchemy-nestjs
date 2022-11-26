@@ -15,7 +15,6 @@ import { HomeAssistantFetchAPIService, InterruptService } from "../services";
       type: "string",
     },
     [TOKEN]: {
-      // Not absolutely required, if the app does not intend to open a connection
       description: "Long lived access token to Home Assistant.",
       type: "string",
     },

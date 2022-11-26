@@ -1,5 +1,5 @@
 export default {
-  displayName: "boilerplate",
+  displayName: "home-assistant",
   moduleFileExtensions: ["ts", "js", "html"],
   preset: "../../jest.preset.js",
   testEnvironment: "node",

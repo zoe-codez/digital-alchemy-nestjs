@@ -13,6 +13,7 @@ import {
 } from "../config";
 import { CALL_PROXY } from "../decorators";
 import {
+  BackupService,
   EntityManagerService,
   HACallTypeGenerator,
   HASocketAPIService,
@@ -26,6 +27,7 @@ const services: Provider[] = [
   HASocketAPIService,
   HomeAssistantFetchAPIService,
   InterruptService,
+  BackupService,
   {
     inject: [HACallTypeGenerator],
     provide: CALL_PROXY,
@@ -64,6 +66,7 @@ const services: Provider[] = [
     },
     [TOKEN]: {
       // Not absolutely required, if the app does not intend to open a connection
+      // Should probably use the other module though
       description: "Long lived access token to Home Assistant.",
       type: "string",
     },

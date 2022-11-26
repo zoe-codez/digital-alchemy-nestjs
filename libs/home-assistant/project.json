@@ -31,6 +31,14 @@
         ]
       }
     },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/home-assistant"],
+      "options": {
+        "jestConfig": "libs/home-assistant/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
