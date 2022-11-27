@@ -5,11 +5,11 @@ import {
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
 } from "../contracts";
-import { HASocketAPIService } from "./ha-socket-api.service";
+import { HassSocketAPIService } from "./hass-socket-api.service";
 
 @Injectable()
 export class EntityRegistryService {
-  constructor(private readonly socket: HASocketAPIService) {}
+  constructor(private readonly socket: HassSocketAPIService) {}
 
   public async byId(entity_id: PICK_ENTITY): Promise<EntityRegistryItem> {
     return await this.socket.sendMessage({

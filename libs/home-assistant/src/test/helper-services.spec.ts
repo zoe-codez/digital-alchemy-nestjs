@@ -15,11 +15,11 @@ import { HomeAssistantModule } from "../modules";
 import {
   BackupService,
   ConnectionBuilderService,
-  HASocketAPIService,
+  HassSocketAPIService,
 } from "../services";
 import { MockServerService } from "./services";
 
-describe("SocketApi", () => {
+describe("Helpers", () => {
   let base: string;
   let port: number;
   const token = faker.random.words(DEFAULT_LIMIT);
@@ -28,7 +28,7 @@ describe("SocketApi", () => {
   const crashCount = 100;
 
   let builder: ConnectionBuilderService;
-  let socketApi: HASocketAPIService;
+  let socketApi: HassSocketAPIService;
   let backup: BackupService;
   let mockServer: MockServerService;
   let socket: WS;
@@ -77,7 +77,7 @@ describe("SocketApi", () => {
       socket = new WS(mockServer.url);
       return socket;
     }.bind(builder);
-    socketApi = app.get(HASocketAPIService);
+    socketApi = app.get(HassSocketAPIService);
   });
 
   afterEach(() => {
@@ -108,7 +108,7 @@ describe("SocketApi", () => {
 
     it("Can retrieve a list of current backups", async () => {
       const done = mockServer.nextConnection();
-      await socketApi.initConnection();
+      await socketApi.init();
       const [connection] = await done;
 
       const listResult = backup.list();
@@ -135,7 +135,7 @@ describe("SocketApi", () => {
 
     it("Can generate backups", async () => {
       const done = mockServer.nextConnection();
-      await socketApi.initConnection();
+      await socketApi.init();
       const [connection] = await done;
 
       let started = false;

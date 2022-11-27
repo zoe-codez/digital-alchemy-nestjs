@@ -1,9 +1,9 @@
 export const HASS_ENTITY = "HASS_ENTITY";
 export const HASS_ENTITY_GROUP = "HASS_ENTITY_GROUP";
 export const ALL_ENTITIES_UPDATED = "ALL_ENTITIES_UPDATED";
-export const CONNECTION_RESET = "CONNECTION_RESET";
 export const HA_EVENT_STATE_CHANGE = "HA_EVENT_STATE_CHANGE";
 export const SOCKET_READY = "SOCKET_READY";
+export const ON_SOCKET_AUTH = "ON_SOCKET_AUTH";
 
 export enum HASSIO_WS_COMMAND {
   // Found a use for

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import {
   AutoLogService,
   Cron,
@@ -19,23 +19,26 @@ import {
 } from "../config";
 import {
   AreaDTO,
-  CONNECTION_RESET,
-  DeviceListItemDTO,
   HA_EVENT_STATE_CHANGE,
   HassConfig,
   HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
+  ON_SOCKET_AUTH,
   SOCKET_MESSAGES,
-  SOCKET_READY,
   SocketMessageDTO,
 } from "../contracts";
 import { ConnectionBuilderService } from "./connection-builder.service";
 import { EntityManagerService } from "./entity-manager.service";
-import { InterruptService } from "./interrupt.service";
+import { SocketManagerService } from "./socket-manager.service";
 
+const CONNECTION_OPEN = 1;
+
+/**
+ * Management for
+ */
 @Injectable()
-export class HASocketAPIService {
+export class HassSocketAPIService {
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
@@ -47,7 +50,8 @@ export class HASocketAPIService {
     private readonly CRASH_REQUESTS: number,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
-    private readonly interrupt: InterruptService,
+    @Inject(forwardRef(() => SocketManagerService))
+    private readonly interrupt: SocketManagerService,
     private readonly entityManager: EntityManagerService,
     private readonly builder: ConnectionBuilderService,
   ) {}
@@ -76,16 +80,32 @@ export class HASocketAPIService {
   private MESSAGE_TIMESTAMPS: number[] = [];
   private connection: WS;
   private messageCount = START;
-  private subscribeEvents = false;
   private subscriptionCallbacks = new Map<number, (result) => void>();
   private waitingCallback = new Map<number, (result) => void>();
 
+  public destroy(): void {
+    if (!this.connection) {
+      return;
+    }
+    if (this.connection.readyState === CONNECTION_OPEN) {
+      this.logger.debug(`Closing current connection`);
+      this.connection.close();
+    }
+    this.connection = undefined;
+  }
+
+  /**
+   * @deprecated To be moved somewhere else more appropriate in the near future
+   */
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMessage({
       type: HASSIO_WS_COMMAND.area_list,
     });
   }
 
+  /**
+   * @deprecated To be moved somewhere else more appropriate in the near future
+   */
   public async getConfig(): Promise<HassConfig> {
     return await this.sendMessage({
       type: HASSIO_WS_COMMAND.get_config,
@@ -95,11 +115,7 @@ export class HASocketAPIService {
   /**
    * Set up a new websocket connection to home assistant
    */
-  public async initConnection(reset = false): Promise<void> {
-    if (reset) {
-      this.eventEmitter.emit(CONNECTION_RESET);
-      this.connection = undefined;
-    }
+  public async init(): Promise<void> {
     if (this.connection) {
       return;
     }
@@ -107,25 +123,23 @@ export class HASocketAPIService {
     this.CONNECTION_ACTIVE = false;
     try {
       this.messageCount = START;
-      this.logger.info("Creating new socket connection");
       this.connection = this.builder.build();
       let first = true;
       this.connection.addEventListener("message", message => {
         if (first) {
           first = false;
-          this.subscribeEvents = false;
-          // this.logger.debug(`Hello message received`);
         }
-        this.onMessage(JSON.parse(message.data.toString()));
+        const decoded = JSON.parse(message.data.toString());
+        this.onMessage(decoded);
       });
       this.connection.on("error", async error => {
         this.logger.error({ error: error.message || error }, "Socket error");
         if (!this.CONNECTION_ACTIVE) {
           await sleep(this.retryInterval);
-          await this.initConnection(reset);
+          this.destroy();
+          await this.init();
         }
       });
-
       return await new Promise(done => {
         this.connection.once("open", () => done());
       });
@@ -134,12 +148,9 @@ export class HASocketAPIService {
     }
   }
 
-  public async listDevices(): Promise<DeviceListItemDTO[]> {
-    return await this.sendMessage({
-      type: HASSIO_WS_COMMAND.device_list,
-    });
-  }
-
+  /**
+   * @deprecated To be moved somewhere else more appropriate in the near future
+   */
   public async renderTemplate(template: string): Promise<string> {
     return await this.sendMessage({
       template,
@@ -149,9 +160,8 @@ export class HASocketAPIService {
   }
 
   /**
-   * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
+   * Send a message to HomeAssistant. Optionally, wait for a reply to return the result from
    */
-
   public async sendMessage<T extends unknown = unknown>(
     data: SOCKET_MESSAGES,
     waitForResponse = true,
@@ -172,10 +182,6 @@ export class HASocketAPIService {
         { data },
         `Cannot send message, connection is not open`,
       );
-      return;
-    }
-    // Application has disallowed outgoing commands
-    if (!this.interrupt.SOCKET && data.type !== HASSIO_WS_COMMAND.ping) {
       return;
     }
     const json = JSON.stringify(data);
@@ -218,7 +224,8 @@ export class HASocketAPIService {
     } catch (error) {
       this.logger.error({ error }, `ping error`);
     }
-    this.initConnection(true);
+    this.destroy();
+    this.init();
   }
 
   private countMessage(): void | never {
@@ -276,18 +283,7 @@ export class HASocketAPIService {
         // * Flag as valid connection
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
-        // * Subscribe to updates
-        if (!this.subscribeEvents) {
-          this.subscribeEvents = true;
-          this.logger.debug(`Subscribe events`);
-          await this.sendMessage(
-            { type: HASSIO_WS_COMMAND.subscribe_events },
-            false,
-          );
-        }
-        // * Announce done-ness
-        this.logger.info("🏡 Home Assistant socket ready 🏡");
-        this.eventEmitter.emit(SOCKET_READY);
+        this.eventEmitter.emit(ON_SOCKET_AUTH);
         return;
 
       case HassSocketMessageTypes.event:
@@ -322,9 +318,7 @@ export class HASocketAPIService {
       // Always keep entity manager up to date
       // It also implements the interrupt internally
       this.entityManager["onEntityUpdate"](message.event);
-      if (this.interrupt.EVENTS) {
-        this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
-      }
+      this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
     }
     if (this.waitingCallback.has(id)) {
       const f = this.waitingCallback.get(id);
@@ -345,14 +339,7 @@ export class HASocketAPIService {
 
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);
-      // if (!this.caught) {
-      //   this.logger.debug('pre-callback');
-      // }
       f(message.result);
-      // if (!this.caught) {
-      //   this.logger.debug('post callback');
-      // }
-      // console.log("end");
     }
   }
 

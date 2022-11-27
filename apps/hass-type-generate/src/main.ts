@@ -1,8 +1,8 @@
 import { AutoLogService, QuickScript } from "@steggy/boilerplate";
 import {
   GenericEntityDTO,
-  HACallTypeGenerator,
-  HomeAssistantFetchAPIService,
+  HassCallTypeGenerator,
+  HassFetchAPIService,
   HomeAssistantModule,
 } from "@steggy/home-assistant";
 import { existsSync, writeFileSync } from "fs";
@@ -17,8 +17,8 @@ import { exit } from "process";
 export class TypeGenerate {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetch: HomeAssistantFetchAPIService,
-    private readonly gen: HACallTypeGenerator,
+    private readonly fetch: HassFetchAPIService,
+    private readonly gen: HassCallTypeGenerator,
   ) {}
 
   public async exec(): Promise<void> {

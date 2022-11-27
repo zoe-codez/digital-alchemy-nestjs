@@ -17,11 +17,11 @@ import {
   ConnectionBuilderService,
   EntityManagerService,
   EntityRegistryService,
-  HACallTypeGenerator,
-  HASocketAPIService,
-  HomeAssistantFetchAPIService,
-  InterruptService,
+  HassCallTypeGenerator,
+  HassFetchAPIService,
+  HassSocketAPIService,
   NotificationService,
+  SocketManagerService,
 } from "../services";
 
 const services: Provider[] = [
@@ -29,15 +29,15 @@ const services: Provider[] = [
   ConnectionBuilderService,
   EntityManagerService,
   EntityRegistryService,
-  HACallTypeGenerator,
-  HASocketAPIService,
-  HomeAssistantFetchAPIService,
-  InterruptService,
+  HassCallTypeGenerator,
+  HassSocketAPIService,
+  HassFetchAPIService,
+  SocketManagerService,
   NotificationService,
   {
-    inject: [HACallTypeGenerator],
+    inject: [HassCallTypeGenerator],
     provide: CALL_PROXY,
-    useFactory: (call: HACallTypeGenerator) => call.buildProxy(),
+    useFactory: (call: HassCallTypeGenerator) => call.buildProxy(),
   },
 ];
 

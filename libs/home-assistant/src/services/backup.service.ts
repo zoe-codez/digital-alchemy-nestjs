@@ -7,8 +7,8 @@ import {
   HomeAssistantBackup,
   SignRequestResponse,
 } from "../contracts";
-import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
-import { HASocketAPIService } from "./ha-socket-api.service";
+import { HassFetchAPIService } from "./hass-fetch-api.service";
+import { HassSocketAPIService } from "./hass-socket-api.service";
 
 interface BackupResponse {
   backing_up: boolean;
@@ -19,8 +19,8 @@ interface BackupResponse {
 export class BackupService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetch: HomeAssistantFetchAPIService,
-    private readonly socket: HASocketAPIService,
+    private readonly fetch: HassFetchAPIService,
+    private readonly socket: HassSocketAPIService,
   ) {}
 
   public async download(slug: string, destination: string): Promise<void> {

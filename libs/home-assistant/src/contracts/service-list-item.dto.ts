@@ -46,7 +46,7 @@ export class ServiceListField {
   public target?: ServiceListServiceTarget;
 }
 
-export class ServiceListItemDTO {
+export class HassServiceDTO {
   @ApiProperty()
   public domain: string;
   @ApiProperty()

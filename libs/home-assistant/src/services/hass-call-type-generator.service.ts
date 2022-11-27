@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { is, TitleCase } from "@steggy/utilities";
 import { dump } from "js-yaml";
@@ -17,13 +22,12 @@ import {
 
 import {
   HASSIO_WS_COMMAND,
+  HassServiceDTO,
   ServiceListFieldDescription,
-  ServiceListItemDTO,
   ServiceListServiceTarget,
 } from "../contracts";
-import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
-import { HASocketAPIService } from "./ha-socket-api.service";
-import { InterruptService } from "./interrupt.service";
+import { HassFetchAPIService } from "./hass-fetch-api.service";
+import { HassSocketAPIService } from "./hass-socket-api.service";
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(
@@ -35,18 +39,18 @@ const resultFile = createSourceFile(
 );
 
 @Injectable()
-export class HACallTypeGenerator {
+export class HassCallTypeGenerator {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetchApi: HomeAssistantFetchAPIService,
-    private readonly socketApi: HASocketAPIService,
-    private readonly interrupt: InterruptService,
+    private readonly fetchApi: HassFetchAPIService,
+    @Inject(forwardRef(() => HassSocketAPIService))
+    private readonly socketApi: HassSocketAPIService,
   ) {}
 
   private domains: string[] = [];
   private lastBuild: string;
   private lastServices: string;
-  private services: ServiceListItemDTO[] = [];
+  private services: HassServiceDTO[] = [];
 
   /**
    * This proxy is intended to be assigned to a constant, then injected into the VM.
@@ -64,10 +68,10 @@ export class HACallTypeGenerator {
       {},
       {
         get: (t, domain: string) => {
-          if (!this.domains.includes(domain)) {
+          if (!this.domains?.includes(domain)) {
             return undefined;
           }
-          const domainItem: ServiceListItemDTO = this.services.find(
+          const domainItem: HassServiceDTO = this.services.find(
             i => i.domain === domain,
           );
           if (!domainItem) {
@@ -79,10 +83,6 @@ export class HACallTypeGenerator {
             service: string,
             service_data: Record<string, unknown>,
           ) => {
-            if (!this.interrupt.PROXY) {
-              this.logger.debug({ service_data }, `[${domain}].{${service}}`);
-              return;
-            }
             // User can just not await this call if they don't care about the "waitForChange"
             await this.socketApi.sendMessage(
               {
@@ -200,7 +200,12 @@ export class HACallTypeGenerator {
     return this.lastBuild;
   }
 
-  protected async onModuleInit() {
+  /**
+   * Describe the current services, and build up a proxy api based on that.
+   *
+   * This API matches the api at the time the this function is run, which may be different from any generated typescript definitions from the past.
+   */
+  public async initialize() {
     this.logger.info(`Fetching service list`);
     this.services = await this.fetchApi.listServices();
     this.domains = this.services.map(i => i.domain);

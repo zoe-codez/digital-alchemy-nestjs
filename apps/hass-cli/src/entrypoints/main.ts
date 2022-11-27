@@ -1,7 +1,7 @@
 import { LOG_LEVEL, QuickScript } from "@steggy/boilerplate";
 import {
-  HASocketAPIService,
   HomeAssistantModule,
+  SocketManagerService,
 } from "@steggy/home-assistant";
 import {
   ApplicationManagerService,
@@ -45,7 +45,7 @@ export class HassCLI {
     private readonly prompt: PromptService,
     private readonly entity: EntityService,
     private readonly backup: BackupControlsService,
-    private readonly socket: HASocketAPIService,
+    private readonly socket: SocketManagerService,
     private readonly notification: NotificationControlsService,
   ) {}
 
@@ -100,6 +100,8 @@ export class HassCLI {
   }
 
   protected async onApplicationBootstrap(): Promise<void> {
-    await this.socket.initConnection();
+    this.socket.BUILD_PROXY = false;
+    this.socket.SUBSCRIBE_EVENTS = false;
+    await this.socket.connect();
   }
 }

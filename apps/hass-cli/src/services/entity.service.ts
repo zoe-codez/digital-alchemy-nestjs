@@ -3,7 +3,7 @@ import {
   domain,
   EntityRegistryService,
   GenericEntityDTO,
-  HomeAssistantFetchAPIService,
+  HassFetchAPIService,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import {
@@ -24,7 +24,7 @@ export class EntityService {
   constructor(
     private readonly application: ApplicationManagerService,
     private readonly prompt: PromptService,
-    private readonly fetch: HomeAssistantFetchAPIService,
+    private readonly fetch: HassFetchAPIService,
     private readonly text: TextRenderingService,
     private readonly registry: EntityRegistryService,
     private readonly screen: ScreenService,

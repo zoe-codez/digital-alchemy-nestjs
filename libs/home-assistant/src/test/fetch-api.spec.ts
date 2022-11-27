@@ -6,10 +6,10 @@ import dayjs from "dayjs";
 
 import { BASE_URL, TOKEN } from "../config";
 import { HomeAssistantProviderModule } from "../modules";
-import { HomeAssistantFetchAPIService } from "../services";
+import { HassFetchAPIService } from "../services";
 
-describe("FetchApi", () => {
-  let fetch: HomeAssistantFetchAPIService;
+describe("Fetch API", () => {
+  let fetch: HassFetchAPIService;
   const base = faker.internet.url();
   const token = faker.random.words(DEFAULT_LIMIT);
   const fetchSpy = jest.fn();
@@ -32,7 +32,7 @@ describe("FetchApi", () => {
       },
       imports: [HomeAssistantProviderModule],
     }).compile();
-    fetch = app.get(HomeAssistantFetchAPIService);
+    fetch = app.get(HassFetchAPIService);
     // Prevent any real outgoing http calls
     fetch["fetchService"]["fetch"] = fetchSpy;
   });

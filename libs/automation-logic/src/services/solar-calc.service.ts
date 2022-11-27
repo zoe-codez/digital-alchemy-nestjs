@@ -6,7 +6,7 @@ import {
   InjectCache,
   OnEvent,
 } from "@steggy/boilerplate";
-import { HASocketAPIService, SOCKET_READY } from "@steggy/home-assistant";
+import { HassSocketAPIService, SOCKET_READY } from "@steggy/home-assistant";
 import {
   CronExpression,
   DOWN,
@@ -52,7 +52,7 @@ let claimed = false;
 @Injectable()
 export class SolarCalcService {
   constructor(
-    private readonly socket: HASocketAPIService,
+    private readonly socket: HassSocketAPIService,
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectCache()

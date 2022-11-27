@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 
@@ -12,8 +11,7 @@ import {
 } from "../contracts";
 import { OnEntityUpdate } from "../decorators";
 import { ENTITY_SETUP } from "../dynamic";
-import { HomeAssistantFetchAPIService } from "./ha-fetch-api.service";
-import { InterruptService } from "./interrupt.service";
+import { HassFetchAPIService } from "./hass-fetch-api.service";
 
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
@@ -24,10 +22,8 @@ import { InterruptService } from "./interrupt.service";
 @Injectable()
 export class EntityManagerService {
   constructor(
-    private readonly fetch: HomeAssistantFetchAPIService,
-    private readonly logger: AutoLogService,
+    private readonly fetch: HassFetchAPIService,
     private readonly eventEmitter: EventEmitter,
-    private readonly interrupt: InterruptService,
   ) {}
 
   public readonly ENTITIES = new Map<PICK_ENTITY, GenericEntityDTO>();
@@ -134,14 +130,12 @@ export class EntityManagerService {
     this.MASTER_STATE[domain] ??= {};
     this.MASTER_STATE[domain][id] = new_state;
     this.ENTITIES.set(entity_id, new_state);
-    if (this.interrupt.EVENTS) {
-      this.eventEmitter.emit(
-        OnEntityUpdate.updateEvent(entity_id),
-        new_state,
-        old_state,
-        event,
-      );
-    }
+    this.eventEmitter.emit(
+      OnEntityUpdate.updateEvent(entity_id),
+      new_state,
+      old_state,
+      event,
+    );
   }
 
   protected async onModuleInit(): Promise<void> {

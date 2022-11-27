@@ -10,9 +10,9 @@ import { BASE_URL, TOKEN } from "../config";
 import {
   ENTITY_STATE,
   GenericEntityDTO,
+  HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
-  ServiceListItemDTO,
 } from "../contracts";
 
 type SendBody<
@@ -24,7 +24,7 @@ type SendBody<
 };
 
 @Injectable()
-export class HomeAssistantFetchAPIService {
+export class HassFetchAPIService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(BASE_URL)
@@ -152,8 +152,8 @@ export class HomeAssistantFetchAPIService {
     });
   }
 
-  public async listServices(): Promise<ServiceListItemDTO[]> {
-    return await this.fetch<ServiceListItemDTO[]>({
+  public async listServices(): Promise<HassServiceDTO[]> {
+    return await this.fetch<HassServiceDTO[]>({
       url: `/api/services`,
     });
   }

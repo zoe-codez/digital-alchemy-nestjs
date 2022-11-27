@@ -1,7 +1,7 @@
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 
 import { BASE_URL, LIB_HOME_ASSISTANT, TOKEN } from "../config";
-import { HomeAssistantFetchAPIService, InterruptService } from "../services";
+import { HassFetchAPIService } from "../services";
 
 /**
  * Partial Home Assistant module.
@@ -19,11 +19,11 @@ import { HomeAssistantFetchAPIService, InterruptService } from "../services";
       type: "string",
     },
   },
-  exports: [HomeAssistantFetchAPIService],
+  exports: [HassFetchAPIService],
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
   // Interrupt not meant to be used in this context (won't be provided as export)
   // Needs to be present as internal dependency
-  providers: [HomeAssistantFetchAPIService, InterruptService],
+  providers: [HassFetchAPIService],
 })
 export class HomeAssistantProviderModule {}
