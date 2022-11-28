@@ -2,9 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { Server, WebSocket } from "ws";
 
 import { HassSocketMessageTypes } from "../../contracts";
+import { Next } from "./next.service";
+
+export type GenericServerMessage = { id: number; type: string };
 
 @Injectable()
 export class MockServerService {
+  constructor(private readonly next: Next) {}
   public port: number;
   private onNext: (data: [WebSocket, unknown[]]) => void;
   private server: Server;
@@ -36,12 +40,10 @@ export class MockServerService {
     });
   }
 
-  public async nextMessage<T>(connection: WebSocket): Promise<T> {
-    return await new Promise<T>(done => {
-      connection.once("message", response => {
-        done(JSON.parse(response.toString()));
-      });
-    });
+  public async quickAuth(connection: WebSocket) {
+    connection.send(JSON.stringify({ type: "auth_required" }));
+    await this.next.message(connection);
+    connection.send(JSON.stringify({ type: "auth_ok" }));
   }
 
   public sendAuthOk(connection: WebSocket): void {
@@ -54,7 +56,18 @@ export class MockServerService {
     );
   }
 
+  public sendResponse(connection: WebSocket, id: number, result: object) {
+    connection.send(
+      JSON.stringify({
+        id,
+        result,
+        type: "result",
+      }),
+    );
+  }
+
   public teardown(): void {
     this.server.close();
+    this.server = undefined;
   }
 }

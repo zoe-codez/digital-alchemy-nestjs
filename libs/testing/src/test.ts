@@ -17,7 +17,7 @@ export class Test {
       bootstrap: deepExtend(
         {
           config: {
-            libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            libs: { boilerplate: { LOG_LEVEL: "silent" } },
           },
           init: false,
           nestNoopLogger: true,

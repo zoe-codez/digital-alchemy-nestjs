@@ -50,10 +50,10 @@ export class HassSocketAPIService {
     private readonly CRASH_REQUESTS: number,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
-    @Inject(forwardRef(() => SocketManagerService))
-    private readonly interrupt: SocketManagerService,
     private readonly entityManager: EntityManagerService,
     private readonly builder: ConnectionBuilderService,
+    @Inject(forwardRef(() => SocketManagerService))
+    private readonly manager: SocketManagerService,
   ) {}
 
   public CONNECTION_ACTIVE = false;
@@ -89,8 +89,9 @@ export class HassSocketAPIService {
     }
     if (this.connection.readyState === CONNECTION_OPEN) {
       this.logger.debug(`Closing current connection`);
-      this.connection.close();
     }
+    this.CONNECTION_ACTIVE = false;
+    this.connection.close();
     this.connection = undefined;
   }
 
@@ -117,6 +118,9 @@ export class HassSocketAPIService {
    */
   public async init(): Promise<void> {
     if (this.connection) {
+      this.logger.error(
+        `Destroy the current connection before creating a new one`,
+      );
       return;
     }
     this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
@@ -283,6 +287,7 @@ export class HassSocketAPIService {
         // * Flag as valid connection
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
+        await this.manager["onAuth"]();
         this.eventEmitter.emit(ON_SOCKET_AUTH);
         return;
 

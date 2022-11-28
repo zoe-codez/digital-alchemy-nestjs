@@ -1,8 +1,8 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService, OnEvent } from "@steggy/boilerplate";
+import { AutoLogService } from "@steggy/boilerplate";
 import EventEmitter from "eventemitter3";
 
-import { HASSIO_WS_COMMAND, ON_SOCKET_AUTH, SOCKET_READY } from "../contracts";
+import { HASSIO_WS_COMMAND, SOCKET_READY } from "../contracts";
 import { EntityManagerService } from "./entity-manager.service";
 import { HassCallTypeGenerator } from "./hass-call-type-generator.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
@@ -42,6 +42,9 @@ export class SocketManagerService {
     }
     this.logger.warn("Creating new socket connection");
     await this.socket.init();
+    await new Promise<void>(done =>
+      this.eventEmitter.once(SOCKET_READY, () => done()),
+    );
   }
 
   /**
@@ -51,7 +54,6 @@ export class SocketManagerService {
     this.socket.destroy();
   }
 
-  @OnEvent(ON_SOCKET_AUTH)
   protected async onAuth(): Promise<void> {
     // * Init internal workflows first
     await this.buildProxy();

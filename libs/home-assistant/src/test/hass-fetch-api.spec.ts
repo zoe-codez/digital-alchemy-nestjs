@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { LOG_LEVEL } from "@steggy/boilerplate";
 import { Test } from "@steggy/testing";
 import { DEFAULT_LIMIT } from "@steggy/utilities";
 import dayjs from "dayjs";
@@ -8,7 +7,7 @@ import { BASE_URL, TOKEN } from "../config";
 import { HomeAssistantProviderModule } from "../modules";
 import { HassFetchAPIService } from "../services";
 
-describe("Fetch API", () => {
+describe("Hass Fetch API", () => {
   let fetch: HassFetchAPIService;
   const base = faker.internet.url();
   const token = faker.random.words(DEFAULT_LIMIT);
@@ -20,9 +19,6 @@ describe("Fetch API", () => {
       bootstrap: {
         config: {
           libs: {
-            boilerplate: {
-              [LOG_LEVEL]: "silent",
-            },
             "home-assistant": {
               [BASE_URL]: base,
               [TOKEN]: token,
@@ -32,6 +28,7 @@ describe("Fetch API", () => {
       },
       imports: [HomeAssistantProviderModule],
     }).compile();
+    await app.init();
     fetch = app.get(HassFetchAPIService);
     // Prevent any real outgoing http calls
     fetch["fetchService"]["fetch"] = fetchSpy;
