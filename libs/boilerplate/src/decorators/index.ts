@@ -1,5 +1,4 @@
 export * from "./application-module.decorator";
-export * from "./cast-result.decorator";
 export * from "./cron.decorator";
 export * from "./events.decorator";
 export * from "./inject-config.decorator";

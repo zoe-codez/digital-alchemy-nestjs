@@ -54,6 +54,9 @@ export class SocketManagerService {
     this.socket.destroy();
   }
 
+  /**
+   * semi-hidden method
+   */
   protected async onAuth(): Promise<void> {
     // * Init internal workflows first
     await this.buildProxy();
