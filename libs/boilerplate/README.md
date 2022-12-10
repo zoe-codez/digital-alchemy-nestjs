@@ -138,7 +138,7 @@ Values provided in sources lower in this list override values from higher.
 - Environment variables
 - Command line switches
 
-## Build in configuration options
+## Configuration options
 
 The following configuration options are utilized by this library.
 
@@ -152,34 +152,34 @@ The following configuration options are utilized by this library.
   REDIS_PORT=6379
 ```
 
-### CACHE_PROVIDER
+### `CACHE_PROVIDER`
 
-Cache storage provider. Default: `memory`
+Cache storage provider. default: `memory`
 
 | option | note |
 | --- | --- |
-| memory | store in memory of node process, cleared when process dies |
-| redis | connect to an external redis instance, data will persist after process dying |
+| `memory` | store in memory of node process, cleared when process dies |
+| `redis` | connect to an external redis instance, data will persist after process dying |
 
-### CACHE_TTL
+### `CACHE_TTL`
 
 Configuration property for redis connection
 
-### LOG_LEVEL
+### `LOG_LEVEL`
 
-Minimum log level to output. Default: `info`
+Minimum log level to output. default: `info`
 
-- silent
-- info
-- warn
-- debug
-- error
+- `silent`
+- `info`
+- `warn`
+- `debug`
+- `error`
 
-### REDIS_HOST
+### `REDIS_HOST`
 
 Address for redis instance, default: `localhost`
 
-### REDIS_PORT
+### `REDIS_PORT`
 
 Port for redis instance, default: `6379`
 
@@ -187,7 +187,7 @@ Port for redis instance, default: `6379`
 
 Flags and switches that are intended to be used on the command line when launching the app.
 
-### SCAN_CONFIG
+### `SCAN_CONFIG`
 
 ```bash
 # Usage example
@@ -197,7 +197,7 @@ node ./dist/apps/sampler-app/main.js --scan-config | tee ./configuration.json
 Scan all modules and providers to gather all available configuration metadata, output as json, and exit.
 Implemented for use with the `config-builder` app
 
-### CONFIG
+### `CONFIG`
 
 ```bash
 # Usage example

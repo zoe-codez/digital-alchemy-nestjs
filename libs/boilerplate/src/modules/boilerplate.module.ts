@@ -53,7 +53,7 @@ import {
     [LOG_LEVEL]: {
       default: "info",
       description: "Minimum log level to process",
-      enum: ["info", "warn", "debug"],
+      enum: ["silent", "info", "warn", "debug", "error"],
       type: "string",
     },
     [REDIS_HOST]: {
