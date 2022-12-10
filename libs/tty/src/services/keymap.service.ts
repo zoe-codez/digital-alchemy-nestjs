@@ -2,10 +2,11 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ARRAY_OFFSET, DOWN, is, UP } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { HighlightCallbacks } from "../../components";
-import { tKeyMap } from "../../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../../includes";
-import { ApplicationManagerService, KeyboardManagerService } from "../meta";
+import { HighlightCallbacks } from "../components";
+import { tKeyMap } from "../contracts";
+import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { ApplicationManagerService } from "./application-manager.service";
+import { KeyboardManagerService } from "./keyboard-manager.service";
 import { TextRenderingService } from "./text-rendering.service";
 
 type keyItem = {

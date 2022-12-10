@@ -62,7 +62,7 @@ export class ConfigScanner implements iQuickScript {
       .slice("bg".length)
       .toLowerCase()} [${context}]}`;
     const formattedData = chalk.gray(
-      !is.empty(Object.keys(data)) ? JSON.stringify(data) : "",
+      is.empty(Object.keys(data)) ? "" : JSON.stringify(data),
     );
     const message = prettyFormatMessage(msg);
 

@@ -1,3 +1,4 @@
+import { InjectConfig } from "@steggy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -8,6 +9,7 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 
+import { DEFAULT_PROMPT_WIDTH } from "../config";
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
 import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
@@ -49,6 +51,7 @@ export class StringEditorService
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
     private readonly textRendering: TextRenderingService,
+    @InjectConfig(DEFAULT_PROMPT_WIDTH) private readonly defaultWidth: number,
   ) {}
 
   private complete = false;
@@ -61,6 +64,7 @@ export class StringEditorService
     config: StringEditorRenderOptions,
     done: (type: unknown) => void,
   ) {
+    config.width ??= this.defaultWidth;
     this.config = config;
     this.complete = false;
     this.value = this.config.current ?? "";

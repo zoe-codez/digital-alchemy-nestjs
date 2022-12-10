@@ -114,6 +114,7 @@ The following configuration options are utilized by this library.
   PAGE_SIZE=20
   TABLE_RENDER_ROWS=20
   USE_FONTAWESOME_ICONS=true
+  DEFAULT_PROMPT_WIDTH=50
 ```
 
 ### `DEFAULT_HEADER_FONT`
@@ -146,6 +147,10 @@ Render row count for tables
 ### `USE_FONTAWESOME_ICONS`
 
 Utilize font awesome icons in prompts. Requires fontawesome to be installed on system
+
+### `DEFAULT_PROMPT_WIDTH`
+
+The default character width to render string prompt type backgrounds
 
 ## Switches
 

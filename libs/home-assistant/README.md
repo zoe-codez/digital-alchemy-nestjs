@@ -2,4 +2,4 @@
 
 ## Description
 
-HTTP + Websocket bindings for Home Assistant
+HTTP + Websocket bindings for Home Assistant.

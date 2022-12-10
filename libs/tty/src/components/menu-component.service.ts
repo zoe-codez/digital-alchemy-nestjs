@@ -354,13 +354,13 @@ export class MenuComponentService<VALUE = unknown | string>
     const selectedItem = this.side().find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
-    const result = await (!selectedItem
-      ? callback(TTY.GV(entry) as string, [undefined, undefined])
-      : callback(TTY.GV(entry) as string, [
+    const result = await (selectedItem
+      ? callback(TTY.GV(entry) as string, [
           // Force a value entry to be present
           selectedItem.entry[LABEL],
           TTY.GV(selectedItem),
-        ]));
+        ])
+      : callback(TTY.GV(entry) as string, [undefined, undefined]));
     if (is.string(result)) {
       this.callbackOutput = result;
       this.callbackTimestamp = dayjs();
@@ -678,12 +678,12 @@ export class MenuComponentService<VALUE = unknown | string>
       //   : this.opt.headerMessage.map(([label,value]) => chalk``).join(`\n`);
       message += headerMessage + `\n\n`;
     }
-    const out = !is.empty(this.opt.left)
-      ? this.textRender.assemble(
+    const out = is.empty(this.opt.left)
+      ? this.renderSide("right").map(({ entry }) => entry[LABEL])
+      : this.textRender.assemble(
           this.renderSide("left").map(({ entry }) => entry[LABEL]),
           this.renderSide("right").map(({ entry }) => entry[LABEL]),
-        )
-      : this.renderSide("right").map(({ entry }) => entry[LABEL]);
+        );
     if (this.opt.showHeaders) {
       out[FIRST] = `\n  ${out[FIRST]}\n `;
     } else {
@@ -696,9 +696,8 @@ export class MenuComponentService<VALUE = unknown | string>
     message = MergeHelp(message, selectedItem);
     this.screen.render(
       message,
-      !is.empty(extraContent)
-        ? extraContent
-        : this.keymap.keymapHelp({
+      is.empty(extraContent)
+        ? this.keymap.keymapHelp({
             current: this.value,
             message,
             notes: this.notes,
@@ -739,7 +738,8 @@ export class MenuComponentService<VALUE = unknown | string>
                 })
                 .filter(item => !is.undefined(item)),
             ),
-          }),
+          })
+        : extraContent,
     );
   }
 
@@ -821,21 +821,20 @@ export class MenuComponentService<VALUE = unknown | string>
     });
     const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
     if (header) {
-      if (side === "left") {
-        out[FIRST].entry[LABEL] = chalk.bold.blue.dim(
-          `${this.leftHeader}${"".padEnd(this.headerPadding, " ")}`.padStart(
-            max,
-            " ",
-          ),
-        );
-      } else {
-        out[FIRST].entry[LABEL] = chalk.bold.blue.dim(
-          `${"".padEnd(this.headerPadding, " ")}${this.rightHeader}`.padEnd(
-            max,
-            " ",
-          ),
-        );
-      }
+      out[FIRST].entry[LABEL] =
+        side === "left"
+          ? chalk.bold.blue.dim(
+              `${this.leftHeader}${"".padEnd(
+                this.headerPadding,
+                " ",
+              )}`.padStart(max, " "),
+            )
+          : chalk.bold.blue.dim(
+              `${"".padEnd(this.headerPadding, " ")}${this.rightHeader}`.padEnd(
+                max,
+                " ",
+              ),
+            );
     } else {
       out.shift();
     }

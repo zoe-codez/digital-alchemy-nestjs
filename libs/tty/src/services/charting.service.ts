@@ -11,8 +11,8 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 
-import { ansiMaxLength } from "../../includes";
-import { EnvironmentService } from "../meta/environment.service";
+import { ansiMaxLength } from "../includes";
+import { EnvironmentService } from "./environment.service";
 
 const GRAPH_SYMBOLS = {
   bar: "│",
@@ -86,7 +86,7 @@ export class ChartingService {
     const range = Math.abs(Math.round(absMax - absMin));
     height ??= range;
 
-    const ratio = range !== RATIO_MIN ? height / range : RATIO_MAX;
+    const ratio = range === RATIO_MIN ? RATIO_MAX : height / range;
     const min = Math.round(absMin * ratio);
     const max = Math.round(absMax * ratio);
     const rows = Math.abs(max - min);

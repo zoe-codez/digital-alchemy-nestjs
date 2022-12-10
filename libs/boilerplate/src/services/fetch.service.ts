@@ -150,12 +150,12 @@ export class FetchService {
       return text as unknown as T;
     }
     if (!["{", "["].includes(text.charAt(FIRST))) {
-      if (!["OK"].includes(text)) {
+      if (["OK"].includes(text)) {
+        this.logger.debug({ text }, "Full response text");
+      } else {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
         this.logger.warn({ text }, `Unexpected API Response`);
-      } else {
-        this.logger.debug({ text }, "Full response text");
       }
       return text as T;
     }

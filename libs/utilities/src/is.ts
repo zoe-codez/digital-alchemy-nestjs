@@ -76,7 +76,7 @@ export class is {
   }
 
   public static undefined(test: unknown): test is undefined {
-    return typeof test === "undefined";
+    return test === undefined;
   }
 
   public static unique<T>(out: T[]): T[] {

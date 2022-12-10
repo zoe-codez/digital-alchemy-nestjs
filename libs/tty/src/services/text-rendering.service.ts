@@ -13,9 +13,9 @@ import {
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
 
-import { PAGE_SIZE } from "../../config";
-import { MainMenuEntry, MenuEntry, TTY } from "../../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../../includes";
+import { PAGE_SIZE } from "../config";
+import { MainMenuEntry, MenuEntry, TTY } from "../contracts";
+import { ansiMaxLength, ansiPadEnd } from "../includes";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");

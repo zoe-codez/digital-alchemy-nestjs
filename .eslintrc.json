@@ -332,7 +332,7 @@
                 "protected-instance-field",
                 "protected-field",
                 // private field
-                "private-abstract-field",
+                // "private-abstract-field",
                 "private-instance-field",
                 "private-field",
                 // public method
@@ -348,7 +348,7 @@
                 "protected-instance-method",
                 "protected-method",
                 // private method
-                "private-abstract-method",
+                // "private-abstract-method",
                 "private-instance-method",
                 "private-method"
               ]

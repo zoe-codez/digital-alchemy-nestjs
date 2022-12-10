@@ -4,11 +4,11 @@ import { is } from "@steggy/utilities";
 import chalk from "chalk";
 import figlet, { Fonts } from "figlet";
 
-import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from "../../config";
-import { ApplicationStackProvider, iStackProvider } from "../../contracts";
-import { iBuilderEditor, iComponent } from "../../decorators";
-import { ansiMaxLength } from "../../includes";
-import { ComponentExplorerService, EditorExplorerService } from "../explorers";
+import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from "../config";
+import { ApplicationStackProvider, iStackProvider } from "../contracts";
+import { iBuilderEditor, iComponent } from "../decorators";
+import { ansiMaxLength } from "../includes";
+import { ComponentExplorerService, EditorExplorerService } from "./explorers";
 import { KeyboardManagerService } from "./keyboard-manager.service";
 import { ScreenService } from "./screen.service";
 
@@ -102,7 +102,10 @@ export class ApplicationManagerService implements iStackProvider {
     this.screen.clear();
     this.screen.printLine();
     let max = 0;
-    if (!is.empty(secondary)) {
+    if (is.empty(secondary)) {
+      secondary = primary;
+      primary = "";
+    } else {
       primary = figlet.textSync(primary, {
         font: this.primaryFont,
       });
@@ -113,9 +116,6 @@ export class ApplicationManagerService implements iStackProvider {
         .join(`\n`);
       max = ansiMaxLength(text);
       this.screen.printLine(`\n` + text);
-    } else {
-      secondary = primary;
-      primary = "";
     }
     if (is.empty(secondary)) {
       this.header = primary;

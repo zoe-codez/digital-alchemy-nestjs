@@ -215,9 +215,9 @@ export class ObjectBuilderComponentService<
 
     let headerMessage = "";
     if (this.displayMessagePosition === "header-replace") {
-      headerMessage = !is.empty(this.displayMessage)
-        ? this.displayMessage
-        : this.headerMessage;
+      headerMessage = is.empty(this.displayMessage)
+        ? this.headerMessage
+        : this.displayMessage;
     } else {
       headerMessage = this.headerMessage;
       if (!is.empty(this.displayMessage)) {
@@ -497,7 +497,7 @@ export class ObjectBuilderComponentService<
     this.complete = true;
     this.render();
     if (this.opt.sanitize === "none" || code !== NORMAL_EXIT) {
-      this.done(!is.undefined(code) ? (code as VALUE) : this.value);
+      this.done(is.undefined(code) ? this.value : (code as VALUE));
       return;
     }
     if (this.opt.sanitize === "defined-paths") {

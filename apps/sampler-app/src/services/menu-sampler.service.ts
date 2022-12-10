@@ -393,17 +393,17 @@ export class MenuSampler {
       ...options
     } = this.menuOptions;
     const left: MainMenuEntry[] =
-      optionsLeft !== FakerSources.none
-        ? PEAT(generateCount).map(i =>
+      optionsLeft === FakerSources.none
+        ? undefined
+        : PEAT(generateCount).map(i =>
             this.generateMenuItem(optionsLeft, `left-${i}`),
-          )
-        : undefined;
+          );
     const right: MainMenuEntry[] =
-      optionsRight !== FakerSources.none
-        ? PEAT(generateCount).map(i =>
+      optionsRight === FakerSources.none
+        ? undefined
+        : PEAT(generateCount).map(i =>
             this.generateMenuItem(optionsRight, `right-${i}`),
-          )
-        : undefined;
+          );
     const message = template(headerMessage as string);
     const result = await this.prompt.menu({
       ...options,

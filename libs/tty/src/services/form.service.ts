@@ -15,8 +15,8 @@ import {
   TABLE_PARTS,
   TableBuilderElement,
   TTY,
-} from "../../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../../includes";
+} from "../contracts";
+import { ansiMaxLength, ansiPadEnd } from "../includes";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;

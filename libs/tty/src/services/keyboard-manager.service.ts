@@ -9,7 +9,7 @@ import {
   KeyDescriptor,
   KeyModifiers,
   tKeyMap,
-} from "../../contracts";
+} from "../contracts";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
 

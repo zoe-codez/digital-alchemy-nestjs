@@ -338,7 +338,12 @@ export class HassCallTypeGenerator {
         ),
       );
     // : Record<string, unknown> | (unknown[]);
-    else if (!is.undefined(selector.object))
+    else if (is.undefined(selector.object)) {
+      node = factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
+    }
+    // else if (!is.undefined(selector.))
+    // : unknown
+    else {
       node = factory.createUnionTypeNode([
         serviceDomain === "scene" && serviceName === "apply"
           ? factory.createTypeReferenceNode(
@@ -369,9 +374,7 @@ export class HassCallTypeGenerator {
           ),
         ),
       ]);
-    // else if (!is.undefined(selector.))
-    // : unknown
-    else node = factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
+    }
 
     const property = factory.createPropertySignature(
       undefined,

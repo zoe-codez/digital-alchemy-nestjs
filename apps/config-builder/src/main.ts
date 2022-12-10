@@ -155,13 +155,13 @@ export class ConfigScanner implements iQuickScript {
       readFileSync(this.definitionFile, "utf8"),
     );
     let configMap = new Map<string, AbstractConfig>();
-    if (!is.empty(this.outputFile)) {
-      this.workspace.loadConfigFromFile(configMap, this.outputFile);
-    } else {
+    if (is.empty(this.outputFile)) {
       const [configs] = this.workspace.loadMergedConfig(
         this.workspace.configFilePaths(this.loadedApplication),
       );
       configMap = configs;
+    } else {
+      this.workspace.loadConfigFromFile(configMap, this.outputFile);
     }
     const mergedConfig: AbstractConfig = is.undefined(
       this.configDefinition.bootstrapOverrides,

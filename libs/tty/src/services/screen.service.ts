@@ -16,7 +16,7 @@ import MuteStream from "mute-stream";
 import { stdin, stdout } from "process";
 import { createInterface, Interface } from "readline";
 
-import { ansiEscapes, ansiMaxLength } from "../../includes";
+import { ansiEscapes, ansiMaxLength } from "../includes";
 import { ApplicationManagerService } from "./application-manager.service";
 import { EnvironmentService } from "./environment.service";
 import { KeyboardManagerService } from "./keyboard-manager.service";

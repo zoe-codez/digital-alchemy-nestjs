@@ -21,13 +21,13 @@ import {
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
 } from "../editors";
-import { ApplicationManagerService, SyncLoggerService } from "./meta";
+import { ApplicationManagerService } from "./application-manager.service";
+import { SyncLoggerService } from "./sync-logger.service";
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<T = string> =
   | [string | PROMPT_WITH_SHORT, string | T]
   | [string];
-const DEFAULT_WIDTH = 50;
 
 @Injectable()
 export class PromptService {
@@ -43,9 +43,9 @@ export class PromptService {
    * Good for giving the user time to read a message before a screen clear happens
    */
   public async acknowledge({
-    label: message,
+    label,
   }: PromptAcknowledgeOptions = {}): Promise<void> {
-    await this.applicationManager.activateComponent("acknowledge", { message });
+    await this.applicationManager.activateComponent("acknowledge", { label });
   }
 
   public async arrayBuilder<VALUE extends object = object>(
@@ -156,7 +156,6 @@ export class PromptService {
   ): Promise<number> {
     return await this.applicationManager.activateEditor("number", {
       label: `Number value`,
-      width: DEFAULT_WIDTH,
       ...options,
     } as NumberEditorRenderOptions);
   }
@@ -185,7 +184,6 @@ export class PromptService {
     return await this.applicationManager.activateEditor("string", {
       current,
       label,
-      width: DEFAULT_WIDTH,
     } as StringEditorRenderOptions);
   }
 
@@ -233,7 +231,6 @@ export class PromptService {
   ): Promise<string> {
     return await this.applicationManager.activateEditor("string", {
       label: `String value`,
-      width: DEFAULT_WIDTH,
       ...options,
     } as StringEditorRenderOptions);
   }

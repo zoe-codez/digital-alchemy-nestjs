@@ -159,12 +159,9 @@ export const ansiEscapes = {
       } = {},
     ) {
       let returnValue = `${OSC}1337;`;
-      const hasX = typeof options.x !== "undefined";
-      const hasY = typeof options.y !== "undefined";
-      if (
-        (hasX || hasY) &&
-        !(hasX && hasY && typeof options.length !== "undefined")
-      ) {
+      const hasX = options.x !== undefined;
+      const hasY = options.y !== undefined;
+      if ((hasX || hasY) && !(hasX && hasY && options.length !== undefined)) {
         throw new Error(
           "`x`, `y` and `length` must be defined when `x` or `y` is defined",
         );

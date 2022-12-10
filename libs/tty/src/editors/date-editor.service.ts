@@ -562,7 +562,7 @@ export class DateEditorService
     const message = this.textRendering.pad(out.join(`\n`));
     this.screen.render(
       message,
-      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
+      (is.empty(this.error) ? "" : chalk`\n{red.bold ! }${this.error}\n`) +
         this.keymap.keymapHelp({
           message,
           notes: this.notes,
@@ -700,7 +700,7 @@ export class DateEditorService
     }
     this.screen.render(
       message,
-      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
+      (is.empty(this.error) ? "" : chalk`\n{red.bold ! }${this.error}\n`) +
         this.keymap.keymapHelp({
           message,
           notes: this.notes,
@@ -760,7 +760,7 @@ export class DateEditorService
     }
     this.screen.render(
       message,
-      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : "") +
+      (is.empty(this.error) ? "" : chalk`\n{red.bold ! }${this.error}\n`) +
         this.keymap.keymapHelp({
           message,
           notes: this.notes,

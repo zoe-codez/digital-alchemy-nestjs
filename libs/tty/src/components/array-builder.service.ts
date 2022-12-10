@@ -157,9 +157,9 @@ export class ArrayBuilderService<VALUE extends object>
         return {
           entry: [get(row, String(this.options.labelPath)), { value: row }],
           // Maybe one day dot notation will actually be relevant to this
-          type: !is.empty(this.typePath)
-            ? String(get(row, this.typePath))
-            : undefined,
+          type: is.empty(this.typePath)
+            ? undefined
+            : String(get(row, this.typePath)),
         } as MainMenuEntry<{ value: VALUE }>;
       })
       .filter(({ type }) => !this.disabledTypes.includes(type));
@@ -205,11 +205,11 @@ export class ArrayBuilderService<VALUE extends object>
       if (!is.undefined((result as TypeToggle).type)) {
         typeToggle = result as TypeToggle;
         result = "toggle";
-      } else if (!is.undefined((result as ValueToggle).value)) {
+      } else if (is.undefined((result as ValueToggle).value)) {
+        return;
+      } else {
         result = result as ValueToggle;
         result = "edit";
-      } else {
-        return;
       }
     }
 

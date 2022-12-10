@@ -15,7 +15,8 @@ import { exit } from "process";
 
 import { HELP } from "../config";
 import { ansiMaxLength } from "../includes";
-import { ApplicationManagerService, ScreenService } from "./meta";
+import { ApplicationManagerService } from "./application-manager.service";
+import { ScreenService } from "./screen.service";
 
 @Injectable()
 export class TerminalHelpService {
