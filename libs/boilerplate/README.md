@@ -137,3 +137,71 @@ Values provided in sources lower in this list override values from higher.
   - `~/.config/{name}/config.yaml`
 - Environment variables
 - Command line switches
+
+## Build in configuration options
+
+The following configuration options are utilized by this library.
+
+```ini
+; default configuration
+[libs.boilerplate]
+  CACHE_PROVIDER=memory
+  CACHE_TTL=86_400
+  LOG_LEVEL=info
+  REDIS_HOST=localhost
+  REDIS_PORT=6379
+```
+
+### CACHE_PROVIDER
+
+Cache storage provider. Default: `memory`
+
+| option | note |
+| --- | --- |
+| memory | store in memory of node process, cleared when process dies |
+| redis | connect to an external redis instance, data will persist after process dying |
+
+### CACHE_TTL
+
+Configuration property for redis connection
+
+### LOG_LEVEL
+
+Minimum log level to output. Default: `info`
+
+- silent
+- info
+- warn
+- debug
+- error
+
+### REDIS_HOST
+
+Address for redis instance, default: `localhost`
+
+### REDIS_PORT
+
+Port for redis instance, default: `6379`
+
+## Switches
+
+Flags and switches that are intended to be used on the command line when launching the app.
+
+### SCAN_CONFIG
+
+```bash
+# Usage example
+node ./dist/apps/sampler-app/main.js --scan-config | tee ./configuration.json
+```
+
+Scan all modules and providers to gather all available configuration metadata, output as json, and exit.
+Implemented for use with the `config-builder` app
+
+### CONFIG
+
+```bash
+# Usage example
+node ./dist/apps/sampler-app/main.js --config /path/to/config/file
+```
+
+Request the configuration system use the file as the exclusive configuration source.
