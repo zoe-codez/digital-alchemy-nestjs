@@ -38,10 +38,10 @@ DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
 > Standalone example
 
 ```bash
-# install config builder, plus compatible app
-yarn add -D @steggy/config-builder @steggy/hass-type-generate
+# install config builder
+yarn add -D @steggy/config-builder
 # output configuration to file
-npx hass-type-generate --scan-config > ./config.json
+node ./your_script.js --scan-config > ./config.json
 # launch script
 npx config-builder --definition_file ./config.json
 ```
@@ -71,7 +71,9 @@ BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx s
 Basic interactions with Home Assistant, in the form of a terminal app.
 Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
 
-[<img src="./apps/hass-cli/docs/example.png" height=400>](./apps/hass-cli/docs/example.png)
+| Commands | Backup |
+| --- | --- |
+| [<img src="./apps/hass-cli/docs/example.png" height=400>](./apps/hass-cli/docs/example.png) | [<img src="./apps/hass-cli/docs/backup.png" height=400>](./apps/hass-cli/docs/backup.png) |
 
 ### [Hass Type Generate](apps/hass-type-generate)
 
@@ -98,7 +100,7 @@ Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but
 
 ### [Automation Logic](libs/automation-logic)
 
-A set of tools for more cohesively bringing together `@steggy/home assistant` with home automation logic.
+A set of tools for more cohesively bringing together `@steggy/home-assistant` with home automation logic.
 Build out rooms with scenes, managed circadian lighting, and more.
 
 ### [Boilerplate](libs/boilerplate)
