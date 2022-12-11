@@ -19,7 +19,12 @@ yarn
 
 ## Applications
 
+Applications built as functionality demos, and utilities for consumption in other repositories.
+
 ### [Config Builder](apps/config-builder)
+
+A script to manage file based configurations for applications based off `@steggy/boilerplate`.
+It can act as a "settings screen" for applications, outputting either environment variables, or to more persistent configuration files.
 
 > In repo example
 
@@ -41,21 +46,22 @@ npx hass-type-generate --scan-config > ./config.json
 npx config-builder --definition_file ./config.json
 ```
 
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
-It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
+[<img src="./apps/config-builder/docs/example.png" height=400>](./apps/config-builder/docs/example.png)
 
-<img src="./apps/config-builder/docs/example.png" height=600>
+### [Sampler App](apps/sampler-app) (active development)
 
-### [Sampler App](apps/sampler-app)
+Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
 
 ```bash
 # run dev server
 npx nx serve sampler-app
 ```
 
-Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
+| Table based object builder | Complex menu based interfaces |
+| --- | --- |
+|[<img src="./apps/sampler-app/docs/options.png" height=400>](./apps/sampler-app/docs/options.png)|[<img src="./apps/sampler-app/docs/result.png" height=400>](./apps/sampler-app/docs/result.png)
 
-### [Hass CLI](apps/hass-cli)
+### [Hass CLI](apps/hass-cli) (active development)
 
 ```bash
 # run dev server with credentials passed in via environment variables
@@ -64,6 +70,8 @@ BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx s
 
 Basic interactions with Home Assistant, in the form of a terminal app.
 Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
+
+[<img src="./apps/hass-cli/docs/example.png" height=400>](./apps/hass-cli/docs/example.png)
 
 ### [Hass Type Generate](apps/hass-type-generate)
 
@@ -80,7 +88,6 @@ yarn add -D @steggy/hass-type-generate
 # execute
 npx hass-type-generate
 ```
-
 
 ### [Log Formatter](apps/log-formatter)
 
