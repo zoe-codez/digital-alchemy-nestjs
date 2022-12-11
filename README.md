@@ -34,7 +34,7 @@ DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
 
 ```bash
 # install config builder, plus compatible app
-yarn add -D @steggy/hass-type-generate @steggy/config-builder
+yarn add -D @steggy/config-builder @steggy/hass-type-generate
 # output configuration to file
 npx hass-type-generate --scan-config > ./config.json
 # launch script
@@ -43,6 +43,8 @@ npx config-builder --definition_file ./config.json
 
 A script to manage file based configurations for applications based off `@steggy/boilerplate`.
 It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
+
+<img src="./apps/config-builder/docs/example.png" height=600>
 
 ### [Sampler App](apps/sampler-app)
 
@@ -78,6 +80,7 @@ yarn add -D @steggy/hass-type-generate
 # execute
 npx hass-type-generate
 ```
+
 
 ### [Log Formatter](apps/log-formatter)
 
