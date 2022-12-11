@@ -17,11 +17,9 @@ import {
   APIResponse,
   QUERY_HEADER,
   ResponseLocals,
-  USERAGENT_HEADER,
 } from "../contracts";
 
 let currentRequestId = 0;
-const OK = 200;
 const INCREMENT = 1;
 /**
  * - Set up defaults on request locals
@@ -42,9 +40,6 @@ export class InitMiddleware implements NestMiddleware {
     locals.headers ??= new Map(
       Object.entries(request.headers as Record<string, string>),
     );
-    if (this.isHealthCheck(locals, request.res)) {
-      return;
-    }
     currentRequestId = (currentRequestId + INCREMENT) % this.rollover;
     const logger = (AutoLogService.logger as pino.Logger).child({
       id: currentRequestId,
@@ -63,26 +58,6 @@ export class InitMiddleware implements NestMiddleware {
       this.mergeQueryHeader(locals);
       next();
     });
-  }
-
-  /**
-   * Cut off automated health checks.
-   *
-   * Server identifies as fine, no reason to expend extra resources
-   */
-
-  private isHealthCheck(
-    { headers }: ResponseLocals,
-    response: APIResponse,
-  ): boolean {
-    const header = headers.get(USERAGENT_HEADER) ?? "";
-    if (header.includes("ELB-HealthChecker")) {
-      response.status(OK).send({
-        status: "Ok",
-      });
-      return true;
-    }
-    return false;
   }
 
   private mergeQueryHeader({ headers, control }: ResponseLocals): void {

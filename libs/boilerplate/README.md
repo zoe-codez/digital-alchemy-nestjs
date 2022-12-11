@@ -49,12 +49,12 @@ import { ApplicationModule } from "@steggy/boilerplate";
   imports: [...],
   providers: [...]
 })
-export class ApplicationModule {}
+export class MyApplication {}
 
 // Provide different bootstrapping options based on build environment files
-Bootstrap(ApplicationModule, {
+Bootstrap(MyApplication, {
   config: { ... },
-  http: true,
+  http: false,
   prettyLog: true
 })
 ```

@@ -1,9 +1,9 @@
 # 🦕 [@steggy](https://github.com/mp3three/steggy) monorepo
 
-## Description
-
 `@steggy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
 It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
+
+The primary focus of this library is non-web applications, such as terminal apps, home automation services, and other standalone microservices.
 
 ## Local Setup (try things out!)
 

@@ -6,6 +6,7 @@ import {
 } from "@steggy/boilerplate";
 import compression from "compression";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import csurf from "csurf";
 import { Express, json } from "express";
 import { readFileSync } from "fs";
@@ -61,12 +62,16 @@ export class MiddlewareService {
       this.logger.error(`http disabled`);
       return;
     }
-    app.use(helmet());
+    app.use(helmet(), cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
     if (this.csurf) {
       this.logger.debug(`Using [csurf] middleware`);
-      app.use(cookieParser(), csurf());
+      app.use(csurf());
+    }
+    if (this.cors) {
+      this.logger.debug(`Using [cors] middleware`);
+      app.use(cors());
     }
     if (this.compression) {
       this.logger.debug(`Using [compression] middleware`);

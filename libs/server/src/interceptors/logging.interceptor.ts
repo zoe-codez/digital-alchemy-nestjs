@@ -26,10 +26,6 @@ export class LoggingInterceptor implements NestInterceptor {
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
       tap(response => {
-        if (this.ignorePath(request.path)) {
-          // Request counter is still incremented, even if no logs are ever printed for request
-          return response;
-        }
         if (locals.authMethod) {
           extra.auth = locals.authMethod;
         }
@@ -55,9 +51,5 @@ export class LoggingInterceptor implements NestInterceptor {
         return throwError(() => error);
       }),
     );
-  }
-
-  private ignorePath(path: string): boolean {
-    return ["/health"].some(string_ => path.endsWith(string_));
   }
 }

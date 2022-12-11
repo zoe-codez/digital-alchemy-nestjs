@@ -20,7 +20,6 @@ import {
   SSL_PORT,
   SWAGGER_PATH,
 } from "../config";
-import { GenericController } from "../controllers";
 import { BasicExceptionFilter } from "../filters";
 import { AdminKeyGuard, BasicAuthGuard, IsAuthorizedGuard } from "../guards";
 import { JSONFilterInterceptor, LoggingInterceptor } from "../interceptors";
@@ -111,14 +110,12 @@ import {
       type: "string",
     },
   },
-  controllers: [GenericController],
   exports: [RouteInjector, SwaggerService],
   library: LIB_SERVER,
   providers: [
     AdminKeyGuard,
     BasicAuthGuard,
     BasicExceptionFilter,
-    GenericController,
     InitMiddleware,
     IsAuthorizedGuard,
     JSONFilterInterceptor,
