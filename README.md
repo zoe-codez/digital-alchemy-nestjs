@@ -46,7 +46,9 @@ node ./your_script.js --scan-config > ./config.json
 npx config-builder --definition_file ./config.json
 ```
 
-[<img src="./apps/config-builder/docs/example.png" height=400>](./apps/config-builder/docs/example.png)
+| Edit variables | Audit setup |
+| --- | --- |
+| [<img src="./apps/config-builder/docs/example.png" height=400>](./apps/config-builder/docs/example.png) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
 
 ### [Sampler App](apps/sampler-app) (active development)
 

@@ -216,7 +216,8 @@
       "controller-backup": "ini",
       "build-pipeline": "ini",
       "home-controller": "ini",
-      "home-cli": "ini",
+      "hass-cli": "ini",
+      "hass-type-generate": "ini",
       "pico-relay": "ini",
       "config-builder": "ini",
       "devtools": "ini"
