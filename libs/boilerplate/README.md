@@ -204,4 +204,5 @@ Implemented for use with the `config-builder` app
 node ./dist/apps/sampler-app/main.js --config /path/to/config/file
 ```
 
-Request the configuration system use the file as the exclusive configuration source.
+If provided, the automatic configuration file lookup & merge process will be skipped in favor of loading this single file.
+All rules relating to environment variables and other command line switches will operate normally.

@@ -1,12 +1,88 @@
 # 🦕 [@steggy](https://github.com/mp3three/steggy) monorepo
 
-`@steggy` is a set of libraries built on top of the [nestjs](https://nestjs.com/) framework.
-It provides a quick bootstrapping interface, which provides:
+## Description
 
-- Injectable configurations
-- Context aware logging
-- Additional lifecycle events
-- Specialized eventing annotations
+`@steggy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
+It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
+
+## Local Setup (try things out!)
+
+> `@steggy` targets node 16+
+
+```bash
+# Check out code
+git clone git@github.com:mp3three/steggy.git
+cd ./steggy
+# Install node modules
+yarn
+```
+
+## Applications
+
+### [Config Builder](apps/config-builder)
+
+> In repo example
+
+```bash
+# generate example config
+npx nx scan-config sampler-app
+# run config-builder with config
+DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
+```
+
+> Standalone example
+
+```bash
+# install config builder, plus compatible app
+yarn add -D @steggy/hass-type-generate @steggy/config-builder
+# output configuration to file
+npx hass-type-generate --scan-config > ./config.json
+# launch script
+npx config-builder --definition_file ./config.json
+```
+
+A script to manage file based configurations for applications based off `@steggy/boilerplate`.
+It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
+
+### [Sampler App](apps/sampler-app)
+
+```bash
+# run dev server
+npx nx serve sampler-app
+```
+
+Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
+
+### [Hass CLI](apps/hass-cli)
+
+```bash
+# run dev server with credentials passed in via environment variables
+BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx serve hass-cli
+```
+
+Basic interactions with Home Assistant, in the form of a terminal app.
+Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
+
+### [Hass Type Generate](apps/hass-type-generate)
+
+> Note: requires credentials for home assistant, best practice is to store in `~/.config/hass-type-generate`
+
+Companion application to `@steggy/home-assistant`. Intended to rewrite library type definitions to match a specific home assistant install.
+Has no function from within this repo, must be installed as a node_module in a separate repo to have an effect.
+`@steggy/home-assistant` will run this script as a post install hook to keep it's own definitions as up to date as possible.
+It can also be run manually as needed.
+
+```bash
+# install
+yarn add -D @steggy/hass-type-generate
+# execute
+npx hass-type-generate
+```
+
+### [Log Formatter](apps/log-formatter)
+
+Pipe JSON logs in via stdin, get pretty/readable logs out.
+Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo so logs will format the same as during development.
 
 ## Libraries
 
@@ -46,29 +122,3 @@ Utilities for creating terminal applications.
 Enables the `--help` switch, which will output available configuations that can be sent via command line switches.
 
 > Note: switches are accepted without TTY, this just adds a reporting mechanism
-
-## Applications
-
-### [Config Builder](apps/config-builder)
-
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
-It can act as a "settings screen" for applications, outputting either environment variables, or valid config file locations.
-
-### [Log Formatter](apps/log-formatter)
-
-Pipe JSON logs in via stdin, get pretty/readable logs out.
-Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo so logs will format the same as during development.
-
-### [Sampler App](apps/sampler-app)
-
-Demonstration of the capabilities of the TTY library.
-
-### [Hass CLI](apps/hass-cli)
-
-Basic interactions with Home Assistant, in the form of a terminal app.
-Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
-
-### [Hass Type Generate](apps/hass-type-generate)
-
-Companion application to `@steggy/home-assisant`. Intended to rewrite library type definitions to match a specific home assistant install.
-Installed separately from the library.

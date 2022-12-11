@@ -8,7 +8,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Attach",
+        "name": "Attach Hass CLI",
         "port": 33342,
         "request": "attach",
         "skipFiles": [
@@ -19,6 +19,15 @@
       {
         "name": "Attach Sampler App",
         "port": 33343,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
+        "name": "Attach Config Builder",
+        "port": 33340,
         "request": "attach",
         "skipFiles": [
           "<node_internals>/**"

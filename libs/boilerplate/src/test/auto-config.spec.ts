@@ -171,6 +171,7 @@ describe("AutoConfig", () => {
   describe("Value Priority Resolution", () => {
     beforeEach(() => {
       delete env.STRING_CONFIG;
+      delete env.string_config;
       AutoConfigService.setSwitches(argv);
     });
 
@@ -289,6 +290,52 @@ describe("AutoConfig", () => {
 
     it("prioritizes environment variables over file configurations", async () => {
       env.STRING_CONFIG = "environment string";
+      const app = await Test.createTestingModule({
+        application: Symbol("auto-config-test"),
+        bootstrap: {
+          config: {
+            application: {
+              STRING_CONFIG: "override value",
+            },
+          },
+        },
+        configuration: {
+          STRING_CONFIG: {
+            default: "default_value",
+            type: "string",
+          },
+        },
+        providers: [InjectionModuleTest],
+      }).compile();
+      const service = app.get(InjectionModuleTest);
+      expect(service.string).toBe("environment string");
+    });
+
+    it("prioritizes environment variables over file configurations with inline definitions", async () => {
+      env.STRING_CONFIG = "environment string";
+      const app = await Test.createTestingModule({
+        application: Symbol("auto-config-test"),
+        bootstrap: {
+          config: {
+            application: {
+              STRING_CONFIG: "override value",
+            },
+          },
+        },
+        configuration: {
+          STRING_CONFIG: {
+            default: "default_value",
+            type: "string",
+          },
+        },
+        providers: [InjectionInlineTest],
+      }).compile();
+      const service = app.get(InjectionInlineTest);
+      expect(service.string).toBe("environment string");
+    });
+
+    it("prioritizes environment variables over file configurations with different formatting", async () => {
+      env.string_config = "environment string";
       const app = await Test.createTestingModule({
         application: Symbol("auto-config-test"),
         bootstrap: {

@@ -16,6 +16,7 @@ import {
   AnyConfig,
   BaseConfig,
   CONFIG_DEFAULTS,
+  CONSUMES_CONFIG,
   LOGGER_LIBRARY,
   MODULE_METADATA,
   SKIP_CONFIG_INIT,
@@ -93,8 +94,9 @@ export class AutoConfigService {
           ? ["application", path[VALUE]].join(".")
           : ["libs", path[LABEL].description, path[VALUE]].join(".");
     }
-    const value =
-      get(this.config, path) ?? this.getConfiguration(path)?.default;
+    const current = get(this.config, path);
+    const defaultValue = this.getConfiguration(path)?.default;
+    const value = current ?? defaultValue;
     const config = this.getConfiguration(path);
 
     return this.cast(value, config?.type ?? "string") as T;
@@ -271,9 +273,7 @@ export class AutoConfigService {
       const environmentPrefix = isApplication
         ? "application"
         : `libs_${cleanedProject}`;
-      const configPrefix = isApplication
-        ? "application"
-        : `libs.${cleanedProject}`;
+      const configPrefix = isApplication ? "application" : `libs.${project}`;
       Object.keys(configuration).forEach(key => {
         const noAppPath = `${environmentPrefix}_${key}`;
         const search = [noAppPath, key];
@@ -359,10 +359,21 @@ export class AutoConfigService {
         if (!ctor || is.undefined(ctor[MODULE_METADATA])) {
           return;
         }
-        const { configuration } = ctor[
+        const { configuration = {}, providers = [] } = ctor[
           MODULE_METADATA
         ] as LibraryModuleMetadata;
-        this.configDefinitions.set(ctor[LOGGER_LIBRARY], configuration);
+        const library = ctor[LOGGER_LIBRARY];
+        providers.forEach(provider => {
+          const list = (provider[CONSUMES_CONFIG] ?? []) as [string, symbol][];
+          list.forEach(([name, library]) => {
+            if (library) {
+              return;
+            }
+            const config = MESSY_INJECTED_CONFIGS.get(name);
+            configuration[name] ??= config;
+          });
+        });
+        this.configDefinitions.set(library, configuration);
       },
     );
   }

@@ -45,15 +45,6 @@
           "extractLicenses": false,
           "inspect": false,
           "fileReplacements": []
-        },
-        "scan-config": {
-          "outputPath": "dist/scan-config/hass-cli",
-          "fileReplacements": [
-            {
-              "replace": "apps/hass-cli/src/environments/environment.ts",
-              "with": "apps/hass-cli/src/environments/scanner.environment.ts"
-            }
-          ]
         }
       }
     },
@@ -98,11 +89,11 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build hass-cli --configuration=scan-config",
+            "command": "npx nx build hass-cli --configuration=production",
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/scan-config/hass-cli/main.js > dist/configs/hass-cli.json",
+            "command": "mkdir -p dist/configs; node dist/scan-config/hass-cli/main.js --scan-config > dist/configs/hass-cli.json",
             "description": "Scan config, output to dist"
           }
         ]

@@ -10,6 +10,7 @@
   },
   "exclude": [
     "**/*.spec.ts",
+    "../../libs/testing/**/*.ts",
     "../../**/*.spec.ts",
   ],
   "include": [
