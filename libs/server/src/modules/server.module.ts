@@ -9,7 +9,6 @@ import {
   BODY_SIZE,
   COMPRESSION,
   CORS,
-  CSURF,
   GLOBAL_PREFIX,
   HIDE_VERSION,
   LIB_SERVER,
@@ -35,7 +34,7 @@ import {
   configuration: {
     [ADMIN_KEY]: {
       description:
-        "Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized as an admin",
+        "Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized",
       type: "string",
     },
     [AUTH_BYPASS]: {
@@ -67,11 +66,6 @@ import {
       description:
         "CORS origin for the server. Set to blank to disable middleware",
       type: "string",
-    },
-    [CSURF]: {
-      default: false,
-      description: "Enable the CSURF middleware",
-      type: "boolean",
     },
     [GLOBAL_PREFIX]: {
       description:

@@ -20,50 +20,44 @@ export class PickManyService {
     private readonly text: TextRenderingService,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
-    this.application.setHeader("List Builder");
-    const action = await this.prompt.menu({
-      condensed: true,
-      right: [
-        { entry: ["default"] },
-        { entry: ["some selected", "selected"] },
-        { entry: ["custom label", "label"] },
-      ],
-    });
-    const source = PEAT(LIST_LENGTH).map(i => {
+  /**
+   * FIXME: this needs to have duplicates removed, the whole thing is a mess here
+   */
+  private get source(): MainMenuEntry<string>[] {
+    return PEAT(LIST_LENGTH).map(() => {
       const element = faker.science.chemicalElement();
       return {
-        entry: [element.name, `${i}`],
+        entry: [element.name, element.symbol],
         helpText:
           Math.random() > HALF
             ? `${element.atomicNumber} ${element.symbol}`
             : undefined,
       } as MainMenuEntry<string>;
     });
-    let result: string[];
-    switch (action) {
-      case "default":
-        result = await this.prompt.pickMany({
-          source,
-        });
-        break;
-      case "selected":
-        result = await this.prompt.pickMany({
-          current: PEAT(LIST_LENGTH).map(i => {
-            const element = faker.science.chemicalElement();
-            return {
-              entry: [element.name, `${i}`],
-              helpText: `${element.atomicNumber} ${element.symbol}`,
-            } as MainMenuEntry<string>;
-          }),
-          source,
-        });
-        break;
-      case "label":
-        const items = await this.prompt.string({ label: "Label" });
-        result = await this.prompt.pickMany({ items, source });
-        break;
-    }
+  }
+
+  public async defaultOperation(): Promise<void> {
+    this.application.setHeader("List Builder");
+    const result = await this.prompt.pickMany({
+      source: [...this.source, ...this.source],
+    });
+    this.screen.printLine(this.text.type(result));
+    await this.prompt.acknowledge();
+  }
+
+  public async someSelected(): Promise<void> {
+    this.application.setHeader("List Builder");
+    const source = this.source;
+    const result = await this.prompt.pickMany({
+      current: PEAT(LIST_LENGTH).map(() => {
+        const element = faker.science.chemicalElement();
+        return {
+          entry: [element.name, element.symbol],
+          helpText: `${element.atomicNumber} ${element.symbol}`,
+        } as MainMenuEntry<string>;
+      }),
+      source,
+    });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }

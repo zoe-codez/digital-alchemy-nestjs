@@ -16,7 +16,7 @@ import {
   ConfigSampler,
   ConfirmService,
   DateService,
-  MenuSampler,
+  ItemGeneratorService,
   MenuService,
   ObjectService,
   PickManyService,
@@ -38,8 +38,8 @@ import {
     ConfigSampler,
     ConfirmService,
     DateService,
-    MenuSampler,
     MenuService,
+    ItemGeneratorService,
     ObjectService,
     PickManyService,
     StringService,
@@ -53,10 +53,11 @@ export class SamplerApp {
     private readonly boolean: BooleanService,
     private readonly configSampler: ConfigSampler,
     private readonly date: DateService,
-    private readonly menu: MenuSampler,
+    private readonly menu: MenuService,
     private readonly object: ObjectService,
     private readonly pickMany: PickManyService,
     private readonly prompt: PromptService,
+    private readonly string: StringService,
     private readonly screen: ScreenService,
   ) {}
 
@@ -71,10 +72,6 @@ export class SamplerApp {
           highlight: "auto",
         },
         escape: ["done"],
-        p: {
-          entry: ["prompts"],
-          highlight: "auto",
-        },
       },
       left: [
         {
@@ -117,13 +114,31 @@ export class SamplerApp {
           type: "Date",
         },
         {
-          entry: ["Basic", "pick_many_basic"],
+          entry: ["Default operation", "pick_many_basic"],
           helpText: chalk`Pick many items out of a source list.`,
           type: "Pick Many",
         },
         {
-          entry: ["Sampler", "menu_sampler"],
-          helpText: chalk`General workhorse component. Highly configurable`,
+          entry: ["Some selected", "pick_many_selected"],
+          helpText: chalk`Pick many items out of a source list.\nSome are selected by default`,
+          type: "Pick Many",
+        },
+        {
+          entry: ["Configurable", "menu_configurable"],
+          helpText: `Build your own example menu`,
+          type: "Menu",
+        },
+        {
+          entry: ["Async", "menu_async"],
+          helpText: [
+            `Run code in the background, while still keeping the menu rendered.`,
+            `Return response messages to console`,
+          ].join(`\n`),
+          type: "Menu",
+        },
+        {
+          entry: ["Advanced", "menu_advanced"],
+          helpText: `A complex usage example. Utilizes font awesome icons`,
           type: "Menu",
         },
         {
@@ -132,7 +147,12 @@ export class SamplerApp {
           type: "Object Builder",
         },
         {
-          entry: ["Basic", "string"],
+          entry: ["Default options", "string_basic"],
+          helpText: "Request text from the user",
+          type: "String",
+        },
+        {
+          entry: ["Configurable", "string_configurable"],
           helpText: "Request text from the user",
           type: "String",
         },
@@ -164,19 +184,34 @@ export class SamplerApp {
       case "date_basic":
         await this.date.basicInteraction();
         break;
-      case "menu_sampler":
-        await this.menu.exec();
+      case "menu_configurable":
+        await this.menu.configurable();
+        break;
+      case "menu_advanced":
+        await this.menu.advanced();
+        break;
+      case "menu_async":
+        await this.menu.async();
         break;
       case "object_builder_basic":
         await this.object.basicInteraction();
         break;
       case "pick_many_basic":
-        await this.pickMany.basicInteraction();
+        await this.pickMany.defaultOperation();
+        break;
+      case "pick_many_selected":
+        await this.pickMany.someSelected();
         break;
       case "done":
         return;
       case "config":
         await this.configSampler.exec();
+        break;
+      case "string_basic":
+        await this.string.basicInteraction();
+        break;
+      case "string_configurable":
+        await this.string.fullyConfigurable();
         break;
     }
     return await this.exec(action);

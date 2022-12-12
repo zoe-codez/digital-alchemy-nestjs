@@ -7,7 +7,6 @@ import {
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import csurf from "csurf";
 import { Express, json } from "express";
 import { readFileSync } from "fs";
 import helmet from "helmet";
@@ -18,7 +17,6 @@ import {
   BODY_SIZE,
   COMPRESSION,
   CORS,
-  CSURF,
   GLOBAL_PREFIX,
   PORT,
   SSL_CERT,
@@ -47,7 +45,6 @@ export class MiddlewareService {
     @InjectConfig(SSL_CERT)
     private readonly sslCert: string,
     @InjectConfig(CORS) private readonly cors: string,
-    @InjectConfig(CSURF) private readonly csurf: boolean,
   ) {}
 
   protected onPostInit(
@@ -65,10 +62,6 @@ export class MiddlewareService {
     app.use(helmet(), cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
-    if (this.csurf) {
-      this.logger.debug(`Using [csurf] middleware`);
-      app.use(csurf());
-    }
     if (this.cors) {
       this.logger.debug(`Using [cors] middleware`);
       app.use(cors());

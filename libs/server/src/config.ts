@@ -5,7 +5,6 @@ export const BASIC_AUTH_USERNAME = "BASIC_AUTH_USERNAME";
 export const BODY_SIZE = "BODY_SIZE";
 export const COMPRESSION = "COMPRESSION";
 export const CORS = "CORS";
-export const CSURF = "CSURF";
 export const GLOBAL_PREFIX = "GLOBAL_PREFIX";
 export const HIDE_VERSION = "HIDE_VERSION";
 export const MAX_REQUEST_ID = "MAX_REQUEST_ID";
