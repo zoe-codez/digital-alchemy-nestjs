@@ -14,8 +14,10 @@ import {
   TextRenderingService,
   TTY,
 } from "@steggy/tty";
-import { is, PEAT, SECOND, SINGLE, sleep, TitleCase } from "@steggy/utilities";
+import { is, PEAT, SECOND, SINGLE, sleep } from "@steggy/utilities";
 import chalk from "chalk";
+
+import { ItemGeneratorService } from "./item-generator.service";
 
 type tMenuOptions = MenuComponentOptions & {
   generateCount: number;
@@ -81,6 +83,7 @@ export class MenuService {
     private readonly prompt: PromptService,
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,
+    private readonly generator: ItemGeneratorService,
   ) {}
 
   private hiddenTypes: string[] = [];
@@ -97,7 +100,6 @@ export class MenuService {
     showHeaders: true,
     showHelp: true,
   };
-  private storedValues: string[] = [];
 
   public async advanced(value?: AdvancedMenuResult): Promise<void> {
     this.application.setHeader("Advanced Example");
@@ -329,13 +331,13 @@ export class MenuService {
       optionsLeft === FakerSources.none
         ? undefined
         : PEAT(generateCount).map(i =>
-            this.generateMenuItem(optionsLeft, `left-${i}`),
+            this.generator.generateMenuItem(optionsLeft, `left-${i}`),
           );
     const right: MainMenuEntry[] =
       optionsRight === FakerSources.none
         ? undefined
         : PEAT(generateCount).map(i =>
-            this.generateMenuItem(optionsRight, `right-${i}`),
+            this.generator.generateMenuItem(optionsRight, `right-${i}`),
           );
     const message = template(headerMessage as string);
     const result = await this.prompt.menu({
@@ -385,49 +387,5 @@ export class MenuService {
     });
     this.screen.printLine(result);
     await this.prompt.acknowledge();
-  }
-
-  private generateMenuItem(
-    labelType: FakerSources,
-    value: unknown,
-  ): MainMenuEntry {
-    let label: string;
-    let type: string = labelType;
-    switch (labelType) {
-      case FakerSources.bikes:
-        label = faker.vehicle.bicycle();
-        break;
-      case FakerSources.filePath:
-        label = faker.system.filePath();
-        break;
-      case FakerSources.vin:
-        label = faker.vehicle.vin();
-        break;
-      case FakerSources.product:
-        label = faker.commerce.productName();
-        break;
-      case FakerSources.address:
-        label = faker.address.streetAddress();
-        break;
-      case FakerSources.animal:
-        const keys = Object.keys(faker.animal).filter(
-          i => is.function(faker.animal[i]) && !["type"].includes(i),
-        );
-        const animalType = keys[Math.floor(Math.random() * keys.length)];
-        label = faker.animal[animalType]();
-        type = animalType;
-        break;
-    }
-
-    return {
-      entry: [label, value],
-      helpText: is.random([
-        faker.hacker.phrase(),
-        faker.company.bs(),
-        faker.company.catchPhrase(),
-        faker.commerce.productDescription(),
-      ]),
-      type: TitleCase(type),
-    };
   }
 }

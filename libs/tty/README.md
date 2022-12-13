@@ -11,7 +11,8 @@ High level overview
 ### `SyncLoggerService`
 
 Same as `AutoLogService`, but will output directly to the console.
-AutoLog utilizes `pino`, which will not necessarily output logs in order when they happen rapidly.
+AutoLog utilizes `pino` + an internal formatter, which will not always print to screen as quickly as expected, causing rendering race conditions.
+`SyncLogger` will help to enforce order of operations
 
 ### `ApplicationManagerService`
 

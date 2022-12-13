@@ -1,6 +1,5 @@
 export * from "./config";
 export * from "./contracts";
-export * from "./controllers";
 export * from "./decorators";
 export * from "./guards";
 export * from "./interceptors";

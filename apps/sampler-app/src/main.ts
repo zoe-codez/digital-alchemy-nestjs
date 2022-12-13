@@ -4,7 +4,6 @@ import { QuickScript } from "@steggy/boilerplate";
 import {
   ApplicationManagerService,
   PromptService,
-  ScreenService,
   TTYModule,
 } from "@steggy/tty";
 import chalk from "chalk";
@@ -58,7 +57,6 @@ export class SamplerApp {
     private readonly pickMany: PickManyService,
     private readonly prompt: PromptService,
     private readonly string: StringService,
-    private readonly screen: ScreenService,
   ) {}
 
   public async exec(value?: string): Promise<void> {
@@ -102,7 +100,7 @@ export class SamplerApp {
           type: "Confirm",
         },
         {
-          entry: ["Basic", "date_basic"],
+          entry: ["Configurable", "date_configurable"],
           helpText: chalk`Has support for {bold chrono-node} text parsing.\nDate modes: ${[
             "date",
             "time",
@@ -111,6 +109,11 @@ export class SamplerApp {
           ]
             .map(i => chalk.cyan(i))
             .join(", ")}`,
+          type: "Date",
+        },
+        {
+          entry: ["Basic", "date_basic"],
+          helpText: chalk`No options date prompt`,
           type: "Date",
         },
         {
@@ -182,7 +185,10 @@ export class SamplerApp {
         await this.boolean.basicInteraction();
         break;
       case "date_basic":
-        await this.date.basicInteraction();
+        await this.date.basic();
+        break;
+      case "date_configurable":
+        await this.date.configurable();
         break;
       case "menu_configurable":
         await this.menu.configurable();
