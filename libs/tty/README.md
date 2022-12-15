@@ -70,8 +70,8 @@ Build a date/time from user input. Can accept date in fuzzy formats, and granula
 
 | Image | Description |
 | --- | --- |
-| ![img](./docs/date_fuzzy.png) | Fuzzy input method |
-| ![img](./docs/date_granular.png) | Granular input method |
+| <img src="./recordings/date_fuzzy.gif" width="350"> | Fuzzy input method |
+| <img src="./recordings/date_granular.gif" width="350"> | Granular input method |
 
 ### **Menu**
 
@@ -98,10 +98,7 @@ Select options out of a list.
 
 Request text from the user
 
-| Image | Description |
-| --- | --- |
-| ![img](./docs/string_empty.png) | Placeholder text |
-| ![img](./docs/string_empty.png) | With content |
+<img src="./recordings/string.gif" width="450">
 
 ## Configuration options
 
