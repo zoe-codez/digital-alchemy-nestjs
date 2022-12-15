@@ -48,7 +48,7 @@ npx config-builder --definition_file ./config.json
 
 | Edit variables | Audit setup |
 | --- | --- |
-| [<img src="./apps/config-builder/recordings/sampler_app.gif" height=400>](./apps/config-builder/docs/example.png) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
+| [<img src="./apps/config-builder/recordings/sampler_app.gif" height=400>](./apps/config-builder/recordings/sampler_app.gif) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
 
 ### [Sampler App](apps/sampler-app) (active development)
 
@@ -61,7 +61,7 @@ npx nx serve sampler-app
 
 | Table based object builder | Complex menu based interfaces |
 | --- | --- |
-|[<img src="./apps/sampler-app/docs/options.png" height=400>](./apps/sampler-app/docs/options.png)|[<img src="./apps/sampler-app/docs/result.png" height=400>](./apps/sampler-app/docs/result.png)
+|[<img src="./apps/sampler-app/recordings/object_builder.gif" height=400>](./apps/sampler-app/recordings/object_builder.gif)|[<img src="./apps/sampler-app/docs/result.png" height=400>](./apps/sampler-app/docs/result.png)
 
 ### [Hass CLI](apps/hass-cli) (active development)
 
