@@ -1,0 +1,160 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: zsh
+
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: null
+
+  # Export additional ENV variables
+  env:
+    recording: true
+
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 50
+
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 15
+
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+
+  # Quality
+  # 1 - 100
+  quality: 100
+
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 500
+
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: null
+    title: null
+    style:
+      border: 0px black solid
+      backgroundColor: "#202223"
+      boxShadow: none
+      margin: 0px
+
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+
+  # The size of the font
+  fontSize: 12
+
+  # The height of lines
+  lineHeight: 1
+
+  # The spacing between letters
+  letterSpacing: 0
+
+  # Theme
+  theme:
+    background: "#202223"
+    foreground: "#fcfcfc"
+    cursor: "#c7c7c7"
+    black: "#232627"
+    red: "#ed1515"
+    green: "#11d116"
+    yellow: "#f67400"
+    blue: "#1d99f3"
+    magenta: "#9b59b6"
+    cyan: "#1abc9c"
+    white: "#fcfcfc"
+    brightBlack: "#7f8c8d"
+    brightRed: "#c0392b"
+    brightGreen: "#1cdc9a"
+    brightYellow: "#fdbc4b"
+    brightBlue: "#3daee9"
+    brightMagenta: "#8e44ad"
+    brightCyan: "#16a085"
+    brightWhite: "#ffffff"
+
+# Records, feel free to edit them
+records:
+  - delay: 892
+    content: "\e[?25l\r\n"
+  - delay: 215
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G \r\n \e[34m\e[2m?\e[22m\e[39m No options date prompt \e[36m>\e[39m \e[35m\e[1m[Date]\e[22m\e[39m \e[34mBasic\e[39m\r\n\e[0f\e[2J\r\n  \e[35m░█▀▄░█▀█░▀█▀░█▀▀\e[39m\r\n  \e[35m░█░█░█▀█░░█░░█▀▀\e[39m\r\n  \e[35m░▀▀░░▀░▀░░▀░░▀▀▀\e[39m\r\n"
+  - delay: 25
+    content: "   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[44m\e[30m tomorrow at noon                             \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/15/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 4878
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m n\e[7m \e[27m                                           \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 195
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m ne\e[7m \e[27m                                          \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 288
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m nex\e[7m \e[27m                                         \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 306
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next\e[7m \e[27m                                        \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 235
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next \e[7m \e[27m                                       \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 228
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next f\e[7m \e[27m                                      \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 148
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next fr\e[7m \e[27m                                     \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 163
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next fri\e[7m \e[27m                                    \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 171
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next frid\e[7m \e[27m                                   \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 235
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next frida\e[7m \e[27m                                  \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1m\e[31mResolved value\e[39m\e[22m\r\n  \e[43m\e[30mCANNOT PARSE\e[39m\e[49m\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 303
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday\e[7m \e[27m                                 \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 179
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday \e[7m \e[27m                                \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 250
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday a\e[7m \e[27m                               \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 724
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday at\e[7m \e[27m                              \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 225
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday at \e[7m \e[27m                             \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 280
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday at 5\e[7m \e[27m                            \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 5:00:00 AM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 338
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday at 5p\e[7m \e[27m                           \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 12:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 260
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G   \e[36m>\e[39m \e[1mInput value\e[22m\r\n  \e[47m\e[30m next friday at 5pm\e[7m \e[27m                          \e[39m\e[49m\r\n  \r\n   \e[36m>\e[39m \e[1mResolved value\e[22m\r\n  12/23/2022, 5:00:00 PM\r\n\e[34m\e[2m==================================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mclear\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mgranular input\e[22m\e[39m\r\n"
+  - delay: 4275
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G\e[32m? \e[39m \e[1mDate: \e[22m12/23/2022, 5:00:00 PM\r\n\e[32m12/23/2022, 5:00:00 PM\e[39m\r\n\e[1mAny key to continue \e[22m\r\n"
+  - delay: 874
+    content: "\e[?2004l\r\r\n"

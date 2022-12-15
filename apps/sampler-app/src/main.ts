@@ -50,6 +50,7 @@ export class SamplerApp {
     private readonly application: ApplicationManagerService,
     private readonly array: ArrayService,
     private readonly boolean: BooleanService,
+    private readonly confirm: ConfirmService,
     private readonly configSampler: ConfigSampler,
     private readonly date: DateService,
     private readonly menu: MenuService,
@@ -95,7 +96,7 @@ export class SamplerApp {
           type: "Boolean",
         },
         {
-          entry: ["Basic", "confirm"],
+          entry: ["Basic", "confirm_basic"],
           helpText: "boolean, but different",
           type: "Confirm",
         },
@@ -204,6 +205,9 @@ export class SamplerApp {
         break;
       case "pick_many_basic":
         await this.pickMany.defaultOperation();
+        break;
+      case "confirm_basic":
+        await this.confirm.basicInteraction();
         break;
       case "pick_many_selected":
         await this.pickMany.someSelected();

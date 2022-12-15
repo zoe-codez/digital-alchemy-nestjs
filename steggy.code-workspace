@@ -228,20 +228,7 @@
       "**/.hg": true,
       "**/*vsix": true,
       "**/CVS": true,
-      "**/.DS_Store": true,
-      "SECURITY.md": true,
-      "**/node_modules": true,
-      "*tar": true,
-      "tmp": true,
-      "**/yarn-error.log": true,
-      "**/.pino-prettyrc": true,
-      "**/.browserslistrc": true,
-      "**/.yarnclean": true,
-      "LICENSE": true,
-      "**/.gitkeep": true,
-      "**/.babelrc": true,
-      "**/.prettierignore": true,
-      ".editorconfig": true
+      "**/.DS_Store": true
     },
     "prettier.arrowParens": "avoid",
     // * <Decorative>

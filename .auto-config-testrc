@@ -1,2 +1,4 @@
+; Keep this file, used with unit testing for libs/boilerplate
+
 [application]
   STRING_CONFIG=from rc file

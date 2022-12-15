@@ -1,0 +1,178 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: zsh
+
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: null
+
+  # Export additional ENV variables
+  env:
+    recording: true
+
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 50
+
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 15
+
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+
+  # Quality
+  # 1 - 100
+  quality: 100
+
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 500
+
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: null
+    title: null
+    style:
+      border: 0px black solid
+      backgroundColor: "#202223"
+      boxShadow: none
+      margin: 0px
+
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+
+  # The size of the font
+  fontSize: 12
+
+  # The height of lines
+  lineHeight: 1
+
+  # The spacing between letters
+  letterSpacing: 0
+
+  # Theme
+  theme:
+    background: "#202223"
+    foreground: "#fcfcfc"
+    cursor: "#c7c7c7"
+    black: "#232627"
+    red: "#ed1515"
+    green: "#11d116"
+    yellow: "#f67400"
+    blue: "#1d99f3"
+    magenta: "#9b59b6"
+    cyan: "#1abc9c"
+    white: "#fcfcfc"
+    brightBlack: "#7f8c8d"
+    brightRed: "#c0392b"
+    brightGreen: "#1cdc9a"
+    brightYellow: "#fdbc4b"
+    brightBlue: "#3daee9"
+    brightMagenta: "#8e44ad"
+    brightCyan: "#16a085"
+    brightWhite: "#ffffff"
+
+# Records, feel free to edit them
+records:
+  - delay: 888
+    content: "\e[?25l\r\n"
+  - delay: 1681
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G\r\n\e[0f\e[2J\r\n  \e[35m░█▀▄░█▀█░▀█▀░█▀▀\e[39m\r\n  \e[35m░█░█░█▀█░░█░░█▀▀\e[39m\r\n  \e[35m░▀▀░░▀░▀░░▀░░▀▀▀\e[39m\r\n  \e[32m? \e[39m Enter date  \e[47m\e[30m2022\e[39m\e[49m-12-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 3211
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  \e[47m\e[30m2023\e[39m\e[49m-12-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 502
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  \e[47m\e[30m2024\e[39m\e[49m-12-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 626
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  \e[47m\e[30m2025\e[39m\e[49m-12-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 714
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m12\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 2187
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m11\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 197
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m10\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 375
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m11\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 318
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m12\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 907
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m11\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 180
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m10\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 147
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m09\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 144
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m08\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 164
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m07\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 155
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m06\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 660
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m05\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 40
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m04\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 40
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m03\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 41
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m02\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 40
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-\e[47m\e[30m01\e[39m\e[49m-15 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 969
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-\e[47m\e[30m15\e[39m\e[49m 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 1527
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-\e[47m\e[30m0 \e[39m\e[49m 10:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 75
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 \e[47m\e[30m10\e[39m\e[49m:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 2874
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 \e[47m\e[30m0 \e[39m\e[49m:48:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 160
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 00:\e[47m\e[30m48\e[39m\e[49m:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 306
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 00:\e[47m\e[30m0 \e[39m\e[49m:37\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 138
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 00:00:\e[47m\e[30m37\e[39m\e[49m\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 378
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 00:00:\e[47m\e[30m0 \e[39m\e[49m\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 138
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G  \e[32m? \e[39m Enter date  2025-01-01 00:00:\e[47m\e[30m00\e[39m\e[49m\r\n\e[34m\e[2m======================================\e[22m\e[39m\r\n \r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mdown\e[22m\e[39m    \e[90mdown\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2menter\e[22m\e[39m   \e[90mdone\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mescape\e[22m\e[39m  \e[90mreset\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mleft\e[22m\e[39m    \e[90mcursor left\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mright\e[22m\e[39m   \e[90mcursor right\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mtab\e[22m\e[39m     \e[90m\e[1mfuzzy input\e[22m\e[39m\r\n  \e[34m\e[2m> \e[22m\e[39m\e[33m\e[2mup\e[22m\e[39m      \e[90mup\e[39m\r\n"
+  - delay: 1016
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[1A\e[2K\e[G\e[32m? \e[39m \e[1mTime: \e[22m1/1/2025, 12:00:00 AM\r\n\e[32m1/1/2025, 12:00:00 AM\e[39m\r\n\e[1mAny key to continue \e[22m\r\n"
+  - delay: 1358
+    content: "\e[?2004l\r\r\n"

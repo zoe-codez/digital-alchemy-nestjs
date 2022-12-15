@@ -76,6 +76,7 @@ export class DateService {
         },
       ],
     });
+    this.application.setHeader("Date");
     const result = await this.prompt.date(options);
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();

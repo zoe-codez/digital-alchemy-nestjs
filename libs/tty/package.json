@@ -3,6 +3,13 @@
     "name": "mp3three",
     "url": "https://github.com/mp3three/steggy"
   },
+  "scripts": {
+    "record": "terminalizer record -c ./terminalizer.yml -k",
+    "play": "terminalizer play"
+  },
+  "devDependencies": {
+    "terminalizer": "^0.9.0"
+  },
   "name": "@steggy/tty",
   "license": "MIT",
   "version": "22.51.0",
