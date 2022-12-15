@@ -48,7 +48,7 @@ npx config-builder --definition_file ./config.json
 
 | Edit variables | Audit setup |
 | --- | --- |
-| [<img src="./apps/config-builder/docs/example.png" height=400>](./apps/config-builder/docs/example.png) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
+| [<img src="./apps/config-builder/recordings/sampler_app.gif" height=400>](./apps/config-builder/docs/example.png) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
 
 ### [Sampler App](apps/sampler-app) (active development)
 
