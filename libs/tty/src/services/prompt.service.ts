@@ -137,13 +137,13 @@ export class PromptService {
   /**
    * Menus, keyboard shortcuts, and general purpose tool
    */
-  public async menu<T extends unknown = string>(
-    options: MenuComponentOptions<T | string>,
-  ): Promise<T | string> {
+  public async menu<VALUE extends unknown = string>(
+    options: MenuComponentOptions<VALUE | string>,
+  ): Promise<VALUE | string> {
     options.keyMap ??= {};
     const result = await this.applicationManager.activateComponent<
-      MenuComponentOptions,
-      T
+      MenuComponentOptions<VALUE | string>,
+      VALUE
     >("menu", options);
     return result;
   }

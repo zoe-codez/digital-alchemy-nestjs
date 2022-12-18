@@ -60,7 +60,7 @@ export class SamplerApp {
     private readonly string: StringService,
   ) {}
 
-  public async exec(value?: string): Promise<void> {
+  public async exec(): Promise<void> {
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
       condensed: true,
@@ -162,6 +162,10 @@ export class SamplerApp {
         },
       ],
       leftHeader: "Editors",
+      restore: {
+        id: "SAMPLER_APP_MAIN",
+        type: "value",
+      },
       right: [
         {
           entry: ["Configuration", "config"],
@@ -170,7 +174,6 @@ export class SamplerApp {
         },
       ],
       rightHeader: "Configuration",
-      value,
     });
     switch (action) {
       case "acknowledge_default":
@@ -224,6 +227,6 @@ export class SamplerApp {
         await this.string.fullyConfigurable();
         break;
     }
-    return await this.exec(action);
+    await this.exec();
   }
 }

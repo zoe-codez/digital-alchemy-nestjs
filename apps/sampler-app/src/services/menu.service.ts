@@ -98,7 +98,6 @@ export class MenuService {
     optionsRight: FakerSources.filePath,
     rightHeader: "",
     showHeaders: true,
-    showHelp: true,
   };
 
   public async advanced(value?: AdvancedMenuResult): Promise<void> {
@@ -155,6 +154,11 @@ export class MenuService {
       keyMapCallback,
       left,
       leftHeader: chalk`Options ({gray ${left.length}} / {gray ${PRE_GENERATED_MENU.length}})`,
+      restore: {
+        id: "",
+        idProperty: "type",
+        type: "value",
+      },
       right: [...types],
       rightHeader: "Filters",
       value,
@@ -281,12 +285,6 @@ export class MenuService {
           name: "Right Header",
           path: "rightHeader",
           type: "string",
-        },
-        {
-          helpText: "Allow showing of help text with this menu (default true)",
-          name: "Show Help",
-          path: "showHelp",
-          type: "boolean",
         },
         {
           helpText: "Display column headers",

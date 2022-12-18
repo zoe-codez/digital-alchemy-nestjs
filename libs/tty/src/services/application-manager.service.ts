@@ -40,14 +40,14 @@ export class ApplicationManagerService implements iStackProvider {
     this.reset();
     const old = this.activeApplication;
     const out = await this.keyboard.wrap<VALUE>(async () => {
-      const promise = new Promise<VALUE>(done => {
+      const promise = new Promise<VALUE>(async done => {
         const component = this.componentExplorer.findServiceByType<
           CONFIG,
           VALUE
         >(name);
         // There needs to be more type work around this
         // It's a disaster
-        component.configure(configuration, value => {
+        await component.configure(configuration, value => {
           done(value as VALUE);
         });
         this.activeApplication = component;

@@ -1,4 +1,5 @@
 import { forwardRef, Inject } from "@nestjs/common";
+import { CacheManagerService, InjectCache } from "@steggy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -19,6 +20,9 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
+import deepEqual from "deep-equal";
+import { get } from "object-path";
+import { nextTick } from "process";
 
 import {
   DirectCB,
@@ -94,21 +98,42 @@ function isAdvanced<VALUE = string>(
 }
 
 export type KeyMap<VALUE = string> = Record<string, KeymapOptions<VALUE>>;
+export type MenuPosition = ["left" | "right", number];
+type MenuRestoreCacheData<VALUE = unknown> = {
+  position: MenuPosition;
+  value: VALUE;
+};
+
+export type MenuRestore<VALUE = unknown> = {
+  id: string;
+} & (
+  | {
+      // position?: MenuPosition;
+      type: "position";
+    }
+  | {
+      /**
+       * When comparing objects, use the provided property to do comparisons instead of strictly comparing the entire object.
+       */
+      idProperty?: Extract<keyof Extract<VALUE, object>, string>;
+      type: "value";
+    }
+);
 
 /**
  * - true to terminate menu
  * - false to silently block
  * - string to block w/ output
  */
-export type MainMenuCB<T = unknown> = (
+export type MainMenuCB<VALUE = unknown> = (
   action: string,
   /**
    * The currently selected value. For consistency, this will ALWAYS contain a value
    */
-  value: MenuEntry<T>,
+  value: MenuEntry<VALUE>,
 ) => (string | boolean) | Promise<string | boolean>;
 
-export interface MenuComponentOptions<T = unknown> {
+export interface MenuComponentOptions<VALUE = unknown> {
   /**
    * Remove the page up / page down keypress options
    *
@@ -134,7 +159,7 @@ export interface MenuComponentOptions<T = unknown> {
   /**
    * Text that should appear the blue bar of the help text
    */
-  helpNotes?: string | ((selected: T | string) => string);
+  helpNotes?: string | ((selected: VALUE | string) => string);
   /**
    * Disallow usage of fuzzy search
    */
@@ -143,7 +168,7 @@ export interface MenuComponentOptions<T = unknown> {
   /**
    * Entries to activate via keybindings instead of navigation
    */
-  keyMap?: KeyMap<T>;
+  keyMap?: KeyMap<VALUE>;
   /**
    * When provided, all keymap commands will be passed through this first.
    *
@@ -184,16 +209,26 @@ export interface MenuComponentOptions<T = unknown> {
    * Entries to place in the left column.
    * If only using one column, right / left doesn't matter
    */
-  left?: MainMenuEntry<T | string>[];
+  left?: MainMenuEntry<VALUE | string>[];
   /**
    * Header to be placed directly above the menu entries in the left column
    */
   leftHeader?: string;
   /**
+   * Controls how the menu chooses the default selected value.
+   *
+   * If provided an ID, the menu will track the returned value, it's side, and sorted index.
+   *
+   * When another menu is spawned with the same ID, it can be asked to restore to the previous position, or attempt to track down the previously returned value and use that as the position.
+   *
+   * Note: strict matching is default, but
+   */
+  restore?: MenuRestore<VALUE>;
+  /**
    * Entries to place in the right column.
    * If only using one column, right / left doesn't matter
    */
-  right?: MainMenuEntry<T | string>[];
+  right?: MainMenuEntry<VALUE | string>[];
   /**
    * Header to be placed directly above the menu entries in the right column
    */
@@ -205,8 +240,7 @@ export interface MenuComponentOptions<T = unknown> {
   /**
    * Append the help text below menu
    */
-  showHelp?: boolean;
-
+  // showHelp?: boolean;
   /**
    * Automatically sort menu entries alphabetically by label
    */
@@ -218,9 +252,11 @@ export interface MenuComponentOptions<T = unknown> {
    */
   titleTypes?: boolean;
   /**
-   * Default selected entry. Can be in either left or right list
+   * Default selected entry. Can be in either left or right list.
+   *
+   * Configure the `restore`
    */
-  value?: T;
+  value?: VALUE;
 }
 
 const DEFAULT_HEADER_PADDING = 4;
@@ -234,10 +270,11 @@ const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ description: "select entry", key: "enter" }, "onEnd"],
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
 ]);
+const CACHE_KEY_RESTORE = (id: string) => `MENU_COMPONENT_RESTORE_${id}`;
 
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
-  implements iComponent<MenuComponentOptions, VALUE>
+  implements iComponent<MenuComponentOptions<VALUE>, VALUE>
 {
   constructor(
     @Inject(forwardRef(() => KeymapService))
@@ -246,6 +283,8 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly textRender: TextRenderingService,
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
+    @InjectCache()
+    private readonly cache: CacheManagerService,
   ) {}
 
   private callbackOutput = "";
@@ -273,14 +312,16 @@ export class MenuComponentService<VALUE = unknown | string>
     return `\n `;
   }
 
-  public configure(
+  public async configure(
     config: MenuComponentOptions<VALUE>,
     done: (type: VALUE) => void,
-  ): void {
-    this.opt = config;
+  ): Promise<void> {
+    // Reset from last run
     this.complete = false;
     this.final = false;
-    // this.showHelp = this.opt.showHelp ?? true;
+    this.opt = config;
+
+    // Set up defaults in the config
     this.opt.left ??= [];
     this.opt.item ??= "actions";
     this.opt.right ??= [];
@@ -288,31 +329,38 @@ export class MenuComponentService<VALUE = unknown | string>
     this.opt.left.forEach(i => (i.type ??= ""));
     this.opt.right.forEach(i => (i.type ??= ""));
     this.opt.keyMap ??= {};
-    // This shouldn't need casting...
-    this.value = this.opt.value as VALUE;
-    this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
-    this.rightHeader = this.opt.rightHeader || "Menu";
-    this.leftHeader =
-      this.opt.leftHeader ||
-      (!is.empty(this.opt.left) && !is.empty(this.opt.right)
-        ? "Secondary"
-        : "Menu");
-    this.sort =
-      this.opt.sort ??
-      (this.opt.left.some(({ type }) => !is.empty(type)) ||
-        this.opt.right.some(({ type }) => !is.empty(type)));
 
-    const current = TTY.GV(
-      this.side("right")[START]?.entry ?? this.side("left")[START]?.entry,
-    );
-    this.value ??= current;
-    this.detectSide();
     this.done = done;
+    const {
+      leftHeader,
+      restore,
+      rightHeader,
+      sort,
+      left,
+      right,
+      headerPadding,
+      value,
+    } = config;
+
+    // Set local properties based on config
+    this.headerPadding = headerPadding ?? DEFAULT_HEADER_PADDING;
+    this.rightHeader = rightHeader || "Menu";
+    this.leftHeader =
+      leftHeader ||
+      (!is.empty(left) && !is.empty(right) ? "Secondary" : "Menu");
+
+    // Dev can force sorting either way
+    // If types are provided on items, then sorting is enabled by default to properly group types
+    // Otherwise, order in = order out
+    this.sort =
+      sort ??
+      (left.some(({ type }) => !is.empty(type)) ||
+        right.some(({ type }) => !is.empty(type)));
+
+    // Finial init
+    await this.setValue(value, restore);
+    this.detectSide();
     this.setKeymap();
-    const contained = this.side().find(i => TTY.GV(i.entry) === this.value);
-    if (!contained) {
-      this.value = current;
-    }
   }
 
   /**
@@ -455,6 +503,17 @@ export class MenuComponentService<VALUE = unknown | string>
     this.done(this.value);
     this.render();
     this.done = undefined;
+    if (this.opt.restore) {
+      nextTick(async () => {
+        const index = this.side().findIndex(
+          entry => TTY.GV(entry) === this.value,
+        );
+        await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
+          position: [this.selectedType, index],
+          value: this.value,
+        } as MenuRestoreCacheData<VALUE>);
+      });
+    }
     return false;
   }
 
@@ -841,6 +900,29 @@ export class MenuComponentService<VALUE = unknown | string>
     return out;
   }
 
+  private searchItems(
+    value: VALUE,
+    restore: MenuRestore<VALUE>,
+  ): MainMenuEntry<string | VALUE> {
+    return [...this.opt.left, ...this.opt.right].find(entry => {
+      let local = TTY.GV(entry);
+      // quick filter for bad matches
+      if (typeof value !== typeof local) {
+        return false;
+      }
+      if (
+        restore.type === "value" &&
+        !is.empty(restore.idProperty) &&
+        is.object(local) &&
+        is.object(value)
+      ) {
+        local = get(local, restore.idProperty);
+        value = get(value, restore.idProperty);
+      }
+      return deepEqual(local, value);
+    });
+  }
+
   private selectedEntry(): MainMenuEntry {
     return [
       ...this.side("right"),
@@ -903,6 +985,67 @@ export class MenuComponentService<VALUE = unknown | string>
       ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
     ]);
     this.keyboard.setKeyMap(this, keymap);
+  }
+
+  // eslint-disable-next-line radar/cognitive-complexity
+  private async setValue(
+    value: VALUE,
+    restore: MenuRestore<VALUE>,
+  ): Promise<void> {
+    this.value = undefined;
+
+    // If the dev provided a value, then it takes priority
+    if (!is.undefined(value)) {
+      // Attempt to find the value in the list of options
+      // If restore information is provided, then use that to help with comparisons
+      const item = this.searchItems(value, restore);
+      if (item) {
+        // Translate value reference to the one off the entry
+        // Makes comparisons easier inside the component
+        this.value = TTY.GV(item);
+        return;
+      }
+    }
+
+    // If a restore id is available, attempt to get data from that
+    if (!is.empty(restore?.id)) {
+      const data = await this.cache.get<MenuRestoreCacheData<VALUE>>(
+        CACHE_KEY_RESTORE(restore.id),
+      );
+      if (data) {
+        // Position based value restoration
+        if (restore.type === "position") {
+          const [side] = data.position;
+          let [, position] = data.position;
+          const list = this.opt[side];
+          // Next closet item in the list
+          if (!is.empty(list) && is.undefined(list[position])) {
+            position = list.length - ARRAY_OFFSET;
+          }
+          // If the position does not actually exist, then normal default will be selected
+          if (!is.undefined(list[position])) {
+            this.value = TTY.GV(list[position]);
+            return;
+          }
+        }
+        // Value based restoration
+        if (restore.type === "value") {
+          const item = this.searchItems(data.value, restore);
+          if (item) {
+            this.value = TTY.GV(item);
+            return;
+          }
+        }
+      }
+    }
+
+    // Attempts to restore have failed, find a sane default
+    const top = [...this.opt.right, ...this.opt.left][FIRST];
+    if (top) {
+      this.value = TTY.GV(top);
+    }
+
+    // I guess value doesn't matter if there's no options?
   }
 
   /**
