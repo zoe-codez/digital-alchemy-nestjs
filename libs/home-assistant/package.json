@@ -5,7 +5,7 @@
   "name": "@steggy/home-assistant",
   "displayName": "Home Assistant",
   "license": "MIT",
-  "version": "22.51.0",
+  "version": "22.52.0",
   "scripts": {
     "postinstall": "hass-type-generate || exit 0"
   },
