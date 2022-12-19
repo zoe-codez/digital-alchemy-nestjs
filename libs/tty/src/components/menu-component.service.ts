@@ -299,6 +299,7 @@ export class MenuComponentService<VALUE = unknown | string>
   private rightHeader: string;
   private searchText = "";
   private selectedType: "left" | "right" = "right";
+  private selectedValue: VALUE;
   private sort: boolean;
   private value: VALUE;
   private get notes(): string {
@@ -319,6 +320,7 @@ export class MenuComponentService<VALUE = unknown | string>
     // Reset from last run
     this.complete = false;
     this.final = false;
+    this.selectedValue = undefined;
     this.opt = config;
 
     // Set up defaults in the config
@@ -395,6 +397,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return false;
     }
     if (is.undefined(callback)) {
+      this.selectedValue = this.value;
       this.value = TTY.GV(entry);
       this.onEnd();
       return false;
@@ -415,6 +418,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     if (result) {
+      this.selectedValue = this.value;
       this.value = TTY.GV(entry);
       this.onEnd();
       return false;
@@ -506,7 +510,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.opt.restore) {
       nextTick(async () => {
         const index = this.side().findIndex(
-          entry => TTY.GV(entry) === this.value,
+          entry => TTY.GV(entry) === this.selectedValue ?? this.value,
         );
         await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
           position: [this.selectedType, index],
