@@ -348,6 +348,32 @@ export class MenuService {
     await this.prompt.acknowledge();
   }
 
+  public async positionalRestore(): Promise<void> {
+    const prefix = Date.now();
+    this.application.setHeader("Position restore");
+    const result = await this.prompt.menu({
+      headerMessage: chalk`This prompt will restore the cursor to the last selected position`,
+      left: PEAT(DEFAULT_GENERATE).map(i =>
+        this.generator.generateMenuItem(
+          FakerSources.filePath,
+          `${prefix}_left_${i}`,
+        ),
+      ),
+      restore: {
+        id: "SAMPLER_APP_POSITIONAL_RESTORE",
+        type: "position",
+      },
+      right: PEAT(DEFAULT_GENERATE).map(i =>
+        this.generator.generateMenuItem(
+          FakerSources.filePath,
+          `${prefix}_right_${i}`,
+        ),
+      ),
+    });
+    this.screen.printLine(this.text.type(result));
+    await this.prompt.acknowledge();
+  }
+
   public async prettyShortcuts(): Promise<void> {
     this.application.setHeader("Pretty shortcuts");
     const result = await this.prompt.menu({

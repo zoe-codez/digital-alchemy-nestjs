@@ -1017,7 +1017,7 @@ export class MenuComponentService<VALUE = unknown | string>
         if (restore.type === "position") {
           const [side] = data.position;
           let [, position] = data.position;
-          const list = this.opt[side];
+          const list = this.side(side);
           // Next closet item in the list
           if (!is.empty(list) && is.undefined(list[position])) {
             position = list.length - ARRAY_OFFSET;
@@ -1040,7 +1040,9 @@ export class MenuComponentService<VALUE = unknown | string>
     }
 
     // Attempts to restore have failed, find a sane default
-    const top = [...this.opt.right, ...this.opt.left][FIRST];
+    let list = this.side("right");
+    list = is.empty(list) ? this.side("left") : list;
+    const top = list[FIRST];
     if (top) {
       this.value = TTY.GV(top);
     }

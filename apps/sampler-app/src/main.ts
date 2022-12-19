@@ -133,6 +133,11 @@ export class SamplerApp {
           type: "Menu",
         },
         {
+          entry: ["Position restore", "position_restore"],
+          helpText: `Entries change every time, but menu will restore to the same position each time`,
+          type: "Menu",
+        },
+        {
           entry: ["Async", "menu_async"],
           helpText: [
             `Run code in the background, while still keeping the menu rendered.`,
@@ -225,6 +230,9 @@ export class SamplerApp {
         break;
       case "string_configurable":
         await this.string.fullyConfigurable();
+        break;
+      case "position_restore":
+        await this.menu.positionalRestore();
         break;
     }
     await this.exec();
