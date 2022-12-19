@@ -911,13 +911,13 @@ export class MenuComponentService<VALUE = unknown | string>
         return false;
       }
       if (
-        restore.type === "value" &&
-        !is.empty(restore.idProperty) &&
+        restore?.type === "value" &&
+        !is.empty(restore?.idProperty) &&
         is.object(local) &&
         is.object(value)
       ) {
-        local = get(local, restore.idProperty);
-        value = get(value, restore.idProperty);
+        local = get(local, restore?.idProperty);
+        value = get(value, restore?.idProperty);
       }
       return deepEqual(local, value);
     });
