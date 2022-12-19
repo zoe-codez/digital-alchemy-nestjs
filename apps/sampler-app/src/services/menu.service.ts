@@ -73,6 +73,7 @@ PEAT(MINI_LIST).forEach(() =>
 
 type tAsyncExample = { color?: string; song?: string };
 const DEFAULT_GENERATE = 50;
+const SHORT_GENERATE = 10;
 type AdvancedMenuResult = string | { type: string };
 
 @Injectable()
@@ -353,7 +354,7 @@ export class MenuService {
     this.application.setHeader("Position restore");
     const result = await this.prompt.menu({
       headerMessage: chalk`This prompt will restore the cursor to the last selected position`,
-      left: PEAT(DEFAULT_GENERATE).map(i =>
+      left: PEAT(SHORT_GENERATE).map(i =>
         this.generator.generateMenuItem(
           FakerSources.filePath,
           `${prefix}_left_${i}`,
@@ -363,7 +364,7 @@ export class MenuService {
         id: "SAMPLER_APP_POSITIONAL_RESTORE",
         type: "position",
       },
-      right: PEAT(DEFAULT_GENERATE).map(i =>
+      right: PEAT(SHORT_GENERATE).map(i =>
         this.generator.generateMenuItem(
           FakerSources.filePath,
           `${prefix}_right_${i}`,
@@ -410,6 +411,37 @@ export class MenuService {
       ],
     });
     this.screen.printLine(result);
+    await this.prompt.acknowledge();
+  }
+
+  public async valueRestore(): Promise<void> {
+    this.application.setHeader("Position restore");
+    const result = await this.prompt.menu<{ id: string }>({
+      headerMessage: chalk`This prompt will restore the cursor to the last selected position`,
+      left: PEAT(SHORT_GENERATE).map(i =>
+        this.generator.generateMenuItem(
+          FakerSources.filePath,
+          {
+            id: `left_${i}`,
+          },
+          chalk.blue` - ${i}`,
+        ),
+      ),
+      restore: {
+        id: "SAMPLER_APP_VALUE_RESTORE",
+        type: "value",
+      },
+      right: PEAT(SHORT_GENERATE).map(i =>
+        this.generator.generateMenuItem(
+          FakerSources.filePath,
+          {
+            id: `right_${i}`,
+          },
+          chalk.blue` - ${i}`,
+        ),
+      ),
+    });
+    this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }
 }

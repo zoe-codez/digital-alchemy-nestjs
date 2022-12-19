@@ -138,6 +138,11 @@ export class SamplerApp {
           type: "Menu",
         },
         {
+          entry: ["Value restore", "value_restore"],
+          helpText: `Entries change every time, but menu will restore to the same value each time.\nData has sequential ids, but `,
+          type: "Menu",
+        },
+        {
           entry: ["Async", "menu_async"],
           helpText: [
             `Run code in the background, while still keeping the menu rendered.`,
@@ -233,6 +238,9 @@ export class SamplerApp {
         break;
       case "position_restore":
         await this.menu.positionalRestore();
+        break;
+      case "value_restore":
+        await this.menu.valueRestore();
         break;
     }
     await this.exec();

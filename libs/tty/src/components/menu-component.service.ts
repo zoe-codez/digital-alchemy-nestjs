@@ -905,11 +905,12 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   private searchItems(
-    value: VALUE,
+    findValue: VALUE,
     restore: MenuRestore<VALUE>,
   ): MainMenuEntry<string | VALUE> {
     return [...this.opt.left, ...this.opt.right].find(entry => {
       let local = TTY.GV(entry);
+      let value = findValue;
       // quick filter for bad matches
       if (typeof value !== typeof local) {
         return false;
@@ -1016,6 +1017,7 @@ export class MenuComponentService<VALUE = unknown | string>
       const data = await this.cache.get<MenuRestoreCacheData<VALUE>>(
         CACHE_KEY_RESTORE(restore.id),
       );
+
       if (data) {
         // Position based value restoration
         if (restore.type === "position") {

@@ -18,10 +18,11 @@ enum FakerSources {
 
 @Injectable()
 export class ItemGeneratorService {
-  public generateMenuItem(
+  public generateMenuItem<VALUE>(
     labelType: FakerSources,
-    value: unknown,
-  ): MainMenuEntry {
+    value: VALUE,
+    index = "",
+  ): MainMenuEntry<VALUE> {
     let label: string;
     let type: string = labelType;
     switch (labelType) {
@@ -51,7 +52,7 @@ export class ItemGeneratorService {
     }
 
     return {
-      entry: [label, value],
+      entry: [`${label}${index}`, value],
       helpText: is.random([
         faker.hacker.phrase(),
         faker.company.bs(),
