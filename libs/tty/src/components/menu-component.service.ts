@@ -509,12 +509,13 @@ export class MenuComponentService<VALUE = unknown | string>
     this.done = undefined;
     if (this.opt.restore) {
       nextTick(async () => {
-        const index = this.side().findIndex(
+        const list = this.side();
+        const index = list.findIndex(
           entry => TTY.GV(entry) === this.selectedValue ?? this.value,
         );
         await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
           position: [this.selectedType, index],
-          value: this.value,
+          value: TTY.GV(list[index]) ?? this.value,
         } as MenuRestoreCacheData<VALUE>);
       });
     }
