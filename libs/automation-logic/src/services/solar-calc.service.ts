@@ -101,8 +101,8 @@ export class SolarCalcService {
   }
 
   protected async onModuleInit(): Promise<void> {
-    this.longitude = await this.cache.get(CACHE_LONG);
-    this.latitude = await this.cache.get(CACHE_LAT);
+    this.longitude = await this.cache.get(CACHE_LONG, EMPTY);
+    this.latitude = await this.cache.get(CACHE_LAT, EMPTY);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
