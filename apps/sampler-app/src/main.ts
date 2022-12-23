@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 import { QuickScript } from "@steggy/boilerplate";
 import {
   ApplicationManagerService,
+  ErrorService,
   PromptService,
   TTYModule,
 } from "@steggy/tty";
@@ -50,9 +51,10 @@ export class SamplerApp {
     private readonly application: ApplicationManagerService,
     private readonly array: ArrayService,
     private readonly boolean: BooleanService,
-    private readonly confirm: ConfirmService,
     private readonly configSampler: ConfigSampler,
+    private readonly confirm: ConfirmService,
     private readonly date: DateService,
+    private readonly error: ErrorService,
     private readonly menu: MenuService,
     private readonly object: ObjectService,
     private readonly pickMany: PickManyService,
@@ -94,6 +96,15 @@ export class SamplerApp {
           entry: ["Basic", "boolean"],
           helpText: "true / false",
           type: "Boolean",
+        },
+        {
+          // intended to use the `default` case
+          entry: [chalk.strikethrough`Not implemented`, "missing_menu"],
+          helpText: [
+            "A canned error which indicates a not-implemented condition",
+            "Can be used with any instance of the menu",
+          ].join(`\n`),
+          type: "Menu",
         },
         {
           entry: ["Basic", "confirm_basic"],
@@ -242,6 +253,8 @@ export class SamplerApp {
       case "value_restore":
         await this.menu.valueRestore();
         break;
+      default:
+        await this.error.menuError();
     }
     await this.exec();
   }

@@ -3,6 +3,7 @@ export * from "./charting.service";
 export * from "./colors.service";
 export * from "./comparison-tools.service";
 export * from "./environment.service";
+export * from "./error.service";
 export * from "./explorers";
 export * from "./form.service";
 export * from "./icon.service";

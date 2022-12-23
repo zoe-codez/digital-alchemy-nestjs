@@ -26,6 +26,7 @@ import { nextTick } from "process";
 
 import {
   DirectCB,
+  KeyModifiers,
   MainMenuEntry,
   MenuEntry,
   tKeyMap,
@@ -272,10 +273,27 @@ const SEARCH_KEYMAP: tKeyMap = new Map([
 ]);
 const CACHE_KEY_RESTORE = (id: string) => `MENU_COMPONENT_RESTORE_${id}`;
 
+interface LastMenuResultInfo<VALUE = unknown> {
+  key?: {
+    key: string;
+    modifiers: KeyModifiers;
+  };
+  key_entry?: KeymapOptions<VALUE> | AdvancedKeymap;
+  returned: VALUE;
+  selected_entry: {
+    entry: MainMenuEntry<VALUE>;
+    index: number;
+    side: "left" | "right";
+  };
+  type: "entry" | "keyboard";
+}
+
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions<VALUE>, VALUE>
 {
+  public static LAST_RESULT: LastMenuResultInfo<unknown>;
+
   constructor(
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
@@ -317,6 +335,7 @@ export class MenuComponentService<VALUE = unknown | string>
     done: (type: VALUE) => void,
   ): Promise<void> {
     // Reset from last run
+    MenuComponentService.LAST_RESULT = undefined;
     this.complete = false;
     this.final = false;
     this.selectedValue = undefined;
@@ -389,7 +408,10 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Run callbacks from the keyMap
    */
-  protected async activateKeyMap(mixed: string): Promise<boolean> {
+  protected async activateKeyMap(
+    mixed: string,
+    modifiers: KeyModifiers,
+  ): Promise<boolean> {
     const { keyMap, keyMapCallback: callback } = this.opt;
     const entry = this.findKeyEntry(keyMap, mixed);
     if (!entry) {
@@ -398,6 +420,16 @@ export class MenuComponentService<VALUE = unknown | string>
     if (is.undefined(callback)) {
       this.selectedValue = this.value;
       this.value = TTY.GV(entry);
+      MenuComponentService.LAST_RESULT = {
+        key: {
+          key: mixed,
+          modifiers,
+        },
+        key_entry: entry,
+        returned: this.value,
+        selected_entry: undefined,
+        type: "keyboard",
+      };
       this.onEnd();
       return false;
     }
@@ -419,6 +451,16 @@ export class MenuComponentService<VALUE = unknown | string>
     if (result) {
       this.selectedValue = this.value;
       this.value = TTY.GV(entry);
+      MenuComponentService.LAST_RESULT = {
+        key: {
+          key: mixed,
+          modifiers,
+        },
+        key_entry: entry,
+        returned: this.value,
+        selected_entry: undefined,
+        type: "keyboard",
+      };
       this.onEnd();
       return false;
     }
@@ -500,18 +542,28 @@ export class MenuComponentService<VALUE = unknown | string>
     if (!this.done) {
       return;
     }
+    const list = this.side();
+    const index = list.findIndex(
+      entry => TTY.GV(entry) === this.selectedValue ?? this.value,
+    );
     this.final = true;
     this.mode = "select";
     this.callbackOutput = "";
     this.done(this.value);
+    MenuComponentService.LAST_RESULT ??= {
+      returned: this.value,
+      selected_entry: undefined,
+      type: "entry",
+    };
+    MenuComponentService.LAST_RESULT.selected_entry = {
+      entry: list[index],
+      index,
+      side: this.selectedType,
+    };
     this.render();
     this.done = undefined;
     if (this.opt.restore) {
       nextTick(async () => {
-        const list = this.side();
-        const index = list.findIndex(
-          entry => TTY.GV(entry) === this.selectedValue ?? this.value,
-        );
         await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
           position: [this.selectedType, index],
           value: TTY.GV(list[index]) ?? this.value,
@@ -586,10 +638,11 @@ export class MenuComponentService<VALUE = unknown | string>
       return false;
     }
     if (key.length > SINGLE) {
-      if (!is.undefined(this.opt.keyMap[key])) {
-        this.value = TTY.GV(this.opt.keyMap[key]);
-        this.onEnd();
-      }
+      // These don't currently render in the help
+      // if (!is.undefined(this.opt.keyMap[key])) {
+      //   this.value = TTY.GV(this.opt.keyMap[key]);
+      //   this.onEnd();
+      // }
       return;
     }
     this.searchText += key;

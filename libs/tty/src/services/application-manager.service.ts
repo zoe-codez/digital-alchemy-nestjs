@@ -32,32 +32,31 @@ export class ApplicationManagerService implements iStackProvider {
   public activeApplication: iComponent;
   private activeEditor: iBuilderEditor;
   private header = "";
-
   public async activateComponent<CONFIG, VALUE>(
     name: string,
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
+    const oldApplication = this.activeApplication;
+    const oldEditor = this.activeEditor;
     this.reset();
-    const old = this.activeApplication;
-    const out = await this.keyboard.wrap<VALUE>(async () => {
-      const promise = new Promise<VALUE>(async done => {
-        const component = this.componentExplorer.findServiceByType<
-          CONFIG,
-          VALUE
-        >(name);
-        // There needs to be more type work around this
-        // It's a disaster
-        await component.configure(configuration, value => {
-          done(value as VALUE);
-        });
-        this.activeApplication = component;
-        component.render();
-      });
-      this.activeEditor = undefined;
-      const result = await promise;
-      this.activeApplication = old;
-      return result;
-    });
+    const out = await this.keyboard.wrap<VALUE>(
+      async () =>
+        await new Promise<VALUE>(async done => {
+          const component = this.componentExplorer.findServiceByType<
+            CONFIG,
+            VALUE
+          >(name);
+          // There needs to be more type work around this
+          // It's a disaster
+          await component.configure(configuration, value => {
+            done(value as VALUE);
+          });
+          this.activeApplication = component;
+          component.render();
+        }),
+    );
+    this.activeApplication = oldApplication;
+    this.activeEditor = oldEditor;
     return out;
   }
 
@@ -94,6 +93,15 @@ export class ApplicationManagerService implements iStackProvider {
     this.activeEditor?.render();
   }
 
+  /**
+   * Clear the screen, and re-render the previous header
+   */
+  public reprintHeader(): void {
+    this.screen.clear();
+    this.screen.printLine(`\n`);
+    this.screen.printLine(this.header);
+  }
+
   public save(): Partial<iComponent> {
     return this.activeApplication;
   }
@@ -109,13 +117,13 @@ export class ApplicationManagerService implements iStackProvider {
       primary = figlet.textSync(primary, {
         font: this.primaryFont,
       });
-      const text = chalk
+      primary = chalk
         .cyan(primary)
         .split(`\n`)
         .map(i => `  ${i}`)
         .join(`\n`);
-      max = ansiMaxLength(text);
-      this.screen.printLine(`\n` + text);
+      max = ansiMaxLength(primary);
+      this.screen.printLine(`\n` + primary);
     }
     if (is.empty(secondary)) {
       this.header = primary;
