@@ -5,7 +5,7 @@ import {
   InjectConfig,
   OnEvent,
 } from "@steggy/boilerplate";
-import { CronExpression } from "@steggy/utilities";
+import { CronExpression, EMPTY } from "@steggy/utilities";
 import dayjs from "dayjs";
 import EventEmitter from "eventemitter3";
 
@@ -52,6 +52,13 @@ export class CircadianService {
   @OnEvent(LOCATION_UPDATED)
   protected updateKelvin(): void {
     if (!this.circadianEnabled) {
+      return;
+    }
+    if (
+      this.solarCalc.latitude === EMPTY &&
+      this.solarCalc.longitude === EMPTY
+    ) {
+      this.logger.debug(`[lat]/[long] not loaded yet`);
       return;
     }
     const kelvin = this.getCurrentTemperature();
