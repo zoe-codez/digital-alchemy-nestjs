@@ -92,6 +92,7 @@ import {
     ColorsService,
     ComparisonToolsService,
     EnvironmentService,
+    IconService,
     KeymapService,
     PromptService,
     ScreenService,

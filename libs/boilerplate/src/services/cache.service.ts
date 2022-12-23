@@ -1,35 +1,40 @@
-import { CacheModuleOptions, Injectable } from "@nestjs/common";
-import RedisStore from "cache-manager-redis-store";
+import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
+import { Cache, CachingConfig } from "cache-manager";
 
-import { CACHE_PROVIDER, CACHE_TTL, REDIS_HOST, REDIS_PORT } from "../config";
+import { CACHE_PREFIX } from "../config";
+import { ACTIVE_APPLICATION } from "../contracts";
 import { InjectConfig } from "../decorators/inject-config.decorator";
 
-/**
- * Provider to bind configurations to the cache module
- */
 @Injectable()
-export class CacheProviderService {
+export class CacheService {
   constructor(
-    @InjectConfig(CACHE_PROVIDER) private readonly cacheProvider: string,
-    @InjectConfig(REDIS_HOST) private readonly host: string,
-    @InjectConfig(REDIS_PORT) private readonly port: number,
-    @InjectConfig(CACHE_TTL) private readonly defaultTtl: number,
-  ) {}
+    @Inject(CACHE_MANAGER)
+    private readonly cache: Cache,
+    @Inject(ACTIVE_APPLICATION)
+    private readonly activeApplication: symbol,
+    @InjectConfig(CACHE_PREFIX)
+    private readonly prefix: string,
+  ) {
+    this.prefix ||= activeApplication.description;
+  }
 
-  public getConfig(): CacheModuleOptions {
-    const ttl = this.defaultTtl;
-    if (this.cacheProvider === "memory") {
-      return {
-        isGlobal: true,
-        ttl,
-      };
-    }
-    return {
-      host: this.host,
-      isGlobal: true,
-      port: this.port,
-      store: RedisStore,
-      ttl,
-    };
+  public async del(key: string): Promise<void> {
+    key = `${this.prefix}${key}`;
+    await this.cache.del(key);
+  }
+
+  public async get<T>(key: string, defaultValue?: T): Promise<T> {
+    key = `${this.prefix}${key}`;
+    return (await this.cache.get(key)) ?? defaultValue;
+  }
+
+  public async keys(key = "*"): Promise<string[]> {
+    key = `${this.prefix}${key}`;
+    return await this.cache.store.keys(key);
+  }
+
+  public async set(key: string, value: unknown, options?: CachingConfig) {
+    key = `${this.prefix}${key}`;
+    await this.cache.set(key, value, options);
   }
 }

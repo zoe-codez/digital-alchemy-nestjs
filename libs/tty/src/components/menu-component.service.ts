@@ -1,5 +1,5 @@
 import { forwardRef, Inject } from "@nestjs/common";
-import { CacheManagerService, InjectCache } from "@steggy/boilerplate";
+import { CacheService } from "@steggy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -104,7 +104,7 @@ type MenuRestoreCacheData<VALUE = unknown> = {
   value: VALUE;
 };
 
-export type MenuRestore<VALUE = unknown> = {
+export type MenuRestore = {
   id: string;
 } & (
   | {
@@ -115,7 +115,7 @@ export type MenuRestore<VALUE = unknown> = {
       /**
        * When comparing objects, use the provided property to do comparisons instead of strictly comparing the entire object.
        */
-      idProperty?: Extract<keyof Extract<VALUE, object>, string>;
+      idProperty?: string | string[];
       type: "value";
     }
 );
@@ -223,7 +223,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
    *
    * Note: strict matching is default, but
    */
-  restore?: MenuRestore<VALUE>;
+  restore?: MenuRestore;
   /**
    * Entries to place in the right column.
    * If only using one column, right / left doesn't matter
@@ -283,8 +283,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly textRender: TextRenderingService,
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
-    @InjectCache()
-    private readonly cache: CacheManagerService,
+    private readonly cache: CacheService,
   ) {}
 
   private callbackOutput = "";
@@ -907,11 +906,11 @@ export class MenuComponentService<VALUE = unknown | string>
 
   private searchItems(
     findValue: VALUE,
-    restore: MenuRestore<VALUE>,
+    restore: MenuRestore,
   ): MainMenuEntry<string | VALUE> {
     return [...this.opt.left, ...this.opt.right].find(entry => {
-      let local = TTY.GV(entry);
-      let value = findValue;
+      const local = TTY.GV(entry);
+      const value = findValue;
       // quick filter for bad matches
       if (typeof value !== typeof local) {
         return false;
@@ -922,8 +921,24 @@ export class MenuComponentService<VALUE = unknown | string>
         is.object(local) &&
         is.object(value)
       ) {
-        local = get(local, restore?.idProperty);
-        value = get(value, restore?.idProperty);
+        // Multiple id paths may show up in mixed object type menus
+        if (Array.isArray(restore.idProperty)) {
+          const out = restore.idProperty.find(id => {
+            const a = get(local as object, id);
+            const b = get(value as object, id);
+            if (is.undefined(a) || is.undefined(b)) {
+              return false;
+            }
+            return deepEqual(a, b);
+          });
+          return !!out;
+        }
+        const a = get(value, restore?.idProperty);
+        const b = get(local, restore?.idProperty);
+        if (is.undefined(a) || is.undefined(b)) {
+          return false;
+        }
+        return deepEqual(a, b);
       }
       return deepEqual(local, value);
     });
@@ -994,10 +1009,7 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
-  private async setValue(
-    value: VALUE,
-    restore: MenuRestore<VALUE>,
-  ): Promise<void> {
+  private async setValue(value: VALUE, restore: MenuRestore): Promise<void> {
     this.value = undefined;
 
     // If the dev provided a value, then it takes priority

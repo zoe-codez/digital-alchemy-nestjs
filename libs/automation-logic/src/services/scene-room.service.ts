@@ -2,8 +2,7 @@
 import { Injectable, Scope } from "@nestjs/common";
 import {
   AutoLogService,
-  CacheManagerService,
-  InjectCache,
+  CacheService,
   InjectConfig,
   InjectLogger,
 } from "@steggy/boilerplate";
@@ -74,8 +73,7 @@ export class SceneRoomService<
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
     private readonly eventEmitter: EventEmitter,
-    @InjectCache()
-    private readonly cache: CacheManagerService,
+    private readonly cache: CacheService,
     @InjectProxy()
     private readonly call: iCallService,
     private readonly circadian: CircadianService,

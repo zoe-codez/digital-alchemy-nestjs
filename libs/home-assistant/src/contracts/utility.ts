@@ -31,3 +31,4 @@ export function domain(
 }
 
 export type ENTITY_STATE<T extends string> = Get<typeof ENTITY_SETUP, T>;
+export type ALL_DOMAINS = keyof typeof ENTITY_SETUP;

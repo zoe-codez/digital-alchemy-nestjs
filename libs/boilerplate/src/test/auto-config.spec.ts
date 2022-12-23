@@ -2,13 +2,13 @@ import { Test } from "@steggy/testing";
 import { argv, env } from "process";
 
 import {
+  CACHE_HOST,
+  CACHE_PORT,
   CACHE_PROVIDER,
   CACHE_TTL,
   CONFIG,
   LIB_BOILERPLATE,
   LOG_LEVEL,
-  REDIS_HOST,
-  REDIS_PORT,
   SCAN_CONFIG,
 } from "../config";
 import { SKIP_CONFIG_INIT } from "../contracts";
@@ -60,10 +60,10 @@ describe("AutoConfig", () => {
       );
       expect(configService.get([LIB_BOILERPLATE, CACHE_TTL])).toBe(86_400);
       expect(configService.get([LIB_BOILERPLATE, CONFIG])).toBe(undefined);
-      expect(configService.get([LIB_BOILERPLATE, REDIS_HOST])).toBe(
+      expect(configService.get([LIB_BOILERPLATE, CACHE_HOST])).toBe(
         "localhost",
       );
-      expect(configService.get([LIB_BOILERPLATE, REDIS_PORT])).toBe(6379);
+      expect(configService.get([LIB_BOILERPLATE, CACHE_PORT])).toBe(6379);
       expect(configService.get([LIB_BOILERPLATE, SCAN_CONFIG])).toBe(false);
     });
 

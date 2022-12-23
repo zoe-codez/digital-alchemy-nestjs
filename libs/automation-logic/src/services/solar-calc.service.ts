@@ -1,9 +1,8 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import {
   AutoLogService,
-  CacheManagerService,
+  CacheService,
   Cron,
-  InjectCache,
   OnEvent,
 } from "@steggy/boilerplate";
 import { HassSocketAPIService, SOCKET_READY } from "@steggy/home-assistant";
@@ -55,8 +54,7 @@ export class SolarCalcService {
     private readonly socket: HassSocketAPIService,
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
-    @InjectCache()
-    private readonly cache: CacheManagerService,
+    private readonly cache: CacheService,
   ) {
     if (!claimed) {
       this.emit = true;

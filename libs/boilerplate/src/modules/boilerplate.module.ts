@@ -2,13 +2,14 @@ import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
 
 import {
+  CACHE_HOST,
+  CACHE_PORT,
+  CACHE_PREFIX,
   CACHE_PROVIDER,
   CACHE_TTL,
   CONFIG,
   LIB_BOILERPLATE,
   LOG_LEVEL,
-  REDIS_HOST,
-  REDIS_PORT,
   SCAN_CONFIG,
 } from "../config";
 import { LOGGER_PROVIDERS } from "../decorators";
@@ -19,6 +20,7 @@ import {
   AutoConfigService,
   AutoLogService,
   CacheProviderService,
+  CacheService,
   ConfigScanner,
   EventsExplorerService,
   FetchService,
@@ -31,6 +33,27 @@ import {
 
 @LibraryModule({
   configuration: {
+    [CACHE_HOST]: {
+      default: "localhost",
+      description:
+        "Configuration property for cache provider, does not apply to memory caching",
+      type: "string",
+    },
+    [CACHE_PORT]: {
+      // If other cache providers are implemented, the default value should will be removed
+      // The value default value will need to be determined programmatically (should keep backwards compatibility)
+      default: 6379,
+      description:
+        "Configuration property for cache provider, does not apply to memory caching",
+      type: "number",
+    },
+    [CACHE_PREFIX]: {
+      description: [
+        "Use a prefix with all cache keys",
+        "If blank, then application name is used",
+      ].join(`. `),
+      type: "string",
+    },
     [CACHE_PROVIDER]: {
       default: "memory",
       description: "Redis is preferred if available",
@@ -39,7 +62,7 @@ import {
     },
     [CACHE_TTL]: {
       default: 86_400,
-      description: "Configuration property for redis connection",
+      description: "Configuration property for cache provider",
       type: "number",
     },
     [CONFIG]: {
@@ -56,16 +79,6 @@ import {
       enum: ["silent", "info", "warn", "debug", "error"],
       type: "string",
     },
-    [REDIS_HOST]: {
-      default: "localhost",
-      description: "Configuration property for redis connection",
-      type: "string",
-    },
-    [REDIS_PORT]: {
-      default: 6379,
-      description: "Configuration property for redis connection",
-      type: "number",
-    },
     [SCAN_CONFIG]: {
       default: false,
       description: "Find all application configurations and output as json",
@@ -76,6 +89,7 @@ import {
     AutoConfigService,
     AutoLogService,
     CacheProviderService,
+    CacheService,
     FetchService,
     WorkspaceService,
   ],
@@ -85,6 +99,7 @@ import {
     AutoConfigService,
     AutoLogService,
     CacheProviderService,
+    CacheService,
     ConfigScanner,
     EventsExplorerService,
     FetchService,

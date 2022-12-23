@@ -148,8 +148,8 @@ The following configuration options are utilized by this library.
   CACHE_PROVIDER=memory
   CACHE_TTL=86_400
   LOG_LEVEL=info
-  REDIS_HOST=localhost
-  REDIS_PORT=6379
+  CACHE_HOST=localhost
+  CACHE_PORT=6379
 ```
 
 ### `CACHE_PROVIDER`
@@ -175,11 +175,11 @@ Minimum log level to output. default: `info`
 - `debug`
 - `error`
 
-### `REDIS_HOST`
+### `CACHE_HOST`
 
 Address for redis instance, default: `localhost`
 
-### `REDIS_PORT`
+### `CACHE_PORT`
 
 Port for redis instance, default: `6379`
 
