@@ -1,4 +1,3 @@
-export * from "./application-stack.decorator";
 export * from "./constants";
 export * from "./dto";
 export * from "./keyboard";

@@ -1,44 +1,62 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectConfig } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
-import chalk from "chalk";
+import { is, START } from "@steggy/utilities";
 import figlet, { Fonts } from "figlet";
 
-import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from "../config";
-import { ApplicationStackProvider, iStackProvider } from "../contracts";
+import {
+  APPLICATION_PADDING_LEFT,
+  APPLICATION_PADDING_TOP,
+  HEADER_COLOR_PRIMARY,
+  HEADER_COLOR_SECONDARY,
+  HEADER_FONT_PRIMARY,
+  HEADER_FONT_SECONDARY,
+} from "../config";
 import { iBuilderEditor, iComponent } from "../decorators";
-import { ansiMaxLength } from "../includes";
+import { ansiMaxLength, template } from "../includes";
 import { ComponentExplorerService, EditorExplorerService } from "./explorers";
 import { KeyboardManagerService } from "./keyboard-manager.service";
 import { ScreenService } from "./screen.service";
 
-// ? Is there anything else that needs to be kept track of?
-const LINE_PADDING = 2;
-
 @Injectable()
-@ApplicationStackProvider()
-export class ApplicationManagerService implements iStackProvider {
+export class ApplicationManagerService {
   constructor(
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly primaryFont: Fonts,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
+    @InjectConfig(HEADER_FONT_PRIMARY) private readonly primaryFont: Fonts,
+    @InjectConfig(HEADER_FONT_SECONDARY) private readonly secondaryFont: Fonts,
+    @InjectConfig(APPLICATION_PADDING_TOP)
+    private readonly paddingTop: number,
+    @InjectConfig(HEADER_COLOR_PRIMARY)
+    private readonly colorPrimary: string,
+    @InjectConfig(HEADER_COLOR_SECONDARY)
+    private readonly colorSecondary: string,
+    @InjectConfig(APPLICATION_PADDING_LEFT)
+    private readonly paddingLeft: number,
     private readonly editorExplorer: EditorExplorerService,
     private readonly componentExplorer: ComponentExplorerService,
     @Inject(forwardRef(() => ScreenService))
     private readonly screen: ScreenService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboard: KeyboardManagerService,
-  ) {}
+  ) {
+    this.leftPadding = " ".repeat(this.paddingLeft);
+  }
 
   public activeApplication: iComponent;
   private activeEditor: iBuilderEditor;
   private header = "";
+  private readonly leftPadding: string;
+  private parts: [string, string] | [string] = [""];
+
+  /**
+   * Start an component instance, and set it as the primary active bit
+   */
   public async activateComponent<CONFIG, VALUE>(
     name: string,
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
     const oldApplication = this.activeApplication;
     const oldEditor = this.activeEditor;
-    this.reset();
+    this.activeApplication = undefined;
+    this.activeEditor = undefined;
     const out = await this.keyboard.wrap<VALUE>(
       async () =>
         await new Promise<VALUE>(async done => {
@@ -60,6 +78,9 @@ export class ApplicationManagerService implements iStackProvider {
     return out;
   }
 
+  /**
+   * Start an editor instance, and set it as the primary active bit
+   */
   public async activateEditor<CONFIG, VALUE>(
     name: string,
     configuration: CONFIG = {} as CONFIG,
@@ -80,14 +101,16 @@ export class ApplicationManagerService implements iStackProvider {
     });
   }
 
+  /**
+   * How wide is the header message at it's widest?
+   */
   public headerLength(): number {
-    return ansiMaxLength(this.header) + LINE_PADDING;
+    return ansiMaxLength(this.header);
   }
 
-  public load(item: iComponent): void {
-    this.activeApplication = item;
-  }
-
+  /**
+   * Internal use
+   */
   public render(): void {
     this.activeApplication?.render();
     this.activeEditor?.render();
@@ -97,63 +120,53 @@ export class ApplicationManagerService implements iStackProvider {
    * Clear the screen, and re-render the previous header
    */
   public reprintHeader(): void {
-    this.screen.clear();
-    this.screen.printLine(`\n`);
-    this.screen.printLine(this.header);
+    const [a, b] = this.parts;
+    this.setHeader(a, b);
   }
 
-  public save(): Partial<iComponent> {
-    return this.activeApplication;
-  }
-
+  /**
+   * Clear the screen, and place a new header message at the top of the screen
+   */
   public setHeader(primary: string, secondary = ""): number {
+    this.parts = [primary, secondary];
     this.screen.clear();
-    this.screen.printLine();
-    let max = 0;
+    for (let i = START; i < this.paddingTop; i++) {
+      this.screen.printLine();
+    }
     if (is.empty(secondary)) {
       secondary = primary;
       primary = "";
     } else {
-      primary = figlet.textSync(primary, {
-        font: this.primaryFont,
-      });
-      primary = chalk
-        .cyan(primary)
-        .split(`\n`)
-        .map(i => `  ${i}`)
-        .join(`\n`);
-      max = ansiMaxLength(primary);
-      this.screen.printLine(`\n` + primary);
+      primary = this.headerPad(
+        figlet.textSync(primary, {
+          font: this.primaryFont,
+        }),
+        this.colorPrimary,
+      );
     }
     if (is.empty(secondary)) {
       this.header = primary;
       return;
     }
-    secondary = figlet.textSync(secondary, {
-      font: this.secondaryFont,
-    });
-    secondary = chalk
-      .magenta(secondary)
+    if (!is.empty(primary)) {
+      this.screen.printLine();
+    }
+    secondary = this.headerPad(
+      figlet.textSync(secondary, {
+        font: this.secondaryFont,
+      }),
+      this.colorSecondary,
+    );
+    this.header = `${primary}${secondary}`;
+    return this.headerLength();
+  }
+
+  private headerPad(text: string, color: string): string {
+    text = template(`{${color} ${text.trim()}}`)
       .split(`\n`)
-      .map(i => `  ${i}`)
+      .map(i => this.leftPadding + i)
       .join(`\n`);
-    max = Math.max(max, ansiMaxLength(secondary));
-    this.screen.printLine(secondary);
-    this.header = `${primary}\n${secondary}`;
-    return max;
-  }
-
-  public wrap<T>(callback: () => Promise<T>): Promise<T> {
-    return new Promise(async done => {
-      const application = this.activeApplication;
-      const result = await callback();
-      this.activeApplication = application;
-      done(result);
-    });
-  }
-
-  private reset(): void {
-    this.activeApplication = undefined;
-    this.activeEditor = undefined;
+    this.screen.printLine(text);
+    return text;
   }
 }

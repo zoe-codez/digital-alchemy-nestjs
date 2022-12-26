@@ -10,12 +10,16 @@ import {
   PickManyComponentService,
 } from "../components";
 import {
-  DEFAULT_HEADER_FONT,
+  APPLICATION_PADDING_LEFT,
+  APPLICATION_PADDING_TOP,
   DEFAULT_PROMPT_WIDTH,
+  HEADER_COLOR_PRIMARY,
+  HEADER_COLOR_SECONDARY,
+  HEADER_FONT_PRIMARY,
+  HEADER_FONT_SECONDARY,
   HELP,
   LIB_TTY,
   PAGE_SIZE,
-  SECONDARY_HEADER_FONT,
   TABLE_RENDER_ROWS,
   USE_FONTAWESOME_ICONS,
 } from "../config";
@@ -48,15 +52,38 @@ import {
 
 @LibraryModule({
   configuration: {
-    [DEFAULT_HEADER_FONT]: {
-      default: "ANSI Regular",
-      description: "Figlet font",
-      type: "string",
+    [APPLICATION_PADDING_LEFT]: {
+      default: 2,
+      description: "Automatic offsets for header. POC / deprecated",
+      type: "number",
+    },
+    [APPLICATION_PADDING_TOP]: {
+      default: 1,
+      description: "Automatic offsets for header. POC / deprecated",
+      type: "number",
     },
     [DEFAULT_PROMPT_WIDTH]: {
       default: 50,
       description: "Box width for prompts short text inputs",
       type: "number",
+    },
+    [HEADER_COLOR_PRIMARY]: {
+      default: "cyan",
+      type: "string",
+    },
+    [HEADER_COLOR_SECONDARY]: {
+      default: "magenta",
+      type: "string",
+    },
+    [HEADER_FONT_PRIMARY]: {
+      default: "ANSI Regular",
+      description: "Figlet font",
+      type: "string",
+    },
+    [HEADER_FONT_SECONDARY]: {
+      default: "Pagga",
+      description: "Figlet font",
+      type: "string",
     },
     [HELP]: {
       default: false,
@@ -68,11 +95,6 @@ import {
       default: 20,
       description: "Item quantity in menus / lists",
       type: "number",
-    },
-    [SECONDARY_HEADER_FONT]: {
-      default: "Pagga",
-      description: "Figlet font",
-      type: "string",
     },
     [TABLE_RENDER_ROWS]: {
       default: 20,

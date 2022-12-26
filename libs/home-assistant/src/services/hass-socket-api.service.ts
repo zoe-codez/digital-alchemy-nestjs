@@ -128,13 +128,8 @@ export class HassSocketAPIService {
     try {
       this.messageCount = START;
       this.connection = this.builder.build();
-      let first = true;
-      this.connection.addEventListener("message", message => {
-        if (first) {
-          first = false;
-        }
-        const decoded = JSON.parse(message.data.toString());
-        this.onMessage(decoded);
+      this.connection.on("message", message => {
+        this.onMessage(JSON.parse(message.toString()));
       });
       this.connection.on("error", async error => {
         this.logger.error({ error: error.message || error }, "Socket error");
@@ -166,11 +161,11 @@ export class HassSocketAPIService {
   /**
    * Send a message to HomeAssistant. Optionally, wait for a reply to return the result from
    */
-  public async sendMessage<T extends unknown = unknown>(
+  public async sendMessage<RESPONSE_VALUE extends unknown = unknown>(
     data: SOCKET_MESSAGES,
     waitForResponse = true,
     subscription?: () => void,
-  ): Promise<T> {
+  ): Promise<RESPONSE_VALUE> {
     if (!this.connection) {
       this.logger.error("Cannot send messages before socket is initialized");
       return undefined;
@@ -191,12 +186,14 @@ export class HassSocketAPIService {
     const json = JSON.stringify(data);
     this.connection.send(json);
     if (subscription) {
-      return data.id as T;
+      return data.id as RESPONSE_VALUE;
     }
     if (!waitForResponse) {
       return;
     }
-    return new Promise(done => this.waitingCallback.set(counter, done));
+    return new Promise<RESPONSE_VALUE>(done =>
+      this.waitingCallback.set(counter, done),
+    );
   }
 
   /**
@@ -287,6 +284,7 @@ export class HassSocketAPIService {
         // * Flag as valid connection
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
+        // 🕶
         await this.manager["onAuth"]();
         this.eventEmitter.emit(ON_SOCKET_AUTH);
         return;

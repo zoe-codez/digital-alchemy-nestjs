@@ -60,7 +60,10 @@ export class BackupControlsService {
               highlight: "auto",
             },
         escape: ["done"],
-        f5: ["refresh"],
+        f5: {
+          alias: ["r"],
+          entry: ["refresh"],
+        },
       },
       left: backups.map(backup => {
         return {

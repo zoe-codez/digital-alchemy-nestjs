@@ -2,20 +2,12 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { each, is } from "@steggy/utilities";
 import chalk from "chalk";
 
-import {
-  ApplicationStackProvider,
-  DirectCB,
-  iStackProvider,
-  KeyDescriptor,
-  KeyModifiers,
-  tKeyMap,
-} from "../contracts";
+import { DirectCB, KeyDescriptor, KeyModifiers, tKeyMap } from "../contracts";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
 
 @Injectable()
-@ApplicationStackProvider()
-export class KeyboardManagerService implements iStackProvider {
+export class KeyboardManagerService {
   constructor(
     private readonly screen: ScreenService,
     @Inject(forwardRef(() => ApplicationManagerService))
@@ -73,15 +65,12 @@ export class KeyboardManagerService implements iStackProvider {
    * Implies ApplicationManager#wrap()
    */
   public async wrap<T>(callback: () => Promise<T>): Promise<T> {
-    return await this.applicationManager.wrap(
-      () =>
-        new Promise(async done => {
-          const map = this.save();
-          const result = await callback();
-          this.load(map);
-          done(result);
-        }),
-    );
+    const application = this.applicationManager.activeApplication;
+    const map = this.save();
+    const result = await callback();
+    this.load(map);
+    this.applicationManager.activeApplication = application;
+    return result;
   }
 
   protected onApplicationBootstrap(): void {
