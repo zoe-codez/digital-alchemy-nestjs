@@ -40,6 +40,7 @@ import {
 } from "../contracts";
 import {
   iSceneRoom,
+  iSceneRoomOptions,
   SCENE_ROOM_MAP,
   SCENE_ROOM_SETTINGS,
   SCENE_ROOM_TRANSITIONS,
@@ -53,6 +54,9 @@ const current = new Map<string, string>();
 interface HasKelvin {
   kelvin: number;
 }
+
+export const SET_ROOM_SCENE_EVENT = (room: string, scene: string) =>
+  `room-set-scene/${room}/${scene}`;
 
 /**
  * Importing this provider is required to actually register a room.
@@ -95,7 +99,10 @@ export class SceneRoomService<
   }
 
   private get options() {
-    return SCENE_ROOM_MAP.get(this.roomName);
+    return SCENE_ROOM_MAP.get(this.roomName) as iSceneRoomOptions<
+      LOCAL | GLOBAL,
+      NAME
+    >;
   }
 
   public dimmableLights(
@@ -285,21 +292,41 @@ export class SceneRoomService<
 
   protected async onApplicationBootstrap(): Promise<void> {
     if (is.empty(this.roomName)) {
+      // Technically valid, but not ideal
+      // Would like to prevent non-scene rooms from importing this class in the future
+      // Causes some weird side effects, and the analogies really don't work all that well
+      //
       this.logger.warn(`Scene set imported by non-room`);
       return;
     }
     this.scenes = new Map();
+
+    // Register room provider
     ROOMS.set(this.roomName, this);
+
+    // Identify the current scene
+    // This may be wrong if cache data isn't available, but that should be a temporary state
     const value = await this.cache.get<string>(SCENE_CACHE(this.roomName));
     current.set(this.roomName, value);
+
     this.logger.info(`Room [${this.roomName}] loaded`);
-    Object.entries(this.options.scenes).forEach(([name, scene]) => {
-      this.scenes.set(name as LOCAL | GLOBAL, scene as tScene);
-      this.logger.debug(` - scene {${name}}`);
-      Object.entries(scene).forEach(([entityName]) =>
-        this.entities.add(entityName as PICK_ENTITY),
-      );
-    });
+
+    // Run through each individual scene, doing individual registration
+    Object.entries(this.options.scenes).forEach(
+      ([name, scene]: [LOCAL | GLOBAL, unknown]) => {
+        this.scenes.set(name as LOCAL | GLOBAL, scene as tScene);
+        this.logger.debug(` - scene {${name}}`);
+        // Add entities used in the scene to the local list of entities used in this room
+        Object.entries(scene).forEach(([entityName]) =>
+          this.entities.add(entityName as PICK_ENTITY),
+        );
+        // Add an event emitter subscription for this specific scene
+        // Note: `hass-mqtt` will bind MQTT to this event to allow scene setting via mqtt entities
+        this.eventEmitter.on(SET_ROOM_SCENE_EVENT(this.roomName, name), () => {
+          this.set(name);
+        });
+      },
+    );
     // Annotation based bindings don't work as expected in transient providers
     this.eventEmitter.on(CIRCADIAN_UPDATE, temperature =>
       this.circadianLightingUpdate(temperature),

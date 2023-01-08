@@ -58,6 +58,7 @@ export class HassSocketAPIService {
 
   public CONNECTION_ACTIVE = false;
   private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
+
   /**
    * Tracking for recent message traffic.
    * Helps to ensure that the application doesn't go out of control in an infinite loop somewhere.

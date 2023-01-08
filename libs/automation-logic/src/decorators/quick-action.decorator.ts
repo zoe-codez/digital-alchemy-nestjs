@@ -6,6 +6,12 @@ import { iSceneRoom } from "./scene-room.decorator";
 interface QuickActionOptions {
   description?: string;
   /**
+   * Create mqtt button using this as the entity id `button.{object_id}`
+   *
+   * Functionality provided by `hass-mqtt` library
+   */
+  object_id?: string;
+  /**
    * default = function name
    */
   title?: string;
