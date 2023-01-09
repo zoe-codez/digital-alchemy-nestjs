@@ -14,7 +14,7 @@ import { InjectMQTT } from "../decorators";
 
 /* eslint-disable radar/no-identical-functions */
 
-export type MqttCallback<T = Record<string, unknown>> = (
+export type MqttCallback<T = unknown> = (
   payload: T | T[],
   packet?: Packet,
 ) => void;
@@ -78,9 +78,9 @@ export class MqttService {
     });
   }
 
-  public subscribe(
+  public subscribe<TYPE>(
     topic: string,
-    callback: MqttCallback,
+    callback: MqttCallback<TYPE>,
     options?: MqttSubscribeOptions,
   ): void {
     this.listen(topic, { ...options, qos: 1 });
