@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService, InjectLogger } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import {
   Client,
@@ -21,13 +21,14 @@ export type MqttCallback<T = unknown> = (
 
 const FIRST = 0;
 
-/**
- * DO NOT USE `@InjectMQTT()` WITH THIS!
- */
+// ! @InjectLogger() required for when this class is injected into other transient classes
+// - Don't remove
+
 @Injectable()
 export class MqttService {
   constructor(
     @InjectMQTT() private readonly client: Client,
+    @InjectLogger()
     private readonly logger: AutoLogService,
   ) {}
 
