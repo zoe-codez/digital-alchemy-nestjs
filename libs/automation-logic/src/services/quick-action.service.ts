@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { AutoLogService, GetLogContext } from "@steggy/boilerplate";
-import { is, TitleCase } from "@steggy/utilities";
+import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
-import { exit } from "process";
 
 import {
   iQuickAction,
@@ -15,7 +14,6 @@ import {
 
 export type QuickActionListItem = iQuickAction & {
   instance?: iSceneRoom;
-  name: string;
 };
 
 @Injectable()
@@ -41,39 +39,22 @@ export class QuickActionService {
       return;
     }
     this.logger.info(`Loading {${QUICK_ACTIONS.size}} quick actions`);
-    const invalid = [...QUICK_ACTIONS.entries()].filter(([provider]) => {
-      const result = is.undefined(provider.constructor[SCENE_ROOM_OPTIONS]);
-      return !result;
-    });
-    if (!is.empty(invalid)) {
-      [...QUICK_ACTIONS.entries()].forEach(([instance, actions]) => {
-        const options = instance.constructor[
-          SCENE_ROOM_OPTIONS
-        ] as iSceneRoomOptions<string, string>;
-        this.roomMap.set(options.name, instance);
-        actions.forEach(i => {
-          const name = TitleCase(options.name);
-          this.logger.info(
-            `[${name}] quick action {${i.options.title || i.method}}`,
-          );
-          this.list.push({
-            ...i,
-            instance,
-            name,
-          });
+    [...QUICK_ACTIONS.entries()].forEach(([instance, actions]) => {
+      const options = instance.constructor[
+        SCENE_ROOM_OPTIONS
+      ] as iSceneRoomOptions<string, string>;
+      this.roomMap.set(options.name, instance);
+      actions.forEach(i => {
+        this.logger.info(
+          `[${GetLogContext(instance)}] quick action {${
+            i.options.title || i.method
+          }}`,
+        );
+        this.list.push({
+          ...i,
+          instance,
         });
       });
-      return;
-    }
-    this.logger.fatal(
-      `{${invalid.length}} providers utilize [@QuickAction] without being Scene Rooms`,
-    );
-    invalid.forEach(([instance, options]) => {
-      const context = GetLogContext(instance);
-      options.forEach(item => {
-        this.logger.error(`${context}#${item.method}`);
-      });
     });
-    exit();
   }
 }
