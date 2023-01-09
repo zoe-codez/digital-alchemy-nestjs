@@ -13,6 +13,8 @@ import { OnEntityUpdate } from "../decorators";
 import { ENTITY_SETUP } from "../dynamic";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 
+const TIMEOUT = 5000;
+
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
  *
@@ -32,6 +34,8 @@ export class EntityManagerService {
    * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
    */
   public MASTER_STATE: Record<string, Record<string, GenericEntityDTO>> = {};
+
+  private init = false;
 
   /**
    * Retrieve an entity's state
@@ -63,6 +67,46 @@ export class EntityManagerService {
     entityId: PICK_ENTITY[],
   ): T[] {
     return entityId.map(id => this.ENTITIES.get(id) as T);
+  }
+
+  /**
+   * Retrieve the state for an entity that may or may not exist.
+   * Has internal timeout
+   *
+   * Useful for secondary default values
+   */
+  public async getState<VALUE extends unknown>(
+    entity_id: PICK_ENTITY,
+    timeout = TIMEOUT,
+  ): Promise<VALUE> {
+    let done = false;
+    return await new Promise((accept, reject) => {
+      if (this.init) {
+        done = true;
+        accept(this.byId(entity_id).state);
+        return;
+      }
+      const callback = result => {
+        if (done) {
+          // wat
+          return;
+        }
+        accept(result);
+        done = true;
+      };
+      setTimeout(() => {
+        if (done) {
+          return;
+        }
+        reject(`timeout`);
+        done = true;
+        this.eventEmitter.removeListener(
+          OnEntityUpdate.updateEvent(entity_id),
+          callback,
+        );
+      }, timeout);
+      this.eventEmitter.once(OnEntityUpdate.updateEvent(entity_id), callback);
+    });
   }
 
   /**
@@ -114,6 +158,10 @@ export class EntityManagerService {
         return;
       }
       this.ENTITIES.set(entity.entity_id as PICK_ENTITY, entity);
+      this.eventEmitter.emit(
+        OnEntityUpdate.updateEvent(entity.entity_id),
+        entity.state,
+      );
     });
   }
 

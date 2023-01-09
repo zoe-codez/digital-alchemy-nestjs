@@ -14,7 +14,7 @@ export class BuildPipelineService {
     ) as unknown as {
       version: string;
     };
-    const prefix = dayjs().format("YY.ww");
+    const prefix = dayjs().format("YY.ww").replace(".0", ".");
     rootPackage.version = rootPackage.version.startsWith(prefix)
       ? inc(rootPackage.version, "patch")
       : `${prefix}.0`;
