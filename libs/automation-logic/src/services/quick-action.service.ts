@@ -33,11 +33,15 @@ export class QuickActionService {
     }
     this.logger.info(`Loading {${QUICK_ACTIONS.size}} quick actions`);
     [...QUICK_ACTIONS.entries()].forEach(([instance, actions]) => {
+      const context = GetLogContext(instance);
+      if (is.undefined(context)) {
+        // FIXME: This will catch providers that aren't actually included in the app
+        // This should go through the a module scanner pattern instead
+        return;
+      }
       actions.forEach(i => {
         this.logger.info(
-          `[${GetLogContext(instance)}] quick action {${
-            i.options.title || i.method
-          }}`,
+          `[${context}] quick action {${i.options.title || i.method}}`,
         );
         this.list.push({
           ...i,
