@@ -284,6 +284,12 @@ export class SceneRoomService<
     if (is.empty(lights)) {
       return;
     }
+    if (!this.call.light) {
+      this.logger.error(
+        `[light] domain is unavailable. Ensure proxy API is running`,
+      );
+      return;
+    }
     await this.call.light.turn_on({
       entity_id: lights,
       kelvin: color_temp,
