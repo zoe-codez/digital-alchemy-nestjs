@@ -327,7 +327,9 @@ export function UsePrettyLogger(): void {
       logger[method](
         parameters.shift() as Record<string, unknown>,
         `${highlightContext(
-          context,
+          is.string(parameters[0].context) && !is.empty(parameters[0].context)
+            ? parameters[0].context
+            : context,
           methodColors.get(method),
         )} ${prettyFormatMessage(parameters.shift() as string)}`,
         ...parameters,
