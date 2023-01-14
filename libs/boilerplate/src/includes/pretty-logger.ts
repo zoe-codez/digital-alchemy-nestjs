@@ -324,16 +324,19 @@ export function UsePrettyLogger(): void {
     }
     const logger = AutoLogService.getLogger() as pino.Logger;
     if (is.object(parameters[0])) {
-      logger[method](
-        parameters.shift() as Record<string, unknown>,
-        `${highlightContext(
-          is.string(parameters[0].context) && !is.empty(parameters[0].context)
-            ? parameters[0].context
-            : context,
-          methodColors.get(method),
-        )} ${prettyFormatMessage(parameters.shift() as string)}`,
-        ...parameters,
-      );
+      const data = parameters.shift() as Record<string, unknown>;
+      const replacementContext = data.context;
+      const actualContext =
+        is.string(replacementContext) && !is.empty(replacementContext)
+          ? replacementContext
+          : context;
+
+      const message = `${highlightContext(
+        actualContext,
+        methodColors.get(method),
+      )} ${prettyFormatMessage(parameters.shift() as string)}`;
+
+      logger[method](data, message, ...parameters);
       return;
     }
     logger[method](
