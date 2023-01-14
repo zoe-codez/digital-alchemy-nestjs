@@ -322,17 +322,17 @@ export function UsePrettyLogger(): void {
       // early shortcut for an over used call
       return;
     }
+
     const logger = AutoLogService.getLogger() as pino.Logger;
     if (is.object(parameters[0])) {
       const data = parameters.shift() as Record<string, unknown>;
-      const replacementContext = data.context;
-      const actualContext =
-        is.string(replacementContext) && !is.empty(replacementContext)
-          ? replacementContext
-          : context;
+      if (is.string(data.context) && !is.empty(data.context)) {
+        context = data.context;
+        delete data.context;
+      }
 
       const message = `${highlightContext(
-        actualContext,
+        context,
         methodColors.get(method),
       )} ${prettyFormatMessage(parameters.shift() as string)}`;
 
