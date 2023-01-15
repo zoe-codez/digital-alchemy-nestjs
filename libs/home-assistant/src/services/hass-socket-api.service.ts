@@ -33,6 +33,8 @@ import { EntityManagerService } from "./entity-manager.service";
 import { SocketManagerService } from "./socket-manager.service";
 
 const CONNECTION_OPEN = 1;
+let connection: WS;
+let CONNECTION_ACTIVE = false;
 
 /**
  * Management for
@@ -56,7 +58,14 @@ export class HassSocketAPIService {
     private readonly manager: SocketManagerService,
   ) {}
 
-  public CONNECTION_ACTIVE = false;
+  public get CONNECTION_ACTIVE() {
+    return CONNECTION_ACTIVE;
+  }
+
+  public get connection() {
+    return connection;
+  }
+
   private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
 
   /**
@@ -79,21 +88,20 @@ export class HassSocketAPIService {
    * Open an issue if you have thoughts
    */
   private MESSAGE_TIMESTAMPS: number[] = [];
-  private connection: WS;
   private messageCount = START;
   private subscriptionCallbacks = new Map<number, (result) => void>();
   private waitingCallback = new Map<number, (result) => void>();
 
   public destroy(): void {
-    if (!this.connection) {
+    if (!connection) {
       return;
     }
-    if (this.connection.readyState === CONNECTION_OPEN) {
+    if (connection.readyState === CONNECTION_OPEN) {
       this.logger.debug(`Closing current connection`);
     }
-    this.CONNECTION_ACTIVE = false;
-    this.connection.close();
-    this.connection = undefined;
+    CONNECTION_ACTIVE = false;
+    connection.close();
+    connection = undefined;
   }
 
   /**
@@ -118,30 +126,30 @@ export class HassSocketAPIService {
    * Set up a new websocket connection to home assistant
    */
   public async init(): Promise<void> {
-    if (this.connection) {
+    if (connection) {
       this.logger.error(
         `Destroy the current connection before creating a new one`,
       );
       return;
     }
     this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
-    this.CONNECTION_ACTIVE = false;
+    CONNECTION_ACTIVE = false;
     try {
       this.messageCount = START;
-      this.connection = this.builder.build();
-      this.connection.on("message", message => {
+      connection = this.builder.build();
+      connection.on("message", message => {
         this.onMessage(JSON.parse(message.toString()));
       });
-      this.connection.on("error", async error => {
+      connection.on("error", async error => {
         this.logger.error({ error: error.message || error }, "Socket error");
-        if (!this.CONNECTION_ACTIVE) {
+        if (!CONNECTION_ACTIVE) {
           await sleep(this.retryInterval);
           this.destroy();
           await this.init();
         }
       });
       return await new Promise(done => {
-        this.connection.once("open", () => done());
+        connection.once("open", () => done());
       });
     } catch (error) {
       this.logger.error({ error }, `initConnection error`);
@@ -167,7 +175,7 @@ export class HassSocketAPIService {
     waitForResponse = true,
     subscription?: () => void,
   ): Promise<RESPONSE_VALUE> {
-    if (!this.connection) {
+    if (!connection) {
       this.logger.error("Cannot send messages before socket is initialized");
       return undefined;
     }
@@ -177,7 +185,7 @@ export class HassSocketAPIService {
       // You want know how annoying this one was to debug?!
       data.id = counter;
     }
-    if (this.connection?.readyState !== WS.OPEN) {
+    if (connection?.readyState !== WS.OPEN) {
       this.logger.error(
         { data },
         `Cannot send message, connection is not open`,
@@ -185,7 +193,7 @@ export class HassSocketAPIService {
       return;
     }
     const json = JSON.stringify(data);
-    this.connection.send(json);
+    connection.send(json);
     if (subscription) {
       return data.id as RESPONSE_VALUE;
     }
@@ -210,7 +218,7 @@ export class HassSocketAPIService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
-    if (!this.CONNECTION_ACTIVE) {
+    if (!CONNECTION_ACTIVE) {
       return;
     }
     try {
@@ -283,7 +291,7 @@ export class HassSocketAPIService {
       case HassSocketMessageTypes.auth_ok:
         this.logger.debug(`[CONNECTION_ACTIVE] = {true}`);
         // * Flag as valid connection
-        this.CONNECTION_ACTIVE = true;
+        CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
         // 🕶
         await this.manager["onAuth"]();
@@ -307,7 +315,7 @@ export class HassSocketAPIService {
 
       case HassSocketMessageTypes.auth_invalid:
         this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
-        this.CONNECTION_ACTIVE = false;
+        CONNECTION_ACTIVE = false;
         this.logger.fatal(message.message);
         return;
 
