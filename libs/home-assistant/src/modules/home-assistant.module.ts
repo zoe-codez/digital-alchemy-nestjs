@@ -11,8 +11,7 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
-import { CALL_PROXY } from "../decorators";
-import { INJECTED_ENTITIES } from "../decorators/inject-entity.decorator";
+import { CALL_PROXY, INJECTED_ENTITIES } from "../decorators";
 import {
   BackupService,
   ConnectionBuilderService,
