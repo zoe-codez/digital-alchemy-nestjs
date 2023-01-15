@@ -1,6 +1,5 @@
 import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
-import { HomeAssistantModule } from "@steggy/home-assistant";
 
 import {
   CIRCADIAN_ENABLED,
@@ -72,7 +71,7 @@ import {
     SceneRoomService,
     SolarCalcService,
   ],
-  imports: [HomeAssistantModule, DiscoveryModule, RegisterCache()],
+  imports: [DiscoveryModule, RegisterCache()],
   library: Symbol("automation-logic"),
   providers: [
     CircadianService,
