@@ -90,6 +90,7 @@ describe("Socket Manager", () => {
       socket.close();
       socket = undefined;
     }
+    socketApi.destroy();
     mockServer.teardown();
     mockServer = undefined;
   });

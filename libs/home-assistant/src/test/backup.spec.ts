@@ -103,6 +103,7 @@ describe("Backup", () => {
       socket = undefined;
     }
     mockServer.teardown();
+    socketApi.destroy();
     mockServer = undefined;
   });
 

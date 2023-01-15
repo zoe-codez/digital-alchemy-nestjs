@@ -69,6 +69,7 @@ describe("Hass Socket API", () => {
       socket = undefined;
     }
     mockServer.teardown();
+    socketApi.destroy();
     mockServer = undefined;
   });
 

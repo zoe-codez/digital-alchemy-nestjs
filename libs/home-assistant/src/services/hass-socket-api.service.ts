@@ -1,4 +1,9 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import {
   AutoLogService,
   Cron,
@@ -98,9 +103,9 @@ export class HassSocketAPIService {
     }
     if (connection.readyState === CONNECTION_OPEN) {
       this.logger.debug(`Closing current connection`);
+      CONNECTION_ACTIVE = false;
+      connection.close();
     }
-    CONNECTION_ACTIVE = false;
-    connection.close();
     connection = undefined;
   }
 
@@ -127,10 +132,9 @@ export class HassSocketAPIService {
    */
   public async init(): Promise<void> {
     if (connection) {
-      this.logger.error(
+      throw new InternalServerErrorException(
         `Destroy the current connection before creating a new one`,
       );
-      return;
     }
     this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
     CONNECTION_ACTIVE = false;
