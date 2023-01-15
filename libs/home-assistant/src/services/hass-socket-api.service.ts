@@ -40,6 +40,7 @@ import { SocketManagerService } from "./socket-manager.service";
 const CONNECTION_OPEN = 1;
 let connection: WS;
 let CONNECTION_ACTIVE = false;
+let messageCount = START;
 
 /**
  * Management for
@@ -93,7 +94,6 @@ export class HassSocketAPIService {
    * Open an issue if you have thoughts
    */
   private MESSAGE_TIMESTAMPS: number[] = [];
-  private messageCount = START;
   private subscriptionCallbacks = new Map<number, (result) => void>();
   private waitingCallback = new Map<number, (result) => void>();
 
@@ -139,7 +139,7 @@ export class HassSocketAPIService {
     this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
     CONNECTION_ACTIVE = false;
     try {
-      this.messageCount = START;
+      messageCount = START;
       connection = this.builder.build();
       connection.on("message", message => {
         this.onMessage(JSON.parse(message.toString()));
@@ -184,10 +184,9 @@ export class HassSocketAPIService {
       return undefined;
     }
     this.countMessage();
-    const counter = this.messageCount;
     if (data.type !== HASSIO_WS_COMMAND.auth) {
       // You want know how annoying this one was to debug?!
-      data.id = counter;
+      data.id = messageCount;
     }
     if (connection?.readyState !== WS.OPEN) {
       this.logger.error(
@@ -205,7 +204,7 @@ export class HassSocketAPIService {
       return;
     }
     return new Promise<RESPONSE_VALUE>(done =>
-      this.waitingCallback.set(counter, done),
+      this.waitingCallback.set(messageCount, done),
     );
   }
 
@@ -243,7 +242,7 @@ export class HassSocketAPIService {
   }
 
   private countMessage(): void | never {
-    this.messageCount++;
+    messageCount++;
     const now = Date.now();
     this.MESSAGE_TIMESTAMPS.push(now);
     const count = this.MESSAGE_TIMESTAMPS.filter(
