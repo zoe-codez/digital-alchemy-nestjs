@@ -21,10 +21,8 @@ import {
 } from "typescript";
 
 import {
-  ENTITY_STATE,
   HASSIO_WS_COMMAND,
   HassServiceDTO,
-  PICK_ENTITY,
   ServiceListFieldDescription,
   ServiceListServiceTarget,
 } from "../contracts";
@@ -115,26 +113,6 @@ export class HassCallTypeGenerator {
         },
       },
     );
-  }
-
-  public buildEntityProxy<ENTITY extends PICK_ENTITY>(
-    entity: ENTITY,
-  ): ENTITY_STATE<ENTITY> {
-    return new Proxy({} as ENTITY_STATE<ENTITY>, {
-      get: (t, property: string) => {
-        if (!this.entityManager.init) {
-          return undefined;
-        }
-        const current = this.entityManager.byId<ENTITY>(entity);
-        return current ? current[property] : undefined;
-      },
-      set(t, property: string) {
-        // No really, bad developer
-        throw new InternalServerErrorException(
-          `Cannot modify entity property: ${property}`,
-        );
-      },
-    });
   }
 
   public async buildTypes(): Promise<string> {
