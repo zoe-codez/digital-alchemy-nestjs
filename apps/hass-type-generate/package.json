@@ -6,7 +6,7 @@
   "description": "",
   "main": "main.js",
   "name": "@steggy/hass-type-generate",
-  "version": "23.3.4",
+  "version": "23.3.5",
   "author": {
     "name": "mp3three",
     "url": "https://github.com/mp3three/steggy"
