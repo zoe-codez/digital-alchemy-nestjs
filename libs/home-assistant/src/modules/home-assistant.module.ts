@@ -93,7 +93,7 @@ const services: Provider[] = [
   providers: services,
 })
 export class HomeAssistantModule {
-  public forRoot(): DynamicModule {
+  public static forRoot(): DynamicModule {
     return {
       exports: [...services, ...INJECTED_ENTITIES.values()],
       imports: [RegisterCache()],
