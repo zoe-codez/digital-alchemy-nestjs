@@ -1,4 +1,4 @@
-import { Provider } from "@nestjs/common";
+import { DynamicModule, Provider } from "@nestjs/common";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 
 import {
@@ -12,6 +12,7 @@ import {
   WEBSOCKET_URL,
 } from "../config";
 import { CALL_PROXY } from "../decorators";
+import { INJECTED_ENTITIES } from "../decorators/inject-entity.decorator";
 import {
   BackupService,
   ConnectionBuilderService,
@@ -37,7 +38,7 @@ const services: Provider[] = [
   {
     inject: [HassCallTypeGenerator],
     provide: CALL_PROXY,
-    useFactory: (call: HassCallTypeGenerator) => call.buildProxy(),
+    useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
   },
 ];
 
@@ -92,4 +93,13 @@ const services: Provider[] = [
   library: LIB_HOME_ASSISTANT,
   providers: services,
 })
-export class HomeAssistantModule {}
+export class HomeAssistantModule {
+  public forRoot(): DynamicModule {
+    return {
+      exports: [...services, ...INJECTED_ENTITIES.values()],
+      imports: [RegisterCache()],
+      module: HomeAssistantModule,
+      providers: [...services, ...INJECTED_ENTITIES.values()],
+    };
+  }
+}

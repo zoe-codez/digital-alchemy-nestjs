@@ -21,11 +21,14 @@ import {
 } from "typescript";
 
 import {
+  ENTITY_STATE,
   HASSIO_WS_COMMAND,
   HassServiceDTO,
+  PICK_ENTITY,
   ServiceListFieldDescription,
   ServiceListServiceTarget,
 } from "../contracts";
+import { EntityManagerService } from "./entity-manager.service";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
@@ -45,6 +48,7 @@ export class HassCallTypeGenerator {
     private readonly fetchApi: HassFetchAPIService,
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socketApi: HassSocketAPIService,
+    private readonly entityManager: EntityManagerService,
   ) {}
 
   private domains: string[] = [];
@@ -60,11 +64,11 @@ export class HassCallTypeGenerator {
    * Sanity checking isn't performed here on the service_data, if the user wants to bypass type checking,
    * they are more than welcome to do it.
    */
-  public buildProxy(): Record<
+  public buildCallProxy(): Record<
     string,
     Record<string, (...arguments_) => Promise<void>>
   > {
-    const proxy = new Proxy(
+    return new Proxy(
       {},
       {
         get: (t, domain: string) => {
@@ -111,7 +115,23 @@ export class HassCallTypeGenerator {
         },
       },
     );
-    return proxy;
+  }
+
+  public buildEntityProxy<ENTITY extends PICK_ENTITY>(
+    entity: ENTITY,
+  ): ENTITY_STATE<ENTITY> {
+    return new Proxy({} as ENTITY_STATE<ENTITY>, {
+      get: (t, property: string) => {
+        const current = this.entityManager.byId<ENTITY>(entity);
+        return current ? current[property] : undefined;
+      },
+      set(t, property: string) {
+        // No really, bad developer
+        throw new InternalServerErrorException(
+          `Cannot modify entity property: ${property}`,
+        );
+      },
+    });
   }
 
   public async buildTypes(): Promise<string> {
