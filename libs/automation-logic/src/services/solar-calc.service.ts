@@ -13,6 +13,7 @@ import {
   HALF,
   is,
   MINUTE,
+  SECOND,
   sleep,
   UP,
 } from "@steggy/utilities";
@@ -116,14 +117,16 @@ export class SolarCalcService {
   }
 
   @OnEvent(SOCKET_READY)
-  protected async updateConfig(): Promise<void> {
-    const config = await this.socket.getConfig();
-    this.latitude = config.latitude;
-    this.longitude = config.longitude;
-    await this.cache.set(CACHE_LONG, config.longitude);
-    await this.cache.set(CACHE_LAT, config.latitude);
-    this.eventEmitter.emit(LOCATION_UPDATED);
-    this.updateCalculator();
+  protected updateConfig(): void {
+    setTimeout(async () => {
+      const config = await this.socket.getConfig();
+      this.latitude = config.latitude;
+      this.longitude = config.longitude;
+      await this.cache.set(CACHE_LONG, config.longitude);
+      await this.cache.set(CACHE_LAT, config.latitude);
+      this.eventEmitter.emit(LOCATION_UPDATED);
+      this.updateCalculator();
+    }, SECOND);
   }
 
   private async waitForEvent(
