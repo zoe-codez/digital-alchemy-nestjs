@@ -4,12 +4,9 @@ import { v4 } from "uuid";
 import { PICK_ENTITY } from "../contracts";
 import { HassCallTypeGenerator } from "../services";
 
-// import { HassMqttModuleOptions, MODULE_CONFIGURATION } from "../contracts";
-// import { MQTTBinarySensor } from "../services";
-
 export const INJECTED_ENTITIES = new Set<Provider>();
 
-export function InjectBinarySensor(object_id: PICK_ENTITY): ParameterDecorator {
+export function InjectEntity(object_id: PICK_ENTITY): ParameterDecorator {
   return function (target, key, index) {
     const id = v4();
     INJECTED_ENTITIES.add({
