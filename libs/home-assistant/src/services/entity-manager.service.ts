@@ -35,7 +35,7 @@ export class EntityManagerService {
    */
   public MASTER_STATE: Record<string, Record<string, GenericEntityDTO>> = {};
 
-  private init = false;
+  public init = false;
 
   /**
    * Retrieve an entity's state
@@ -163,6 +163,7 @@ export class EntityManagerService {
         entity.state,
       );
     });
+    this.init = true;
   }
 
   /**

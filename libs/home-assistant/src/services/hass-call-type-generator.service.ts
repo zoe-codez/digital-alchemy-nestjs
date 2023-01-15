@@ -122,6 +122,9 @@ export class HassCallTypeGenerator {
   ): ENTITY_STATE<ENTITY> {
     return new Proxy({} as ENTITY_STATE<ENTITY>, {
       get: (t, property: string) => {
+        if (!this.entityManager.init) {
+          return undefined;
+        }
         const current = this.entityManager.byId<ENTITY>(entity);
         return current ? current[property] : undefined;
       },
