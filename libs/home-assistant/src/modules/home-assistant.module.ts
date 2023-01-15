@@ -88,6 +88,7 @@ const services: Provider[] = [
     },
   },
   exports: services,
+  global: true,
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
   providers: services,
@@ -96,6 +97,7 @@ export class HomeAssistantModule {
   public static forRoot(): DynamicModule {
     return {
       exports: [...services, ...INJECTED_ENTITIES.values()],
+      global: true,
       imports: [RegisterCache()],
       module: HomeAssistantModule,
       providers: [...services, ...INJECTED_ENTITIES.values()],

@@ -20,6 +20,7 @@ import { HassFetchAPIService } from "../services";
     },
   },
   exports: [HassFetchAPIService],
+  global: true,
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
   // Interrupt not meant to be used in this context (won't be provided as export)
