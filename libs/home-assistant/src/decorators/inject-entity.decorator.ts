@@ -1,4 +1,5 @@
-import { Inject, InternalServerErrorException, Provider } from "@nestjs/common";
+import { Inject, Provider } from "@nestjs/common";
+import { AutoLogService } from "@steggy/boilerplate";
 import { v4 } from "uuid";
 
 import { ENTITY_STATE, PICK_ENTITY } from "../contracts";
@@ -27,22 +28,37 @@ export function InjectEntity<ENTITY extends PICK_ENTITY>(
   return function (target, key, index) {
     const id = v4();
     INJECTED_ENTITIES.add({
-      inject: [EntityManagerService],
+      inject: [EntityManagerService, AutoLogService],
       provide: id,
-      useFactory(entityManager: EntityManagerService) {
+      useFactory(entityManager: EntityManagerService, logger: AutoLogService) {
+        logger["context"] = `InjectEntity(${entity})`;
         return new Proxy({} as ENTITY_STATE<ENTITY>, {
           get: (t, property: string) => {
             if (!entityManager.init) {
               return undefined;
             }
             const current = entityManager.byId<ENTITY>(entity);
+            if (!current) {
+              // Theory: attributes only gets accessed to use the sub-properties
+              // It is frequent to forget optional chains `attribute?.friendly_name`
+              // Providing an object by default reduces crashes
+              // Doesn't matter for other properties, which aren't directly chained (or as generally used)
+              const defaultValue = property === "attributes" ? {} : undefined;
+              logger.error(
+                { defaultValue },
+                `Proxy cannot find entity to provide {${property}}. Is application in a valid state?`,
+              );
+              return defaultValue;
+            }
             return current ? current[property] : undefined;
           },
-          set(t, property: string) {
-            // No really, bad developer
-            throw new InternalServerErrorException(
-              `Cannot modify entity property: ${property}`,
+          set(t, property: string, value: unknown) {
+            // ... should it? Seems like a bad idea
+            logger.error(
+              { property, value },
+              `Entity proxy does not accept value setting`,
             );
+            return false;
           },
         });
       },
