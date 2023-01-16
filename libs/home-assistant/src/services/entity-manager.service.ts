@@ -3,6 +3,7 @@ import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 
 import {
+  ALL_DOMAINS,
   domain,
   ENTITY_STATE,
   GenericEntityDTO,
@@ -10,7 +11,6 @@ import {
   PICK_ENTITY,
 } from "../contracts";
 import { OnEntityUpdate } from "../decorators";
-import { ENTITY_SETUP } from "../dynamic";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 
 const TIMEOUT = 5000;
@@ -48,8 +48,10 @@ export class EntityManagerService {
    * list all entities by domain
    */
   public findByDomain<
-    DOMAIN extends keyof typeof ENTITY_SETUP = keyof typeof ENTITY_SETUP,
-    STATES extends ENTITY_STATE<DOMAIN> = ENTITY_STATE<DOMAIN>,
+    DOMAIN extends ALL_DOMAINS = ALL_DOMAINS,
+    STATES extends ENTITY_STATE<PICK_ENTITY<DOMAIN>> = ENTITY_STATE<
+      PICK_ENTITY<DOMAIN>
+    >,
   >(target: DOMAIN): STATES[] {
     const out: STATES[] = [];
     this.ENTITIES.forEach((state, key) => {
