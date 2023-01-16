@@ -6,32 +6,42 @@ import { ENTITY_SETUP } from "../dynamic";
 /**
  * Pick any valid entity, optionally limiting by domain
  */
-export declare type PICK_ENTITY<
-  DOMAIN extends keyof typeof ENTITY_SETUP = keyof typeof ENTITY_SETUP,
-> = {
+export type PICK_ENTITY<DOMAIN extends ALL_DOMAINS = ALL_DOMAINS> = {
   [key in DOMAIN]: `${key}.${keyof typeof ENTITY_SETUP[key] & string}`;
 }[DOMAIN];
 
-export function split(
+export function entity_split(
   entity: { entity_id: PICK_ENTITY } | PICK_ENTITY,
 ): [string, string] {
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
-  return entity.split(".") as [string, string];
+  return entity.split(".") as [ALL_DOMAINS, string];
 }
 
+/**
+ * Extract the domain from an entity with type safety
+ */
 export function domain(
   entity: { entity_id: PICK_ENTITY } | PICK_ENTITY,
-): keyof typeof ENTITY_SETUP {
+): ALL_DOMAINS {
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
-  return split(entity).shift();
+  return entity_split(entity).shift();
 }
 
+/**
+ * Type definitions to match a specific entity.
+ *
+ * Use with `@InjectEntity("some.entity")` to create proxy objects that always match the current state.
+ */
 export type ENTITY_STATE<ENTITY_ID extends PICK_ENTITY> = Get<
   typeof ENTITY_SETUP,
   ENTITY_ID
 >;
+
+/**
+ * Union of all domains that contain entities
+ */
 export type ALL_DOMAINS = keyof typeof ENTITY_SETUP;
