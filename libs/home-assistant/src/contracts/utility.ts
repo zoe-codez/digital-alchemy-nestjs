@@ -30,5 +30,8 @@ export function domain(
   return split(entity).shift();
 }
 
-export type ENTITY_STATE<T extends string> = Get<typeof ENTITY_SETUP, T>;
+export type ENTITY_STATE<ENTITY_ID extends PICK_ENTITY> = Get<
+  typeof ENTITY_SETUP,
+  ENTITY_ID
+>;
 export type ALL_DOMAINS = keyof typeof ENTITY_SETUP;
