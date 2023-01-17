@@ -105,6 +105,7 @@ import {
     },
   },
   exports: [RouteInjector, SwaggerService],
+  global: true,
   library: LIB_SERVER,
   providers: [
     AdminKeyGuard,

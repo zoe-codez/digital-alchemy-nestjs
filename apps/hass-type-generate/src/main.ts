@@ -66,7 +66,7 @@ export class TypeGenerate {
           "",
         ].join(`\n`),
       );
-      this.logger.info(`Successfully updated types`);
+      this.logger.info(`Successfully updated types at path {${path}}`);
     } catch (error) {
       this.logger.fatal({ error });
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
