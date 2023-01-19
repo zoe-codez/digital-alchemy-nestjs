@@ -385,7 +385,7 @@ export class AutoConfigService {
     this.configDefinitions.forEach((configuration, project) => {
       const isApplication = this.appName === project;
       Object.keys(configuration).forEach(key => {
-        if (!is.undefined(configuration[key].default)) {
+        if (!is.undefined(configuration[key]?.default)) {
           let defaultValue = configuration[key].default;
           if (Array.isArray(defaultValue)) {
             defaultValue = [...defaultValue];
