@@ -146,7 +146,9 @@ export class SceneRoomService<
    * type guard
    */
   public isValidScene(scene: string): scene is LOCAL | GLOBAL {
-    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(this.options.name);
+    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(
+      this.parent.constructor.name,
+    );
     return (
       !is.undefined(this.options.scenes[scene]) ||
       // Annotation based transitions
@@ -435,7 +437,9 @@ export class SceneRoomService<
     to: LOCAL | GLOBAL,
     explicit = false,
   ) {
-    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(this.options.name);
+    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(
+      this.parent.constructor.name,
+    );
     if (!methodTransitions) {
       return undefined;
     }

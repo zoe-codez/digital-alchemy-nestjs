@@ -1,4 +1,4 @@
-import { iSceneRoom, SCENE_ROOM_OPTIONS } from "./scene-room.decorator";
+import { iSceneRoom } from "./scene-room.decorator";
 
 interface MethodTransition<SCENES extends string = string> {
   /**
@@ -27,7 +27,7 @@ export function SceneTransitionInterceptor<SCENES extends string = string>({
   to = "*",
 }: Omit<MethodTransition<SCENES>, "method"> = {}): MethodDecorator {
   return function (target: iSceneRoom, method: string) {
-    const name = target[SCENE_ROOM_OPTIONS].name;
+    const name = target.constructor.name;
     const current = SCENE_ROOM_TRANSITIONS.get(name) ?? [];
     current.push({ from, method, to });
     SCENE_ROOM_TRANSITIONS.set(name, current);
