@@ -394,7 +394,7 @@ export class SceneRoomService<
     if (canned) {
       return canned;
     }
-    if (!explicit) {
+    if (explicit) {
       return undefined;
     }
     if (useMethods) {
