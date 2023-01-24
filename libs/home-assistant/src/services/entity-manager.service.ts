@@ -161,7 +161,7 @@ export class EntityManagerService {
       }
       this.ENTITIES.set(entity.entity_id as PICK_ENTITY, entity);
       this.eventEmitter.emit(
-        OnEntityUpdate.updateEvent(entity.entity_id),
+        OnEntityUpdate.updateEvent(entity.entity_id as PICK_ENTITY),
         entity.state,
       );
     });
