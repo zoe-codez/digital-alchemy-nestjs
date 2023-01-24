@@ -51,7 +51,10 @@ export class StateEnforcerService {
       // Iterate over list (each item represents a single annotation)
       list.forEach(data => {
         const { interval, entity_id } = data.options;
-        const { on_entity_update = [], on_event = [] } = data.options;
+        const {
+          onEntityUpdate: on_entity_update = [],
+          onEvent: on_event = [],
+        } = data.options;
         const entityList = is.string(entity_id) ? [entity_id] : entity_id;
 
         // * Always run as cron schedule

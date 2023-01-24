@@ -16,11 +16,11 @@ export interface EnforceEntityStateOptions {
   /**
    * Check on update of this entity
    */
-  on_entity_update?: PICK_ENTITY | PICK_ENTITY[];
+  onEntityUpdate?: PICK_ENTITY | PICK_ENTITY[];
   /**
    * Watching global EventEmitter for events
    */
-  on_event?: string | string[];
+  onEvent?: string | string[];
 }
 
 export interface EnforceEntityStateConfig {
