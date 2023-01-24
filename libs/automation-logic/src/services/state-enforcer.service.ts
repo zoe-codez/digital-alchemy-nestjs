@@ -39,16 +39,16 @@ export class StateEnforcerService {
         return;
       }
       const list = proto[ENFORCE_ENTITY_STATE] as EnforceEntityStateConfig[];
+      this.logger.info(
+        `[${GetLogContext(instance)}] building state enforcer schedule for {${
+          list.length
+        }} properties`,
+      );
       list.forEach(data => {
         const { interval, entity_id } = data.options;
         let { on_entity_update = [], on_event = [] } = data.options;
         const entityList = is.string(entity_id) ? [entity_id] : entity_id;
-        this.logger.error(
-          { entity_id, interval },
-          `${GetLogContext(instance)}#${
-            data.property
-          } state enforcer schedule {${interval}}`,
-        );
+
         const run = async () =>
           await this.updateEntities(instance, data, entityList);
         const job = new CronJob(interval, run);
@@ -63,6 +63,13 @@ export class StateEnforcerService {
         onEvent.push(
           ...on_entity_update.map(i => OnEntityUpdate.updateEvent(i)),
         );
+
+        this.logger.debug(
+          { entity_id, event_list: onEvent },
+          `${GetLogContext(instance)}#${
+            data.property
+          } state enforcer schedule {${interval}}`,
+        );
         if (!is.empty(onEvent)) {
           onEvent.forEach(event => this.event.on(event, run));
         }
@@ -76,7 +83,11 @@ export class StateEnforcerService {
     entityList: PICK_ENTITY<"switch">[],
   ): Promise<void> {
     if (!this.socket.CONNECTION_ACTIVE) {
-      this.logger.debug(`Skipping state enforce attempt, socket not available`);
+      this.logger.warn(
+        `${GetLogContext(instance)}#${
+          data.property
+        } Skipping state enforce attempt, socket not available`,
+      );
       return;
     }
     const currentState = instance[data.property];
