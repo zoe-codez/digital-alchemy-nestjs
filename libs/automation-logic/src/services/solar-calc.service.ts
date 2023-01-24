@@ -145,6 +145,12 @@ export class SolarCalcService {
     return new SolarCalc(new Date(), this.latitude, this.longitude);
   }
 
+  public between(start: `${SolarEvents}`, end: `${SolarEvents}`): boolean {
+    const calc = this.getCalcSync();
+    const now = dayjs();
+    return now.isAfter(calc[start]) && now.isBefore(calc[end]);
+  }
+
   /**
    * Retrieve calculator, wait for lat / long (if maybe not available)
    */
