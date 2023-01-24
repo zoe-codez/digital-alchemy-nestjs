@@ -9,7 +9,7 @@ import {
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
-import { eachSeries, is } from "@steggy/utilities";
+import { is } from "@steggy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 

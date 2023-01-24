@@ -77,6 +77,9 @@ export class SolarCalcService {
     return new SolarCalc(new Date(), this.latitude, this.longitude);
   }
 
+  /**
+   * Retrieve calculator, wait for lat / long (if maybe not available)
+   */
   public async getCalc(referenceDate?: Date): Promise<SolarCalcType> {
     if (referenceDate) {
       // @ts-expect-error Typescript is wrong this time, this works as expected
@@ -90,6 +93,9 @@ export class SolarCalcService {
     return this.SOLAR_CALC;
   }
 
+  /**
+   * Retrieve calculator, throws error if lat / long not available
+   */
   public getCalcSync(referenceDate?: Date): SolarCalcType {
     if (is.undefined(this.latitude) || is.undefined(this.longitude)) {
       throw new InternalServerErrorException("Race condition");
