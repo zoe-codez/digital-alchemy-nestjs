@@ -68,6 +68,74 @@ export class SolarCalcService {
   private CALCULATOR;
   private emit = false;
 
+  public get astronomicalDawn() {
+    return this.getCalcSync().astronomicalDawn;
+  }
+
+  public get astronomicalDusk() {
+    return this.getCalcSync().astronomicalDusk;
+  }
+
+  public get civilDawn() {
+    return this.getCalcSync().civilDawn;
+  }
+
+  public get civilDusk() {
+    return this.getCalcSync().civilDusk;
+  }
+
+  public get dawn() {
+    return this.getCalcSync().dawn;
+  }
+
+  public get dusk() {
+    return this.getCalcSync().dusk;
+  }
+
+  public get goldenHourEnd() {
+    return this.getCalcSync().goldenHourEnd;
+  }
+
+  public get goldenHourStart() {
+    return this.getCalcSync().goldenHourStart;
+  }
+
+  public get nauticalDawn() {
+    return this.getCalcSync().nauticalDawn;
+  }
+
+  public get nauticalDusk() {
+    return this.getCalcSync().nauticalDusk;
+  }
+
+  public get nightEnd() {
+    return this.getCalcSync().nightEnd;
+  }
+
+  public get nightStart() {
+    return this.getCalcSync().nightStart;
+  }
+
+  public get solarNoon() {
+    return this.getCalcSync().solarNoon;
+  }
+
+  public get sunrise() {
+    return this.getCalcSync().sunrise;
+  }
+
+  public get sunriseEnd() {
+    return this.getCalcSync().sunriseEnd;
+  }
+
+  public get sunset() {
+    return this.getCalcSync().sunset;
+  }
+
+  public get sunsetStart() {
+    return this.getCalcSync().sunsetStart;
+  }
+
   public get SOLAR_CALC(): SolarCalcType {
     if (this.CALCULATOR) {
       return this.CALCULATOR;
