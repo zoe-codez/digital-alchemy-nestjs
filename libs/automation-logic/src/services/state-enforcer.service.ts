@@ -9,7 +9,7 @@ import {
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
-import { eachSeries, is } from "@steggy/utilities";
+import { is } from "@steggy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 
@@ -48,25 +48,28 @@ export class StateEnforcerService {
         }} properties`,
       );
 
-      // Iterate over list
+      // Iterate over list (each item represents a single annotation)
       list.forEach(data => {
         const { interval, entity_id } = data.options;
-        let { on_entity_update = [], on_event = [] } = data.options;
+        const { on_entity_update = [], on_event = [] } = data.options;
         const entityList = is.string(entity_id) ? [entity_id] : entity_id;
 
-        const run = async () =>
-          await this.updateEntities(instance, data, entityList);
-        const job = new CronJob(interval, run);
+        // * Always run as cron schedule
+        const job = new CronJob(
+          interval,
+          async () => await this.updateEntities(instance, data, entityList),
+        );
         job.start();
-        if (!is.empty(on_event) && is.string(on_event)) {
-          on_event = [on_event];
-        }
-        const onEvent = on_event as string[];
-        if (is.string(on_entity_update)) {
-          on_entity_update = [on_entity_update];
-        }
+
+        // Convert to array
+        const onEvent = is.string(on_event) ? [on_event] : [...on_event];
+        const entityToEventList = is.string(on_entity_update)
+          ? [on_entity_update]
+          : [...on_entity_update];
+
+        // Convert entity list to list of event emitter update events, then merge onto event
         onEvent.push(
-          ...on_entity_update.map(i => OnEntityUpdate.updateEvent(i)),
+          ...entityToEventList.map(i => OnEntityUpdate.updateEvent(i)),
         );
 
         this.logger.debug(
@@ -75,18 +78,27 @@ export class StateEnforcerService {
             data.property
           } state enforcer schedule {${interval}}`,
         );
-        if (!is.empty(onEvent)) {
-          onEvent.forEach(event => this.event.on(event, run));
-        }
+
+        // * Attach event emitter events
+        onEvent.forEach(event =>
+          this.event.on(
+            event,
+            async () => await this.updateEntities(instance, data, entityList),
+          ),
+        );
       });
     });
   }
 
+  /**
+   * Logic runner for the state enforcer
+   */
   private async updateEntities(
     instance: unknown,
     data: EnforceEntityStateConfig,
-    entityList: PICK_ENTITY<"switch">[],
+    entity_id: PICK_ENTITY<"switch">[],
   ): Promise<void> {
+    // ! Bail out if no action can be taken
     if (!this.socket.CONNECTION_ACTIVE) {
       this.logger.warn(
         `${GetLogContext(instance)}#${
@@ -95,14 +107,12 @@ export class StateEnforcerService {
       );
       return;
     }
+    // Annotation can be used on property getter, or directly on a plain property (that some other logic updates)
     const currentState = instance[data.property];
     const action = currentState ? "turn_on" : "turn_off";
-    await eachSeries(entityList, async (entity_id: PICK_ENTITY<"switch">) => {
-      const actual = this.manager.byId(entity_id)?.state?.toLocaleLowerCase();
-      if (!action.includes(actual)) {
-        this.logger.debug(`[${entity_id}] {${action}}`);
-        await this.call.switch[action]({ entity_id });
-      }
-    });
+
+    // * Notify and execute!
+    this.logger.debug(`${entity_id.map(i => `[${i}]`).join(", ")} {${action}}`);
+    await this.call.switch[action]({ entity_id });
   }
 }
