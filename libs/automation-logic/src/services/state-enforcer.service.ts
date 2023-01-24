@@ -9,7 +9,7 @@ import {
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
-import { is } from "@steggy/utilities";
+import { eachSeries, is } from "@steggy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 
@@ -111,6 +111,12 @@ export class StateEnforcerService {
     const currentState = instance[data.property];
     const action = currentState ? "turn_on" : "turn_off";
 
+    const shouldExecute = entity_id.some(
+      id => !action.includes(this.manager.byId(id)?.state?.toLocaleLowerCase()),
+    );
+    if (!shouldExecute) {
+      return;
+    }
     // * Notify and execute!
     this.logger.debug(`${entity_id.map(i => `[${i}]`).join(", ")} {${action}}`);
     await this.call.switch[action]({ entity_id });
