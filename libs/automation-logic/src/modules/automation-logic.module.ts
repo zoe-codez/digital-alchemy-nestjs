@@ -18,6 +18,7 @@ import {
   SceneRoomService,
   SequenceActivateService,
   SolarCalcService,
+  StateEnforcerService,
   TransitionRunnerService,
 } from "../services";
 
@@ -78,6 +79,7 @@ import {
     EntityToolsService,
     GradualDimService,
     QuickActionService,
+    StateEnforcerService,
     SceneRoomService,
     SequenceActivateService,
     SolarCalcService,

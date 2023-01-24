@@ -21,4 +21,4 @@ export function OnEntityUpdate(...list: PICK_ENTITY[]): MethodDecorator {
   }
   return OnEvent(...list.map(entity => OnEntityUpdate.updateEvent(entity)));
 }
-OnEntityUpdate.updateEvent = (entity: string) => `${entity}/update`;
+OnEntityUpdate.updateEvent = (entity: PICK_ENTITY) => `${entity}/update`;
