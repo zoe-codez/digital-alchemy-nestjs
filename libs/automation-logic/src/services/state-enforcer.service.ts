@@ -38,12 +38,17 @@ export class StateEnforcerService {
       if (!proto || !proto[ENFORCE_ENTITY_STATE]) {
         return;
       }
+      /**
+       * Find all providers with properties that have been annotated with `@EnforceEntityState`
+       */
       const list = proto[ENFORCE_ENTITY_STATE] as EnforceEntityStateConfig[];
       this.logger.info(
         `[${GetLogContext(instance)}] building state enforcer schedule for {${
           list.length
         }} properties`,
       );
+
+      // Iterate over list
       list.forEach(data => {
         const { interval, entity_id } = data.options;
         let { on_entity_update = [], on_event = [] } = data.options;
