@@ -3,6 +3,7 @@ import { DiscoveryService } from "@nestjs/core";
 import { AutoLogService, GetLogContext } from "@steggy/boilerplate";
 import {
   EntityManagerService,
+  HassSocketAPIService,
   iCallService,
   InjectProxy,
   OnEntityUpdate,
@@ -23,6 +24,7 @@ export class StateEnforcerService {
     private readonly logger: AutoLogService,
     private readonly manager: EntityManagerService,
     private readonly event: EventEmitter,
+    private readonly socket: HassSocketAPIService,
   ) {}
 
   protected onModuleInit(): void {
@@ -73,6 +75,10 @@ export class StateEnforcerService {
     data: EnforceEntityStateConfig,
     entityList: PICK_ENTITY<"switch">[],
   ): Promise<void> {
+    if (!this.socket.CONNECTION_ACTIVE) {
+      this.logger.debug(`Skipping state enforce attempt, socket not available`);
+      return;
+    }
     const currentState = instance[data.property];
     const action = currentState ? "turn_on" : "turn_off";
     await eachSeries(entityList, async (entity_id: PICK_ENTITY<"switch">) => {
