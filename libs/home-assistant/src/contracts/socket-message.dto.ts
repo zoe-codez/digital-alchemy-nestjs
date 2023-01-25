@@ -1,5 +1,8 @@
+import { Dayjs } from "dayjs";
+
 import { HASSIO_WS_COMMAND, HassSocketMessageTypes } from "./constants";
 import { HassEventDTO } from "./hass-state.dto";
+import { ENTITY_STATE, PICK_ENTITY } from "./utility";
 
 export class AreaDTO {
   public area_id: string;
@@ -110,6 +113,20 @@ export class RemoveBackupDTO {
   public type: HASSIO_WS_COMMAND.remove_backup;
 }
 
+export class EntityHistoryDTO<ENTITIES extends PICK_ENTITY[] = PICK_ENTITY[]> {
+  public end_time: Date | string | Dayjs;
+  public entity_ids: ENTITIES;
+  public minimal_response?: boolean;
+  public no_attributes?: boolean;
+  public start_time: Date | string | Dayjs;
+  public type: HASSIO_WS_COMMAND.history_during_period;
+}
+
+export type EntityHistoryResult<ENTITY extends PICK_ENTITY = PICK_ENTITY> =
+  Pick<ENTITY_STATE<ENTITY>, "attributes" | "state"> & {
+    date: Date;
+  };
+
 export type SOCKET_MESSAGES = { id?: number } & (
   | FindRelatedDTO
   | RegistryGetDTO
@@ -120,4 +137,5 @@ export type SOCKET_MESSAGES = { id?: number } & (
   | SubscribeTriggerDTO
   | UnsubscribeEventsDTO
   | UpdateEntityMessageDTO
+  | EntityHistoryDTO
 );

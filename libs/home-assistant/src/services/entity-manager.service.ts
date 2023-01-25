@@ -1,19 +1,25 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { is } from "@steggy/utilities";
+import dayjs from "dayjs";
 import EventEmitter from "eventemitter3";
 
 import {
   ALL_DOMAINS,
   domain,
   ENTITY_STATE,
+  EntityHistoryDTO,
+  EntityHistoryResult,
   GenericEntityDTO,
   HassEventDTO,
+  HASSIO_WS_COMMAND,
   PICK_ENTITY,
 } from "../contracts";
 import { OnEntityUpdate } from "../decorators";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
+import { HassSocketAPIService } from "./hass-socket-api.service";
 
 const TIMEOUT = 5000;
+const TIME_OFFSET = 1000;
 
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
@@ -25,6 +31,8 @@ const TIMEOUT = 5000;
 export class EntityManagerService {
   constructor(
     private readonly fetch: HassFetchAPIService,
+    @Inject(forwardRef(() => HassSocketAPIService))
+    private readonly socket: HassSocketAPIService,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
@@ -109,6 +117,36 @@ export class EntityManagerService {
       }, timeout);
       this.eventEmitter.once(OnEntityUpdate.updateEvent(entity_id), callback);
     });
+  }
+
+  public async history<ENTITES extends PICK_ENTITY[]>(
+    payload: Omit<EntityHistoryDTO<ENTITES>, "type">,
+  ) {
+    const result = await this.socket.sendMessage({
+      ...payload,
+      end_time: dayjs(payload.end_time).toISOString(),
+      start_time: dayjs(payload.start_time).toISOString(),
+      type: HASSIO_WS_COMMAND.history_during_period,
+    });
+    return Object.fromEntries(
+      Object.entries(result).map(
+        <ID extends PICK_ENTITY>([entity_id, states]: [
+          ID,
+          { a: object; lu: number; s: unknown }[],
+        ]) => {
+          return [
+            entity_id,
+            states.map(data => {
+              return {
+                attributes: data.a,
+                date: new Date(data.lu * TIME_OFFSET),
+                state: data.s,
+              } as EntityHistoryResult<ID>;
+            }),
+          ];
+        },
+      ),
+    );
   }
 
   /**

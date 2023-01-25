@@ -16,6 +16,7 @@ export enum HASSIO_WS_COMMAND {
   get_config = "get_config",
   generate_backup = "backup/generate",
   remove_backup = "backup/remove",
+  history_during_period = "history/history_during_period",
   backup_info = "backup/info",
   download_backup = "auth/sign_path",
   get_states = "get_states",
