@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import {
-  iQuickScript,
-  methodColors,
+  METHOD_COLORS,
   prettyFormatMessage,
   QuickScript,
 } from "@steggy/boilerplate";
-import { SyncLoggerService, TTYModule } from "@steggy/tty";
 import { is, START } from "@steggy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
@@ -34,14 +32,8 @@ rl.on("line", line => print(line));
 @QuickScript({
   PERSISTENT: true,
   application: Symbol("log-formatter"),
-  // Show all log messages
-  bootstrap: { config: { libs: { boilerplate: { LOG_LEVEL: "trace" } } } },
-  // Need TTYModule for sync logger
-  imports: [TTYModule],
 })
-export class ConfigScanner implements iQuickScript {
-  constructor(private readonly syncLogger: SyncLoggerService) {}
-
+export class ConfigScanner {
   public exec() {
     BOOT_MESSAGES.forEach(line => this.printLine(line));
     print = line => this.printLine(line);
@@ -57,8 +49,7 @@ export class ConfigScanner implements iQuickScript {
     const { level, pid, hostname, time, context, msg, ...data } =
       JSON.parse(line);
 
-    const formattedContext = chalk`{bold.${methodColors
-      .get(LEVELS.get(level))
+    const formattedContext = chalk`{bold.${METHOD_COLORS.get(LEVELS.get(level))
       .slice("bg".length)
       .toLowerCase()} [${context}]}`;
     const formattedData = chalk.gray(

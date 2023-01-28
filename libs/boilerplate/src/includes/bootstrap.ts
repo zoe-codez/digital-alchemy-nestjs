@@ -20,6 +20,7 @@ import {
   LIB_BOILERPLATE,
   LifecycleService,
   NEST_NOOP_LOGGER,
+  PrettyLoggerConfig,
   UsePrettyLogger,
 } from "@steggy/boilerplate";
 import { eachSeries, is } from "@steggy/utilities";
@@ -87,7 +88,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
    * Output logs using the pretty logger formatter instead of standard json logs.
    * Use with development environments only
    */
-  prettyLog?: boolean;
+  prettyLog?: boolean | PrettyLoggerConfig;
   /**
    * Ignore user provided configuration values.
    * Only use defaults / bootstrap provided config
@@ -139,7 +140,7 @@ export async function Bootstrap(
   const { prettyLog, nestNoopLogger, http, init } = bootOptions;
 
   if (prettyLog && chalk.supportsColor) {
-    UsePrettyLogger();
+    UsePrettyLogger(is.object(prettyLog) ? prettyLog : undefined);
   }
   let server: Express;
   const options = {

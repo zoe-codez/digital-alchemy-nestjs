@@ -9,7 +9,7 @@ import {
   LOG_LEVEL,
   LoggerFunction,
   LogLevels,
-  methodColors,
+  METHOD_COLORS,
   MISSING_CONTEXT,
   prettyFormatMessage,
 } from "@steggy/boilerplate";
@@ -139,17 +139,6 @@ export class SyncLoggerService implements iLogger {
     this.log("warn", ...arguments_);
   }
 
-  private formatData({ time, ...data }: Record<string, unknown>): string {
-    if (is.empty(Object.keys(data))) {
-      if (time && !is.number(time)) {
-        data.time = time;
-      } else {
-        return ``;
-      }
-    }
-    return ``;
-  }
-
   private getContext(): string {
     if (this.#context) {
       return this.#context;
@@ -164,8 +153,7 @@ export class SyncLoggerService implements iLogger {
     if (SORTED_LEVELS.indexOf(level) < SORTED_LEVELS.indexOf(this.level)) {
       return;
     }
-    const context = chalk`{bold.${methodColors
-      .get(level)
+    const context = chalk`{bold.${METHOD_COLORS.get(level)
       .slice("bg".length)
       .toLowerCase()} [${this.context}]}`;
     const data = chalk.gray(

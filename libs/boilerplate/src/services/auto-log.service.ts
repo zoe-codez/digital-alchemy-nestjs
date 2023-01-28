@@ -19,11 +19,7 @@ export const storage = new AsyncLocalStorage<pino.Logger>();
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
-  | ((
-      object: Record<string, unknown>,
-      message?: string,
-      ...arguments_: unknown[]
-    ) => void);
+  | ((object: object, message?: string, ...arguments_: unknown[]) => void);
 
 const NEST = "@nestjs";
 export const NEST_NOOP_LOGGER = {
@@ -140,7 +136,7 @@ export class AutoLogService implements iLogger {
 
   public debug(message: string, ...arguments_: unknown[]): void;
   public debug(
-    object: Record<string, unknown>,
+    object: object,
     message?: string,
     ...arguments_: unknown[]
   ): void;
@@ -150,7 +146,7 @@ export class AutoLogService implements iLogger {
 
   public error(message: string, ...arguments_: unknown[]): void;
   public error(
-    object: Record<string, unknown>,
+    object: object,
     message?: string,
     ...arguments_: unknown[]
   ): void;
@@ -160,7 +156,7 @@ export class AutoLogService implements iLogger {
 
   public fatal(message: string, ...arguments_: unknown[]): void;
   public fatal(
-    object: Record<string, unknown>,
+    object: object,
     message?: string,
     ...arguments_: unknown[]
   ): void;
@@ -169,11 +165,7 @@ export class AutoLogService implements iLogger {
   }
 
   public info(message: string, ...arguments_: unknown[]): void;
-  public info(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
+  public info(object: object, message?: string, ...arguments_: unknown[]): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call("info", this.context, ...arguments_);
   }
@@ -192,7 +184,7 @@ export class AutoLogService implements iLogger {
 
   public trace(message: string, ...arguments_: unknown[]): void;
   public trace(
-    object: Record<string, unknown>,
+    object: object,
     message?: string,
     ...arguments_: unknown[]
   ): void;
@@ -201,11 +193,7 @@ export class AutoLogService implements iLogger {
   }
 
   public warn(message: string, ...arguments_: unknown[]): void;
-  public warn(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
+  public warn(object: object, message?: string, ...arguments_: unknown[]): void;
   public warn(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call("warn", this.context, ...arguments_);
   }

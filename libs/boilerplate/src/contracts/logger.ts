@@ -2,11 +2,7 @@ export type LogLevels = "info" | "debug" | "warn" | "trace" | "error" | "fatal";
 
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
-  | ((
-      object: Record<string, unknown>,
-      message?: string,
-      ...arguments_: unknown[]
-    ) => void);
+  | ((object: object, message?: string, ...arguments_: unknown[]) => void);
 
 export interface iLogger extends iLoggerCore {
   level: LogLevels | string;
@@ -28,34 +24,10 @@ export interface iLogger extends iLoggerCore {
 export interface iLoggerCore {
   level: LogLevels | string;
 
-  debug(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
-  error(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
-  fatal(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
-  info(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
-  trace(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
-  warn(
-    object: Record<string, unknown>,
-    message?: string,
-    ...arguments_: unknown[]
-  ): void;
+  debug(object: object, message?: string, ...arguments_: unknown[]): void;
+  error(object: object, message?: string, ...arguments_: unknown[]): void;
+  fatal(object: object, message?: string, ...arguments_: unknown[]): void;
+  info(object: object, message?: string, ...arguments_: unknown[]): void;
+  trace(object: object, message?: string, ...arguments_: unknown[]): void;
+  warn(object: object, message?: string, ...arguments_: unknown[]): void;
 }
