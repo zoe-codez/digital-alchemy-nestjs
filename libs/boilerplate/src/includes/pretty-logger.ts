@@ -331,7 +331,6 @@ export function UsePrettyLogger(options: PrettyLoggerConfig = {}): void {
                 ignore: "pid,hostname",
                 levelKey: ``,
                 messageKey: "msg",
-                singleLine: true,
                 timestampKey: "time",
                 translateTime: "SYS:ddd hh:MM:ss.l",
                 // ? Provided values override defaults
