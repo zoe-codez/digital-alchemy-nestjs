@@ -163,23 +163,6 @@ export class FetchService {
     return this.checkForHttpErrors<T>(parsed);
   }
 
-  private async immediateFetch<T>(
-    fetchWith: Partial<FetchArguments>,
-  ): Promise<T> {
-    const url: string = await this.fetchCreateUrl(fetchWith);
-    const requestInit = await this.fetchCreateMeta(fetchWith);
-    try {
-      const response = await fetch(url, requestInit);
-      if (fetchWith.process === false) {
-        return response as unknown as T;
-      }
-      return await this.fetchHandleResponse(fetchWith, response);
-    } catch (error) {
-      this.logger.error({ error });
-      return undefined;
-    }
-  }
-
   private cast(item: FetchParameterTypes): string {
     if (Array.isArray(item)) {
       return item.map(i => this.cast(i)).join(",");
@@ -208,5 +191,22 @@ export class FetchService {
       this.logger.error({ error: maybeError }, maybeError.message);
     }
     return maybeError as T;
+  }
+
+  private async immediateFetch<T>(
+    fetchWith: Partial<FetchArguments>,
+  ): Promise<T> {
+    const url: string = await this.fetchCreateUrl(fetchWith);
+    const requestInit = await this.fetchCreateMeta(fetchWith);
+    try {
+      const response = await fetch(url, requestInit);
+      if (fetchWith.process === false) {
+        return response as unknown as T;
+      }
+      return await this.fetchHandleResponse(fetchWith, response);
+    } catch (error) {
+      this.logger.error({ error });
+      return undefined;
+    }
   }
 }
