@@ -21,7 +21,9 @@ function cloneSpecificValue(value) {
   throw new TypeError("Unexpected situation");
 }
 
-export function deepCloneArray(array: Array<unknown>) {
+export function deepCloneArray<TYPE = unknown>(
+  array: Array<TYPE>,
+): Array<TYPE> {
   return array.map(item => {
     if (is.object(item)) {
       if (Array.isArray(item)) {
@@ -33,7 +35,7 @@ export function deepCloneArray(array: Array<unknown>) {
       return deepExtend({}, item);
     }
     return item;
-  });
+  }) as Array<TYPE>;
 }
 
 function safeGetProperty(object: unknown, key: string) {
