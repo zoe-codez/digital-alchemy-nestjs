@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
-import { Cache, CachingConfig } from "cache-manager";
+import { Cache } from "cache-manager";
 
 import { CACHE_PREFIX } from "../config";
 import { ACTIVE_APPLICATION } from "../contracts";
@@ -33,8 +33,8 @@ export class CacheService {
     return await this.cache.store.keys(key);
   }
 
-  public async set(key: string, value: unknown, options?: CachingConfig) {
+  public async set(key: string, value: unknown, ttl?: number) {
     key = `${this.prefix}${key}`;
-    await this.cache.set(key, value, options);
+    await this.cache.set(key, value, ttl);
   }
 }
