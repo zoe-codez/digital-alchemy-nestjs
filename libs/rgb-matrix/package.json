@@ -1,0 +1,14 @@
+{
+  "author": {
+    "name": "mp3three"
+  },
+  "name": "@steggy/rgb-matrix",
+  "displayName": "RGB Matrix",
+  "license": "MIT",
+  "version": "23.4.6",
+  "homepage": "https://github.com/mp3three/steggy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mp3three/steggy.git"
+  }
+}

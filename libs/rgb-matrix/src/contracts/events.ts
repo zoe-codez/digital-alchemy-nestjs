@@ -1,0 +1,1 @@
+export const UNLOAD_WIDGETS = "UNLOAD_WIDGETS";

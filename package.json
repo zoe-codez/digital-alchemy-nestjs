@@ -59,6 +59,7 @@
     "pino-pretty": "^9.1.1",
     "redis": "^4.5.1",
     "reflect-metadata": "^0.1.13",
+    "rpi-led-matrix": "^1.14.0",
     "rxjs": "^7.6.0",
     "semver": "^7.3.8",
     "solar-calc": "^1.1.0",

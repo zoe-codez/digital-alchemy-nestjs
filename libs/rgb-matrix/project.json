@@ -1,0 +1,46 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/rgb-matrix/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/rgb-matrix",
+        "tsConfig": "libs/rgb-matrix/tsconfig.lib.json",
+        "packageJson": "libs/rgb-matrix/package.json",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "main": "libs/rgb-matrix/src/index.ts",
+        "assets": [
+          "libs/rgb-matrix/*.md",
+          "libs/rgb-matrix/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "libs/rgb-matrix/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "nestjs"
+  ]
+}

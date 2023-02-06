@@ -71,6 +71,7 @@
       "abb-cli": "benchmark",
       "action": "azure-pipelines",
       "activate": "examples",
+      "rgb-matrix": "intellij",
       "adapters": "custom",
       "app": "vscode",
       "automation-logic": "tasks",

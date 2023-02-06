@@ -118,6 +118,15 @@ Has the ability to transform it's internal type definitions and code api to matc
 
 Simple MQTT bindings.
 
+### [RGB Matrix](libs/rgb-matrix)
+
+> Note: experimental code. Requires optimization and may experience API changes
+
+Portable type definitions and utilities related to performing layout and rendering with pixel matrixes.
+These libraries are intended to be consumed in both non-rendering environments (ex: server performing layout), and rendering environments (ex: pi receiving layout, and needing to display it).
+
+This library is intended to work with [rpi-led-matrix](https://www.npmjs.com/package/rpi-led-matrix), proving canned animations and tools for doing layout as a grid of panels, instead of just chains.
+
 ### [Server](libs/server)
 
 Enables web server functionality for [@steggy/boilerplate](libs/boilerplate).

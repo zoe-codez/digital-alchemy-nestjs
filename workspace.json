@@ -10,6 +10,7 @@
     "home-assistant": "libs/home-assistant",
     "log-formatter": "apps/log-formatter",
     "mqtt": "libs/mqtt",
+    "rgb-matrix": "libs/rgb-matrix",
     "sampler-app": "apps/sampler-app",
     "server": "libs/server",
     "testing": "libs/testing",
