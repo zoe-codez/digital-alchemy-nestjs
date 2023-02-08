@@ -1,7 +1,7 @@
 import { PICK_ENTITY } from "@steggy/home-assistant";
 import { CronExpression } from "@steggy/utilities";
 
-export interface EnforceEntityStateOptions {
+export interface EnforceSwitchStateOptions {
   /**
    * Set the state of this switch
    */
@@ -23,12 +23,12 @@ export interface EnforceEntityStateOptions {
   onEvent?: string | string[];
 }
 
-export interface EnforceEntityStateConfig {
-  options: EnforceEntityStateOptions;
+export interface EnforceSwitchStateConfig {
+  options: EnforceSwitchStateOptions;
   property: string;
 }
 
-export const ENFORCE_ENTITY_STATE = Symbol.for("ENFORCE_ENTITY_STATE");
+export const ENFORCE_SWITCH_STATE = Symbol.for("ENFORCE_SWITCH_STATE");
 
 /**
  * Poll a property getter (boolean) for what the current state of a switch SHOULD be.
@@ -38,19 +38,19 @@ export const ENFORCE_ENTITY_STATE = Symbol.for("ENFORCE_ENTITY_STATE");
  *
  * If the current state doesn't match that, then sent the appropriate `turn_on` / `turn_off` call.
  */
-export function EnforceEntityState(
-  options: EnforceEntityStateOptions,
+export function EnforceSwitchState(
+  options: EnforceSwitchStateOptions,
 ): PropertyDecorator {
   return function (target, property: string) {
-    const data = (target.constructor[ENFORCE_ENTITY_STATE] ??
-      []) as EnforceEntityStateConfig[];
+    const data = (target.constructor[ENFORCE_SWITCH_STATE] ??
+      []) as EnforceSwitchStateConfig[];
     data.push({
       options: {
         interval: CronExpression.EVERY_10_MINUTES,
         ...options,
-      } as EnforceEntityStateOptions,
+      } as EnforceSwitchStateOptions,
       property,
     });
-    target.constructor[ENFORCE_ENTITY_STATE] = data;
+    target.constructor[ENFORCE_SWITCH_STATE] = data;
   };
 }

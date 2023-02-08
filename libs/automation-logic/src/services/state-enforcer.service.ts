@@ -13,7 +13,7 @@ import { is } from "@steggy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 
-import { ENFORCE_ENTITY_STATE, EnforceEntityStateConfig } from "../decorators";
+import { ENFORCE_SWITCH_STATE, EnforceSwitchStateConfig } from "../decorators";
 
 @Injectable()
 export class StateEnforcerService {
@@ -35,13 +35,13 @@ export class StateEnforcerService {
     providers.forEach(wrapper => {
       const { instance } = wrapper;
       const proto = instance.constructor;
-      if (!proto || !proto[ENFORCE_ENTITY_STATE]) {
+      if (!proto || !proto[ENFORCE_SWITCH_STATE]) {
         return;
       }
       /**
-       * Find all providers with properties that have been annotated with `@EnforceEntityState`
+       * Find all providers with properties that have been annotated with `@EnforceSwitchState`
        */
-      const list = proto[ENFORCE_ENTITY_STATE] as EnforceEntityStateConfig[];
+      const list = proto[ENFORCE_SWITCH_STATE] as EnforceSwitchStateConfig[];
       this.logger.info(
         `[${GetLogContext(instance)}] building state enforcer schedule for {${
           list.length
@@ -98,7 +98,7 @@ export class StateEnforcerService {
    */
   private async updateEntities(
     instance: unknown,
-    data: EnforceEntityStateConfig,
+    data: EnforceSwitchStateConfig,
     entity_id: PICK_ENTITY<"switch">[],
   ): Promise<void> {
     // ! Bail out if no action can be taken
