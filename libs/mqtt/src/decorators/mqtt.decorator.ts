@@ -1,20 +1,11 @@
-import { SetMetadata } from "@nestjs/common";
+import { MethodDecoratorFactory } from "@steggy/boilerplate";
 
 import { MqttSubscribeOptions } from "../contracts";
 
-export function OnMQTT(
-  topic: string | string[],
-  options: MqttSubscribeOptions = {},
-): MethodDecorator {
-  return function (target, key, descriptor) {
-    target[key][MQTT_SUBSCRIBE_OPTIONS] = {
-      topic: topic,
-      ...options,
-    };
-    SetMetadata(MQTT_SUBSCRIBE_OPTIONS, {
-      topic: topic,
-      ...options,
-    })(target, key, descriptor);
-  };
+export interface AnnotatedMQTTSubscription {
+  options: MqttSubscribeOptions;
+  topic: string[];
 }
-export const MQTT_SUBSCRIBE_OPTIONS = Symbol("MQTT_SUBSCRIBE_OPTIONS");
+export const OnMQTT = MethodDecoratorFactory<MqttSubscribeOptions>(
+  "MQTT_SUBSCRIBE_OPTIONS",
+);

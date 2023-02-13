@@ -131,6 +131,10 @@ export class MqttService {
     if (!["{", "["].includes(text.charAt(FIRST))) {
       return text as unknown as T;
     }
-    return JSON.parse(text);
+    try {
+      return JSON.parse(text);
+    } catch {
+      return undefined;
+    }
   }
 }

@@ -1,22 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { DiscoveryService, MetadataScanner } from "@nestjs/core";
-import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
-import { AutoLogService, GetLogContext } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
 
-import {
-  MQTT_CLOSE,
-  MQTT_CONNECT,
-  MQTT_DISCONNECT,
-  MQTT_ERROR,
-  MQTT_OFFLINE,
-  MQTT_RECONNECT,
-  MqttSubscribeOptions,
-  MqttSubscriber,
-} from "../contracts";
-import { InjectMQTT, MQTT_SUBSCRIBE_OPTIONS } from "../decorators";
+import { MqttEvents, MqttSubscriber } from "../contracts";
+import { AnnotatedMQTTSubscription, InjectMQTT, OnMQTT } from "../decorators";
 import { MqttService } from "./mqtt.service";
 
 const FIRST = 0;
@@ -63,51 +51,46 @@ export class MQTTExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectMQTT() private readonly client: Client,
-    private readonly discovery: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
     private readonly mqtt: MqttService,
     private readonly eventEmitter: EventEmitter,
+    private readonly scanner: ModuleScannerService,
   ) {}
 
   public subscribers: MqttSubscriber[] = [];
 
   protected onApplicationBootstrap(): void {
-    const providers: InstanceWrapper[] = this.discovery.getProviders();
-    providers.forEach((wrapper: InstanceWrapper) => {
-      const { instance } = wrapper;
-      if (!instance) {
-        return;
-      }
-      this.metadataScanner.scanFromPrototype(
-        instance,
-        Object.getPrototypeOf(instance),
-        key => {
-          const proto = instance?.__proto__;
-          if (!proto) {
-            return;
-          }
-          const subscribeOptions: MqttSubscribeOptions =
-            proto[key][MQTT_SUBSCRIBE_OPTIONS];
-
-          if (subscribeOptions) {
-            const topics = is.string(subscribeOptions.topic)
-              ? [subscribeOptions.topic]
-              : subscribeOptions.topic;
-            topics.forEach(topic => {
-              this.logger.debug(
-                `${GetLogContext(instance)}#${key} subscribe {${topic}}`,
-              );
-              this.mqtt.subscribe(
-                topic,
-                async (value, packet) => {
-                  await instance[key](value, { packet, topic });
-                },
-                subscribeOptions,
-              );
-            });
-          }
-        },
-      );
+    const providers = this.scanner.findAnnotatedMethods<
+      AnnotatedMQTTSubscription[]
+    >(OnMQTT.metadataKey);
+    providers.forEach(targets => {
+      targets.forEach(({ data: annotations, exec, context }) => {
+        this.logger.info(
+          { context },
+          `subscribing to mqtt {%s topics}`,
+          annotations.length,
+        );
+        annotations.forEach(data => {
+          this.logger.debug(
+            { context },
+            `subscribe {%s topics}`,
+            data.topic.length,
+          );
+          data.topic.forEach(topic => {
+            this.logger.debug({ context }, ` - %s`, topic);
+            this.mqtt.subscribe(
+              topic,
+              async (value, packet) => {
+                this.logger.trace({ context }, `OnMQTT {%s}`, topic);
+                await exec(value, {
+                  packet,
+                  topic,
+                });
+              },
+              data,
+            );
+          });
+        });
+      });
     });
   }
 
@@ -116,32 +99,32 @@ export class MQTTExplorerService {
 
     client.on("connect", () => {
       this.logger.info("🔊 MQTT connected 🔊");
-      this.eventEmitter.emit(MQTT_CONNECT);
+      this.eventEmitter.emit(MqttEvents.connect);
     });
 
     client.on("disconnect", packet => {
       this.logger.warn({ packet }, "MQTT disconnected");
-      this.eventEmitter.emit(MQTT_DISCONNECT);
+      this.eventEmitter.emit(MqttEvents.disconnect);
     });
 
     client.on("error", error => {
       this.logger.error({ error }, "MQTT error");
-      this.eventEmitter.emit(MQTT_ERROR);
+      this.eventEmitter.emit(MqttEvents.error);
     });
 
     client.on("reconnect", () => {
       this.logger.debug("MQTT reconnecting");
-      this.eventEmitter.emit(MQTT_RECONNECT);
+      this.eventEmitter.emit(MqttEvents.reconnect);
     });
 
     client.on("close", () => {
       this.logger.debug("MQTT closed");
-      this.eventEmitter.emit(MQTT_CLOSE);
+      this.eventEmitter.emit(MqttEvents.close);
     });
 
     client.on("offline", () => {
       this.logger.warn("MQTT offline");
-      this.eventEmitter.emit(MQTT_OFFLINE);
+      this.eventEmitter.emit(MqttEvents.offline);
     });
   }
 }

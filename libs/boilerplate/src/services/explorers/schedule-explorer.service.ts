@@ -1,13 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { DiscoveryService, Reflector } from "@nestjs/core";
-import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
-import { MetadataScanner } from "@nestjs/core/metadata-scanner";
-import { CRON_SCHEDULE } from "@steggy/utilities";
 import { CronJob } from "cron";
-import { isProxy } from "util/types";
 
-import { GetLogContext } from "../../contracts";
+import { Cron, CronOptions } from "../../decorators";
 import { AutoLogService } from "../auto-log.service";
+import { ModuleScannerService } from "./module-scanner.service";
 
 /**
  * Schedule setup for @Cron() annotations
@@ -16,39 +12,30 @@ import { AutoLogService } from "../auto-log.service";
 export class ScheduleExplorerService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly discovery: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
+    private readonly scanner: ModuleScannerService,
   ) {}
 
   protected onApplicationBootstrap(): void {
-    const instanceWrappers: InstanceWrapper[] = [
-      ...this.discovery.getControllers(),
-      ...this.discovery.getProviders(),
-    ];
-    instanceWrappers.forEach((wrapper: InstanceWrapper) => {
-      const { instance } = wrapper;
-      if (!instance || !Object.getPrototypeOf(instance) || isProxy(instance)) {
-        return;
-      }
-      this.metadataScanner.scanFromPrototype(
-        instance,
-        Object.getPrototypeOf(instance),
-        (key: string) => {
-          const schedule: string = this.reflector.get(
-            CRON_SCHEDULE,
-            instance[key],
-          );
-          if (!schedule) {
-            return;
-          }
-          this.logger.debug(
-            `${GetLogContext(instance)}#${key} cron {${schedule}}`,
-          );
-          const cronJob = new CronJob(schedule, () => instance[key]());
+    const annotated = this.scanner.findAnnotatedMethods<CronOptions>(
+      Cron.metadataKey,
+    );
+    annotated.forEach(targets => {
+      targets.forEach(({ context, data, exec }) => {
+        const schedules = Array.isArray(data) ? data : [data];
+        this.logger.info(
+          { context },
+          `cron schedules {%s items}`,
+          schedules.length,
+        );
+        schedules.forEach(schedule => {
+          this.logger.debug({ context }, ` - %s`, schedule);
+          const cronJob = new CronJob(schedule, async () => {
+            this.logger.trace({ context }, `Cron {%s}`, schedule);
+            await exec();
+          });
           cronJob.start();
-        },
-      );
+        });
+      });
     });
   }
 }

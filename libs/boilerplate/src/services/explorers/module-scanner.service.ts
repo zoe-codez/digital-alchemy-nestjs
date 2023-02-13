@@ -1,9 +1,20 @@
-import { Injectable } from "@nestjs/common";
-import { DiscoveryService } from "@nestjs/core";
+import { Injectable, Type } from "@nestjs/common";
+import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
 import { is } from "@steggy/utilities";
+import { isProxy } from "util/types";
 
-import { LOGGER_LIBRARY } from "../../contracts";
+import { GetLogContext, LOGGER_LIBRARY } from "../../contracts";
+import { AutoLogService } from "../auto-log.service";
 // Crashy crashy if importing from directory
+
+type AnnotationData<TYPE> = {
+  context: string;
+  data: TYPE;
+  exec: (...pass_through: unknown[]) => Promise<void> | void;
+  key: string;
+};
+
+type FindMethodsMap<TYPE> = Map<Record<string, Type>, AnnotationData<TYPE>[]>;
 
 /**
  * The repo uses a standard of replacing the `@Injectable()` NestJS annotation with a specialized wrapper.
@@ -14,13 +25,54 @@ import { LOGGER_LIBRARY } from "../../contracts";
  */
 @Injectable()
 export class ModuleScannerService {
-  constructor(private readonly discovery: DiscoveryService) {}
+  constructor(
+    private readonly discovery: DiscoveryService,
+    private readonly reflector: Reflector,
+    private readonly metadataScanner: MetadataScanner,
+    private readonly logger: AutoLogService,
+  ) {}
 
   public applicationProviders<T extends unknown = unknown>(): T[] {
     return this.getProviders<T>().filter(instance => {
       const ctor = instance.constructor;
       return ctor && !is.undefined(ctor[LOGGER_LIBRARY]);
     });
+  }
+
+  public findAnnotatedMethods<TYPE>(search: string): FindMethodsMap<TYPE> {
+    const providers = this.discovery.getProviders();
+    const controllers = this.discovery.getControllers();
+    const out = new Map() as FindMethodsMap<TYPE>;
+    [...providers, ...controllers]
+      .filter(wrapper => wrapper.instance)
+      .map(wrapper => {
+        if (!wrapper.isDependencyTreeStatic() || !wrapper.instance) {
+          return undefined;
+        }
+        const { instance } = wrapper;
+        const prototype = Object.getPrototypeOf(instance);
+        if (!prototype || isProxy(instance)) {
+          return undefined;
+        }
+        this.metadataScanner.scanFromPrototype(
+          instance,
+          prototype,
+          (key: string) => {
+            const list = this.reflector.get(search, instance[key]) as TYPE[];
+            if (is.empty(list)) {
+              return;
+            }
+            const current = out.get(instance) ?? [];
+            const context = `${GetLogContext(instance)}#${key}`;
+            const exec = async (...data) => {
+              await instance[key].call(instance, ...data);
+            };
+            current.push(...list.map(data => ({ context, data, exec, key })));
+            out.set(instance, current);
+          },
+        );
+      });
+    return out;
   }
 
   public findWithSymbol<

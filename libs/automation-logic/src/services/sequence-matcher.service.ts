@@ -1,24 +1,16 @@
 import { Injectable } from "@nestjs/common";
-import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
-import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import {
   AutoLogService,
-  GetLogContext,
   InjectConfig,
+  ModuleScannerService,
   OnEvent,
 } from "@steggy/boilerplate";
-import {
-  EntityManagerService,
-  HA_EVENT_STATE_CHANGE,
-  HassEventDTO,
-} from "@steggy/home-assistant";
-import { is } from "@steggy/utilities";
+import { HA_EVENT_STATE_CHANGE, HassEventDTO } from "@steggy/home-assistant";
 import { each } from "async";
-import { isProxy } from "util/types";
 
 import { SEQUENCE_TIMEOUT } from "../config";
 import { SequenceWatchDTO } from "../contracts";
-import { SEQUENCE_WATCH } from "../decorators";
+import { SequenceWatcher } from "../decorators";
 
 type SequenceWatcher = SequenceWatchDTO & {
   callback: () => Promise<void>;
@@ -35,10 +27,7 @@ export class SequenceActivateService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
-    private readonly entityManager: EntityManagerService,
-    private readonly discovery: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
+    private readonly scanner: ModuleScannerService,
   ) {}
 
   private ACTIVE_MATCHERS = new Map<string, SequenceSensorEvent[]>();
@@ -47,48 +36,27 @@ export class SequenceActivateService {
   private readonly WATCHERS = new Map<string, unknown[]>();
 
   protected onApplicationBootstrap(): void {
-    const instanceWrappers: InstanceWrapper[] = [
-      ...this.discovery.getControllers(),
-      ...this.discovery.getProviders(),
-    ];
-    instanceWrappers.forEach((wrapper: InstanceWrapper) => {
-      const { instance } = wrapper;
-      if (!instance || !Object.getPrototypeOf(instance) || isProxy(instance)) {
-        return;
-      }
-      this.metadataScanner.scanFromPrototype(
-        instance,
-        Object.getPrototypeOf(instance),
-        (key: string) => {
-          const activate: SequenceWatchDTO[] = this.reflector.get(
-            SEQUENCE_WATCH,
-            instance[key],
-          );
-          if (is.empty(activate)) {
-            return;
-          }
-          activate.forEach(activate => {
-            this.logger.debug(
-              `${GetLogContext(instance)}#${key} sequence [${
-                activate.sensor
-              }] ${activate.match.map(i => `{${i}}`).join(", ")}`,
-            );
-            const watcher = this.WATCHED_SENSORS.get(activate.sensor) || [];
-            watcher.push({
-              ...activate,
-              callback: async () => {
-                this.logger.info(
-                  `[${activate.sensor}] trigger ${GetLogContext(
-                    instance,
-                  )}#${key} - ${activate.match.map(i => `{${i}}`).join(", ")} `,
-                );
-                await instance[key]();
-              },
-            });
-            this.WATCHED_SENSORS.set(activate.sensor, watcher);
-          });
-        },
-      );
+    const providers = this.scanner.findAnnotatedMethods<SequenceWatchDTO>(
+      SequenceWatcher.metadataKey,
+    );
+    providers.forEach(targets => {
+      targets.forEach(({ context, exec, data }) => {
+        this.logger.info(
+          { context },
+          `[%s] sequence %s`,
+          data.sensor,
+          data.match.map(i => `{${i}}`).join(", "),
+        );
+        const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
+        watcher.push({
+          ...data,
+          callback: async () => {
+            this.logger.trace({ context, match: data.match }, `[%s] trigger`);
+            await exec();
+          },
+        });
+        this.WATCHED_SENSORS.set(data.sensor, watcher);
+      });
     });
   }
 
