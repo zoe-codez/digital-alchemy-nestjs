@@ -1,12 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "composite": true,
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": ["node"],
-    "target": "ESNext"
+    "types": [],
+    "target": "ES2022"
   },
   "exclude": ["**/*.spec.ts"],
   "include": ["**/*.ts", "**/*.tsx"]

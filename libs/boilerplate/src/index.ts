@@ -1,6 +1,4 @@
-// This is purely so that builds include `reflect-metadata` in the package.json output
-// ? Peer dependency might make more sense
-import "reflect-metadata";
+// For package.json
 import "rxjs";
 
 import dayjs from "dayjs";

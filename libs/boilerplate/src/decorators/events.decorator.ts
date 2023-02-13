@@ -1,4 +1,4 @@
-import { MethodDecoratorFactory } from "../includes";
+import { MethodDecoratorFactory } from "@steggy/utilities";
 
 export type OnEventOptions = string | { events: string[] };
 

@@ -13,7 +13,7 @@
     "importHelpers": true,
     "jsx": "react",
     "lib": [
-      "ES2021",
+      "ES2022",
       "dom"
     ],
     "module": "commonjs",
@@ -30,7 +30,7 @@
     "alwaysStrict": false,
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "ES2021",
+    "target": "ES2022",
     "paths": {
       "@steggy/boilerplate": [
         "libs/boilerplate/src/index.ts"

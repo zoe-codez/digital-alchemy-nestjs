@@ -1,4 +1,4 @@
-import { MethodDecoratorFactory } from "@steggy/boilerplate";
+import { MethodDecoratorFactory } from "@steggy/utilities";
 
 import { SequenceWatchDTO } from "../contracts";
 

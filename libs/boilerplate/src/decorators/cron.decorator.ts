@@ -1,6 +1,4 @@
-import { CronExpression } from "@steggy/utilities";
-
-import { MethodDecoratorFactory } from "../includes";
+import { CronExpression, MethodDecoratorFactory } from "@steggy/utilities";
 
 export enum CronObject {
   second,
