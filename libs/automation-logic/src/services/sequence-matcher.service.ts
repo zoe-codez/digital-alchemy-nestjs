@@ -43,9 +43,8 @@ export class SequenceActivateService {
       targets.forEach(({ context, exec, data }) => {
         this.logger.info(
           { context },
-          `[%s] sequence %s`,
+          `[%s] sequence ${data.match.map(i => `{${i}}`).join(", ")}`,
           data.sensor,
-          data.match.map(i => `{${i}}`).join(", "),
         );
         const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
         watcher.push({

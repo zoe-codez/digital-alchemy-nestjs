@@ -24,11 +24,11 @@ export class ScheduleExplorerService {
         const schedules = Array.isArray(data) ? data : [data];
         this.logger.info(
           { context },
-          `cron schedules {%s items}`,
+          `[@Cron] {%s schedules}`,
           schedules.length,
         );
         schedules.forEach(schedule => {
-          this.logger.debug({ context }, ` - %s`, schedule);
+          this.logger.debug({ context }, ` - {%s}`, schedule);
           const cronJob = new CronJob(schedule, async () => {
             this.logger.trace({ context }, `Cron {%s}`, schedule);
             await exec();

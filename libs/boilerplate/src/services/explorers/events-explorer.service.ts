@@ -24,13 +24,9 @@ export class EventsExplorerService {
     annotated.forEach(targets => {
       targets.forEach(({ data, exec, context }) => {
         const events = is.string(data) ? [data] : data.events;
-        this.logger.info(
-          { context },
-          `event subscribe {%s events}`,
-          events.length,
-        );
+        this.logger.info({ context }, `[@OnEvent] {%s events}`, events.length);
         events.forEach(event => {
-          this.logger.debug({ context }, ` - %s`, event);
+          this.logger.debug({ context }, ` - {%s}`, event);
           this.eventEmitter.on(event, async (...parameters: unknown[]) => {
             this.logger.trace({ context }, `OnEvent {%s}`, event);
             await exec(...parameters);
