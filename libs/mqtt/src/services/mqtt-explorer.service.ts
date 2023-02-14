@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
 

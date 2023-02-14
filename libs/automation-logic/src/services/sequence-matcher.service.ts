@@ -62,7 +62,7 @@ export class SequenceActivateService {
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
-    if (this.WATCHERS.has(data.entity_id)) {
+    if (this.WATCHERS.has(data?.entity_id)) {
       this.logger.debug(
         { attributes: data.new_state.attributes },
         `[${data.entity_id}] state change {${data.new_state.state}}`,
@@ -74,7 +74,7 @@ export class SequenceActivateService {
       );
       return;
     }
-    if (!this.WATCHED_SENSORS.has(data.entity_id)) {
+    if (!this.WATCHED_SENSORS.has(data?.entity_id)) {
       return;
     }
     this.initWatchers(data.entity_id);
