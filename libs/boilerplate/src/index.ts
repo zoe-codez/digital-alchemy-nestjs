@@ -3,6 +3,7 @@ import "rxjs";
 
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
+import isBetween from "dayjs/plugin/isBetween";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 
 export * from "./config";
@@ -16,3 +17,4 @@ export * from "./services";
 // prints week number as part of the format string
 dayjs.extend(weekOfYear);
 dayjs.extend(advancedFormat);
+dayjs.extend(isBetween);
