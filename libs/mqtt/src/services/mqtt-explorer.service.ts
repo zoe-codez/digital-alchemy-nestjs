@@ -65,12 +65,8 @@ export class MQTTExplorerService {
       );
     providers.forEach(targets => {
       targets.forEach(({ data, exec, context }) => {
-        this.logger.info(
-          { context },
-          `[@OnMQTT] {%s topics}`,
-          data.topic.length,
-        );
         const topics = Array.isArray(data.topic) ? data.topic : [data.topic];
+        this.logger.info({ context }, `[@OnMQTT] {%s topics}`, topics.length);
         topics.forEach(topic => {
           this.logger.debug({ context }, ` - {%s}`, topic);
           this.mqtt.subscribe(
