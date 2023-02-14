@@ -5,7 +5,7 @@
   "name": "@steggy/automation-logic",
   "displayName": "Automation Logic",
   "license": "MIT",
-  "version": "23.6.4",
+  "version": "23.7.0",
   "scripts": {
     "postinstall": "hass-type-generate || exit 0"
   },
