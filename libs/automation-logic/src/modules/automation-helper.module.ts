@@ -7,7 +7,7 @@ import { QuickActionService } from "../services";
   configuration: {},
   exports: [QuickActionService],
   imports: [DiscoveryModule, RegisterCache()],
-  library: Symbol("automation-helper"),
+  library: "automation-helper",
   providers: [QuickActionService],
 })
 export class AutomationHelperModule {}

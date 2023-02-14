@@ -37,7 +37,7 @@ const STRING_ARRAY_LIMIT = 50;
 const DASH = chalk.yellow(" - ");
 const NO_VALUE = Symbol();
 @QuickScript({
-  application: Symbol("config-builder"),
+  application: "config-builder",
   imports: [TTYModule],
 })
 export class ConfigScanner implements iQuickScript {

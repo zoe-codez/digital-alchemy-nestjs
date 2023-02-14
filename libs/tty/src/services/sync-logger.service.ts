@@ -32,7 +32,7 @@ const SORTED_LEVELS = [
 export class SyncLoggerService implements iLogger {
   constructor(
     @Inject(INQUIRER) private parent: unknown,
-    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: string,
     private readonly screen: ScreenService,
     @InjectConfig(LOG_LEVEL, LIB_BOILERPLATE)
     public level: LogLevels,
@@ -46,7 +46,7 @@ export class SyncLoggerService implements iLogger {
     if (!this.#cached) {
       this.#cached ??= this.getContext();
       const [project, provider] = this.#cached.split(":");
-      if (project === this.activeApplication.description) {
+      if (project === this.activeApplication) {
         this.#cached = provider;
       }
     }

@@ -11,11 +11,11 @@ export class CacheService {
     @Inject(CACHE_MANAGER)
     private readonly cache: Cache,
     @Inject(ACTIVE_APPLICATION)
-    private readonly activeApplication: symbol,
+    private readonly activeApplication: string,
     @InjectConfig(CACHE_PREFIX)
     private readonly prefix: string,
   ) {
-    this.prefix ||= activeApplication.description;
+    this.prefix ||= activeApplication;
   }
 
   public async del(key: string): Promise<void> {

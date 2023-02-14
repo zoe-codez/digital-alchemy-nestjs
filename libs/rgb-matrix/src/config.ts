@@ -1,4 +1,4 @@
-export const LIB_RGB_MATRIX = Symbol("rgb-matrix");
+export const LIB_RGB_MATRIX = "rgb-matrix";
 export const PANEL_WIDTH = "PANEL_WIDTH";
 export const PANEL_HEIGHT = "PANEL_HEIGHT";
 export const PANEL_COLUMNS = "PANEL_COLUMNS";

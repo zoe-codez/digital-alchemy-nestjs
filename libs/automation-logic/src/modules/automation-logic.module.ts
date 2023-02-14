@@ -73,7 +73,7 @@ import {
     SolarCalcService,
   ],
   imports: [DiscoveryModule, RegisterCache()],
-  library: Symbol("automation-logic"),
+  library: "automation-logic",
   providers: [
     CircadianService,
     EntityToolsService,

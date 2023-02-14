@@ -24,7 +24,7 @@ import {
 } from "./services";
 
 @QuickScript({
-  application: Symbol("sampler-app"),
+  application: "sampler-app",
   bootstrap: {
     config: {
       application: { APPLICATION_OVERRIDE: faker.hacker.phrase() },

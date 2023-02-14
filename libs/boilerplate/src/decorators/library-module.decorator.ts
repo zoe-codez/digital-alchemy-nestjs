@@ -7,11 +7,11 @@ import { AnyConfig, LOGGER_LIBRARY, MODULE_METADATA } from "../contracts";
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
   configuration: Record<string, AnyConfig>;
   global?: boolean;
-  library: symbol;
+  library: string;
 }
 
 export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
-  const library = metadata.library.description;
+  const library = metadata.library;
   return (target: ClassConstructor<unknown>) => {
     target[LOGGER_LIBRARY] = library;
     target[MODULE_METADATA] = metadata;

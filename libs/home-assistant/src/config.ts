@@ -9,4 +9,4 @@ export const WEBSOCKET_URL = "WEBSOCKET_URL";
 // </Configuration>
 
 //
-export const LIB_HOME_ASSISTANT = Symbol("home-assistant");
+export const LIB_HOME_ASSISTANT = "home-assistant";

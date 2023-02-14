@@ -49,7 +49,7 @@ export class AutoConfigService {
     @Optional()
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig = {},
-    @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
+    @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: string,
     @Optional()
     @Inject(SKIP_CONFIG_INIT)
     skipInit: boolean,
@@ -84,15 +84,15 @@ export class AutoConfigService {
   private switches: ReturnType<typeof minimist>;
 
   private get appName(): string {
-    return this.APPLICATION.description;
+    return this.APPLICATION;
   }
 
-  public get<T extends unknown = string>(path: string | [symbol, string]): T {
+  public get<T extends unknown = string>(path: string | [string, string]): T {
     if (Array.isArray(path)) {
       path =
-        path[LABEL].description === this.APPLICATION.description
+        path[LABEL] === this.APPLICATION
           ? ["application", path[VALUE]].join(".")
-          : ["libs", path[LABEL].description, path[VALUE]].join(".");
+          : ["libs", path[LABEL], path[VALUE]].join(".");
     }
     const current = get(this.config, path);
     const defaultValue = this.getConfiguration(path)?.default;
@@ -182,10 +182,9 @@ export class AutoConfigService {
     this.setDefaults();
     deepExtend(this.config, this.configDefaults ?? {});
     this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
-    this.logger["context"] = [
-      LIB_BOILERPLATE.description,
-      AutoConfigService.name,
-    ].join(":");
+    this.logger["context"] = [LIB_BOILERPLATE, AutoConfigService.name].join(
+      ":",
+    );
     if (!this.APPLICATION || this.APPLICATION === NO_APPLICATION) {
       this.configFiles = [];
     } else {
@@ -269,7 +268,7 @@ export class AutoConfigService {
     const switchKeys = Object.keys(this.switches);
     this.configDefinitions.forEach((configuration, project) => {
       const cleanedProject = project?.replaceAll("-", "_") || "unknown";
-      const isApplication = this.APPLICATION?.description === project;
+      const isApplication = this.APPLICATION === project;
       const environmentPrefix = isApplication
         ? "application"
         : `libs_${cleanedProject}`;
@@ -340,7 +339,7 @@ export class AutoConfigService {
       Object.entries(configuration).forEach(([name, definition]) => {
         // It's fine that this symbol isn't the same as the real one
         // Just going to get turned back into a string anyways
-        const value = this.get([Symbol.for(project), name]);
+        const value = this.get([project, name]);
         if (definition.required && is.undefined(value)) {
           this.logger.fatal(
             { ...definition },

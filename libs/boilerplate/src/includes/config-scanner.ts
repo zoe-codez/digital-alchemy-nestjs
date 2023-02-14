@@ -14,7 +14,7 @@ export function ScanConfig(
   overrides?: AbstractConfig,
 ): ConfigDefinitionDTO {
   const configService = app.get(AutoConfigService);
-  const { description } = app.get<symbol>(ACTIVE_APPLICATION);
+  const description = app.get<string>(ACTIVE_APPLICATION);
 
   const config: ConfigTypeDTO[] = [];
 
@@ -28,7 +28,7 @@ export function ScanConfig(
     ),
   );
   return {
-    application: app.get<symbol>(ACTIVE_APPLICATION).description,
+    application: app.get<string>(ACTIVE_APPLICATION),
     bootstrapOverrides: overrides ?? app.get(CONFIG_DEFAULTS),
     config,
   };

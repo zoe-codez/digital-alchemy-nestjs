@@ -99,7 +99,7 @@ export class AutoLogService implements iLogger {
 
   constructor(
     @Inject(INQUIRER) private parent: unknown,
-    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: string,
   ) {}
 
   #cached: string;
@@ -114,7 +114,7 @@ export class AutoLogService implements iLogger {
     if (!this.#cached) {
       this.#cached ??= this.getContext();
       const [project, provider] = this.#cached.split(":");
-      if (project === this.activeApplication.description) {
+      if (project === this.activeApplication) {
         this.#cached = provider;
       }
     }
@@ -178,8 +178,8 @@ export class AutoLogService implements iLogger {
    *
    * `@InjectLogger()` annotation is available for providers
    */
-  public setContext(library: symbol, service: { name: string }): void {
-    this.#context = `${library.description}:${service.name}`;
+  public setContext(library: string, service: { name: string }): void {
+    this.#context = `${library}:${service.name}`;
   }
 
   public trace(message: string, ...arguments_: unknown[]): void;

@@ -19,7 +19,7 @@ const extensions = ["json", "ini", "yaml", "yml"];
 @Injectable()
 export class WorkspaceService {
   constructor(
-    @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
+    @Inject(ACTIVE_APPLICATION) private readonly application: string,
   ) {}
 
   private isWindows = platform === "win32";
@@ -46,7 +46,7 @@ export class WorkspaceService {
    * - ~/.config/{name}/config.ini
    * - ~/.config/{name}/config.yaml
    */
-  public configFilePaths(name = this.application.description): string[] {
+  public configFilePaths(name = this.application): string[] {
     const out: string[] = [];
     if (!this.isWindows) {
       out.push(
@@ -72,11 +72,11 @@ export class WorkspaceService {
   }
 
   public isApplication(project: string): boolean {
-    return this.application.description === project;
+    return this.application === project;
   }
 
   public isProject(project: string): boolean {
-    return this.application.description !== project;
+    return this.application !== project;
   }
 
   public loadConfigFromFile(
