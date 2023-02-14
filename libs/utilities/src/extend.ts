@@ -1,17 +1,10 @@
 import { is } from "./is";
 
 function isSpecificValue(value) {
-  return (
-    value instanceof Buffer || value instanceof Date || value instanceof RegExp
-  );
+  return value instanceof Date || value instanceof RegExp;
 }
 
 function cloneSpecificValue(value) {
-  if (value instanceof Buffer) {
-    const x = Buffer.alloc(value.length);
-    value.copy(x);
-    return x;
-  }
   if (value instanceof Date) {
     return new Date(value.getTime());
   }
