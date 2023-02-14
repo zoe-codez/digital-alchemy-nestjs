@@ -14,4 +14,4 @@ export const SSL_KEY = "SSL_KEY";
 export const SSL_PORT = "SSL_PORT";
 export const SWAGGER_PATH = "SWAGGER_PATH";
 
-export const LIB_SERVER = Symbol("server");
+export const LIB_SERVER = "server";

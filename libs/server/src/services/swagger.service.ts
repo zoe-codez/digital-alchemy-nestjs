@@ -11,7 +11,7 @@ import { SWAGGER_PATH } from "../config";
 @Injectable()
 export class SwaggerService {
   constructor(
-    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: string,
     private readonly logger: AutoLogService,
     @InjectConfig(SWAGGER_PATH) private readonly swaggerPath: string,
     private readonly workspace: WorkspaceService,

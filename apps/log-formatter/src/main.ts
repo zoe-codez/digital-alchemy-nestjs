@@ -31,7 +31,7 @@ rl.on("line", line => print(line));
 
 @QuickScript({
   PERSISTENT: true,
-  application: Symbol("log-formatter"),
+  application: "log-formatter",
 })
 export class ConfigScanner {
   public exec() {

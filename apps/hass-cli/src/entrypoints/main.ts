@@ -19,7 +19,7 @@ import {
 } from "../services";
 
 @QuickScript({
-  application: Symbol("hass-cli"),
+  application: "hass-cli",
   bootstrap: {
     config: {
       libs: { boilerplate: { [LOG_LEVEL]: "error" } },

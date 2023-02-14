@@ -12,11 +12,11 @@ import { RegisterCache } from "../includes";
 import { BoilerplateModule } from "../modules";
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
-  application?: symbol;
+  application?: string;
   configuration?: Record<string, AnyConfig>;
   globals?: Provider[];
 }
-export const NO_APPLICATION = Symbol("steggy_no_app");
+export const NO_APPLICATION = "steggy_no_app";
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
@@ -35,7 +35,7 @@ export function ApplicationModule(
   metadata.controllers ??= [];
   // metadata.
   [...metadata.providers, ...metadata.controllers].forEach(provider => {
-    provider[LOGGER_LIBRARY] = metadata.application.description;
+    provider[LOGGER_LIBRARY] = metadata.application;
   });
   const GLOBAL_SYMBOLS: Provider[] = [
     { provide: ACTIVE_APPLICATION, useValue: metadata.application },
@@ -56,12 +56,12 @@ export function ApplicationModule(
     RegisterCache(),
     ...metadata.imports,
   ];
-  // LibraryModule.configs.set(metadata.application.description, {
+  // LibraryModule.configs.set(metadata.application, {
   //   configuration: metadata.configuration ?? {},
   // });
   return (target: ClassConstructor<unknown>) => {
     target[MODULE_METADATA] = metadata;
-    target[LOGGER_LIBRARY] = metadata.application.description;
+    target[LOGGER_LIBRARY] = metadata.application;
     Object.entries(metadata).forEach(([property, value]) =>
       Reflect.defineMetadata(property, value, target),
     );

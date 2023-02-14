@@ -44,7 +44,7 @@ The manual bootstrapping process requires the manual definition of a root applic
 import { ApplicationModule } from "@steggy/boilerplate";
 
 @ApplicationModule({
-  application: Symbol("my-application"),
+  application: "my-application",
   controllers: [...],
   imports: [...],
   providers: [...]

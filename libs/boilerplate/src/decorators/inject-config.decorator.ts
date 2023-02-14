@@ -48,7 +48,7 @@ export function InjectConfig(
     ````
     > (there should be an `@` in front of that `InjectConfig`, but tsdoc hates that for me right now)
    */
-  from?: symbol | AnyConfig,
+  from?: string | AnyConfig,
 ): ParameterDecorator {
   return function (target, key, index) {
     if (is.object(from)) {
@@ -63,9 +63,7 @@ export function InjectConfig(
       provide: id,
       useFactory(config: AutoConfigService, application: symbol) {
         const configPath: string[] = [];
-        const library: string = from
-          ? from.description
-          : target[LOGGER_LIBRARY];
+        const library: string = from || target[LOGGER_LIBRARY];
         // This can happen when libraries are having their types referenced, but not actually imported into the app
         if (!config.configDefinitions.has(library)) {
           return undefined;

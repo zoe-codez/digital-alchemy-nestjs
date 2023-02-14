@@ -54,7 +54,7 @@ export function QuickScript({
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.controllers ??= [];
-  metadata.application ??= Symbol("steggy-quick-script");
+  metadata.application ??= "steggy-quick-script";
 
   // Corrective measures for loading metadata
   return function (target: Type) {

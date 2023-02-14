@@ -22,7 +22,7 @@ import { ScreenService } from "./screen.service";
 export class TerminalHelpService {
   constructor(
     @Inject(ACTIVE_APPLICATION)
-    private readonly application: symbol,
+    private readonly application: string,
     private readonly applicationManager: ApplicationManagerService,
     private readonly screen: ScreenService,
     @InjectConfig(HELP) private readonly showHelp: boolean,
@@ -34,7 +34,7 @@ export class TerminalHelpService {
       return;
     }
     const { configDefinitions } = this.config;
-    const application = this.application.description;
+    const application = this.application;
     this.applicationManager.setHeader("Help");
     const ALL_SWITCHES: string[] = [];
 

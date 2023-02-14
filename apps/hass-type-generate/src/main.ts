@@ -11,7 +11,7 @@ import { join } from "path";
 import { exit } from "process";
 
 @QuickScript({
-  application: Symbol("hass-type-generate"),
+  application: "hass-type-generate",
   imports: [HomeAssistantModule],
 })
 export class TypeGenerate {
