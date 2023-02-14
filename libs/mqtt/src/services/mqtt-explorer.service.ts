@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
+import { is } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
 
@@ -70,7 +71,8 @@ export class MQTTExplorerService {
           `subscribe {%s topics}`,
           data.topic.length,
         );
-        data.topic.forEach(topic => {
+        const topics = Array.isArray(data.topic) ? data.topic : [data.topic];
+        topics.forEach(topic => {
           this.logger.debug({ context }, ` - %s`, topic);
           this.mqtt.subscribe(
             topic,
