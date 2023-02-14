@@ -33,7 +33,7 @@ export class EventsExplorerService {
           this.logger.debug({ context }, ` - %s`, event);
           this.eventEmitter.on(event, async (...parameters: unknown[]) => {
             this.logger.trace({ context }, `OnEvent {%s}`, event);
-            await exec(parameters);
+            await exec(...parameters);
           });
         });
       });
