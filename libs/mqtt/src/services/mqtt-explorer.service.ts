@@ -59,36 +59,30 @@ export class MQTTExplorerService {
   public subscribers: MqttSubscriber[] = [];
 
   protected onApplicationBootstrap(): void {
-    const providers = this.scanner.findAnnotatedMethods<
-      AnnotatedMQTTSubscription[]
-    >(OnMQTT.metadataKey);
+    const providers =
+      this.scanner.findAnnotatedMethods<AnnotatedMQTTSubscription>(
+        OnMQTT.metadataKey,
+      );
     providers.forEach(targets => {
-      targets.forEach(({ data: annotations, exec, context }) => {
-        this.logger.info(
+      targets.forEach(({ data, exec, context }) => {
+        this.logger.debug(
           { context },
-          `subscribing to mqtt {%s topics}`,
-          annotations.length,
+          `subscribe {%s topics}`,
+          data.topic.length,
         );
-        annotations.forEach(data => {
-          this.logger.debug(
-            { context },
-            `subscribe {%s topics}`,
-            data.topic.length,
+        data.topic.forEach(topic => {
+          this.logger.debug({ context }, ` - %s`, topic);
+          this.mqtt.subscribe(
+            topic,
+            async (value, packet) => {
+              this.logger.trace({ context }, `OnMQTT {%s}`, topic);
+              await exec(value, {
+                packet,
+                topic,
+              });
+            },
+            data,
           );
-          data.topic.forEach(topic => {
-            this.logger.debug({ context }, ` - %s`, topic);
-            this.mqtt.subscribe(
-              topic,
-              async (value, packet) => {
-                this.logger.trace({ context }, `OnMQTT {%s}`, topic);
-                await exec(value, {
-                  packet,
-                  topic,
-                });
-              },
-              data,
-            );
-          });
         });
       });
     });
