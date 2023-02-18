@@ -20,9 +20,7 @@ export const ACTIVE_APPLICATION = Symbol("ACTIVE_APPLICATION");
 export const GetLogContext = (i: unknown, application = ""): string => {
   const context: string = i?.constructor[LOG_CONTEXT] ?? "";
   if (context.startsWith(application)) {
-    // project:Provider
-    // Include the offset so that the colon is captured
-    return context.slice(application.length);
+    return context.replace(application + ":", "");
   }
   return context;
 };
