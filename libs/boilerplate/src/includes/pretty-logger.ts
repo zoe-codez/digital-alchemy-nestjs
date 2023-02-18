@@ -63,6 +63,7 @@ export const highlightContext = (
 
 const NEST = "@nestjs";
 const frontDash = " - ";
+const MAX_CUTOFF = 2000;
 const YELLOW_DASH = chalk.yellowBright(frontDash);
 
 export const METHOD_COLORS = new Map<pino.Level, CONTEXT_COLORS>([
@@ -76,6 +77,9 @@ export const METHOD_COLORS = new Map<pino.Level, CONTEXT_COLORS>([
 export const prettyFormatMessage = (message: string): string => {
   if (!message) {
     return ``;
+  }
+  if (message.length > MAX_CUTOFF) {
+    return message;
   }
   message = message
     // ? partA#partB - highlight it all in yellow
