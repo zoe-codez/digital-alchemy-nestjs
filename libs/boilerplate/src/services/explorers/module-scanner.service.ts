@@ -71,13 +71,13 @@ export class ModuleScannerService {
   public findAnnotatedMethods<TYPE>(
     search: string | { metadataKey: string },
   ): FindMethodsMap<TYPE> {
-    search = is.object(search) ? search.metadataKey : search;
+    search = is.string(search) ? search : search.metadataKey;
     const providers = this.discovery.getProviders();
     const controllers = this.discovery.getControllers();
     const out = new Map() as FindMethodsMap<TYPE>;
     [...providers, ...controllers]
       .filter(wrapper => wrapper.instance)
-      .map(wrapper => {
+      .forEach(wrapper => {
         if (!wrapper.isDependencyTreeStatic() || !wrapper.instance) {
           return undefined;
         }
