@@ -46,14 +46,6 @@ Some canned transitions can be provided from within the metadata info for the `@
 
 This provider will manage the current light temperature, emitting updates once per minute.
 
-### QuickActionService
-
-Quick actions are methods inside automation logic that have been annotated with `@QuickAction`.
-When annotated those method are gathered together into a list, and made available through a generic `.call` interface, which is intended to be attached as an http endpoint.
-
-Quick actions are intended to be a convenience tool, to rapidly carry minor pieces of functionality outside the app (into another) with some human readable descriptive info.
-For an example of how to expose `@QuickAction` annotated methods via http routes, see the example controller [here](libs/automation-logic/docs/quick-action.controller.ts).
-
 ### SceneRoomService
 
 Manipulate lights and other scene capable entities.
