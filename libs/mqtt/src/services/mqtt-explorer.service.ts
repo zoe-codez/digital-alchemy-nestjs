@@ -60,9 +60,7 @@ export class MQTTExplorerService {
 
   protected onApplicationBootstrap(): void {
     const providers =
-      this.scanner.findAnnotatedMethods<AnnotatedMQTTSubscription>(
-        OnMQTT.metadataKey,
-      );
+      this.scanner.findAnnotatedMethods<AnnotatedMQTTSubscription>(OnMQTT);
     providers.forEach(targets => {
       targets.forEach(({ data, exec, context }) => {
         const topics = Array.isArray(data.topic) ? data.topic : [data.topic];
@@ -73,10 +71,7 @@ export class MQTTExplorerService {
             topic,
             async (value, packet) => {
               this.logger.trace({ context }, `OnMQTT {%s}`, topic);
-              await exec(value, {
-                packet,
-                topic,
-              });
+              await exec(value, { packet, topic });
             },
             data,
           );

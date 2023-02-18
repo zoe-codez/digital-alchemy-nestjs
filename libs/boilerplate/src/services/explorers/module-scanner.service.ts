@@ -1,16 +1,38 @@
-import { Injectable, Type } from "@nestjs/common";
+import { Inject, Injectable, Type } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
 import { is } from "@steggy/utilities";
 import { isProxy } from "util/types";
 
-import { GetLogContext, LOGGER_LIBRARY } from "../../contracts";
+import {
+  ACTIVE_APPLICATION,
+  GetLogContext,
+  LOGGER_LIBRARY,
+} from "../../contracts";
 import { AutoLogService } from "../auto-log.service";
 // Crashy crashy if importing from directory
 
+export type AnnotationPassThrough = (
+  ...pass_through: unknown[]
+) => Promise<void> | void;
+
 type AnnotationData<TYPE> = {
+  /**
+   * Context string for logging. Format:
+   *
+   * > **library:Provider#method**
+   */
   context: string;
+  /**
+   * Options provided to a single annotations
+   */
   data: TYPE;
-  exec: (...pass_through: unknown[]) => Promise<void> | void;
+  /**
+   * Execute the method on the instance, with optional parameters
+   */
+  exec: AnnotationPassThrough;
+  /**
+   * Method name
+   */
   key: string;
 };
 
@@ -26,6 +48,8 @@ type FindMethodsMap<TYPE> = Map<Record<string, Type>, AnnotationData<TYPE>[]>;
 @Injectable()
 export class ModuleScannerService {
   constructor(
+    @Inject(ACTIVE_APPLICATION)
+    private readonly application: string,
     private readonly discovery: DiscoveryService,
     private readonly reflector: Reflector,
     private readonly metadataScanner: MetadataScanner,
@@ -39,7 +63,15 @@ export class ModuleScannerService {
     });
   }
 
-  public findAnnotatedMethods<TYPE>(search: string): FindMethodsMap<TYPE> {
+  /**
+   * Search out the application looking for methods that have been annotated with an annotation created from `MethodDecoratorFactory`
+   *
+   * Returns back a map a map that associates the provider with an array of all the instances of the annotation that were applied to it
+   */
+  public findAnnotatedMethods<TYPE>(
+    search: string | { metadataKey: string },
+  ): FindMethodsMap<TYPE> {
+    search = is.object(search) ? search.metadataKey : search;
     const providers = this.discovery.getProviders();
     const controllers = this.discovery.getControllers();
     const out = new Map() as FindMethodsMap<TYPE>;
@@ -63,7 +95,10 @@ export class ModuleScannerService {
               return;
             }
             const current = out.get(instance) ?? [];
-            const context = `${GetLogContext(instance)}#${key}`;
+            const context = [
+              GetLogContext(instance, this.application),
+              key,
+            ].join("#");
             const exec = async (...data) => {
               await instance[key].call(instance, ...data);
             };

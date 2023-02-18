@@ -36,9 +36,8 @@ export class SequenceActivateService {
   private readonly WATCHERS = new Map<string, unknown[]>();
 
   protected onApplicationBootstrap(): void {
-    const providers = this.scanner.findAnnotatedMethods<SequenceWatchDTO>(
-      SequenceWatcher.metadataKey,
-    );
+    const providers =
+      this.scanner.findAnnotatedMethods<SequenceWatchDTO>(SequenceWatcher);
     providers.forEach(targets => {
       targets.forEach(({ context, exec, data }) => {
         this.logger.info(

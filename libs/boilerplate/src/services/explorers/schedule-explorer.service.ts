@@ -16,9 +16,7 @@ export class ScheduleExplorerService {
   ) {}
 
   protected onApplicationBootstrap(): void {
-    const annotated = this.scanner.findAnnotatedMethods<CronOptions>(
-      Cron.metadataKey,
-    );
+    const annotated = this.scanner.findAnnotatedMethods<CronOptions>(Cron);
     annotated.forEach(targets => {
       targets.forEach(({ context, data, exec }) => {
         const schedules = Array.isArray(data) ? data : [data];

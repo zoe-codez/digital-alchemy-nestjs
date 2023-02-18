@@ -1,10 +1,12 @@
 /* eslint-disable radar/cognitive-complexity */
 import { Injectable, Scope } from "@nestjs/common";
 import {
+  AnnotationPassThrough,
   AutoLogService,
   CacheService,
   InjectConfig,
   InjectLogger,
+  ModuleScannerService,
 } from "@steggy/boilerplate";
 import {
   domain,
@@ -30,6 +32,7 @@ import { DEFAULT_DIM } from "../config";
 import {
   CannedTransitions,
   CIRCADIAN_UPDATE,
+  LightTransition,
   MAX_BRIGHTNESS,
   OFF,
   REGISTER_ROOM,
@@ -41,9 +44,10 @@ import {
 import {
   iSceneRoom,
   iSceneRoomOptions,
+  MethodTransition,
   SCENE_ROOM_MAP,
   SCENE_ROOM_SETTINGS,
-  SCENE_ROOM_TRANSITIONS,
+  SceneTransitionInterceptor,
 } from "../decorators";
 import { CircadianService } from "./circadian.service";
 import { TransitionRunnerService } from "./transition-runner.service";
@@ -55,8 +59,13 @@ interface HasKelvin {
   kelvin: number;
 }
 
+type tTransitions<SCOPED extends string> = Partial<
+  Record<SCOPED | "*", Partial<Record<SCOPED | "*", AnnotationPassThrough>>>
+>;
+
 export const SET_ROOM_SCENE_EVENT = (room: string, scene: string) =>
   `room-set-scene/${room}/${scene}`;
+const ANY = "*";
 
 /**
  * Importing this provider is required to actually register a room.
@@ -84,6 +93,7 @@ export class SceneRoomService<
     @InjectConfig(DEFAULT_DIM)
     private readonly defaultDim: number,
     private readonly transition: TransitionRunnerService,
+    private readonly scanner: ModuleScannerService,
   ) {}
 
   public get current() {
@@ -93,6 +103,7 @@ export class SceneRoomService<
   public roomName: NAME;
   private entities: Set<PICK_ENTITY> = new Set();
   private scenes: Map<LOCAL | GLOBAL, tScene> = new Map();
+  private readonly transitions: tTransitions<LOCAL | GLOBAL> = {};
 
   private get parent() {
     return SCENE_ROOM_SETTINGS.get(this.options) as iSceneRoom<LOCAL | GLOBAL>;
@@ -146,13 +157,8 @@ export class SceneRoomService<
    * type guard
    */
   public isValidScene(scene: string): scene is LOCAL | GLOBAL {
-    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(
-      this.parent.constructor.name,
-    );
     return (
       !is.undefined(this.options.scenes[scene]) ||
-      // Annotation based transitions
-      methodTransitions.some(i => i.from === scene || i.to === scene) ||
       // Canned transitions (not sure how this wouldn't also be caught in the scene list tho)
       Object.entries(this.options.transitions ?? {}).some(
         ([from, targets]) => from === scene || !is.undefined(targets[scene]),
@@ -317,6 +323,7 @@ export class SceneRoomService<
     const value = await this.cache.get<string>(SCENE_CACHE(this.roomName));
     current.set(this.roomName, value);
 
+    this.loadTransitions(this.parent.constructor.name);
     this.logger.info(`Room [${this.roomName}] loaded`);
 
     // Run through each individual scene, doing individual registration
@@ -423,9 +430,9 @@ export class SceneRoomService<
       return undefined;
     }
     return (
-      get(transitions, ["*", to].join(".")) ||
-      get(transitions, [from, "*"].join(".")) ||
-      get(transitions, ["*", "*"].join("."))
+      get(transitions, [ANY, to].join(".")) ||
+      get(transitions, [from, ANY].join(".")) ||
+      get(transitions, [ANY, ANY].join("."))
     );
   }
 
@@ -436,23 +443,36 @@ export class SceneRoomService<
     from: LOCAL | GLOBAL,
     to: LOCAL | GLOBAL,
     explicit = false,
-  ) {
-    const methodTransitions = SCENE_ROOM_TRANSITIONS.get(
-      this.parent.constructor.name,
-    );
-    if (!methodTransitions) {
-      return undefined;
+  ): AnnotationPassThrough {
+    if (explicit) {
+      return get(this.transitions, [from, to].join("."), undefined);
     }
-    let found = methodTransitions.find(i => i.from === from && i.to === to);
-    // if only allowing exact matches, then return whatever was found
-    if (found || explicit) {
-      return found?.method;
-    }
-    found =
-      methodTransitions.find(i => i.from === "*" && i.to === to) ||
-      methodTransitions.find(i => i.from === from && i.to === "*") ||
-      methodTransitions.find(i => i.from === "*" && i.to === "*");
-    return found?.method;
+    const source = this.transitions[from] ?? this.transitions[ANY];
+    return source[to] ?? source[ANY];
+  }
+
+  private loadTransitions(name: string): void {
+    const transitions = this.scanner.findAnnotatedMethods<
+      MethodTransition<LOCAL | GLOBAL>
+    >(SceneTransitionInterceptor);
+    this.transitions["*"] = {};
+    transitions.forEach((targets, instance) => {
+      if (instance.constructor.name !== name) {
+        return;
+      }
+      targets.forEach(({ exec, context, data }) => {
+        const from = data.from ?? ANY;
+        const to = data.to ?? ANY;
+        this.logger.info(
+          { context },
+          `[@SceneTransitionInterceptor] {%s,%s}`,
+          from,
+          to,
+        );
+        this.transitions[from] ??= {};
+        this.transitions[from][to] = exec;
+      });
+    });
   }
 
   private async runTransitions(
@@ -522,7 +542,11 @@ export class SceneRoomService<
 
     // hand off logic
     // this cannot do redirects
-    await this.transition.run(transition, this.scenes.get(to) ?? {}, stop);
+    await this.transition.run(
+      transition as LightTransition[],
+      this.scenes.get(to) ?? {},
+      stop,
+    );
     return interrupt ? undefined : to;
   }
 

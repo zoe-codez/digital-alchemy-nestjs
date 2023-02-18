@@ -18,9 +18,8 @@ export class EventsExplorerService {
   ) {}
 
   public loadEventListeners(): void {
-    const annotated = this.scanner.findAnnotatedMethods<OnEventOptions>(
-      OnEvent.metadataKey,
-    );
+    const annotated =
+      this.scanner.findAnnotatedMethods<OnEventOptions>(OnEvent);
     annotated.forEach(targets => {
       targets.forEach(({ data, exec, context }) => {
         const events = is.string(data) ? [data] : data.events;

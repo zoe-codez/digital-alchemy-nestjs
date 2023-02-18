@@ -3,6 +3,11 @@ type CompleteAnnotation<OPTIONS> = Decorator<OPTIONS> & {
   metadataKey: string;
 };
 
+/**
+ * For generating configurable annotations that can be applied to methods
+ *
+ * These annotations can be scanned for using `ModuleScannerService.findAnnotatedMethods(metadataKey)` provided by `@steggy/boilerplate`
+ */
 export function MethodDecoratorFactory<OPTIONS>(
   metadataKey: string,
 ): CompleteAnnotation<OPTIONS> {

@@ -1,6 +1,4 @@
-import { iSceneRoom } from "./scene-room.decorator";
-
-interface MethodTransition<SCENES extends string = string> {
+export interface MethodTransition<SCENES extends string = string> {
   /**
    * Run if scene matches.
    * "*" = default value & match all
@@ -14,22 +12,22 @@ interface MethodTransition<SCENES extends string = string> {
   to?: SCENES | "*";
 }
 
-export const SCENE_ROOM_TRANSITIONS = new Map<string, MethodTransition[]>();
-
+const metadataKey = "SCENE_ROOM_TRANSITIONS";
 /**
  * Method transitions override definitions in the scene options
  *
  * Method should either return void, or replacement scene target name (act as a redirect).
  * Transitions ARE run recursively
  */
-export function SceneTransitionInterceptor<SCENES extends string = string>({
-  from = "*",
-  to = "*",
-}: Omit<MethodTransition<SCENES>, "method"> = {}): MethodDecorator {
-  return function (target: iSceneRoom, method: string) {
-    const name = target.constructor.name;
-    const current = SCENE_ROOM_TRANSITIONS.get(name) ?? [];
-    current.push({ from, method, to });
-    SCENE_ROOM_TRANSITIONS.set(name, current);
+export function SceneTransitionInterceptor<SCENES extends string = string>(
+  options: Omit<MethodTransition<SCENES>, "method"> = {},
+): MethodDecorator {
+  return function (target, method, descriptor) {
+    const data: Omit<MethodTransition<SCENES>, "method">[] =
+      Reflect.getMetadata(metadataKey, descriptor.value) ?? [];
+    data.push(options);
+    Reflect.defineMetadata(metadataKey, data, descriptor.value);
+    return descriptor;
   };
 }
+SceneTransitionInterceptor.metadataKey = metadataKey;

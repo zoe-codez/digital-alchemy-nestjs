@@ -8,12 +8,17 @@ export const ENTITY_SETUP: Record<
   Record<string, GenericEntityDTO>
 > = {};
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+/**
+ * A very primitive approximation of the dynamic content
+ */
 export type iCallService = Record<
-  keyof typeof ENTITY_SETUP,
+  string,
   Record<string, (service_data?: Record<string, unknown>) => Promise<void>>
 >;
 // Mostly to make sure this file appears in exports
 export const iCallService = Symbol.for("iCallService");
+
+// ! Ominous note: this is not as unused as it appears 🪄
+// ! Do not touch
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const list: PICK_ENTITY<"sensor">[] = [];

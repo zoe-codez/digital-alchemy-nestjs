@@ -190,7 +190,7 @@ describe("AutoConfig", () => {
 
     it("respects module configuration defaults", async () => {
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test-no-file"),
+        application: "auto-config-test-no-file",
         configuration: {
           BOOLEAN_CONFIG: { default: true, type: "boolean" },
           NUMBER_CONFIG: { default: 50, type: "number" },
@@ -221,7 +221,7 @@ describe("AutoConfig", () => {
 
     it("lets bootstrap values override module", async () => {
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test-no-file"),
+        application: "auto-config-test-no-file",
         bootstrap: {
           config: {
             application: {
@@ -268,7 +268,7 @@ describe("AutoConfig", () => {
       // eslint-disable-next-line spellcheck/spell-checker
       // ! This test is intended to load values from the .auto-config-testrc file
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test"),
+        application: "auto-config-test",
         bootstrap: {
           config: {
             application: {
@@ -291,7 +291,7 @@ describe("AutoConfig", () => {
     it("prioritizes environment variables over file configurations", async () => {
       env.STRING_CONFIG = "environment string";
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test"),
+        application: "auto-config-test",
         bootstrap: {
           config: {
             application: {
@@ -314,7 +314,7 @@ describe("AutoConfig", () => {
     it("prioritizes environment variables over file configurations with inline definitions", async () => {
       env.STRING_CONFIG = "environment string";
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test"),
+        application: "auto-config-test",
         bootstrap: {
           config: {
             application: {
@@ -337,7 +337,7 @@ describe("AutoConfig", () => {
     it("prioritizes environment variables over file configurations with different formatting", async () => {
       env.string_config = "environment string";
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test"),
+        application: "auto-config-test",
         bootstrap: {
           config: {
             application: {
@@ -361,7 +361,7 @@ describe("AutoConfig", () => {
       env.STRING_CONFIG = "environment string";
       AutoConfigService.setSwitches(["--STRING_CONFIG", "switch config"]);
       const app = await Test.createTestingModule({
-        application: Symbol("auto-config-test"),
+        application: "auto-config-test",
         bootstrap: {
           config: {
             application: { STRING_CONFIG: "override value" },

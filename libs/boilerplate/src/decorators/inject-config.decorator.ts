@@ -61,19 +61,19 @@ export function InjectConfig(
     CONFIG_PROVIDERS.add({
       inject: [AutoConfigService, ACTIVE_APPLICATION],
       provide: id,
-      useFactory(config: AutoConfigService, application: symbol) {
+      useFactory(config: AutoConfigService, application: string) {
         const configPath: string[] = [];
         const library: string = from || target[LOGGER_LIBRARY];
         // This can happen when libraries are having their types referenced, but not actually imported into the app
         if (!config.configDefinitions.has(library)) {
           return undefined;
         }
-        if (library && library !== application.description) {
+        if (library && library !== application) {
           configPath.push("libs", library);
           config["loadProject"](library);
         } else {
           configPath.push("application");
-          config["loadProject"](application.description);
+          config["loadProject"](application);
         }
         configPath.push(path);
         return config.get(configPath.join("."));

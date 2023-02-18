@@ -7,7 +7,7 @@ describe("Boilerplate", () => {
   it("provides back bootstrap options", async () => {
     const project = "boilerplate-spec";
     const options = {
-      application: Symbol(project),
+      application: project,
       configuration: {
         foo: { type: "string" },
       },
