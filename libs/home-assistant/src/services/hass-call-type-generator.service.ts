@@ -39,6 +39,9 @@ const resultFile = createSourceFile(
   ScriptKind.TS,
 );
 let services: HassServiceDTO[] = [];
+let domains: string[] = [];
+let lastBuild: string;
+let lastServices: string;
 
 @Injectable()
 export class HassCallTypeGenerator {
@@ -49,10 +52,6 @@ export class HassCallTypeGenerator {
     private readonly socketApi: HassSocketAPIService,
     private readonly entityManager: EntityManagerService,
   ) {}
-
-  private domains: string[] = [];
-  private lastBuild: string;
-  private lastServices: string;
 
   /**
    * This proxy is intended to be assigned to a constant, then injected into the VM.
@@ -70,7 +69,7 @@ export class HassCallTypeGenerator {
       {},
       {
         get: (t, domain: string) => {
-          if (!this.domains?.includes(domain)) {
+          if (!domains?.includes(domain)) {
             return undefined;
           }
           const domainItem: HassServiceDTO = services.find(
@@ -118,12 +117,12 @@ export class HassCallTypeGenerator {
   public async buildTypes(): Promise<string> {
     const domains = await this.fetchApi.listServices();
     const stringified = JSON.stringify(domains);
-    if (stringified === this.lastServices) {
-      return this.lastBuild;
+    if (stringified === lastServices) {
+      return lastBuild;
     }
     // this.logger.info(`Services updated`);
-    this.lastServices = stringified;
-    this.lastBuild = printer.printNode(
+    lastServices = stringified;
+    lastBuild = printer.printNode(
       EmitHint.Unspecified,
       // Wrap all this into a top level `interface iCallService`
       factory.createTypeAliasDeclaration(
@@ -198,7 +197,7 @@ export class HassCallTypeGenerator {
       ),
       resultFile,
     );
-    return this.lastBuild;
+    return lastBuild;
   }
 
   /**
@@ -209,7 +208,7 @@ export class HassCallTypeGenerator {
   public async initialize() {
     this.logger.info(`Fetching service list`);
     services = await this.fetchApi.listServices();
-    this.domains = services.map(i => i.domain);
+    domains = services.map(i => i.domain);
     services.forEach(value => {
       this.logger.debug(`[${value.domain}]`);
       Object.entries(value.services).forEach(([serviceName]) =>
