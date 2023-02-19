@@ -5,7 +5,7 @@ import {
   Cron,
   OnEvent,
 } from "@steggy/boilerplate";
-import { HassSocketAPIService, SOCKET_READY } from "@steggy/home-assistant";
+import { HassFetchAPIService, SOCKET_READY } from "@steggy/home-assistant";
 import {
   CronExpression,
   DOWN,
@@ -52,10 +52,10 @@ let claimed = false;
 @Injectable()
 export class SolarCalcService {
   constructor(
-    private readonly socket: HassSocketAPIService,
-    private readonly eventEmitter: EventEmitter,
-    private readonly logger: AutoLogService,
     private readonly cache: CacheService,
+    private readonly eventEmitter: EventEmitter,
+    private readonly fetch: HassFetchAPIService,
+    private readonly logger: AutoLogService,
   ) {
     if (!claimed) {
       this.emit = true;
@@ -199,7 +199,7 @@ export class SolarCalcService {
   @OnEvent(SOCKET_READY)
   protected updateConfig(): void {
     setTimeout(async () => {
-      const config = await this.socket.getConfig();
+      const config = await this.fetch.getConfig();
       this.latitude = config.latitude;
       this.longitude = config.longitude;
       await this.cache.set(CACHE_LONG, config.longitude);

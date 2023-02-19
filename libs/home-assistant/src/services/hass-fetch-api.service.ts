@@ -10,6 +10,7 @@ import { BASE_URL, TOKEN } from "../config";
 import {
   ENTITY_STATE,
   GenericEntityDTO,
+  HassConfig,
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
@@ -121,6 +122,12 @@ export class HassFetchAPIService {
   public async getAllEntities(): Promise<GenericEntityDTO[]> {
     return await this.fetch<GenericEntityDTO[]>({
       url: `/api/states`,
+    });
+  }
+
+  public async getConfig(): Promise<HassConfig> {
+    return await this.fetch({
+      url: `/api/config`,
     });
   }
 
