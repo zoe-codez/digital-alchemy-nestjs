@@ -38,6 +38,7 @@ const resultFile = createSourceFile(
   false,
   ScriptKind.TS,
 );
+let services: HassServiceDTO[] = [];
 
 @Injectable()
 export class HassCallTypeGenerator {
@@ -52,7 +53,6 @@ export class HassCallTypeGenerator {
   private domains: string[] = [];
   private lastBuild: string;
   private lastServices: string;
-  private services: HassServiceDTO[] = [];
 
   /**
    * This proxy is intended to be assigned to a constant, then injected into the VM.
@@ -73,7 +73,7 @@ export class HassCallTypeGenerator {
           if (!this.domains?.includes(domain)) {
             return undefined;
           }
-          const domainItem: HassServiceDTO = this.services.find(
+          const domainItem: HassServiceDTO = services.find(
             i => i.domain === domain,
           );
           if (!domainItem) {
@@ -208,9 +208,9 @@ export class HassCallTypeGenerator {
    */
   public async initialize() {
     this.logger.info(`Fetching service list`);
-    this.services = await this.fetchApi.listServices();
-    this.domains = this.services.map(i => i.domain);
-    this.services.forEach(value => {
+    services = await this.fetchApi.listServices();
+    this.domains = services.map(i => i.domain);
+    services.forEach(value => {
       this.logger.debug(`[${value.domain}]`);
       Object.entries(value.services).forEach(([serviceName]) =>
         this.logger.debug(` - {${serviceName}}`),
