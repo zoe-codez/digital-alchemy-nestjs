@@ -20,7 +20,6 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
-  NotificationService,
   SocketManagerService,
 } from "../services";
 
@@ -33,7 +32,6 @@ const services: Provider[] = [
   HassSocketAPIService,
   HassFetchAPIService,
   SocketManagerService,
-  NotificationService,
   {
     inject: [HassCallTypeGenerator],
     provide: CALL_PROXY,

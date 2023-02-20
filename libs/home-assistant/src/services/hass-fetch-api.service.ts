@@ -53,21 +53,23 @@ export class HassFetchAPIService {
 
   public async download(
     destination: string,
-    fetchWitch: FetchWith,
+    fetchWitch: Omit<FetchWith, "baseUrl" | "headers" | "destination">,
   ): Promise<void> {
     return await this.fetchService.download({
+      ...fetchWitch,
       baseUrl: this.baseUrl,
       destination,
       headers: { Authorization: `Bearer ${this.bearer}` },
-      ...fetchWitch,
     });
   }
 
-  public async fetch<T>(fetchWitch: FetchWith): Promise<T> {
+  public async fetch<T>(
+    fetchWitch: Omit<FetchWith, "baseUrl" | "headers">,
+  ): Promise<T> {
     return await this.fetchService.fetch<T>({
+      ...fetchWitch,
       baseUrl: this.baseUrl,
       headers: { Authorization: `Bearer ${this.bearer}` },
-      ...fetchWitch,
     });
   }
 
@@ -112,6 +114,22 @@ export class HassFetchAPIService {
     }
     const [history] = result;
     return history;
+  }
+
+  /**
+   * Fire an event along the home assistant event bus
+   *
+   * Watch for it back (or the effects from) on the websocket!
+   */
+  public async fireEvent<DATA extends object = object>(
+    event: string,
+    data?: DATA,
+  ): Promise<void> {
+    await this.fetch({
+      body: { ...data, event },
+      method: "post",
+      url: "/api/event",
+    });
   }
 
   /**
