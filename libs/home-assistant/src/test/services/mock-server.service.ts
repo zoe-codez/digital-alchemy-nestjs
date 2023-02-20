@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Server, WebSocket } from "ws";
 
-import { HassSocketMessageTypes } from "../../contracts";
+import { HassSocketMessageTypes } from "../../types";
 import { Next } from "./next.service";
 
 export type GenericServerMessage = { id: number; type: string };

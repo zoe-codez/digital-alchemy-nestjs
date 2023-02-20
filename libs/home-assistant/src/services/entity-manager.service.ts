@@ -13,7 +13,7 @@ import {
   HassEventDTO,
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
-} from "../contracts";
+} from "../types";
 import { OnEntityUpdate } from "../decorators";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";

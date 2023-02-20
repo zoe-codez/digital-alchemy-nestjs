@@ -32,7 +32,7 @@ import {
   ON_SOCKET_AUTH,
   SOCKET_MESSAGES,
   SocketMessageDTO,
-} from "../contracts";
+} from "../types";
 import { ConnectionBuilderService } from "./connection-builder.service";
 import { EntityManagerService } from "./entity-manager.service";
 import { SocketManagerService } from "./socket-manager.service";

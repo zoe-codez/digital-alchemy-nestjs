@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import EventEmitter from "eventemitter3";
 
-import { HASSIO_WS_COMMAND, SOCKET_READY } from "../contracts";
+import { HASSIO_WS_COMMAND, SOCKET_READY } from "../types";
 import { EntityManagerService } from "./entity-manager.service";
 import { HassCallTypeGenerator } from "./hass-call-type-generator.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";

@@ -2,8 +2,8 @@ import { Inject, Provider } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { v4 } from "uuid";
 
-import { ENTITY_STATE, PICK_ENTITY } from "../contracts";
 import { EntityManagerService } from "../services";
+import { ENTITY_STATE, PICK_ENTITY } from "../types";
 
 export const INJECTED_ENTITIES = new Set<Provider>();
 

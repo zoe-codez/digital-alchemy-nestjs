@@ -14,7 +14,7 @@ import {
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
-} from "../contracts";
+} from "../types";
 
 type SendBody<
   STATE extends string | number = string,

@@ -1,10 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-  EntityRegistryItem,
-  HASSIO_WS_COMMAND,
-  PICK_ENTITY,
-} from "../contracts";
+import { EntityRegistryItem, HASSIO_WS_COMMAND, PICK_ENTITY } from "../types";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
 @Injectable()
