@@ -1,7 +1,7 @@
 import { Dayjs } from "dayjs";
 
 import { HASSIO_WS_COMMAND, HassSocketMessageTypes } from "./constants";
-import { HassEventDTO } from "./hass-state.dto";
+import { HassEventDTO } from "./entity-state";
 import { ENTITY_STATE, PICK_ENTITY } from "./utility";
 
 export class AreaDTO {

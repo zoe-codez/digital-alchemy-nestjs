@@ -22,27 +22,18 @@ import {
   HassSocketAPIService,
   SocketManagerService,
 } from "../services";
-
-const services: Provider[] = [
-  BackupService,
-  ConnectionBuilderService,
-  EntityManagerService,
-  EntityRegistryService,
-  HassCallTypeGenerator,
-  HassSocketAPIService,
-  HassFetchAPIService,
-  SocketManagerService,
-  {
-    inject: [HassCallTypeGenerator],
-    provide: CALL_PROXY,
-    useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
-  },
-];
+import {
+  HOME_ASSISTANT_MODULE_CONFIGURATION,
+  HomeAssistantModuleConfiguration,
+} from "../types";
 
 /**
  * General purpose module for all Home Assistant interactions.
- *
  * Interact with the proxy API, connect to the websocket, etc.
+ *
+ * When imported as only a module, only `HassFetchAPIService` is exported.
+ *
+ * When imported using `.forRoot({  })`, all other functionality is attached
  */
 @LibraryModule({
   configuration: {
@@ -85,20 +76,43 @@ const services: Provider[] = [
       type: "string",
     },
   },
-  exports: services,
-  global: true,
+  exports: [HassFetchAPIService],
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
-  providers: services,
+  providers: [HassFetchAPIService],
 })
 export class HomeAssistantModule {
-  public static forRoot(): DynamicModule {
+  public static forRoot(
+    options: HomeAssistantModuleConfiguration = {},
+  ): DynamicModule {
+    const services: Provider[] = [
+      BackupService,
+      ConnectionBuilderService,
+      EntityManagerService,
+      EntityRegistryService,
+      HassSocketAPIService,
+      HassFetchAPIService,
+      SocketManagerService,
+      {
+        inject: [HassCallTypeGenerator],
+        provide: CALL_PROXY,
+        useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
+      },
+    ];
     return {
       exports: [...services, ...INJECTED_ENTITIES.values()],
       global: true,
       imports: [RegisterCache()],
       module: HomeAssistantModule,
-      providers: [...services, ...INJECTED_ENTITIES.values()],
+      providers: [
+        ...INJECTED_ENTITIES.values(),
+        ...services,
+        HassCallTypeGenerator,
+        {
+          provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
+          useValue: options,
+        },
+      ],
     };
   }
 }

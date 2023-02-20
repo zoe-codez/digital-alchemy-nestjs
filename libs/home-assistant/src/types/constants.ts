@@ -54,3 +54,6 @@ export enum HassSocketMessageTypes {
   pong = "pong",
   auth_invalid = "auth_invalid",
 }
+
+export const HOME_ASSISTANT_MODULE_CONFIGURATION =
+  "HOME_ASSISTANT_MODULE_CONFIGURATION";
