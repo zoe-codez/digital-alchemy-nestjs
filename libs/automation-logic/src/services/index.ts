@@ -4,5 +4,5 @@ export * from "./gradual-dim.service";
 export * from "./scene-room.service";
 export * from "./sequence-matcher.service";
 export * from "./solar-calc.service";
-export * from "./state-enforcer.service";
+export * from "./deterministic-switch.service";
 export * from "./transition-runner.service";

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DiscoveryService } from "@nestjs/core";
-import { AutoLogService, GetLogContext } from "@steggy/boilerplate";
+import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
 import {
   EntityManagerService,
   HassSocketAPIService,
@@ -9,17 +9,18 @@ import {
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
-import { is } from "@steggy/utilities";
+import { CronExpression, is } from "@steggy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 
-import { ENFORCE_SWITCH_STATE, EnforceSwitchStateConfig } from "../decorators";
+import { DeterministicSwitch, DeterministicSwitchOptions } from "../decorators";
 
 @Injectable()
 export class StateEnforcerService {
   constructor(
     @InjectProxy()
     private readonly call: iCallService,
+    private readonly scanner: ModuleScannerService,
     private readonly discovery: DiscoveryService,
     private readonly logger: AutoLogService,
     private readonly manager: EntityManagerService,
@@ -28,40 +29,29 @@ export class StateEnforcerService {
   ) {}
 
   protected onModuleInit(): void {
-    const providers = [
-      ...this.discovery.getControllers(),
-      ...this.discovery.getProviders(),
-    ].filter(({ instance }) => !!instance);
-    providers.forEach(wrapper => {
-      const { instance } = wrapper;
-      const proto = instance.constructor;
-      if (!proto || !proto[ENFORCE_SWITCH_STATE]) {
-        return;
-      }
-      /**
-       * Find all providers with properties that have been annotated with `@EnforceSwitchState`
-       */
-      const list = proto[ENFORCE_SWITCH_STATE] as EnforceSwitchStateConfig[];
-      this.logger.info(
-        `[${GetLogContext(instance)}] building state enforcer schedule for {${
-          list.length
-        }} properties`,
+    const map =
+      this.scanner.findAnnotatedProperties<DeterministicSwitchOptions>(
+        DeterministicSwitch,
       );
-
-      // Iterate over list (each item represents a single annotation)
-      list.forEach(data => {
-        const { interval, entity_id } = data.options;
+    map.forEach((targets, instance) => {
+      targets.forEach(({ key, data, context }) => {
+        this.logger.info({ context }, `[@DeterministicSwitch] {%s}`, key);
+        const { interval = CronExpression.EVERY_10_MINUTES, entity_id } = data;
         const {
           onEntityUpdate: on_entity_update = [],
           onEvent: on_event = [],
-        } = data.options;
+        } = data;
         const entityList = is.string(entity_id) ? [entity_id] : entity_id;
 
+        const update = async () =>
+          await this.updateEntities(
+            Boolean(instance[key]),
+            entityList,
+            context,
+          );
+
         // * Always run as cron schedule
-        const job = new CronJob(
-          interval,
-          async () => await this.updateEntities(instance, data, entityList),
-        );
+        const job = new CronJob(interval, update);
         job.start();
 
         // Convert to array
@@ -74,21 +64,8 @@ export class StateEnforcerService {
         onEvent.push(
           ...entityToEventList.map(i => OnEntityUpdate.updateEvent(i)),
         );
-
-        this.logger.debug(
-          { entity_id, event_list: onEvent },
-          `${GetLogContext(instance)}#${
-            data.property
-          } state enforcer schedule {${interval}}`,
-        );
-
         // * Attach event emitter events
-        onEvent.forEach(event =>
-          this.event.on(
-            event,
-            async () => await this.updateEntities(instance, data, entityList),
-          ),
-        );
+        onEvent.forEach(event => this.event.on(event, update));
       });
     });
   }
@@ -97,22 +74,20 @@ export class StateEnforcerService {
    * Logic runner for the state enforcer
    */
   private async updateEntities(
-    instance: unknown,
-    data: EnforceSwitchStateConfig,
+    current: boolean,
     entity_id: PICK_ENTITY<"switch">[],
+    context: string,
   ): Promise<void> {
     // ! Bail out if no action can be taken
     if (!this.socket.CONNECTION_ACTIVE) {
       this.logger.warn(
-        `${GetLogContext(instance)}#${
-          data.property
-        } Skipping state enforce attempt, socket not available`,
+        { context },
+        `Skipping state enforce attempt, socket not available`,
       );
       return;
     }
     // Annotation can be used on property getter, or directly on a plain property (that some other logic updates)
-    const currentState = instance[data.property];
-    const action = currentState ? "turn_on" : "turn_off";
+    const action = current ? "turn_on" : "turn_off";
 
     const shouldExecute = entity_id.some(
       id => !action.includes(this.manager.byId(id)?.state?.toLocaleLowerCase()),
