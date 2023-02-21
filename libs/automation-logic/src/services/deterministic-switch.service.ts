@@ -5,7 +5,7 @@ import {
   EntityManagerService,
   HassSocketAPIService,
   iCallService,
-  InjectProxy,
+  InjectCallProxy,
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
@@ -18,7 +18,7 @@ import { DeterministicSwitch, DeterministicSwitchOptions } from "../decorators";
 @Injectable()
 export class StateEnforcerService {
   constructor(
-    @InjectProxy()
+    @InjectCallProxy()
     private readonly call: iCallService,
     private readonly scanner: ModuleScannerService,
     private readonly discovery: DiscoveryService,

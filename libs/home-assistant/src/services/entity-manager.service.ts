@@ -256,7 +256,7 @@ export class EntityManagerService {
       // Doesn't matter for other properties, which aren't directly chained (or as generally used)
       const defaultValue = property === "attributes" ? {} : undefined;
       this.logger.error(
-        { context: `InjectEntity(${entity})`, defaultValue },
+        { context: `InjectEntityProxy(${entity})`, defaultValue },
         `Proxy cannot find entity to provide {${property}}. Is application in a valid state?`,
       );
       return defaultValue;
@@ -273,7 +273,7 @@ export class EntityManagerService {
     value: unknown,
   ): boolean {
     this.logger.error(
-      { context: `InjectEntity(${entity})`, property, value },
+      { context: `InjectEntityProxy(${entity})`, property, value },
       `Entity proxy does not accept value setting`,
     );
     return false;

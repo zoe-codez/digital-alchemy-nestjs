@@ -3,10 +3,8 @@ import { Inject } from "@nestjs/common";
 export const CALL_PROXY = Symbol("CALL_PROXY");
 
 /**
- * ## Description
- *
- * The call proxy is
+ * Use with `iCallService`
  */
-export function InjectProxy(): ParameterDecorator {
+export function InjectCallProxy(): ParameterDecorator {
   return Inject(CALL_PROXY);
 }

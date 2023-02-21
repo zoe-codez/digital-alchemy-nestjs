@@ -12,13 +12,15 @@ import { PICK_ENTITY } from "../types";
  *
  * ### Example usage
  *
- * `@InjectEntity("climate.upstairs")`
+ * `@InjectEntityProxy("climate.upstairs")`
  *
  * `private readonly climateUpstairs: ENTITY_STATE<"climate.upstairs">`
  */
-export const InjectEntity = ParameterDecoratorFactory<PICK_ENTITY>(entity => ({
-  inject: [EntityManagerService],
-  provide: v4(),
-  useFactory: (entityManager: EntityManagerService) =>
-    entityManager.createEntityProxy(entity),
-}));
+export const InjectEntityProxy = ParameterDecoratorFactory<PICK_ENTITY>(
+  entity => ({
+    inject: [EntityManagerService],
+    provide: v4(),
+    useFactory: (entityManager: EntityManagerService) =>
+      entityManager.createEntityProxy(entity),
+  }),
+);

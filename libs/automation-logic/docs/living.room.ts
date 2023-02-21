@@ -7,7 +7,7 @@ import {
   SequenceWatcher,
 } from "@steggy/automation-logic";
 import { OnEvent } from "@steggy/boilerplate";
-import { iCallService, InjectProxy } from "@steggy/home-assistant";
+import { iCallService, InjectCallProxy } from "@steggy/home-assistant";
 import { INVERT_VALUE } from "@steggy/utilities";
 
 // @ts-expect-error These files don't exist in this repo, for example purposes only
@@ -48,7 +48,7 @@ const wall = "sensor.living_pico";
 })
 export class LivingRoom {
   constructor(
-    @InjectProxy()
+    @InjectCallProxy()
     private readonly call: iCallService,
     public readonly scene: SceneRoomService<
       RoomScenes,

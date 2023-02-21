@@ -58,7 +58,7 @@ export function domain(
 /**
  * Type definitions to match a specific entity.
  *
- * Use with `@InjectEntity("some.entity")` to create proxy objects that always match the current state.
+ * Use with `@InjectEntityProxy("some.entity")` to create proxy objects that always match the current state.
  */
 export type ENTITY_STATE<ENTITY_ID extends PICK_ENTITY> = Get<
   typeof ENTITY_SETUP,
