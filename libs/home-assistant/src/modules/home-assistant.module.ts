@@ -20,7 +20,6 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
-  SensorService,
   SocketManagerService,
 } from "../services";
 import {
@@ -90,7 +89,6 @@ export class HomeAssistantModule {
       BackupService,
       ConnectionBuilderService,
       EntityManagerService,
-      SensorService,
       EntityRegistryService,
       HassSocketAPIService,
       HassFetchAPIService,

@@ -1,11 +1,11 @@
 {
   "bin": {
-    "hass-cli": "main.js"
+    "entity-creation": "main.js"
   },
-  "name": "@steggy/hass-cli",
+  "name": "@steggy/entity-creation",
   "license": "MIT",
   "main": "main.js",
-  "displayName": "Hass CLI",
+  "displayName": "Entity Creation",
   "version": "23.8.2",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
