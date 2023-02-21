@@ -7,4 +7,5 @@ export * from "./scripts";
 export * from "./server-log";
 export * from "./service-list-item";
 export * from "./socket-message";
+export * from "./template";
 export * from "./utility";

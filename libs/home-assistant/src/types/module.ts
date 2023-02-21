@@ -1,8 +1,13 @@
 import { SensorDeviceClasses } from "./sensor-device-class";
+import { Icon, Timer } from "./template";
 
-type Icon = string;
+type SensorValueType = string;
 
-type SensorConfig = {
+export type SensorConfig = {
+  attributes: Record<string, SensorValueType>;
+  auto_off?: Timer;
+  delay_off?: Timer;
+  delay_on?: Timer;
   /**
    * Icon for the scene.
    */
@@ -17,7 +22,7 @@ type SensorConfig = {
   track_history?: boolean;
 } & SensorDeviceClasses;
 
-type SwitchConfig = {
+export type SwitchConfig = {
   entity_picture_template?: string;
   icon_template?: string;
   name: string;
@@ -28,9 +33,12 @@ type SwitchConfig = {
   track_history?: boolean;
 };
 
-export interface HomeAssistantModuleConfiguration {
+export interface HomeAssistantModuleConfiguration<
+  SENSORS extends string = string,
+  SWITCHES extends string = string,
+> {
   generate_entities?: {
-    sensors?: Record<string, SensorConfig>;
-    switches?: Record<string, SwitchConfig>;
+    sensors?: Record<SENSORS, SensorConfig>;
+    switches?: Record<SWITCHES, SwitchConfig>;
   };
 }

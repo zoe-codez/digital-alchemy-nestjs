@@ -54,6 +54,14 @@ export class EntityManagerService {
     return this.ENTITIES.get(id) as ENTITY_STATE<T>;
   }
 
+  public createEntityProxy(entity: PICK_ENTITY) {
+    return new Proxy({} as ENTITY_STATE<typeof entity>, {
+      get: (t, property: string) => this.proxyGetLogic(entity, property),
+      set: (t, property: string, value: unknown) =>
+        this.proxySetLogic(entity, property, value),
+    });
+  }
+
   /**
    * list all entities by domain
    */
