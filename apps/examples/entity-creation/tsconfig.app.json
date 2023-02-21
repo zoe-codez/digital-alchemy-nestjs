@@ -16,7 +16,7 @@
   "include": [
     "**/*.ts",
     "../../../libs/boilerplate/**/*.ts",
-    "../../../libs/tty/**/*.ts",
+    "../../../libs/server/**/*.ts",
     "../../../libs/home-assistant/**/*.ts",
     "../../../libs/utilities/**/*.ts"
   ]

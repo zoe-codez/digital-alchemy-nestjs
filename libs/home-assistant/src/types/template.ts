@@ -89,7 +89,7 @@ export type TemplateYaml =
 export const GET_STATE_TEMPLATE = `{{ trigger.event.data.state }}`;
 export const GET_ATTRIBUTE_TEMPLATE = (attribute: string) =>
   `{{ trigger.event.data.attributes.${attribute} }}`;
-export type StorageData<CONFIG> = {
+export type StorageData<CONFIG extends object = object> = {
   attributes: Record<string, unknown>;
   config: CONFIG;
   state: unknown;

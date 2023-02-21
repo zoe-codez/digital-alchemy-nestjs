@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import dayjs from "dayjs";
-import { EventEmitter } from "ws";
+import EventEmitter from "eventemitter3";
 
 import { OnEntityUpdate } from "../decorators";
 import {

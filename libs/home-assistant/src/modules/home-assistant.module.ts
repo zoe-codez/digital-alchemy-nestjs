@@ -20,6 +20,10 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
+  PushBinarySensorService,
+  PushEntityService,
+  PushSensorService,
+  PushSwitchService,
   SocketManagerService,
 } from "../services";
 import {
@@ -90,8 +94,11 @@ export class HomeAssistantModule {
       ConnectionBuilderService,
       EntityManagerService,
       EntityRegistryService,
-      HassSocketAPIService,
       HassFetchAPIService,
+      HassSocketAPIService,
+      PushBinarySensorService,
+      PushSensorService,
+      PushSwitchService,
       SocketManagerService,
       {
         inject: [HassCallTypeGenerator],
@@ -108,6 +115,7 @@ export class HomeAssistantModule {
         ...InjectEntityProxy.providers,
         ...services,
         HassCallTypeGenerator,
+        PushEntityService,
         {
           provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
           useValue: options,
