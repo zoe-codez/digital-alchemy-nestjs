@@ -36,7 +36,7 @@ type FindMethodsMap<TYPE> = Map<
   Record<string, Type>,
   (AnnotationData<TYPE> & {
     /**
-     * Execute the method on the instance, with optional parameters
+     * Execute the method on the instance, with optional parameters.
      */
     exec: AnnotationPassThrough;
   })[]
@@ -108,7 +108,11 @@ export class ModuleScannerService {
               key,
             ].join("#");
             const exec = async (...data) => {
-              await instance[key].call(instance, ...data);
+              try {
+                await instance[key].call(instance, ...data);
+              } catch (error) {
+                this.logger.error({ context, error }, `[%s] caught exception`);
+              }
             };
             current.push(...list.map(data => ({ context, data, exec, key })));
             out.set(instance, current);

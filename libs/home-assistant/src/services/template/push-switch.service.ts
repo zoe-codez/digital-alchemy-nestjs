@@ -12,8 +12,9 @@ import {
   PICK_GENERATED_ENTITY,
   SensorConfig,
   SensorTemplate,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
+  SensorTemplateYaml,
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
 
 const SET_START = ["state", "attributes"];
 const UPDATE_EVENT = `steggy_sensor_update`;
@@ -24,10 +25,6 @@ const GET_ATTRIBUTE = (attribute: string) =>
   `{{ trigger.event.data.attributes.${attribute} }}`;
 const CONTEXT = (id: string) => `PushSensor(${id})`;
 
-type SensorTemplateYaml = {
-  sensor: SensorTemplate[];
-  trigger: unknown[];
-};
 type StorageData = {
   attributes: Record<string, unknown>;
   config: SensorConfig;
@@ -41,21 +38,21 @@ const UPDATE_TRIGGER = (sensor_id: string) => [
   },
 ];
 
-type SensorId = PICK_GENERATED_ENTITY<"sensors">;
+type SwitchId = PICK_GENERATED_ENTITY<"switches">;
 
 @Injectable()
-export class PushSensorService {
+export class PushSwitchService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly cache: CacheService,
     private readonly fetch: HassFetchAPIService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
-    private readonly configuration: HomeAssistantModuleConfiguration<SensorId>,
+    private readonly configuration: HomeAssistantModuleConfiguration<SwitchId>,
   ) {}
 
-  private readonly STORAGE = new Map<SensorId, StorageData>();
+  private readonly STORAGE = new Map<SwitchId, StorageData>();
 
-  public createProxy(id: SensorId) {
+  public createProxy(id: SwitchId) {
     return new Proxy(
       {},
       {
@@ -73,9 +70,11 @@ export class PushSensorService {
         auto_off: config.auto_off,
         delay_off: config.delay_off,
         delay_on: config.delay_on,
+        device_class: config.device_class,
         icon: config.icon,
         name: config.name,
         state: GET_STATE,
+        unit_of_measurement: config.unit_of_measurement,
       } as SensorTemplate;
       if (config.track_history) {
         sensor.unique_id = is.hash(`sensor.${name}`);
@@ -97,44 +96,47 @@ export class PushSensorService {
   protected async onModuleInit(): Promise<void> {
     const { sensors } = this.configuration.generate_entities;
     await eachSeries(Object.keys(sensors), async key => {
-      await this.load(`sensor.${key}` as SensorId, sensors[key]);
+      await this.load(`sensor.${key}` as SwitchId, sensors[key]);
     });
   }
 
-  private async emitUpdate(id: SensorId): Promise<void> {
-    const { attributes, state } = this.STORAGE.get(id);
-    await this.fetch.fireEvent(UPDATE_EVENT, {
-      attributes,
-      sensor_id: id,
-      state,
-    });
+  private async emitUpdate(sensor_id: SwitchId): Promise<void> {
+    const data = this.STORAGE.get(sensor_id);
+    const { attributes, state } = data;
+    await this.cache.set(CACHE_KEY(sensor_id), data);
+    await this.fetch.fireEvent(UPDATE_EVENT, { attributes, sensor_id, state });
   }
 
-  private getLogic(id: SensorId, property: string) {
+  private getLogic(id: SwitchId, property: string) {
     const data = this.STORAGE.get(id);
     return get(data, property);
   }
 
-  private async load(id: SensorId, config: SensorConfig): Promise<void> {
+  private async load(id: SwitchId, config: SensorConfig): Promise<void> {
+    const context = CONTEXT(id);
+    const key = CACHE_KEY(id);
+
     const data = {
       attributes: {},
       config,
       state: undefined,
     } as StorageData;
-    const value = await this.cache.get<StorageData>(CACHE_KEY(id));
+    const value = await this.cache.get<StorageData>(key);
     if (data) {
       const equal = deepEqual(value.config, config);
       if (!equal) {
-        this.logger.warn({ context: CONTEXT(id) }, `Changed configuration`);
+        this.logger.warn({ context }, `Changed configuration`);
       }
       data.attributes = value.attributes;
       data.state = value.state;
+    } else {
+      this.logger.info({ context }, `Loading`);
+      await this.cache.set(key, data);
     }
-
     this.STORAGE.set(id, data);
   }
 
-  private setLogic(id: SensorId, property: string, value: unknown): boolean {
+  private setLogic(id: SwitchId, property: string, value: unknown): boolean {
     const valid = SET_START.some(start => property.startsWith(start));
     if (!valid) {
       return false;
@@ -145,56 +147,3 @@ export class PushSensorService {
     return false;
   }
 }
-
-// type ValueTypes = "number" | "date" | "string";
-
-// private valueType(deviceClass: string): ValueTypes {
-//   switch (deviceClass) {
-//     case "current":
-//     case "duration":
-//     case "temperature":
-//     case "precipitation":
-//     case "apparent_power":
-//     case "water":
-//     case "weight":
-//     case "wind_speed":
-//     case "speed":
-//     case "voltage":
-//     case "signal_strength":
-//     case "volume":
-//     case "sound_pressure":
-//     case "pressure":
-//     case "reactive_power":
-//     case "precipitation_intensity":
-//     case "power_factor":
-//     case "power":
-//     case "nitrogen_monoxide":
-//     case "nitrous_oxide":
-//     case "ozone":
-//     case "pm1":
-//     case "pm25":
-//     case "pm10":
-//     case "volatile_organic_compounds":
-//     case "illuminance":
-//     case "irradiance":
-//     case "gas":
-//     case "frequency":
-//     case "energy":
-//     case "distance":
-//     case "monetary":
-//     case "data_rate":
-//     case "data_size":
-//     case "atmospheric_pressure":
-//     case "carbon_dioxide":
-//     case "carbon_monoxide":
-//     case "battery":
-//     case "humidity":
-//     case "moisture":
-//       return "number";
-//     case "timestamp":
-//     case "date":
-//       return "date";
-//     default:
-//       return "string";
-//   }
-// }

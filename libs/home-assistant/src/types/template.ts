@@ -1,3 +1,4 @@
+import { BinarySensorConfig } from "./module";
 import { SensorDeviceClasses } from "./sensor-device-class";
 
 interface Base {
@@ -50,3 +51,39 @@ export type SelectTemplate = Base & {
 export type ButtonTemplate = Base & {
   press: Action;
 };
+
+export type SwitchTemplate = Base;
+
+export type TemplateEntity =
+  | ButtonTemplate
+  | SelectTemplate
+  | NumberTemplate
+  | BinarySensorConfig
+  | SwitchTemplate
+  | SensorTemplate;
+
+export type SensorTemplateYaml = {
+  sensor: SwitchTemplate[];
+  trigger: unknown[];
+};
+
+export type BinarySensorTemplateYaml = {
+  sensor: BinarySensorTemplate[];
+  trigger: unknown[];
+};
+
+export type SwitchTemplateYaml = {
+  availability_template?: Template;
+  entity_picture_template?: Template;
+  friendly_name?: string;
+  icon_template?: Template;
+  turn_off: Action;
+  turn_on: Action;
+  unique_id?: string;
+  value_template?: Template;
+};
+
+export type TemplateYaml =
+  | SensorTemplateYaml
+  | BinarySensorTemplateYaml
+  | SwitchTemplateYaml;
