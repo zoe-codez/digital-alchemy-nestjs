@@ -5,7 +5,7 @@ import { PushSensorService } from "../services";
 import { PICK_GENERATED_ENTITY } from "../types";
 
 export const InjectPushSensor = ParameterDecoratorFactory<
-  PICK_GENERATED_ENTITY<"sensors">
+  PICK_GENERATED_ENTITY<"sensor">
 >(entity => ({
   inject: [PushSensorService],
   provide: v4(),

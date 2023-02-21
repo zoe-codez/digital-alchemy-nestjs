@@ -8,10 +8,8 @@ export type SensorConfig = {
   auto_off?: Timer;
   delay_off?: Timer;
   delay_on?: Timer;
-  icon?: Icon;
-  name?: string;
-  track_history?: boolean;
-} & SensorDeviceClasses;
+} & SensorDeviceClasses &
+  BaseConfig;
 
 /**
  * TODO: VALIDATE ME
@@ -21,16 +19,17 @@ export type BinarySensorConfig = {
   auto_off?: Timer;
   delay_off?: Timer;
   delay_on?: Timer;
-  icon?: Icon;
-  name?: string;
-  track_history?: boolean;
-} & SensorDeviceClasses;
+} & SensorDeviceClasses &
+  BaseConfig;
 
-export type SwitchConfig = {
+export type BaseConfig = {
   icon?: Icon;
   name?: string;
   track_history?: boolean;
 };
+
+export type SwitchConfig = BaseConfig;
+export type ButtonConfig = BaseConfig;
 
 export interface HomeAssistantModuleConfiguration<
   BINARY_SENSORS extends string = string,
@@ -38,8 +37,9 @@ export interface HomeAssistantModuleConfiguration<
   SWITCHES extends string = string,
 > {
   generate_entities?: {
-    binary_sensors?: Record<BINARY_SENSORS, BinarySensorConfig>;
-    sensors?: Record<SENSORS, SensorConfig>;
-    switches?: Record<SWITCHES, SwitchConfig>;
+    binary_sensor?: Record<BINARY_SENSORS, BinarySensorConfig>;
+    button?: Record<SWITCHES, ButtonConfig>;
+    sensor?: Record<SENSORS, SensorConfig>;
+    switch?: Record<SWITCHES, SwitchConfig>;
   };
 }

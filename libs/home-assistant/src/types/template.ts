@@ -1,5 +1,5 @@
-import { BinarySensorConfig } from "./module";
 import { SensorDeviceClasses } from "./sensor-device-class";
+import { ALL_GENERATED_SERVICE_DOMAINS } from "./utility";
 
 interface Base {
   availability?: Template;
@@ -8,6 +8,12 @@ interface Base {
   unique_id?: string;
 }
 
+export type Timer = Record<string, number>;
+
+type Action = unknown;
+type Template = string;
+export type Icon = string;
+
 export type SensorTemplate = Base &
   SensorDeviceClasses & {
     attributes?: Record<string, Template>;
@@ -15,8 +21,6 @@ export type SensorTemplate = Base &
     state: Template;
     state_class?: "measurement" | "total" | "total_increasing";
   };
-
-export type Timer = Record<string, number>;
 
 export type BinarySensorTemplate = Base &
   Pick<SensorDeviceClasses, "device_class"> & {
@@ -27,10 +31,6 @@ export type BinarySensorTemplate = Base &
     picture?: Template;
     state: Template;
   };
-
-type Action = unknown;
-type Template = string;
-export type Icon = string;
 
 export type NumberTemplate = Base & {
   max?: Template;
@@ -52,19 +52,13 @@ export type ButtonTemplate = Base & {
   press: Action;
 };
 
-export type SwitchTemplate = Base;
-
-export type TemplateEntity =
-  | ButtonTemplate
-  | SelectTemplate
-  | NumberTemplate
-  | BinarySensorConfig
-  | SwitchTemplate
-  | SensorTemplate;
-
 export type SensorTemplateYaml = {
-  sensor: SwitchTemplate[];
+  sensor: SensorTemplate[];
   trigger: unknown[];
+};
+
+export type ButtonTemplateYaml = {
+  button: ButtonTemplate[];
 };
 
 export type BinarySensorTemplateYaml = {
@@ -86,4 +80,60 @@ export type SwitchTemplateYaml = {
 export type TemplateYaml =
   | SensorTemplateYaml
   | BinarySensorTemplateYaml
-  | SwitchTemplateYaml;
+  | SwitchTemplateYaml
+  | ButtonTemplateYaml
+  | SelectTemplate
+  | NumberTemplate;
+//
+
+export const GET_STATE_TEMPLATE = `{{ trigger.event.data.state }}`;
+export const GET_ATTRIBUTE_TEMPLATE = (attribute: string) =>
+  `{{ trigger.event.data.attributes.${attribute} }}`;
+export type StorageData<CONFIG> = {
+  attributes: Record<string, unknown>;
+  config: CONFIG;
+  state: unknown;
+};
+
+export const UPDATE_TRIGGER = (
+  domain: ALL_GENERATED_SERVICE_DOMAINS,
+  sensor_id: string,
+) => {
+  if (sensor_id.includes(".")) {
+    sensor_id = domain + "." + sensor_id;
+  }
+  return [
+    {
+      event: UPDATE_TRIGGER.event(domain),
+      event_data: { sensor_id },
+      platform: "event",
+    },
+  ];
+};
+
+UPDATE_TRIGGER.event = (domain: ALL_GENERATED_SERVICE_DOMAINS) =>
+  `steggy_${domain}_update`;
+
+export const TALK_BACK_ACTION = (
+  domain: ALL_GENERATED_SERVICE_DOMAINS,
+  sensor_id: string,
+  action: string,
+) => {
+  if (sensor_id.includes(".")) {
+    sensor_id = domain + "." + sensor_id;
+  }
+  return [
+    {
+      event: TALK_BACK_ACTION.event(domain, action),
+      event_data: {
+        action,
+        sensor_id,
+      },
+    },
+  ];
+};
+
+TALK_BACK_ACTION.event = (
+  domain: ALL_GENERATED_SERVICE_DOMAINS,
+  action: string,
+) => `steggy_${domain}_talk_back_${action}`;
