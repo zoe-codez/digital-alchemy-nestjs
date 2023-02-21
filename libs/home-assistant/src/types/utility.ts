@@ -1,7 +1,18 @@
 import { is, START } from "@steggy/utilities";
 import type { Get } from "type-fest";
 
-import { ENTITY_SETUP, iCallService } from "../dynamic";
+import { ENTITY_SETUP, iCallService, MODULE_SETUP } from "../dynamic";
+
+type generated = typeof MODULE_SETUP.generate_entities;
+
+/**
+ * Pick any entity that home assistant wants to create, optionally limiting by type
+ */
+export type PICK_GENERATED_ENTITY<
+  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+> = {
+  [key in DOMAIN]: `${key}.${keyof generated[key] & string}`;
+}[DOMAIN];
 
 /**
  * Pick any valid entity, optionally limiting by domain
@@ -63,3 +74,5 @@ export type ALL_DOMAINS = keyof typeof ENTITY_SETUP;
  * Union of all services with callable methods
  */
 export type ALL_SERVICE_DOMAINS = keyof iCallService;
+
+export type ALL_GENERATED_SERVICE_DOMAINS = keyof generated;

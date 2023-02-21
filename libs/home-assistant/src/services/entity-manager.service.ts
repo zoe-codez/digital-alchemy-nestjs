@@ -1,8 +1,10 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import dayjs from "dayjs";
-import EventEmitter from "eventemitter3";
+import { EventEmitter } from "ws";
 
+import { OnEntityUpdate } from "../decorators";
 import {
   ALL_DOMAINS,
   domain,
@@ -14,7 +16,6 @@ import {
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
 } from "../types";
-import { OnEntityUpdate } from "../decorators";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
@@ -33,6 +34,7 @@ export class EntityManagerService {
     private readonly fetch: HassFetchAPIService,
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socket: HassSocketAPIService,
+    private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
@@ -229,5 +231,43 @@ export class EntityManagerService {
 
   protected async onModuleInit(): Promise<void> {
     await this.refresh();
+  }
+
+  protected proxyGetLogic<ENTITY extends PICK_ENTITY = PICK_ENTITY>(
+    entity: ENTITY,
+    property: string,
+  ): unknown {
+    if (!this.init) {
+      return undefined;
+    }
+    const current = this.byId<ENTITY>(entity);
+    if (!current) {
+      // Theory: attributes only gets accessed to use the sub-properties
+      // It is frequent to forget optional chains `attribute?.friendly_name`
+      // Providing an object by default reduces crashes
+      // Doesn't matter for other properties, which aren't directly chained (or as generally used)
+      const defaultValue = property === "attributes" ? {} : undefined;
+      this.logger.error(
+        { context: `InjectEntity(${entity})`, defaultValue },
+        `Proxy cannot find entity to provide {${property}}. Is application in a valid state?`,
+      );
+      return defaultValue;
+    }
+    return current ? current[property] : undefined;
+  }
+
+  /**
+   * ... should it? Seems like a bad idea
+   */
+  protected proxySetLogic<ENTITY extends PICK_ENTITY = PICK_ENTITY>(
+    entity: ENTITY,
+    property: string,
+    value: unknown,
+  ): boolean {
+    this.logger.error(
+      { context: `InjectEntity(${entity})`, property, value },
+      `Entity proxy does not accept value setting`,
+    );
+    return false;
   }
 }

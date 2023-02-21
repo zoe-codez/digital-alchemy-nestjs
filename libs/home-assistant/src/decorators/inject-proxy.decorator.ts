@@ -7,6 +7,6 @@ export const CALL_PROXY = Symbol("CALL_PROXY");
  *
  * The call proxy is
  */
-export function InjectProxy() {
+export function InjectProxy(): ParameterDecorator {
   return Inject(CALL_PROXY);
 }

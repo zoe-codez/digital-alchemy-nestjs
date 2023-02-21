@@ -1,14 +1,8 @@
-import { Inject, Provider } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { ParameterDecoratorFactory } from "@steggy/utilities";
 import { v4 } from "uuid";
 
 import { EntityManagerService } from "../services";
 import { ENTITY_STATE, PICK_ENTITY } from "../types";
-
-export const INJECTED_ENTITIES = new Set<Provider>();
-
-// Don't even try to include a real code example. The inline tsdoc > markdown thing in vscode is a flaming piece of shit
-// It will not render right
 
 /**
  * Inject a **`READ ONLY`** entity proxy object that will perform lookups against the latest information available for an entity.
@@ -22,47 +16,18 @@ export const INJECTED_ENTITIES = new Set<Provider>();
  *
  * `private readonly climateUpstairs: ENTITY_STATE<"climate.upstairs">`
  */
-export function InjectEntity<ENTITY extends PICK_ENTITY>(
-  entity: ENTITY,
-): ParameterDecorator {
-  return function (target, key, index) {
-    const id = v4();
-    INJECTED_ENTITIES.add({
-      inject: [EntityManagerService, AutoLogService],
-      provide: id,
-      useFactory(entityManager: EntityManagerService, logger: AutoLogService) {
-        logger["context"] = `InjectEntity(${entity})`;
-        return new Proxy({} as ENTITY_STATE<ENTITY>, {
-          get: (t, property: string) => {
-            if (!entityManager.init) {
-              return undefined;
-            }
-            const current = entityManager.byId<ENTITY>(entity);
-            if (!current) {
-              // Theory: attributes only gets accessed to use the sub-properties
-              // It is frequent to forget optional chains `attribute?.friendly_name`
-              // Providing an object by default reduces crashes
-              // Doesn't matter for other properties, which aren't directly chained (or as generally used)
-              const defaultValue = property === "attributes" ? {} : undefined;
-              logger.error(
-                { defaultValue },
-                `Proxy cannot find entity to provide {${property}}. Is application in a valid state?`,
-              );
-              return defaultValue;
-            }
-            return current ? current[property] : undefined;
-          },
-          set(t, property: string, value: unknown) {
-            // ... should it? Seems like a bad idea
-            logger.error(
-              { property, value },
-              `Entity proxy does not accept value setting`,
-            );
-            return false;
-          },
-        });
-      },
-    });
-    return Inject(id)(target, key, index);
-  };
-}
+export const InjectEntity = ParameterDecoratorFactory<PICK_ENTITY>(
+  "INJECT_ENTITY",
+  entity => ({
+    inject: [EntityManagerService],
+    provide: v4(),
+    useFactory(entityManager: EntityManagerService) {
+      return new Proxy({} as ENTITY_STATE<typeof entity>, {
+        get: (t, property: string) =>
+          entityManager["proxyGetLogic"](entity, property),
+        set: (t, property: string, value: unknown) =>
+          entityManager["proxySetLogic"](entity, property, value),
+      });
+    },
+  }),
+);

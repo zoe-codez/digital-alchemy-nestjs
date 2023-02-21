@@ -11,7 +11,7 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
-import { CALL_PROXY, INJECTED_ENTITIES } from "../decorators";
+import { CALL_PROXY, InjectEntity } from "../decorators";
 import {
   BackupService,
   ConnectionBuilderService,
@@ -20,6 +20,7 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
+  SensorService,
   SocketManagerService,
 } from "../services";
 import {
@@ -89,6 +90,7 @@ export class HomeAssistantModule {
       BackupService,
       ConnectionBuilderService,
       EntityManagerService,
+      SensorService,
       EntityRegistryService,
       HassSocketAPIService,
       HassFetchAPIService,
@@ -100,12 +102,12 @@ export class HomeAssistantModule {
       },
     ];
     return {
-      exports: [...services, ...INJECTED_ENTITIES.values()],
+      exports: [...services, ...InjectEntity.providers],
       global: true,
       imports: [RegisterCache()],
       module: HomeAssistantModule,
       providers: [
-        ...INJECTED_ENTITIES.values(),
+        ...InjectEntity.providers,
         ...services,
         HassCallTypeGenerator,
         {
