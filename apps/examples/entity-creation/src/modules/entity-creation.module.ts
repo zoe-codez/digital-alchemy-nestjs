@@ -23,11 +23,13 @@ import { ExampleService } from "../services";
         sensor: {
           entity_creation_sensor: {
             name: "Example sensor",
+            track_history: true,
           },
         },
         switch: {
           entity_creation_switch: {
             name: "Example switch",
+            track_history: true,
           },
         },
       },

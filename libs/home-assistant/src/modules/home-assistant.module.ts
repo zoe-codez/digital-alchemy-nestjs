@@ -32,13 +32,46 @@ import {
   HomeAssistantModuleConfiguration,
 } from "../types";
 
+// ? The "@" symbol cannot appear first, or tsdoc does weird stuff
+// If there is a better way to fix this, let me know
 /**
  * General purpose module for all Home Assistant interactions.
  * Interact with the proxy API, connect to the websocket, etc.
  *
- * When imported as only a module, only `HassFetchAPIService` is exported.
+ * ## Basic Import
  *
- * When imported using `.forRoot({  })`, all other functionality is attached
+ * > Only `HassFetchAPIService` is available
+ *
+ * ```typescript
+ * ; @ApplicationModule({
+ *   imports: [HomeAssistantModule]
+ * })
+ * class MyApplication {}
+ * ```
+ *
+ * ## All functionality
+ *
+ * ```typescript
+ * ; @ApplicationModule({
+ *   imports: [
+ *     HomeAssistantModule.forRoot({
+ *       // application configuration
+ *     })
+ *   ]
+ * })
+ * class MyApplication {}
+ * ```
+ *
+ * - web sockets
+ * - push entities
+ * - event bindings
+ * - proxy api
+ * - entity management
+ *
+ * ### Caching note
+ *
+ * Push entities are intended to work with a persistent caching store like redis.
+ * Information such as state may be lost after process restarts when using in-memory stores.
  */
 @LibraryModule({
   configuration: {

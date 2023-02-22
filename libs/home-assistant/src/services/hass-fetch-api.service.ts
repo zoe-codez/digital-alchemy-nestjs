@@ -8,6 +8,7 @@ import { FetchWith, is, SECOND } from "@steggy/utilities";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
+  CheckConfigResult,
   ENTITY_STATE,
   GenericEntityDTO,
   HassConfig,
@@ -44,7 +45,7 @@ export class HassFetchAPIService {
   /**
    * Pass through of home assistant's yaml check
    */
-  public async checkConfig(): Promise<unknown> {
+  public async checkConfig(): Promise<CheckConfigResult> {
     return await this.fetch({
       method: `post`,
       url: `/api/config/core/check_config`,

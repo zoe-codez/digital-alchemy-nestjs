@@ -31,13 +31,16 @@ export class PushSwitchService {
 
   public createSensorYaml(
     entity_id?: PICK_GENERATED_ENTITY<"switch">,
-  ): SwitchTemplateYaml[] {
+  ): Record<string, SwitchTemplateYaml> {
     const storage = this.pushEntity.domainStorage("switch");
 
-    return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
-      entity_id => {
-        return this.createYaml(storage, entity_id);
-      },
+    return Object.fromEntries(
+      [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
+        entity_id => {
+          const [, id] = entity_id.split(".");
+          return [id, this.createYaml(storage, entity_id)];
+        },
+      ),
     );
   }
 

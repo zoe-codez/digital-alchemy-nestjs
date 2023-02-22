@@ -33,12 +33,19 @@ export class PushProxyService {
     private readonly pushSwitch: PushSwitchService,
   ) {}
 
-  public applicationYaml(): TemplateYaml[] {
-    return [
-      ...this.pushBinarySensor.createSensorYaml(),
-      ...this.pushSensor.createSensorYaml(),
-      ...this.pushSwitch.createSensorYaml(),
-    ];
+  public applicationYaml() {
+    return {
+      switch: [
+        {
+          platform: "template",
+          switches: this.pushSwitch.createSensorYaml(),
+        },
+      ],
+      template: [
+        ...this.pushBinarySensor.createSensorYaml(),
+        ...this.pushSensor.createSensorYaml(),
+      ],
+    };
   }
 
   public createPushProxy(entity: PICK_GENERATED_ENTITY) {
