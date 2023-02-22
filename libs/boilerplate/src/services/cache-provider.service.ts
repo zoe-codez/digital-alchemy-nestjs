@@ -1,5 +1,5 @@
 import { CacheModuleOptions, Injectable } from "@nestjs/common";
-import RedisStore from "cache-manager-redis-store";
+import { redisStore } from "cache-manager-redis-store";
 import { RedisClientOptions } from "redis";
 
 import { CACHE_HOST, CACHE_PORT, CACHE_PROVIDER, CACHE_TTL } from "../config";
@@ -31,7 +31,7 @@ export class CacheProviderService {
       host: this.host,
       isGlobal: true,
       port: this.port,
-      store: RedisStore,
+      store: redisStore,
       ttl,
     } as RedisClientOptions;
   }
