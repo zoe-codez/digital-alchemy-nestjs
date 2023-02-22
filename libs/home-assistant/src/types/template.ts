@@ -1,5 +1,9 @@
 import { SensorDeviceClasses } from "./sensor-device-class";
-import { ALL_GENERATED_SERVICE_DOMAINS } from "./utility";
+import {
+  ALL_GENERATED_SERVICE_DOMAINS,
+  generated_domain,
+  PICK_GENERATED_ENTITY,
+} from "./utility";
 
 interface Base {
   availability?: Template;
@@ -115,19 +119,15 @@ UPDATE_TRIGGER.event = (domain: ALL_GENERATED_SERVICE_DOMAINS) =>
   `steggy_${domain}_update`;
 
 export const TALK_BACK_ACTION = (
-  domain: ALL_GENERATED_SERVICE_DOMAINS,
-  sensor_id: string,
+  entity: PICK_GENERATED_ENTITY,
   action: string,
 ) => {
-  if (sensor_id.includes(".")) {
-    sensor_id = domain + "." + sensor_id;
-  }
   return [
     {
-      event: TALK_BACK_ACTION.event(domain, action),
+      event: TALK_BACK_ACTION.event(generated_domain(entity), action),
       event_data: {
         action,
-        sensor_id,
+        sensor_id: entity,
       },
     },
   ];

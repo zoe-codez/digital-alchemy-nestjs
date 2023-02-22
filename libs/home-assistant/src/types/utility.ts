@@ -56,6 +56,18 @@ export function domain(
 }
 
 /**
+ * Extract the domain from an entity with type safety
+ */
+export function generated_domain(
+  entity: { entity_id: PICK_GENERATED_ENTITY } | PICK_GENERATED_ENTITY,
+): ALL_GENERATED_SERVICE_DOMAINS {
+  if (is.object(entity)) {
+    entity = entity.entity_id;
+  }
+  return entity_split(entity).shift() as ALL_GENERATED_SERVICE_DOMAINS;
+}
+
+/**
  * Type definitions to match a specific entity.
  *
  * Use with `@InjectEntityProxy("some.entity")` to create proxy objects that always match the current state.
@@ -76,3 +88,19 @@ export type ALL_DOMAINS = keyof typeof ENTITY_SETUP;
 export type ALL_SERVICE_DOMAINS = keyof iCallService;
 
 export type ALL_GENERATED_SERVICE_DOMAINS = keyof generated;
+
+export const isDomain = <
+  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+>(
+  entity: PICK_GENERATED_ENTITY,
+  domain: DOMAIN,
+): entity is PICK_GENERATED_ENTITY<DOMAIN> =>
+  generated_domain(entity) === domain;
+
+export const isGeneratedDomain = <
+  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+>(
+  entity: PICK_GENERATED_ENTITY,
+  domain: DOMAIN,
+): entity is PICK_GENERATED_ENTITY<DOMAIN> =>
+  generated_domain(entity) === domain;

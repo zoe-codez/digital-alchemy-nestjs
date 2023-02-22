@@ -8,6 +8,7 @@ import { nextTick } from "process";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
   domain,
+  generated_domain,
   GET_CONFIG,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
@@ -71,7 +72,7 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
   ): Promise<void> {
     const data = this.STORAGE.get(sensor_id);
     const { attributes, state } = data;
-    const d = domain(sensor_id) as ALL_GENERATED_SERVICE_DOMAINS;
+    const domain = generated_domain(sensor_id);
     const context = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
@@ -105,7 +106,7 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
       this.logger.trace({ context }, `no changes to flush`);
     }
     // Emit to home assistant anyways?
-    await this.fetch.fireEvent(UPDATE_TRIGGER.event(d), {
+    await this.fetch.fireEvent(UPDATE_TRIGGER.event(domain), {
       attributes,
       sensor_id,
       state,
@@ -119,6 +120,8 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
     if (this.proxyMap.has(entity)) {
       return this.proxyMap.get(entity);
     }
+    const context = LOG_CONTEXT(entity);
+    this.logger.debug(`[%s] generating proxy entity`, context);
     const proxy = new Proxy(
       {},
       {
@@ -145,7 +148,6 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
       this.configuration.generate_entities,
       entity,
     ) as GET_CONFIG<DOMAIN>;
-    const context = LOG_CONTEXT(entity);
     const key = CACHE_KEY(entity);
 
     const data = {

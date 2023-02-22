@@ -3,7 +3,12 @@ import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
-import { PICK_GENERATED_ENTITY, SwitchTemplateYaml } from "../../types";
+import {
+  GET_STATE_TEMPLATE,
+  PICK_GENERATED_ENTITY,
+  SwitchTemplateYaml,
+  TALK_BACK_ACTION,
+} from "../../types";
 import { PushEntityService } from "../push-entity.service";
 
 @Injectable()
@@ -29,29 +34,15 @@ export class PushSwitchService {
     return [...storage.keys()].map(entity_id => {
       const { config } = storage.get(entity_id);
       const sensor = {
-        // auto_off: config.auto_off,
-        // delay_off: config.delay_off,
-        // delay_on: config.delay_on,
-        // device_class: config.device_class,
+        friendly_name: config.name,
         icon_template: config.icon,
-        // name: config.name,
-        // state: GET_STATE,
-        // unit_of_measurement: config.unit_of_measurement,
       } as SwitchTemplateYaml;
       if (config.track_history) {
         sensor.unique_id = is.hash(entity_id);
       }
-      // if (config.attributes) {
-      //   sensor.attributes = {};
-      //   Object.keys(config.attributes).forEach(key => [
-      //     key,
-      //     GET_ATTRIBUTE(key),
-      //   ]);
-      // }
-      // return {
-      //   sensor: [sensor],
-      //   trigger: UPDATE_TRIGGER(`sensor.${name}`),
-      // };
+      sensor.value_template = GET_STATE_TEMPLATE;
+      sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
+      sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");
       return undefined;
     });
   }
