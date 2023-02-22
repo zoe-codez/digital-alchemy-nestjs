@@ -1,5 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { AutoLogService, CacheService } from "@steggy/boilerplate";
+import {
+  ACTIVE_APPLICATION,
+  AutoLogService,
+  CacheService,
+} from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
 import {
@@ -8,6 +12,8 @@ import {
   HomeAssistantModuleConfiguration,
   isGeneratedDomain,
   PICK_GENERATED_ENTITY,
+  PUSH_PROXY,
+  PUSH_PROXY_DOMAINS,
 } from "../types";
 import {
   PushBinarySensorService,
@@ -27,35 +33,45 @@ export class PushProxyService {
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
+    @Inject(ACTIVE_APPLICATION)
+    private readonly application: string,
     private readonly pushSensor: PushSensorService,
     private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
   ) {}
 
   public applicationYaml() {
+    const availability = `{{ is_state("binary_sensor.${this.application.replaceAll(
+      "-",
+      "_",
+    )}_online", "on") }}`;
     return {
       switch: [
         {
           platform: "template",
-          switches: this.pushSwitch.createSensorYaml(),
+          switches: this.pushSwitch.createSensorYaml(availability),
         },
       ],
       template: [
-        ...this.pushBinarySensor.createSensorYaml(),
-        ...this.pushSensor.createSensorYaml(),
+        ...this.pushBinarySensor.createSensorYaml(availability),
+        ...this.pushSensor.createSensorYaml(availability),
       ],
     };
   }
 
-  public createPushProxy(entity: PICK_GENERATED_ENTITY) {
+  public async createPushProxy<
+    ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+  >(entity: ENTITY): Promise<PUSH_PROXY<ENTITY>> {
     if (isGeneratedDomain(entity, "switch")) {
-      return this.pushSwitch.createProxy(entity);
+      return (await this.pushSwitch.createProxy(entity)) as PUSH_PROXY<ENTITY>;
     }
     if (isGeneratedDomain(entity, "sensor")) {
-      return this.pushSensor.createProxy(entity);
+      return (await this.pushSensor.createProxy(entity)) as PUSH_PROXY<ENTITY>;
     }
     if (isGeneratedDomain(entity, "binary_sensor")) {
-      return this.pushBinarySensor.createProxy(entity);
+      return (await this.pushBinarySensor.createProxy(
+        entity,
+      )) as PUSH_PROXY<ENTITY>;
     }
     this.logger.error(
       { context: `@InjectPushEntity(${entity})` },
@@ -85,7 +101,8 @@ export class PushProxyService {
             // Switches
             await Promise.all(
               Object.keys(generate).map(async id => {
-                const entity_id = `${key}.${id}` as PICK_GENERATED_ENTITY;
+                const entity_id =
+                  `${key}.${id}` as PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
                 this.logger.debug(`[%s] auto init`, entity_id);
                 await this.createPushProxy(entity_id);
               }),

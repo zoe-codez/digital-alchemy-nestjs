@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, CacheService } from "@steggy/boilerplate";
-import { TitleCase } from "@steggy/utilities";
+import { is, TitleCase } from "@steggy/utilities";
 import deepEqual from "deep-equal";
 import { get, set } from "object-path";
 import { nextTick } from "process";
@@ -14,6 +14,8 @@ import {
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   PICK_GENERATED_ENTITY,
+  PUSH_PROXY,
+  PUSH_PROXY_DOMAINS,
   StorageData,
   UPDATE_TRIGGER,
 } from "../types";
@@ -32,8 +34,12 @@ type MergeAndEmit<
   state?: STATE;
 };
 
+type ProxyMapValue<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
+  DOMAIN extends PUSH_PROXY_DOMAINS
+    ? PUSH_PROXY<PICK_GENERATED_ENTITY<DOMAIN>>
+    : undefined;
+
 const CACHE_KEY = (id: string) => `push_entity:${id}`;
-type ProxyObject = object;
 const LOG_CONTEXT = (entity_id: PICK_GENERATED_ENTITY) => {
   const [domain, id] = entity_id.split(".");
   const tag = "Push" + TitleCase(domain).replace(" ", "");
@@ -67,8 +73,8 @@ export class PushEntityService<
   private readonly STORAGE: PushStorageMap = new Map();
 
   private readonly proxyMap = new Map<
-    PICK_GENERATED_ENTITY<DOMAIN>,
-    ProxyObject
+    PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+    ProxyMapValue<DOMAIN>
   >();
 
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
@@ -85,15 +91,13 @@ export class PushEntityService<
     updates: MergeAndEmit<STATE, ATTRIBUTES>,
   ): Promise<void> {
     const data = this.STORAGE.get(sensor_id);
-    const { attributes, state } = data;
-    const domain = generated_domain(sensor_id);
     const context = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
     // Merge state
-    if ("state" in updates && state !== updates.state) {
+    if ("state" in updates && data.state !== updates.state) {
       this.logger.trace(
-        { context, from: state, to: updates.state },
+        { context, from: data.state, to: updates.state },
         `update state`,
       );
       data.state = updates.state;
@@ -102,7 +106,7 @@ export class PushEntityService<
     // Merge attributes
     if ("attributes" in updates) {
       Object.keys(updates.attributes).forEach(key => {
-        const from = attributes[key];
+        const from = data.attributes[key];
         const to = updates.attributes[key];
         const matches = deepEqual(from, to);
         if (matches) {
@@ -120,19 +124,21 @@ export class PushEntityService<
       this.logger.trace({ context }, `no changes to flush`);
     }
     // Emit to home assistant anyways?
-    await this.fetch.fireEvent(UPDATE_TRIGGER.event(domain), {
-      attributes,
-      sensor_id,
-      state,
+    await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), {
+      attributes: data.attributes,
+      state: this.cast(data.state as string | number | boolean),
     });
   }
 
-  public async generate(
-    entity: PICK_GENERATED_ENTITY<DOMAIN>,
-    options: ProxyOptions,
-  ): Promise<ProxyObject> {
+  public async generate<
+    ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+  >(entity: ENTITY, options: ProxyOptions): Promise<PUSH_PROXY<ENTITY>> {
+    // ! Type Fixer 5000
+    let out: unknown;
+
     if (this.proxyMap.has(entity)) {
-      return this.proxyMap.get(entity);
+      out = this.proxyMap.get(entity);
+      return out as PUSH_PROXY<ENTITY>;
     }
     const context = LOG_CONTEXT(entity);
     this.logger.info({ context }, `initializing`);
@@ -143,20 +149,30 @@ export class PushEntityService<
           if (options.getter) {
             return options.getter(property);
           }
-          return get(this.get(entity), property);
+          return get(
+            this.get(entity as PICK_GENERATED_ENTITY<DOMAIN>),
+            property,
+          );
         },
         set: (t, property: string, value) => {
           const status = options.validate(property, value);
           if (!status) {
+            this.logger.error({ entity, value }, `Value failed validation`);
             return false;
           }
           const update = {};
           set(update, property, value);
-          nextTick(async () => await this.emitUpdate(entity, update));
+          nextTick(
+            async () =>
+              await this.emitUpdate(
+                entity as PICK_GENERATED_ENTITY<DOMAIN>,
+                update,
+              ),
+          );
           return true;
         },
       },
-    );
+    ) as ProxyMapValue<DOMAIN>;
     this.proxyMap.set(entity, proxy);
     const config = get(
       this.configuration.generate_entities,
@@ -183,7 +199,9 @@ export class PushEntityService<
       await this.cache.set(key, data);
     }
     this.STORAGE.set(entity, data);
-    return proxy;
+
+    out = proxy;
+    return out as PUSH_PROXY<ENTITY>;
   }
 
   public get(entity: PICK_GENERATED_ENTITY<DOMAIN>) {
@@ -194,8 +212,16 @@ export class PushEntityService<
     entity: NewEntityId<CREATE_DOMAIN>,
     config: GET_CONFIG<CREATE_DOMAIN>,
   ) {
+    this.logger.debug({ config }, `[%s] insert`, entity);
     const [domain, id] = generated_entity_split(entity);
     this.configuration.generate_entities[domain] ??= {};
     this.configuration.generate_entities[domain][id] = config;
+  }
+
+  private cast(value: string | number | boolean) {
+    if (is.boolean(value)) {
+      return value ? "1" : "0";
+    }
+    return value.toString();
   }
 }

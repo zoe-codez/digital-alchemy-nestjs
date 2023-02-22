@@ -15,7 +15,7 @@ interface Base {
 export type Timer = Record<string, number>;
 
 type Action = unknown;
-type Template = string;
+export type Template = string;
 export type Icon = string;
 
 export type SensorTemplate = Base &
@@ -66,7 +66,7 @@ export type ButtonTemplateYaml = {
 };
 
 export type BinarySensorTemplateYaml = {
-  sensor: BinarySensorTemplate[];
+  binary_sensor: BinarySensorTemplate[];
   trigger: unknown[];
 };
 
@@ -90,7 +90,7 @@ export type TemplateYaml =
   | NumberTemplate;
 //
 
-export const GET_STATE_TEMPLATE = `{{ trigger.event.data.state }}`;
+export const GET_STATE_TEMPLATE = `{{ trigger.json.state }}`;
 export const GET_ATTRIBUTE_TEMPLATE = (attribute: string) =>
   `{{ trigger.event.data.attributes.${attribute} }}`;
 export type StorageData<CONFIG extends object = object> = {
@@ -103,20 +103,22 @@ export const UPDATE_TRIGGER = (
   domain: ALL_GENERATED_SERVICE_DOMAINS,
   sensor_id: string,
 ) => {
-  if (sensor_id.includes(".")) {
+  if (!sensor_id.includes(".")) {
     sensor_id = domain + "." + sensor_id;
   }
   return [
     {
-      event: UPDATE_TRIGGER.event(domain),
-      event_data: { sensor_id },
-      platform: "event",
+      platform: "webhook",
+      webhook_id: UPDATE_TRIGGER.event(
+        sensor_id as PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
+      ),
     },
   ];
 };
 
-UPDATE_TRIGGER.event = (domain: ALL_GENERATED_SERVICE_DOMAINS) =>
-  `steggy_${domain}_update`;
+UPDATE_TRIGGER.event = (
+  entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
+) => `steggy_${entity.replace(".", "_")}_update`;
 
 export const TALK_BACK_ACTION = (
   entity: PICK_GENERATED_ENTITY,

@@ -112,6 +112,7 @@ export class ModuleScannerService {
                 await instance[key].call(instance, ...data);
               } catch (error) {
                 this.logger.error({ context, error }, `[%s] caught exception`);
+                console.log(error);
               }
             };
             current.push(...list.map(data => ({ context, data, exec, key })));

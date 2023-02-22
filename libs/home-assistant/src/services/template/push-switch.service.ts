@@ -8,6 +8,7 @@ import {
   PICK_GENERATED_ENTITY,
   SwitchTemplateYaml,
   TALK_BACK_ACTION,
+  Template,
 } from "../../types";
 import { PushEntityService, PushStorageMap } from "../push-entity.service";
 
@@ -30,6 +31,7 @@ export class PushSwitchService {
   }
 
   public createSensorYaml(
+    availability: Template,
     entity_id?: PICK_GENERATED_ENTITY<"switch">,
   ): Record<string, SwitchTemplateYaml> {
     const storage = this.pushEntity.domainStorage("switch");
@@ -38,13 +40,14 @@ export class PushSwitchService {
       [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
         entity_id => {
           const [, id] = entity_id.split(".");
-          return [id, this.createYaml(storage, entity_id)];
+          return [id, this.createYaml(availability, storage, entity_id)];
         },
       ),
     );
   }
 
   private createYaml(
+    availability: Template,
     storage: PushStorageMap<"switch">,
     entity_id: PICK_GENERATED_ENTITY<"switch">,
   ) {
@@ -53,9 +56,8 @@ export class PushSwitchService {
       friendly_name: config.name,
       icon_template: config.icon,
     } as SwitchTemplateYaml;
-    if (config.track_history) {
-      sensor.unique_id = is.hash(entity_id);
-    }
+    sensor.unique_id = "steggy_switch_" + is.hash(entity_id);
+    sensor.availability_template = availability;
     sensor.value_template = GET_STATE_TEMPLATE;
     sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
     sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");

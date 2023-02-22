@@ -82,15 +82,22 @@ type SwitchProxy = {
 };
 type SensorProxy = {
   attributes: Record<string, unknown>;
-  state: boolean;
+  state: number | string;
 };
 type BinarySensorProxy = {
   attributes: Record<string, unknown>;
   state: boolean;
 };
 
+export type PUSH_PROXY_DOMAINS = "switch" | "sensor" | "binary_sensor";
+export function IsPushDomain(
+  domain: ALL_DOMAINS,
+): domain is PUSH_PROXY_DOMAINS {
+  return ["switch", "sensor", "binary_sensor"].includes(domain);
+}
+
 export type PUSH_PROXY<
-  ENTITY extends PICK_GENERATED_ENTITY<"switch" | "sensor" | "binary_sensor">,
+  ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
 > = {
   binary_sensor: BinarySensorProxy;
   sensor: SensorProxy;
@@ -148,7 +155,7 @@ export type iPushSensor<
   state: GetGeneratedStateType<GetGeneratedDomain<ENTITY>>;
 };
 
-type GetGeneratedDomain<ENTITY extends PICK_GENERATED_ENTITY> =
+export type GetGeneratedDomain<ENTITY extends PICK_GENERATED_ENTITY> =
   ENTITY extends `${infer domain}.${string}` ? domain : never;
 
 export type ConfigDomainMap = {

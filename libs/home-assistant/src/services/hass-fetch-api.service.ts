@@ -126,11 +126,15 @@ export class HassFetchAPIService {
     event: string,
     data?: DATA,
   ): Promise<void> {
-    await this.fetch({
-      body: { ...data, event },
+    this.logger.debug({ ...data }, `[%s] firing event`, event);
+    const response = await this.fetch<{ message: string }>({
+      body: { ...data },
       method: "post",
-      url: "/api/event",
+      url: `/api/events/${event}`,
     });
+    if (response?.message !== `Event ${event} fired.`) {
+      this.logger.debug({ response }, `Unexpected response from firing event`);
+    }
   }
 
   /**
@@ -202,6 +206,15 @@ export class HassFetchAPIService {
       body,
       method: "post",
       url: `/api/states/${entity_id}`,
+    });
+  }
+
+  public async webhook(id: string, data: object = {}): Promise<void> {
+    await this.fetch({
+      body: data,
+      method: "post",
+      process: "text",
+      url: `/api/webhook/${id}`,
     });
   }
 }
