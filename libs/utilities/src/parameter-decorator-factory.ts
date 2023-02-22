@@ -9,6 +9,7 @@ import {
 type Decorator<OPTIONS> = (options: OPTIONS) => ParameterDecorator;
 type CompleteAnnotation<OPTIONS, BUILT> = Decorator<OPTIONS> & {
   providers: BUILT[];
+  tag?: string;
 };
 type ExpectedProviders<T = unknown> =
   | FactoryProvider<T>
@@ -31,6 +32,7 @@ export function ParameterDecoratorFactory<
     key: string,
     index: number,
   ) => BUILT,
+  tag?: string,
 ): CompleteAnnotation<OPTIONS, BUILT> {
   const decorator = function (options: OPTIONS): ParameterDecorator {
     return function (target, key: string, index: number) {

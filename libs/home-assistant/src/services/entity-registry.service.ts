@@ -1,34 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-  EntityRegistryItem,
-  HASSIO_WS_COMMAND,
-  PICK_ENTITY,
-  TemplateYaml,
-} from "../types";
+import { EntityRegistryItem, HASSIO_WS_COMMAND, PICK_ENTITY } from "../types";
 import { HassSocketAPIService } from "./hass-socket-api.service";
-import {
-  PushBinarySensorService,
-  PushSensorService,
-  PushSwitchService,
-} from "./template";
 
 @Injectable()
 export class EntityRegistryService {
-  constructor(
-    private readonly socket: HassSocketAPIService,
-    private readonly pushBinarySensor: PushBinarySensorService,
-    private readonly pushSensor: PushSensorService,
-    private readonly pushSwitch: PushSwitchService,
-  ) {}
-
-  public applicationYaml(): TemplateYaml[] {
-    return [
-      ...this.pushBinarySensor.createSensorYaml(),
-      ...this.pushSensor.createSensorYaml(),
-      ...this.pushSwitch.createSensorYaml(),
-    ];
-  }
+  constructor(private readonly socket: HassSocketAPIService) {}
 
   public async byId(entity_id: PICK_ENTITY): Promise<EntityRegistryItem> {
     return await this.socket.sendMessage({

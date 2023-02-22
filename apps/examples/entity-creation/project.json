@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "entity-creation:build",
         "inspect": "inspect",
-        "port": 33342
+        "port": 33344
       }
     },
     "build": {

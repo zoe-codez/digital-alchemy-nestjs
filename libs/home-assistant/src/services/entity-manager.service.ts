@@ -14,17 +14,10 @@ import {
   GenericEntityDTO,
   HassEventDTO,
   HASSIO_WS_COMMAND,
-  isGeneratedDomain,
   PICK_ENTITY,
-  PICK_GENERATED_ENTITY,
 } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
-import {
-  PushBinarySensorService,
-  PushSensorService,
-  PushSwitchService,
-} from "./template";
 
 const TIMEOUT = 5000;
 const TIME_OFFSET = 1000;
@@ -43,10 +36,6 @@ export class EntityManagerService {
     private readonly socket: HassSocketAPIService,
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
-
-    private readonly sensor: PushSensorService,
-    private readonly binarySensor: PushBinarySensorService,
-    private readonly iSwitch: PushSwitchService,
   ) {}
 
   public readonly ENTITIES = new Map<PICK_ENTITY, GenericEntityDTO>();
@@ -71,23 +60,6 @@ export class EntityManagerService {
       set: (t, property: string, value: unknown) =>
         this.proxySetLogic(entity, property, value),
     });
-  }
-
-  public createPushProxy(entity: PICK_GENERATED_ENTITY) {
-    if (isGeneratedDomain(entity, "switch")) {
-      return this.iSwitch.createProxy(entity);
-    }
-    if (isGeneratedDomain(entity, "sensor")) {
-      return this.sensor.createProxy(entity);
-    }
-    if (isGeneratedDomain(entity, "binary_sensor")) {
-      return this.binarySensor.createProxy(entity);
-    }
-    this.logger.error(
-      { context: `@InjectPushEntity(${entity})` },
-      `No proxy support for this domain`,
-    );
-    return undefined;
   }
 
   /**

@@ -10,7 +10,7 @@ import {
   PICK_GENERATED_ENTITY,
   UPDATE_TRIGGER,
 } from "../../types";
-import { PushEntityService } from "../push-entity.service";
+import { PushEntityService, PushStorageMap } from "../push-entity.service";
 
 @Injectable()
 export class PushBinarySensorService {
@@ -30,32 +30,44 @@ export class PushBinarySensorService {
     });
   }
 
-  public createSensorYaml(): BinarySensorTemplateYaml[] {
+  public createSensorYaml(
+    entity_id?: PICK_GENERATED_ENTITY<"binary_sensor">,
+  ): BinarySensorTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("binary_sensor");
-    return [...storage.keys()].map(entity_id => {
-      const { config } = storage.get(entity_id);
-      const sensor = {
-        auto_off: config.auto_off,
-        delay_off: config.delay_off,
-        delay_on: config.delay_on,
-        icon: config.icon,
-        name: config.name,
-        state: GET_STATE_TEMPLATE,
-      } as BinarySensorTemplate;
-      if (config.track_history) {
-        sensor.unique_id = is.hash(entity_id);
-      }
-      if (config.attributes) {
-        sensor.attributes = {};
-        Object.keys(config.attributes).forEach(key => [
-          key,
-          GET_ATTRIBUTE_TEMPLATE(key),
-        ]);
-      }
-      return {
-        sensor: [sensor],
-        trigger: UPDATE_TRIGGER("binary_sensor", entity_id),
-      };
-    });
+
+    return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
+      entity_id => {
+        return this.createYaml(storage, entity_id);
+      },
+    );
+  }
+
+  private createYaml(
+    storage: PushStorageMap<"binary_sensor">,
+    entity_id: PICK_GENERATED_ENTITY<"binary_sensor">,
+  ) {
+    const { config } = storage.get(entity_id);
+    const sensor = {
+      auto_off: config.auto_off,
+      delay_off: config.delay_off,
+      delay_on: config.delay_on,
+      icon: config.icon,
+      name: config.name,
+      state: GET_STATE_TEMPLATE,
+    } as BinarySensorTemplate;
+    if (config.track_history) {
+      sensor.unique_id = is.hash(entity_id);
+    }
+    if (config.attributes) {
+      sensor.attributes = {};
+      Object.keys(config.attributes).forEach(key => [
+        key,
+        GET_ATTRIBUTE_TEMPLATE(key),
+      ]);
+    }
+    return {
+      sensor: [sensor],
+      trigger: UPDATE_TRIGGER("binary_sensor", entity_id),
+    };
   }
 }

@@ -29,19 +29,46 @@ export type BaseConfig = {
   track_history?: boolean;
 };
 
-export type SwitchConfig = BaseConfig;
+export type SwitchConfig = {
+  /**
+   * ## if true
+   *
+   * Switch will automatically initialize, and be available for use and normal comparisons via standard websocket commands.
+   *
+   * ## if false
+   *
+   * Switch will not be created unless
+   *
+   * > **default**: false
+   */
+  autoInit?: boolean;
+} & BaseConfig;
 export type ButtonConfig = BaseConfig;
 
-export interface HomeAssistantModuleConfiguration<
-  BINARY_SENSORS extends string = string,
-  SENSORS extends string = string,
-  SWITCHES extends string = string,
-> {
+export interface HomeAssistantModuleConfiguration {
   generate_entities?: {
-    binary_sensor?: Record<BINARY_SENSORS, BinarySensorConfig>;
-    button?: Record<SWITCHES, ButtonConfig>;
-    sensor?: Record<SENSORS, SensorConfig>;
-    switch?: Record<SWITCHES, SwitchConfig>;
+    /**
+     * Binary sensors will not be created unless they are also injected using `@InjectPushEntity`
+     */
+    binary_sensor?: Record<string, BinarySensorConfig>;
+    /**
+     * Buttons will be created on load.
+     *
+     * Annotate methods with `@TemplateButton` to receive activation events
+     */
+    button?: Record<string, ButtonConfig>;
+    /**
+     * Binary sensors will not be created unless they are also injected.
+     *
+     * Use `@InjectPushEntity` + `
+     */
+    sensor?: Record<string, SensorConfig>;
+    /**
+     * Switches are created on load.
+     *
+     * Use standard api commands to manage state
+     */
+    switch?: Record<string, SwitchConfig>;
   };
 }
 

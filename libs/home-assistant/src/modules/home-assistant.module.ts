@@ -11,7 +11,7 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
-import { CALL_PROXY, InjectEntityProxy } from "../decorators";
+import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
 import {
   BackupService,
   ConnectionBuilderService,
@@ -22,6 +22,7 @@ import {
   HassSocketAPIService,
   PushBinarySensorService,
   PushEntityService,
+  PushProxyService,
   PushSensorService,
   PushSwitchService,
   SocketManagerService,
@@ -98,8 +99,12 @@ export class HomeAssistantModule {
       HassSocketAPIService,
       PushBinarySensorService,
       PushSensorService,
+      PushEntityService,
+      PushProxyService,
       PushSwitchService,
       SocketManagerService,
+      ...InjectEntityProxy.providers,
+      ...InjectPushEntity.providers,
       {
         inject: [HassCallTypeGenerator],
         provide: CALL_PROXY,
@@ -107,15 +112,13 @@ export class HomeAssistantModule {
       },
     ];
     return {
-      exports: [...services, ...InjectEntityProxy.providers],
+      exports: services,
       global: true,
       imports: [RegisterCache()],
       module: HomeAssistantModule,
       providers: [
-        ...InjectEntityProxy.providers,
         ...services,
         HassCallTypeGenerator,
-        PushEntityService,
         {
           provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
           useValue: options,

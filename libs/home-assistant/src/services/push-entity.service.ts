@@ -1,5 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { AutoLogService, CacheService } from "@steggy/boilerplate";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import {
+  AutoLogService,
+  CacheService,
+  InjectLogger,
+} from "@steggy/boilerplate";
 import { TitleCase } from "@steggy/utilities";
 import deepEqual from "deep-equal";
 import { get, set } from "object-path";
@@ -16,6 +20,7 @@ import {
   StorageData,
   UPDATE_TRIGGER,
 } from "../types";
+import { EntityManagerService } from "./entity-manager.service";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 
 type ProxyOptions = {
@@ -38,6 +43,10 @@ const LOG_CONTEXT = (entity_id: PICK_GENERATED_ENTITY) => {
   return `${tag}(${id})`;
 };
 
+export type PushStorageMap<
+  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+> = Map<PICK_GENERATED_ENTITY<DOMAIN>, StorageData<GET_CONFIG<DOMAIN>>>;
+
 @Injectable()
 export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
   constructor(
@@ -45,22 +54,22 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
     private readonly fetch: HassFetchAPIService,
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
-    private readonly configuration: HomeAssistantModuleConfiguration<DOMAIN>,
+    private readonly configuration: HomeAssistantModuleConfiguration,
+    @Inject(forwardRef(() => EntityManagerService))
+    private readonly entityRegistry: EntityManagerService,
   ) {}
 
-  private readonly STORAGE = new Map<
-    PICK_GENERATED_ENTITY,
-    StorageData<GET_CONFIG<DOMAIN>>
-  >();
+  private readonly STORAGE: PushStorageMap = new Map();
+
   private readonly proxyMap = new Map<
     PICK_GENERATED_ENTITY<DOMAIN>,
     ProxyObject
   >();
 
-  public domainStorage(search: DOMAIN) {
+  public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
     return new Map(
       [...this.STORAGE.entries()].filter(([id]) => domain(id) === search),
-    );
+    ) as PushStorageMap<DOMAIN>;
   }
 
   public async emitUpdate<
@@ -121,7 +130,7 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
       return this.proxyMap.get(entity);
     }
     const context = LOG_CONTEXT(entity);
-    this.logger.debug(`[%s] generating proxy entity`, context);
+    this.logger.info({ context }, `initializing`);
     const proxy = new Proxy(
       {},
       {
@@ -165,7 +174,7 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
       data.attributes = value.attributes;
       data.state = value.state;
     } else {
-      this.logger.info({ context }, `Loading`);
+      this.logger.info({ context }, `initial cache populate`);
       await this.cache.set(key, data);
     }
     this.STORAGE.set(entity, data);

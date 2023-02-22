@@ -67,6 +67,26 @@ export function generated_domain(
   return entity_split(entity).shift() as ALL_GENERATED_SERVICE_DOMAINS;
 }
 
+type SwitchProxy = {
+  state: boolean;
+};
+type SensorProxy = {
+  attributes: Record<string, unknown>;
+  state: boolean;
+};
+type BinarySensorProxy = {
+  attributes: Record<string, unknown>;
+  state: boolean;
+};
+
+export type PUSH_PROXY<
+  ENTITY extends PICK_GENERATED_ENTITY<"switch" | "sensor" | "binary_sensor">,
+> = {
+  binary_sensor: BinarySensorProxy;
+  sensor: SensorProxy;
+  switch: SwitchProxy;
+}[GetGeneratedDomain<ENTITY>];
+
 /**
  * Type definitions to match a specific entity.
  *
@@ -104,3 +124,19 @@ export const isGeneratedDomain = <
   domain: DOMAIN,
 ): entity is PICK_GENERATED_ENTITY<DOMAIN> =>
   generated_domain(entity) === domain;
+
+type PushSensorDomains = "sensor" | "binary_sensor";
+
+type GetGeneratedStateType<DOMAIN extends PushSensorDomains> = {
+  binary_sensor: boolean;
+  sensor: unknown;
+}[DOMAIN];
+
+export type iPushSensor<
+  ENTITY extends PICK_GENERATED_ENTITY<PushSensorDomains>,
+> = {
+  state: GetGeneratedStateType<GetGeneratedDomain<ENTITY>>;
+};
+
+type GetGeneratedDomain<ENTITY extends PICK_GENERATED_ENTITY> =
+  ENTITY extends `${infer domain}.${string}` ? domain : never;

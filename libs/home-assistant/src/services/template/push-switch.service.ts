@@ -9,7 +9,7 @@ import {
   SwitchTemplateYaml,
   TALK_BACK_ACTION,
 } from "../../types";
-import { PushEntityService } from "../push-entity.service";
+import { PushEntityService, PushStorageMap } from "../push-entity.service";
 
 @Injectable()
 export class PushSwitchService {
@@ -29,21 +29,33 @@ export class PushSwitchService {
     });
   }
 
-  public createSensorYaml(): SwitchTemplateYaml[] {
+  public createSensorYaml(
+    entity_id?: PICK_GENERATED_ENTITY<"switch">,
+  ): SwitchTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("switch");
-    return [...storage.keys()].map(entity_id => {
-      const { config } = storage.get(entity_id);
-      const sensor = {
-        friendly_name: config.name,
-        icon_template: config.icon,
-      } as SwitchTemplateYaml;
-      if (config.track_history) {
-        sensor.unique_id = is.hash(entity_id);
-      }
-      sensor.value_template = GET_STATE_TEMPLATE;
-      sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
-      sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");
-      return undefined;
-    });
+
+    return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
+      entity_id => {
+        return this.createYaml(storage, entity_id);
+      },
+    );
+  }
+
+  private createYaml(
+    storage: PushStorageMap<"switch">,
+    entity_id: PICK_GENERATED_ENTITY<"switch">,
+  ) {
+    const { config } = storage.get(entity_id);
+    const sensor = {
+      friendly_name: config.name,
+      icon_template: config.icon,
+    } as SwitchTemplateYaml;
+    if (config.track_history) {
+      sensor.unique_id = is.hash(entity_id);
+    }
+    sensor.value_template = GET_STATE_TEMPLATE;
+    sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
+    sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");
+    return sensor;
   }
 }

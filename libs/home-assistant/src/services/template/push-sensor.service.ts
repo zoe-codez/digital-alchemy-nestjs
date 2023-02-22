@@ -11,7 +11,7 @@ import {
   SensorTemplateYaml,
   UPDATE_TRIGGER,
 } from "../../types";
-import { PushEntityService } from "../push-entity.service";
+import { PushEntityService, PushStorageMap } from "../push-entity.service";
 
 @Injectable()
 export class PushSensorService {
@@ -31,34 +31,46 @@ export class PushSensorService {
     });
   }
 
-  public createSensorYaml(): SensorTemplateYaml[] {
+  public createSensorYaml(
+    entity_id?: PICK_GENERATED_ENTITY<"sensor">,
+  ): SensorTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("sensor");
-    return [...storage.keys()].map(entity_id => {
-      const { config } = storage.get(entity_id);
-      const sensor = {
-        auto_off: config.auto_off,
-        delay_off: config.delay_off,
-        delay_on: config.delay_on,
-        device_class: config.device_class,
-        icon: config.icon,
-        name: config.name,
-        state: GET_STATE_TEMPLATE,
-        unit_of_measurement: config.unit_of_measurement,
-      } as SensorTemplate;
-      if (config.track_history) {
-        sensor.unique_id = is.hash(entity_id);
-      }
-      if (config.attributes) {
-        sensor.attributes = {};
-        Object.keys(config.attributes).forEach(key => [
-          key,
-          GET_ATTRIBUTE_TEMPLATE(key),
-        ]);
-      }
-      return {
-        sensor: [sensor],
-        trigger: UPDATE_TRIGGER("sensor", entity_id),
-      };
-    });
+
+    return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
+      entity_id => {
+        return this.createYaml(storage, entity_id);
+      },
+    );
+  }
+
+  private createYaml(
+    storage: PushStorageMap<"sensor">,
+    entity_id: PICK_GENERATED_ENTITY<"sensor">,
+  ) {
+    const { config } = storage.get(entity_id);
+    const sensor = {
+      auto_off: config.auto_off,
+      delay_off: config.delay_off,
+      delay_on: config.delay_on,
+      device_class: config.device_class,
+      icon: config.icon,
+      name: config.name,
+      state: GET_STATE_TEMPLATE,
+      unit_of_measurement: config.unit_of_measurement,
+    } as SensorTemplate;
+    if (config.track_history) {
+      sensor.unique_id = is.hash(entity_id);
+    }
+    if (config.attributes) {
+      sensor.attributes = {};
+      Object.keys(config.attributes).forEach(key => [
+        key,
+        GET_ATTRIBUTE_TEMPLATE(key),
+      ]);
+    }
+    return {
+      sensor: [sensor],
+      trigger: UPDATE_TRIGGER("sensor", entity_id),
+    };
   }
 }
