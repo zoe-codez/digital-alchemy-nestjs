@@ -6,6 +6,7 @@ export const RETRY_INTERVAL = "RETRY_INTERVAL";
 export const TOKEN = "TOKEN";
 export const WARN_REQUESTS_PER_SEC = "WARN_REQUESTS_PER_SEC";
 export const WEBSOCKET_URL = "WEBSOCKET_URL";
+export const HOME_ASSISTANT_PACKAGE_FOLDER = "HOME_ASSISTANT_PACKAGE_FOLDER";
 // </Configuration>
 
 //

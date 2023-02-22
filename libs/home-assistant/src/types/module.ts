@@ -1,6 +1,5 @@
 import { SensorDeviceClasses } from "./sensor-device-class";
 import { Icon, Timer } from "./template";
-import { ALL_GENERATED_SERVICE_DOMAINS } from "./utility";
 
 type SensorValueType = string;
 
@@ -71,13 +70,3 @@ export interface HomeAssistantModuleConfiguration {
     switch?: Record<string, SwitchConfig>;
   };
 }
-
-type configDomainMap = {
-  binary_sensor: BinarySensorConfig;
-  button: ButtonConfig;
-  sensor: SensorConfig;
-  switch: SwitchConfig;
-};
-
-export type GET_CONFIG<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
-  configDomainMap[DOMAIN];

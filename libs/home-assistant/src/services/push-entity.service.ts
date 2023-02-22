@@ -9,6 +9,7 @@ import {
   ALL_GENERATED_SERVICE_DOMAINS,
   domain,
   generated_domain,
+  generated_entity_split,
   GET_CONFIG,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
@@ -43,8 +44,16 @@ export type PushStorageMap<
   DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
 > = Map<PICK_GENERATED_ENTITY<DOMAIN>, StorageData<GET_CONFIG<DOMAIN>>>;
 
+/**
+ * TODO: Update type to emit errors if using a hard coded id
+ */
+type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
+  `${CREATE_DOMAIN}.${string}`;
+
 @Injectable()
-export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
+export class PushEntityService<
+  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+> {
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
@@ -179,5 +188,14 @@ export class PushEntityService<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> {
 
   public get(entity: PICK_GENERATED_ENTITY<DOMAIN>) {
     return this.STORAGE.get(entity);
+  }
+
+  public insert<CREATE_DOMAIN extends DOMAIN = DOMAIN>(
+    entity: NewEntityId<CREATE_DOMAIN>,
+    config: GET_CONFIG<CREATE_DOMAIN>,
+  ) {
+    const [domain, id] = generated_entity_split(entity);
+    this.configuration.generate_entities[domain] ??= {};
+    this.configuration.generate_entities[domain][id] = config;
   }
 }

@@ -76,7 +76,8 @@ export function InjectConfig(
           config["loadProject"](application);
         }
         configPath.push(path);
-        return config.get(configPath.join("."));
+        const out = config.get(configPath.join("."));
+        return out;
       },
     });
     return Inject(id)(target, key, index);

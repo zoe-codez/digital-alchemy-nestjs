@@ -148,10 +148,4 @@ export class BoilerplateModule {
       ],
     };
   }
-
-  constructor(private readonly discovery: LogExplorerService) {}
-
-  protected configure(): void {
-    this.discovery.load();
-  }
 }

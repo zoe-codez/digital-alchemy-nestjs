@@ -19,6 +19,7 @@ import {
   CONFIG_DEFAULTS,
   LIB_BOILERPLATE,
   LifecycleService,
+  LogExplorerService,
   NEST_NOOP_LOGGER,
   PrettyLoggerConfig,
   UsePrettyLogger,
@@ -169,6 +170,8 @@ export async function Bootstrap(
   const lifecycle = app.get(LifecycleService);
   const logger = await app.resolve(AutoLogService);
   logger.setContext(LIB_BOILERPLATE, { name: "Bootstrap" });
+  const explorer = await app.resolve(LogExplorerService);
+  explorer.load();
   // onPreInit
   preInit ??= [];
   await eachSeries(preInit, async item => {

@@ -4,6 +4,7 @@ import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 import {
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
+  HOME_ASSISTANT_PACKAGE_FOLDER,
   LIB_HOME_ASSISTANT,
   RENDER_TIMEOUT,
   RETRY_INTERVAL,
@@ -21,6 +22,7 @@ import {
   HassFetchAPIService,
   HassSocketAPIService,
   PushBinarySensorService,
+  PushEntityConfigService,
   PushEntityService,
   PushProxyService,
   PushSensorService,
@@ -86,6 +88,15 @@ import {
         "Socket service will commit sudoku if more than this many outgoing messages are sent to Home Assistant in a second. Usually indicates runaway code.",
       type: "number",
     },
+    [HOME_ASSISTANT_PACKAGE_FOLDER]: {
+      default: "/path/to/homeassistant/packages/my_app_package",
+      description: [
+        "Used with the entity push entity creation process",
+        "This should be a folder reachable via a configuration.yaml !include directive inside Home Assistant",
+        "Value should be different for every application that wants to integrate",
+      ].join(`. `),
+      type: "string",
+    },
     [RENDER_TIMEOUT]: {
       default: 3,
       description:
@@ -131,9 +142,10 @@ export class HomeAssistantModule {
       HassFetchAPIService,
       HassSocketAPIService,
       PushBinarySensorService,
-      PushSensorService,
+      PushEntityConfigService,
       PushEntityService,
       PushProxyService,
+      PushSensorService,
       PushSwitchService,
       SocketManagerService,
       ...InjectEntityProxy.providers,

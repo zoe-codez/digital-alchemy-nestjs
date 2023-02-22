@@ -2,6 +2,12 @@ import { is, START } from "@steggy/utilities";
 import type { Get } from "type-fest";
 
 import { ENTITY_SETUP, iCallService, MODULE_SETUP } from "../dynamic";
+import {
+  BinarySensorConfig,
+  ButtonConfig,
+  SensorConfig,
+  SwitchConfig,
+} from "./module";
 
 type generated = typeof MODULE_SETUP.generate_entities;
 
@@ -36,11 +42,14 @@ export type PICK_SERVICE_PARAMETERS<SERVICE extends PICK_SERVICE> = Parameters<
 
 export function entity_split(
   entity: { entity_id: PICK_ENTITY } | PICK_ENTITY,
-): [string, string] {
+): [ALL_DOMAINS, string] {
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
   return entity.split(".") as [ALL_DOMAINS, string];
+}
+export function generated_entity_split(entity: PICK_GENERATED_ENTITY) {
+  return entity.split(".") as [ALL_GENERATED_SERVICE_DOMAINS, string];
 }
 
 /**
@@ -64,7 +73,8 @@ export function generated_domain(
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
-  return entity_split(entity).shift() as ALL_GENERATED_SERVICE_DOMAINS;
+  const [domain] = generated_entity_split(entity);
+  return domain;
 }
 
 type SwitchProxy = {
@@ -140,3 +150,13 @@ export type iPushSensor<
 
 type GetGeneratedDomain<ENTITY extends PICK_GENERATED_ENTITY> =
   ENTITY extends `${infer domain}.${string}` ? domain : never;
+
+export type ConfigDomainMap = {
+  binary_sensor: BinarySensorConfig;
+  button: ButtonConfig;
+  sensor: SensorConfig;
+  switch: SwitchConfig;
+};
+
+export type GET_CONFIG<DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
+  ConfigDomainMap[DOMAIN];
