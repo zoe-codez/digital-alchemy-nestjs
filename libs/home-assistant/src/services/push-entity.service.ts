@@ -1,9 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import {
-  AutoLogService,
-  CacheService,
-  InjectLogger,
-} from "@steggy/boilerplate";
+import { AutoLogService, CacheService } from "@steggy/boilerplate";
 import { TitleCase } from "@steggy/utilities";
 import deepEqual from "deep-equal";
 import { get, set } from "object-path";

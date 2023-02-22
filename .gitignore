@@ -110,3 +110,4 @@ apps/**/artifacts
 !/.auto-config-testrc
 !/.prettierrc
 !/.pino-prettyrc
+.storage
