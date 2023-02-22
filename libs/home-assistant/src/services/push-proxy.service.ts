@@ -8,7 +8,6 @@ import {
   HomeAssistantModuleConfiguration,
   isGeneratedDomain,
   PICK_GENERATED_ENTITY,
-  TemplateYaml,
 } from "../types";
 import {
   PushBinarySensorService,

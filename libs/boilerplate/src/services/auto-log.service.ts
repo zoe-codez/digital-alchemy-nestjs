@@ -113,7 +113,10 @@ export class AutoLogService implements iLogger {
   protected get context(): string {
     if (!this.#cached) {
       this.#cached ??= this.getContext();
-      const [project, provider] = this.#cached.split(":");
+      const split = this.#cached.includes(":")
+        ? this.#cached
+        : `:${this.#cached}`;
+      const [project, provider] = split.split(":");
       if (project === this.activeApplication) {
         this.#cached = provider;
       }
@@ -205,6 +208,6 @@ export class AutoLogService implements iLogger {
     if (this.contextId) {
       return mappedContexts.get(this.contextId);
     }
-    return GetLogContext(this.parent) ?? MISSING_CONTEXT;
+    return GetLogContext(this.parent) || MISSING_CONTEXT;
   }
 }
