@@ -4,6 +4,7 @@ import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
 import {
+  generated_entity_split,
   GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   SwitchTemplateYaml,
@@ -11,11 +12,13 @@ import {
   Template,
 } from "../../types";
 import { PushEntityService, PushStorageMap } from "../push-entity.service";
+import { TalkBackService } from "../talk-back.service";
 
 @Injectable()
 export class PushSwitchService {
   constructor(
     private readonly logger: AutoLogService,
+    private readonly talkBack: TalkBackService,
     private readonly pushEntity: PushEntityService<"switch">,
   ) {}
 
@@ -39,11 +42,23 @@ export class PushSwitchService {
     return Object.fromEntries(
       [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
         entity_id => {
-          const [, id] = entity_id.split(".");
+          const [, id] = generated_entity_split(entity_id);
           return [id, this.createYaml(availability, storage, entity_id)];
         },
       ),
     );
+  }
+
+  public onTalkBack(
+    entity_id: PICK_GENERATED_ENTITY<"switch">,
+    action: "turn_on" | "turn_off",
+  ): void {
+    this.pushEntity.proxySet(entity_id, "state", action === "turn_on");
+  }
+
+  public restCommands() {
+    const storage = this.pushEntity.domainStorage("switch");
+    return this.talkBack.createSwitchRest(storage);
   }
 
   private createYaml(

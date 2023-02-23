@@ -9,4 +9,5 @@ export * from "./push-entity.service";
 export * from "./push-entity-config.service";
 export * from "./push-proxy.service";
 export * from "./socket-manager.service";
+export * from "./talk-back.service";
 export * from "./template";

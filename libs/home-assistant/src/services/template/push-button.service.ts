@@ -3,14 +3,11 @@ import {
   ACTIVE_APPLICATION,
   AnnotationPassThrough,
   AutoLogService,
-  InjectConfig,
   ModuleScannerService,
 } from "@steggy/boilerplate";
-import { ADMIN_KEY, ADMIN_KEY_HEADER, LIB_SERVER } from "@steggy/server";
 import { is } from "@steggy/utilities";
 import { get } from "object-path";
 
-import { TALK_BACK_BASE_URL } from "../../config";
 import { TemplateButton, TemplateButtonCommandId } from "../../decorators";
 import {
   ButtonTemplate,
@@ -20,7 +17,7 @@ import {
   PICK_GENERATED_ENTITY,
   Template,
 } from "../../types";
-import { PushEntityService } from "../push-entity.service";
+import { TalkBackService } from "../talk-back.service";
 
 @Injectable()
 export class PushButtonService {
@@ -28,14 +25,10 @@ export class PushButtonService {
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
     private readonly logger: AutoLogService,
-    private readonly pushEntity: PushEntityService<"button">,
     private readonly scanner: ModuleScannerService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
-    @InjectConfig(ADMIN_KEY, LIB_SERVER)
-    private readonly adminKey: string,
-    @InjectConfig(TALK_BACK_BASE_URL)
-    private readonly baseUrl: string,
+    private readonly talkBack: TalkBackService,
   ) {}
 
   private readonly passthrough = new Map<
@@ -63,19 +56,7 @@ export class PushButtonService {
   }
 
   public restCommands() {
-    return Object.fromEntries(
-      [...this.passthrough.keys()].map(key => [
-        TemplateButtonCommandId(this.application, key),
-        {
-          headers: is.empty(this.adminKey)
-            ? {}
-            : { [ADMIN_KEY_HEADER]: this.adminKey },
-          method: "get",
-
-          url: `${this.baseUrl}/talk-back/button-press/${key}`,
-        },
-      ]),
-    );
+    return this.talkBack.createButtonRest([...this.passthrough.keys()]);
   }
 
   protected onModuleInit(): void {

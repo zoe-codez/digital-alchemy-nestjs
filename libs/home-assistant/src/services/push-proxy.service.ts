@@ -50,6 +50,7 @@ export class PushProxyService {
     return {
       rest_command: {
         ...this.pushButton.restCommands(),
+        ...this.pushSwitch.restCommands(),
       },
       switch: [
         {

@@ -31,6 +31,7 @@ import {
   PushSensorService,
   PushSwitchService,
   SocketManagerService,
+  TalkBackService,
 } from "../services";
 import {
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -96,7 +97,7 @@ import {
       description: [
         "Used with the entity push entity creation process",
         "This should be a folder reachable via a configuration.yaml !include directive inside Home Assistant",
-        "Value should be different for every application that wants to integrate",
+        "If multiple applications will be included, they must all share a common root folder for proper type merging",
       ].join(`. `),
       type: "string",
     },
@@ -157,6 +158,7 @@ export class HomeAssistantModule {
       PushSensorService,
       PushSwitchService,
       SocketManagerService,
+      TalkBackService,
       ...InjectEntityProxy.providers,
       ...InjectPushEntity.providers,
       {

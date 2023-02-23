@@ -46,7 +46,7 @@ const LOG_CONTEXT = (entity_id: PICK_GENERATED_ENTITY) => {
 };
 
 export type PushStorageMap<
-  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+  DOMAIN extends PUSH_PROXY_DOMAINS = PUSH_PROXY_DOMAINS,
 > = Map<PICK_GENERATED_ENTITY<DOMAIN>, StorageData<GET_CONFIG<DOMAIN>>>;
 
 /**
@@ -55,9 +55,11 @@ export type PushStorageMap<
 type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
   `${CREATE_DOMAIN}.${string}`;
 
+type SettableProperties = "state" | `attributes.${string}`;
+
 @Injectable()
 export class PushEntityService<
-  DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS = ALL_GENERATED_SERVICE_DOMAINS,
+  DOMAIN extends PUSH_PROXY_DOMAINS = PUSH_PROXY_DOMAINS,
 > {
   constructor(
     private readonly logger: AutoLogService,
@@ -76,6 +78,10 @@ export class PushEntityService<
   private readonly proxyMap = new Map<
     PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
     ProxyMapValue<DOMAIN>
+  >();
+  private readonly proxyOptions = new Map<
+    PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+    ProxyOptions
   >();
 
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
@@ -132,77 +138,30 @@ export class PushEntityService<
   }
 
   public async generate<
-    ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+    ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> &
+      PICK_GENERATED_ENTITY<DOMAIN> = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> &
+      PICK_GENERATED_ENTITY<DOMAIN>,
   >(entity: ENTITY, options: ProxyOptions): Promise<PUSH_PROXY<ENTITY>> {
-    // ! Type Fixer 5000
-    let out: unknown;
-
-    if (this.proxyMap.has(entity)) {
-      out = this.proxyMap.get(entity);
-      return out as PUSH_PROXY<ENTITY>;
+    // If data has already been initialized, return the existing proxy
+    if (this.proxyOptions.has(entity)) {
+      return this.proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
     }
+    this.proxyOptions.set(entity, options);
     const context = LOG_CONTEXT(entity);
     this.logger.info({ context }, `initializing`);
-    const proxy = new Proxy(
-      {},
-      {
-        get: (t, property: string) => {
-          if (options.getter) {
-            return options.getter(property);
-          }
-          return get(
-            this.get(entity as PICK_GENERATED_ENTITY<DOMAIN>),
-            property,
-          );
-        },
-        set: (t, property: string, value) => {
-          const status = options.validate(property, value);
-          if (!status) {
-            this.logger.error({ entity, value }, `Value failed validation`);
-            return false;
-          }
-          const update = {};
-          set(update, property, value);
-          nextTick(
-            async () =>
-              await this.emitUpdate(
-                entity as PICK_GENERATED_ENTITY<DOMAIN>,
-                update,
-              ),
-          );
-          return true;
-        },
-      },
-    ) as ProxyMapValue<DOMAIN>;
-    this.proxyMap.set(entity, proxy);
-    const config = get(
-      this.configuration.generate_entities,
+    this.proxyMap.set(
       entity,
-    ) as GET_CONFIG<DOMAIN>;
-    const key = CACHE_KEY(entity);
-
-    const data = {
-      attributes: {},
-      config,
-      state: undefined,
-    } as StorageData<GET_CONFIG<DOMAIN>>;
-
-    const value = await this.cache.get<StorageData<GET_CONFIG<DOMAIN>>>(key);
-    if (value) {
-      const equal = deepEqual(value.config, config);
-      if (!equal) {
-        this.logger.warn({ context }, `Changed configuration`);
-      }
-      data.attributes = value.attributes;
-      data.state = value.state;
-    } else {
-      this.logger.info({ context }, `initial cache populate`);
-      await this.cache.set(key, data);
-    }
-    this.STORAGE.set(entity, data);
-
-    out = proxy;
-    return out as PUSH_PROXY<ENTITY>;
+      new Proxy(
+        {},
+        {
+          get: (t, property: string) => this.proxyGet(entity, property),
+          set: (t, property: SettableProperties, value) =>
+            this.proxySet(entity, property, value),
+        },
+      ) as ProxyMapValue<DOMAIN>,
+    );
+    await this.initializeCache(entity, context);
+    return this.proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
   }
 
   public get(entity: PICK_GENERATED_ENTITY<DOMAIN>) {
@@ -219,6 +178,31 @@ export class PushEntityService<
     this.configuration.generate_entities[domain][id] = config;
   }
 
+  public proxyGet(entity: PICK_GENERATED_ENTITY<DOMAIN>, property: string) {
+    const options = this.proxyOptions.get(entity);
+    if (options.getter) {
+      return options.getter(property);
+    }
+    return get(this.get(entity), property);
+  }
+
+  public proxySet(
+    entity: PICK_GENERATED_ENTITY<DOMAIN>,
+    property: SettableProperties,
+    value: unknown,
+  ): boolean {
+    const options = this.proxyOptions.get(entity);
+    const status = options.validate(property, value);
+    if (!status) {
+      this.logger.error({ entity, value }, `Value failed validation`);
+      return false;
+    }
+    const update = {};
+    set(update, property, value);
+    nextTick(async () => await this.emitUpdate(entity, update));
+    return true;
+  }
+
   private cast(value: string | number | boolean) {
     if (is.boolean(value)) {
       return value ? "1" : "0";
@@ -227,5 +211,34 @@ export class PushEntityService<
       return "";
     }
     return String(value);
+  }
+
+  private async initializeCache(
+    entity: PICK_GENERATED_ENTITY<DOMAIN>,
+    context: string,
+  ) {
+    const config = get(
+      this.configuration.generate_entities,
+      entity,
+    ) as GET_CONFIG<DOMAIN>;
+    const key = CACHE_KEY(entity);
+    const data = {
+      attributes: {},
+      config,
+      state: undefined,
+    } as StorageData<GET_CONFIG<DOMAIN>>;
+    const value = await this.cache.get<StorageData<GET_CONFIG<DOMAIN>>>(key);
+    if (value) {
+      const equal = deepEqual(value.config, config);
+      if (!equal) {
+        this.logger.warn({ context }, `Changed configuration`);
+      }
+      data.attributes = value.attributes;
+      data.state = value.state;
+    } else {
+      this.logger.info({ context }, `initial cache populate`);
+      await this.cache.set(key, data);
+    }
+    this.STORAGE.set(entity, data);
   }
 }
