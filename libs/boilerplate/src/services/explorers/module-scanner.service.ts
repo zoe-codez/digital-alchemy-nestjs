@@ -27,16 +27,24 @@ type AnnotationData<TYPE> = {
    */
   data: TYPE;
   /**
-   * Execute the method on the instance, with optional parameters
-   */
-  exec: AnnotationPassThrough;
-  /**
    * Method name
    */
   key: string;
 };
 
-type FindMethodsMap<TYPE> = Map<Record<string, Type>, AnnotationData<TYPE>[]>;
+type FindMethodsMap<TYPE> = Map<
+  Record<string, Type>,
+  (AnnotationData<TYPE> & {
+    /**
+     * Execute the method on the instance, with optional parameters.
+     */
+    exec: AnnotationPassThrough;
+  })[]
+>;
+type FindPropertiesMap<TYPE> = Map<
+  Record<string, Type>,
+  AnnotationData<TYPE>[]
+>;
 
 /**
  * The repo uses a standard of replacing the `@Injectable()` NestJS annotation with a specialized wrapper.
@@ -100,12 +108,60 @@ export class ModuleScannerService {
               key,
             ].join("#");
             const exec = async (...data) => {
-              await instance[key].call(instance, ...data);
+              try {
+                await instance[key].call(instance, ...data);
+              } catch (error) {
+                this.logger.error({ context, error }, `[%s] caught exception`);
+                console.log(error);
+              }
             };
             current.push(...list.map(data => ({ context, data, exec, key })));
             out.set(instance, current);
           },
         );
+      });
+    return out;
+  }
+
+  /**
+   * Search out the application looking for methods that have been annotated with an annotation created from `MethodDecoratorFactory`
+   *
+   * Returns back a map a map that associates the provider with an array of all the instances of the annotation that were applied to it
+   */
+  public findAnnotatedProperties<TYPE>(
+    search: string | { metadataKey: string },
+  ): FindPropertiesMap<TYPE> {
+    search = is.string(search) ? search : search.metadataKey;
+    const providers = this.discovery.getProviders();
+    const controllers = this.discovery.getControllers();
+    const out = new Map() as FindPropertiesMap<TYPE>;
+    [...providers, ...controllers]
+      .filter(wrapper => wrapper.instance)
+      .forEach(wrapper => {
+        if (!wrapper.isDependencyTreeStatic() || !wrapper.instance) {
+          return undefined;
+        }
+        const { instance } = wrapper;
+        const prototype = Object.getPrototypeOf(instance);
+        if (!prototype || isProxy(instance)) {
+          return undefined;
+        }
+        const list = this.reflector.get(search, instance) as {
+          key: string;
+          options: TYPE;
+        }[];
+        if (is.empty(list)) {
+          return;
+        }
+        const current = out.get(instance) ?? [];
+        current.push(
+          ...list.map(({ options, key }) => ({
+            context: [GetLogContext(instance, this.application), key].join("#"),
+            data: options,
+            key,
+          })),
+        );
+        out.set(instance, current);
       });
     return out;
   }

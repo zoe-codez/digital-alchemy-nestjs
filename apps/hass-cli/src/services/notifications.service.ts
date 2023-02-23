@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import {
+  HASSIO_WS_COMMAND,
   HassNotificationDTO,
-  NotificationService,
+  HassSocketAPIService,
 } from "@steggy/home-assistant";
 import {
   ApplicationManagerService,
@@ -17,15 +18,15 @@ type MenuResult = string | NotificationMenuResult;
 @Injectable()
 export class NotificationControlsService {
   constructor(
-    private readonly notification: NotificationService,
     private readonly prompt: PromptService,
     private readonly logger: SyncLoggerService,
     private readonly application: ApplicationManagerService,
+    private readonly socket: HassSocketAPIService,
   ) {}
 
   public async exec(value?: MenuResult): Promise<void> {
     this.application.setHeader("Notifications");
-    const list = await this.notification.list();
+    const list = await this.list();
     const action = await this.prompt.menu<MenuResult>({
       emptyMessage: chalk.yellow.inverse.bold(" No notifications "),
       keyMap: {
@@ -53,10 +54,25 @@ export class NotificationControlsService {
       return;
     }
     if ("notification" in action) {
-      await this.notification.dismiss(action.notification.notification_id);
+      await this.dismiss(action.notification.notification_id);
       this.logger.info(`Dismissed`);
       await this.prompt.acknowledge();
       return await this.exec();
     }
+  }
+
+  private async dismiss(notification_id: string): Promise<void> {
+    return await this.socket.sendMessage({
+      domain: "persistent_notification",
+      service: "dismiss",
+      service_data: { notification_id },
+      type: HASSIO_WS_COMMAND.call_service,
+    });
+  }
+
+  private async list(): Promise<HassNotificationDTO[]> {
+    return await this.socket.sendMessage({
+      type: HASSIO_WS_COMMAND.persistent_notification,
+    });
   }
 }

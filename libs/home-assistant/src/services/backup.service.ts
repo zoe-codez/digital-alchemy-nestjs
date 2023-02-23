@@ -6,7 +6,7 @@ import {
   HASSIO_WS_COMMAND,
   HomeAssistantBackup,
   SignRequestResponse,
-} from "../contracts";
+} from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 

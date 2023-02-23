@@ -25,7 +25,7 @@ import {
   HassServiceDTO,
   ServiceListFieldDescription,
   ServiceListServiceTarget,
-} from "../contracts";
+} from "../types";
 import { EntityManagerService } from "./entity-manager.service";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";

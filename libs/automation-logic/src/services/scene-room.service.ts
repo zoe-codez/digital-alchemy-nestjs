@@ -12,7 +12,7 @@ import {
   domain,
   EntityManagerService,
   iCallService,
-  InjectProxy,
+  InjectCallProxy,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import {
@@ -87,7 +87,7 @@ export class SceneRoomService<
     private readonly entityManager: EntityManagerService,
     private readonly eventEmitter: EventEmitter,
     private readonly cache: CacheService,
-    @InjectProxy()
+    @InjectCallProxy()
     private readonly call: iCallService,
     private readonly circadian: CircadianService,
     @InjectConfig(DEFAULT_DIM)

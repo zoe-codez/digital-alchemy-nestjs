@@ -9,6 +9,7 @@
     "hass-type-generate": "apps/hass-type-generate",
     "home-assistant": "libs/home-assistant",
     "log-formatter": "apps/log-formatter",
+    "entity-creation": "apps/examples/entity-creation",
     "mqtt": "libs/mqtt",
     "rgb-matrix": "libs/rgb-matrix",
     "sampler-app": "apps/sampler-app",

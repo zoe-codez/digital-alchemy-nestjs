@@ -8,13 +8,14 @@ import { FetchWith, is, SECOND } from "@steggy/utilities";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
+  CheckConfigResult,
   ENTITY_STATE,
   GenericEntityDTO,
   HassConfig,
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
-} from "../contracts";
+} from "../types";
 
 type SendBody<
   STATE extends string | number = string,
@@ -44,7 +45,7 @@ export class HassFetchAPIService {
   /**
    * Pass through of home assistant's yaml check
    */
-  public async checkConfig(): Promise<unknown> {
+  public async checkConfig(): Promise<CheckConfigResult> {
     return await this.fetch({
       method: `post`,
       url: `/api/config/core/check_config`,
@@ -53,21 +54,23 @@ export class HassFetchAPIService {
 
   public async download(
     destination: string,
-    fetchWitch: FetchWith,
+    fetchWitch: Omit<FetchWith, "baseUrl" | "headers" | "destination">,
   ): Promise<void> {
     return await this.fetchService.download({
+      ...fetchWitch,
       baseUrl: this.baseUrl,
       destination,
       headers: { Authorization: `Bearer ${this.bearer}` },
-      ...fetchWitch,
     });
   }
 
-  public async fetch<T>(fetchWitch: FetchWith): Promise<T> {
+  public async fetch<T>(
+    fetchWitch: Omit<FetchWith, "baseUrl" | "headers">,
+  ): Promise<T> {
     return await this.fetchService.fetch<T>({
+      ...fetchWitch,
       baseUrl: this.baseUrl,
       headers: { Authorization: `Bearer ${this.bearer}` },
-      ...fetchWitch,
     });
   }
 
@@ -112,6 +115,26 @@ export class HassFetchAPIService {
     }
     const [history] = result;
     return history;
+  }
+
+  /**
+   * Fire an event along the home assistant event bus
+   *
+   * Watch for it back (or the effects from) on the websocket!
+   */
+  public async fireEvent<DATA extends object = object>(
+    event: string,
+    data?: DATA,
+  ): Promise<void> {
+    this.logger.debug({ ...data }, `[%s] firing event`, event);
+    const response = await this.fetch<{ message: string }>({
+      body: { ...data },
+      method: "post",
+      url: `/api/events/${event}`,
+    });
+    if (response?.message !== `Event ${event} fired.`) {
+      this.logger.debug({ response }, `Unexpected response from firing event`);
+    }
   }
 
   /**
@@ -183,6 +206,15 @@ export class HassFetchAPIService {
       body,
       method: "post",
       url: `/api/states/${entity_id}`,
+    });
+  }
+
+  public async webhook(id: string, data: object = {}): Promise<void> {
+    await this.fetch({
+      body: data,
+      method: "post",
+      process: "text",
+      url: `/api/webhook/${id}`,
     });
   }
 }

@@ -5,7 +5,7 @@ import { nextTick } from "process";
 import WS from "ws";
 
 import { BASE_URL, TOKEN } from "../config";
-import { ON_SOCKET_AUTH } from "../contracts";
+import { ON_SOCKET_AUTH } from "../types";
 import { HomeAssistantModule } from "../modules";
 import {
   ConnectionBuilderService,

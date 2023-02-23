@@ -5,7 +5,7 @@
   "name": "@steggy/hass-cli",
   "license": "MIT",
   "main": "main.js",
-  "displayName": "Entity Inspector",
+  "displayName": "Hass CLI",
   "version": "23.8.2",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {

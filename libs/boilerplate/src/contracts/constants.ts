@@ -18,8 +18,8 @@ export const ACTIVE_APPLICATION = Symbol("ACTIVE_APPLICATION");
  * Retrieve a log context from a provider.
  */
 export const GetLogContext = (i: unknown, application = ""): string => {
-  const context: string = i?.constructor[LOG_CONTEXT] ?? "";
-  if (context.startsWith(application)) {
+  const context: string = i?.constructor[LOG_CONTEXT] ?? i?.constructor.name;
+  if (application !== "" && context.startsWith(application)) {
     return context.replace(application + ":", "");
   }
   return context;

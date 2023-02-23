@@ -1,12 +1,18 @@
 // This interface is intended to be replaced at install with generated contents
 // The contents of the file as it stands now are a lie
 
-import { GenericEntityDTO, PICK_ENTITY } from "./contracts";
+import {
+  GenericEntityDTO,
+  HomeAssistantModuleConfiguration,
+  PICK_ENTITY,
+} from "./types";
 
 export const ENTITY_SETUP: Record<
   string,
   Record<string, GenericEntityDTO>
 > = {};
+
+export const MODULE_SETUP: HomeAssistantModuleConfiguration = {};
 
 /**
  * A very primitive approximation of the dynamic content

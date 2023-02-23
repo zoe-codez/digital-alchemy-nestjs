@@ -1,10 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-  EntityRegistryItem,
-  HASSIO_WS_COMMAND,
-  PICK_ENTITY,
-} from "../contracts";
+import { EntityRegistryItem, HASSIO_WS_COMMAND, PICK_ENTITY } from "../types";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
 @Injectable()
@@ -19,7 +15,7 @@ export class EntityRegistryService {
   }
 
   /**
-   * Dev note: unclear on if this can be undone
+   * Dev note: unclear on if/how this can be undone
    */
   public async disable(entity_id: PICK_ENTITY, state = true): Promise<void> {
     const current = await this.byId(entity_id);

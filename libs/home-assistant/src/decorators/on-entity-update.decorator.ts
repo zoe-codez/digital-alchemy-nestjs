@@ -1,7 +1,7 @@
 import { OnEvent } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
-import { HA_EVENT_STATE_CHANGE, PICK_ENTITY } from "../contracts";
+import { HA_EVENT_STATE_CHANGE, PICK_ENTITY } from "../types";
 
 /**
  * ```typescript

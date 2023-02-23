@@ -9,7 +9,7 @@ import {
   TOKEN,
   WARN_REQUESTS_PER_SEC,
 } from "../config";
-import { HASSIO_WS_COMMAND } from "../contracts";
+import { HASSIO_WS_COMMAND } from "../types";
 import { HomeAssistantModule } from "../modules";
 import { ConnectionBuilderService, HassSocketAPIService } from "../services";
 import { MockServerService, Next } from "./services";
