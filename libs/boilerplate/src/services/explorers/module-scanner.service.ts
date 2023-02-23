@@ -143,7 +143,14 @@ export class ModuleScannerService {
         }
         const { instance } = wrapper;
         const prototype = Object.getPrototypeOf(instance);
-        if (!prototype || isProxy(instance)) {
+        if (
+          !prototype ||
+          isProxy(instance) ||
+          is.undefined(instance) ||
+          is.string(instance) ||
+          is.number(instance) ||
+          is.boolean(instance)
+        ) {
           return undefined;
         }
         const list = this.reflector.get(search, instance) as {

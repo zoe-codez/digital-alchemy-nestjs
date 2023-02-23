@@ -8,7 +8,6 @@ import { nextTick } from "process";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
   domain,
-  generated_domain,
   generated_entity_split,
   GET_CONFIG,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -68,7 +67,9 @@ export class PushEntityService<
     private readonly configuration: HomeAssistantModuleConfiguration,
     @Inject(forwardRef(() => EntityManagerService))
     private readonly entityRegistry: EntityManagerService,
-  ) {}
+  ) {
+    configuration.generate_entities ??= {};
+  }
 
   private readonly STORAGE: PushStorageMap = new Map();
 
@@ -222,6 +223,9 @@ export class PushEntityService<
     if (is.boolean(value)) {
       return value ? "1" : "0";
     }
-    return value.toString();
+    if (is.undefined(value)) {
+      return "";
+    }
+    return String(value);
   }
 }
