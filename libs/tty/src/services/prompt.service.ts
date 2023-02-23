@@ -25,9 +25,9 @@ import { ApplicationManagerService } from "./application-manager.service";
 import { SyncLoggerService } from "./sync-logger.service";
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
-export type PromptEntry<T = string> =
-  | [string | PROMPT_WITH_SHORT, string | T]
-  | [string];
+export type PromptEntry<VALUE extends unknown = string> =
+  | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
+  | [label: string];
 
 @Injectable()
 export class PromptService {

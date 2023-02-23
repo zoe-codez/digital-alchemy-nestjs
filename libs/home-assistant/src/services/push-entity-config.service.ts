@@ -14,25 +14,26 @@ import { join } from "path";
 
 import { HOME_ASSISTANT_PACKAGE_FOLDER } from "../config";
 import {
+  HassSteggySerializeState,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
+  SERIALIZE,
 } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { PushEntityService } from "./push-entity.service";
 import { PushProxyService } from "./push-proxy.service";
 
 /**
- * ? Just for a sanity check reference point.
- * ! May drop later as code matures
+ * Stored as mildly obfuscated
  */
-const VERIFICATION_FILE = `steggy_verification`;
+const VERIFICATION_FILE = `steggy_configuration`;
 const boot = dayjs();
 
 export type InjectedPushConfig = {
-  storage: string;
-  yaml: object;
+  storage: () => [name: string, data: object];
+  yaml: () => [filename: string, data: object][];
 };
 
 /**
@@ -56,7 +57,12 @@ export class PushEntityConfigService {
     private readonly pushEntity: PushEntityService,
   ) {}
 
-  public readonly INJECTED_CONFIG = new Set<InjectedPushConfig>();
+  /**
+   * Mapping between mount points and extra data.
+   *
+   * > example: ["mqtt", { ... }]
+   */
+  public readonly LOCAL_PLUGINS = new Map<string, InjectedPushConfig>();
 
   /**
    * ID will be different
@@ -70,7 +76,6 @@ export class PushEntityConfigService {
    * ID will be different
    */
   private uptimeProxy: PUSH_PROXY<"sensor.online">;
-
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
     await this.verifyYaml();
@@ -112,16 +117,18 @@ export class PushEntityConfigService {
     }
     this.logger.debug(`Starting build`);
     mkdirSync(this.targetFolder);
-    writeFileSync(join(this.targetFolder, VERIFICATION_FILE), "", "utf8");
+    writeFileSync(
+      join(this.targetFolder, VERIFICATION_FILE),
+      // ? obfuscate to discourage tampering, not intended to actually "hide" data
+      // tampering could result in the generation of types that reflect neither the yaml nor application runtime state
+      // no human should mess with that info by hand, just generate it again
+      SERIALIZE.serialize(this.serializeState()),
+      "utf8",
+    );
     const rootYaml = this.pushProxy.applicationYaml(this.targetFolder);
     writeFileSync(
       join(this.targetFolder, "include.yaml"),
       dump(rootYaml),
-      "utf8",
-    );
-    writeFileSync(
-      join(this.targetFolder),
-      JSON.stringify(this.configuration),
       "utf8",
     );
     this.logger.debug(`Done`);
@@ -207,6 +214,18 @@ export class PushEntityConfigService {
       unit_of_measurement: "s",
     });
     this.uptimeProxy = await this.pushProxy.createPushProxy(uptime_id);
+  }
+
+  private serializeState(): HassSteggySerializeState {
+    return {
+      application: this.application,
+      configuration: this.configuration,
+      plugins: [...this.LOCAL_PLUGINS.entries()].map(([name, data]) => ({
+        name,
+        storage: data.storage(),
+        yaml: data.yaml(),
+      })),
+    };
   }
 
   private async verifyYaml(): Promise<void> {

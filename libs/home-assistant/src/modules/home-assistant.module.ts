@@ -2,14 +2,17 @@ import { DynamicModule, Provider } from "@nestjs/common";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 
 import {
+  APPLICATION_IDENTIFIER,
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
+  DEFAULT_APPLICATION_IDENTIFIER,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   LIB_HOME_ASSISTANT,
   RENDER_TIMEOUT,
   RETRY_INTERVAL,
   TALK_BACK_BASE_URL,
   TOKEN,
+  VERIFICATION_FILE,
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
@@ -81,6 +84,15 @@ import {
  */
 @LibraryModule({
   configuration: {
+    [APPLICATION_IDENTIFIER]: {
+      default: DEFAULT_APPLICATION_IDENTIFIER,
+      description: [
+        "The partial entity_id the represents this application to Home Assistant",
+        `If left as default, it will be replaced with the application name, with "-" changed to "_"`,
+        `Used to generate ids like: "binary_sensor.{app}_online"`,
+      ].join(". "),
+      type: "string",
+    },
     [BASE_URL]: {
       default: "http://localhost:8123",
       description: "Url to reach Home Assistant at",
@@ -93,11 +105,12 @@ import {
       type: "number",
     },
     [HOME_ASSISTANT_PACKAGE_FOLDER]: {
-      default: "/path/to/homeassistant/packages/my_app_package",
+      // ? Dev note: if running multiple apps from a single repository (like this repo does), this value should be shared
+      // values are actually nested 1 folder deeper: packages/{APPLICATION_IDENTIFIER}/...
+      default: "/path/to/homeassistant/packages/",
       description: [
-        "Used with the entity push entity creation process",
-        "This should be a folder reachable via a configuration.yaml !include directive inside Home Assistant",
-        "If multiple applications will be included, they must all share a common root folder for proper type merging",
+        "Packages folder to write push entity info to, this will need to be manually included to make operational",
+        "Value only used with push entity configurations, incorrect values will not affect normal websocket operation",
       ].join(`. `),
       type: "string",
     },
@@ -121,6 +134,12 @@ import {
       // Not absolutely required, if the app does not intend to open a connection
       // Should probably use the other module though
       description: "Long lived access token to Home Assistant.",
+      type: "string",
+    },
+    [VERIFICATION_FILE]: {
+      default: "steggy_configuration",
+      description:
+        "Target file for storing app configurations within the package folder.",
       type: "string",
     },
     [WARN_REQUESTS_PER_SEC]: {

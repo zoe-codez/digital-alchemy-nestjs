@@ -10,7 +10,7 @@ import {
   IconService,
   PromptService,
 } from "../services";
-type MagicHeader = string | [string, string];
+type MagicHeader = string | [key: string, value: string];
 type TypeToggle = { type: string };
 
 export type ArrayBuilderOptions<VALUE extends object> = Omit<
