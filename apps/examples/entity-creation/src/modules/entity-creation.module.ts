@@ -9,6 +9,7 @@ import { ExampleService } from "../services";
   imports: [
     ServerModule,
     HomeAssistantModule.forRoot({
+      controllers: true,
       generate_entities: {
         binary_sensor: {
           entity_creation_binary_sensor: {

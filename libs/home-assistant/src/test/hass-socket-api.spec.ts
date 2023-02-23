@@ -9,9 +9,9 @@ import {
   TOKEN,
   WARN_REQUESTS_PER_SEC,
 } from "../config";
-import { HASSIO_WS_COMMAND } from "../types";
 import { HomeAssistantModule } from "../modules";
 import { ConnectionBuilderService, HassSocketAPIService } from "../services";
+import { HASSIO_WS_COMMAND } from "../types";
 import { MockServerService, Next } from "./services";
 import { SLEEP_SHORT } from "./types";
 
@@ -44,7 +44,7 @@ describe("Hass Socket API", () => {
           },
         },
       },
-      imports: [HomeAssistantModule],
+      imports: [HomeAssistantModule.forRoot()],
       providers: [MockServerService, Next],
     }).compile();
     // local vars

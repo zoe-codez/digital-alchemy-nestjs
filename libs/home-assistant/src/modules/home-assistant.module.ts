@@ -165,7 +165,7 @@ export class HomeAssistantModule {
         useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
       },
     ];
-    options.controllers ??= true;
+    options.controllers ??= false;
     return {
       controllers: options.controllers ? [TalkBackController] : [],
       exports: services,

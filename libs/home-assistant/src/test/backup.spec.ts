@@ -70,7 +70,7 @@ describe("Backup", () => {
           },
         },
       },
-      imports: [HomeAssistantModule],
+      imports: [HomeAssistantModule.forRoot()],
       providers: [MockServerService, Next],
     }).compile();
     // local vars

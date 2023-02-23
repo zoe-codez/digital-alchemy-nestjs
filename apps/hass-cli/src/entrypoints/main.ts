@@ -32,7 +32,7 @@ import {
       type: "string",
     },
   },
-  imports: [HomeAssistantModule, TTYModule],
+  imports: [HomeAssistantModule.forRoot(), TTYModule],
   providers: [
     BackupControlsService,
     EntityService,

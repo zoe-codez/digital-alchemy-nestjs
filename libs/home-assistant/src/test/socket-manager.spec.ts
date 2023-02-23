@@ -5,7 +5,6 @@ import { nextTick } from "process";
 import WS from "ws";
 
 import { BASE_URL, TOKEN } from "../config";
-import { ON_SOCKET_AUTH } from "../types";
 import { HomeAssistantModule } from "../modules";
 import {
   ConnectionBuilderService,
@@ -14,6 +13,7 @@ import {
   HassSocketAPIService,
   SocketManagerService,
 } from "../services";
+import { ON_SOCKET_AUTH } from "../types";
 import { MockServerService, Next } from "./services";
 import { SLEEP_SHORT } from "./types";
 
@@ -49,7 +49,7 @@ describe("Socket Manager", () => {
           },
         },
       },
-      imports: [HomeAssistantModule],
+      imports: [HomeAssistantModule.forRoot()],
       providers: [MockServerService, Next],
     }).compile();
     // local vars

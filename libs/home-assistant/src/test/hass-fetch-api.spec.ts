@@ -4,7 +4,7 @@ import { DEFAULT_LIMIT } from "@steggy/utilities";
 import dayjs from "dayjs";
 
 import { BASE_URL, TOKEN } from "../config";
-import { HomeAssistantProviderModule } from "../modules";
+import { HomeAssistantModule } from "../modules";
 import { HassFetchAPIService } from "../services";
 
 describe("Hass Fetch API", () => {
@@ -26,7 +26,7 @@ describe("Hass Fetch API", () => {
           },
         },
       },
-      imports: [HomeAssistantProviderModule],
+      imports: [HomeAssistantModule],
     }).compile();
     await app.init();
     fetch = app.get(HassFetchAPIService);
