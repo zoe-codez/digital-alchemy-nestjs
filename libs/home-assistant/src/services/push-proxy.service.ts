@@ -5,6 +5,9 @@ import {
   CacheService,
 } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
+import { mkdirSync, writeFileSync } from "fs";
+import { dump } from "js-yaml";
+import { join } from "path";
 
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
@@ -27,6 +30,10 @@ const AUTO_INIT_DOMAINS = new Set<ALL_GENERATED_SERVICE_DOMAINS>([
   "switch",
 ]);
 
+type TemplateTypes = "binary_sensor" | "sensor" | "button";
+
+type ProxyEntity = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
+
 @Injectable()
 export class PushProxyService {
   constructor(
@@ -42,33 +49,23 @@ export class PushProxyService {
     private readonly pushSwitch: PushSwitchService,
   ) {}
 
-  public applicationYaml() {
-    const availability = `{{ is_state("binary_sensor.${this.application.replaceAll(
-      "-",
-      "_",
-    )}_online", "on") }}`;
-    return {
-      rest_command: {
-        ...this.pushButton.restCommands(),
-        ...this.pushSwitch.restCommands(),
-      },
-      switch: [
-        {
-          platform: "template",
-          switches: this.pushSwitch.createSensorYaml(availability),
-        },
-      ],
-      template: [
-        ...this.pushBinarySensor.createBinarySensorYaml(availability),
-        ...this.pushSensor.createSensorYaml(availability),
-        ...this.pushButton.createButtonYaml(availability),
-      ],
-    };
+  public applicationYaml(packageFolder: string) {
+    const app = this.application.replaceAll("-", "_");
+    const availability = `{{ is_state("binary_sensor.${app}_online", "on") }}`;
+
+    return [
+      // Rest commands always available, let them fail
+      this.buildRest(packageFolder),
+      this.buildSwitches(packageFolder, availability),
+      this.buildTemplates(packageFolder, availability),
+    ]
+      .filter(text => !is.empty(text))
+      .join(`\n`);
   }
 
-  public async createPushProxy<
-    ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS> = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
-  >(entity: ENTITY): Promise<PUSH_PROXY<ENTITY>> {
+  public async createPushProxy<ENTITY extends ProxyEntity = ProxyEntity>(
+    entity: ENTITY,
+  ): Promise<PUSH_PROXY<ENTITY>> {
     if (isGeneratedDomain(entity, "switch")) {
       return (await this.pushSwitch.createProxy(entity)) as PUSH_PROXY<ENTITY>;
     }
@@ -117,5 +114,84 @@ export class PushProxyService {
           }
         }),
     );
+  }
+
+  /**
+   * Add in any generated rest commands
+   */
+  private buildRest(packageFolder: string): string {
+    // * all known rest commands
+    const rest = {
+      ...this.pushButton.restCommands(),
+      ...this.pushSwitch.restCommands(),
+    };
+    if (is.empty(rest)) {
+      return ``;
+    }
+    const folder = "rest_command";
+    const base = join(packageFolder, folder);
+    mkdirSync(base);
+    // * write out individual files for each command
+    Object.entries(rest).forEach(([key, command]) => {
+      writeFileSync(join(base, `${key}.yaml`), dump(command), "utf8");
+    });
+    // * add an appropriate include
+    return `rest_command: !include_dir_list ./${folder}`;
+  }
+
+  private buildSwitches(packageFolder: string, availability: string): string {
+    // * all known switches
+    const switches = this.pushSwitch.createSensorYaml(availability);
+    if (is.empty(switches)) {
+      return ``;
+    }
+    const folder = "switch";
+    const base = join(packageFolder, folder);
+    mkdirSync(base);
+    // * individual files for each entity
+    Object.entries(switches).forEach(([key, command]) => {
+      writeFileSync(join(base, `${key}.yaml`), dump(command), "utf8");
+    });
+    // * switch yaml can't be grouped with normal templates
+    return [
+      `switch:`,
+      `  - platform: "template"`,
+      `    switches: !include_dir_list ./${folder}`,
+    ].join(`\n`);
+  }
+
+  private buildTemplates(packageFolder: string, availability: string) {
+    //  * all things that can grouped as a template
+    const templates = [
+      ...this.pushBinarySensor.createBinarySensorYaml(availability),
+      ...this.pushSensor.createSensorYaml(availability),
+      ...this.pushButton.createButtonYaml(availability),
+    ] as Partial<Record<TemplateTypes, { unique_id: string }[]>>[];
+    if (is.empty(templates)) {
+      return undefined;
+    }
+    const folder = "template";
+    const base = join(packageFolder, folder);
+    mkdirSync(base);
+    templates.forEach(data => {
+      const key = Object.keys(data).find(
+        // 🪄 - Either brilliant, or terrible. Let's see if it breaks somehow
+        key => Array.isArray(data[key]) && key !== "trigger",
+      ) as TemplateTypes;
+      if (is.empty(data[key])) {
+        return;
+      }
+      // * flatten everything into a single folder, and write files
+      // TODO: is there a better way of structuring things so it can be base/{key}/...files?
+      data[key].forEach(fileData =>
+        writeFileSync(
+          join(base, `${fileData.unique_id}.yaml`),
+          dump(fileData),
+          "utf8",
+        ),
+      );
+    });
+    // * these come in as a flat list
+    return `template: !include_dir_list ./${folder}`;
   }
 }

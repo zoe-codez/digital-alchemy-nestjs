@@ -13,13 +13,27 @@ import { dump } from "js-yaml";
 import { join } from "path";
 
 import { HOME_ASSISTANT_PACKAGE_FOLDER } from "../config";
-import { PICK_GENERATED_ENTITY, PUSH_PROXY } from "../types";
+import {
+  HOME_ASSISTANT_MODULE_CONFIGURATION,
+  HomeAssistantModuleConfiguration,
+  PICK_GENERATED_ENTITY,
+  PUSH_PROXY,
+} from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { PushEntityService } from "./push-entity.service";
 import { PushProxyService } from "./push-proxy.service";
 
+/**
+ * ? Just for a sanity check reference point.
+ * ! May drop later as code matures
+ */
 const VERIFICATION_FILE = `steggy_verification`;
 const boot = dayjs();
+
+export type InjectedPushConfig = {
+  storage: string;
+  yaml: object;
+};
 
 /**
  * Functionality for managing a particular application's push entity configuration within Home Assistant.
@@ -34,11 +48,15 @@ export class PushEntityConfigService {
     private readonly targetFolder: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
+    private readonly configuration: HomeAssistantModuleConfiguration,
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
     private readonly pushProxy: PushProxyService,
     private readonly pushEntity: PushEntityService,
   ) {}
+
+  public readonly INJECTED_CONFIG = new Set<InjectedPushConfig>();
 
   /**
    * ID will be different
@@ -93,15 +111,60 @@ export class PushEntityConfigService {
       return;
     }
     this.logger.debug(`Starting build`);
-    const list = this.pushProxy.applicationYaml();
     mkdirSync(this.targetFolder);
     writeFileSync(join(this.targetFolder, VERIFICATION_FILE), "", "utf8");
-    writeFileSync(join(this.targetFolder, "include.yaml"), dump(list), "utf8");
+    const rootYaml = this.pushProxy.applicationYaml(this.targetFolder);
+    writeFileSync(
+      join(this.targetFolder, "include.yaml"),
+      dump(rootYaml),
+      "utf8",
+    );
+    writeFileSync(
+      join(this.targetFolder),
+      JSON.stringify(this.configuration),
+      "utf8",
+    );
     this.logger.debug(`Done`);
   }
 
+  /**
+   * Automatically generate a few entities that should apply across any app.
+   * This will grow in the future, but also become more configurable.
+   *
+   * ## Current
+   *
+   * ### `sensor.{app}_last_build`
+   *
+   * Timestamp to describe the last time this application dumped it's configuration successfully to Home Assistant
+   *
+   * ### `sensor.{app}_uptime` **(required)**
+   *
+   * Increasing number sensor.
+   * Measures seconds since the process last booted
+   *
+   * ### `binary_sensor.{app}_online` **(required)**
+   *
+   * Binary sensor which flips to off 30 seconds after failing to receive an uptime update.
+   * This sensor controls availability of all other entities related to this application
+   *
+   * ## Planned
+   *
+   * ### `button.{app}_rebuild`
+   *
+   * Initiate configuration dump on demand, then restart Home Assistant (gated behind a config flag, default: off)
+   *
+   * ### `[binary_sensor|update].{app}_config_current`
+   *
+   * Is the current dumped data accurate to what is running?
+   * Operates by looking at filesystem, does not reflect the state that is loaded into the running state of Home Assistant
+   *
+   * ### `binary_sensor.{app}_config_running`
+   *
+   * Is Home Assistant currently running with a yaml package that is current?
+   * If the setup requires a restart, this will remain false until the newest code is loaded.
+   */
   private async initialize() {
-    // binary sensor / currently online
+    // * `binary_sensor.{app}_online`
     const online_id = `binary_sensor.app_${this.application.replace(
       "-",
       "_",
@@ -121,7 +184,7 @@ export class PushEntityConfigService {
     });
     this.onlineProxy = await this.pushProxy.createPushProxy(online_id);
 
-    // sensor / last_build_date (yaml)
+    // * `sensor.{app}_last_build`
     const last_build_id = `sensor.app_${this.application.replace(
       "-",
       "_",
@@ -132,7 +195,7 @@ export class PushEntityConfigService {
     });
     this.lastBuildDate = await this.pushProxy.createPushProxy(last_build_id);
 
-    // sensor / uptime
+    // *  `sensor.{app}_uptime`
     const uptime_id = `sensor.app_${this.application.replace(
       "-",
       "_",
@@ -144,11 +207,6 @@ export class PushEntityConfigService {
       unit_of_measurement: "s",
     });
     this.uptimeProxy = await this.pushProxy.createPushProxy(uptime_id);
-
-    // last hash = [sensor]
-    // manual rebuild = [button]
-    // requires rebuild = [update]
-    // pending restart = [binary_sensor / update]
   }
 
   private async verifyYaml(): Promise<void> {
