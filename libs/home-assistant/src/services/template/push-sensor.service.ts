@@ -54,7 +54,7 @@ export class PushSensorService {
     const { config } = storage.get(entity_id);
     const sensor = {
       auto_off: config.auto_off,
-      availability,
+      availability: config.availability ?? availability,
       delay_off: config.delay_off,
       delay_on: config.delay_on,
       device_class: config.device_class,

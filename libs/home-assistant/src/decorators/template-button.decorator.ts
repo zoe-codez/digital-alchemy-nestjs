@@ -1,11 +1,9 @@
-import { OnEvent } from "@steggy/boilerplate";
+import { MethodDecoratorFactory } from "@steggy/utilities";
 
 import { PICK_GENERATED_ENTITY } from "../types";
 
-export function TemplateButton(
-  button: PICK_GENERATED_ENTITY<"button">,
-): MethodDecorator {
-  return OnEvent(TemplateButton.activationEvent(button));
-}
-TemplateButton.activationEvent = (button: PICK_GENERATED_ENTITY<"button">) =>
-  `${button}/update`;
+export const TemplateButton =
+  MethodDecoratorFactory<PICK_GENERATED_ENTITY<"button">>("TEMPLATE_BUTTON");
+
+export const TemplateButtonCommandId = (app: string, entity: string) =>
+  `${app.replaceAll("-", "_")}_${entity.replaceAll(".", "_")}`;

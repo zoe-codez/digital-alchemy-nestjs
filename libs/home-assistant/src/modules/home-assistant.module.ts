@@ -8,10 +8,12 @@ import {
   LIB_HOME_ASSISTANT,
   RENDER_TIMEOUT,
   RETRY_INTERVAL,
+  TALK_BACK_BASE_URL,
   TOKEN,
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
+import { TalkBackController } from "../controllers";
 import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
 import {
   BackupService,
@@ -22,6 +24,7 @@ import {
   HassFetchAPIService,
   HassSocketAPIService,
   PushBinarySensorService,
+  PushButtonService,
   PushEntityConfigService,
   PushEntityService,
   PushProxyService,
@@ -108,6 +111,11 @@ import {
       description: "How often to retry connecting on connection failure (ms).",
       type: "number",
     },
+    [TALK_BACK_BASE_URL]: {
+      default: "http://192.168.1.223:7000",
+      description: "Base url to use with callbacks in home assistant",
+      type: "string",
+    },
     [TOKEN]: {
       // Not absolutely required, if the app does not intend to open a connection
       // Should probably use the other module though
@@ -142,6 +150,7 @@ export class HomeAssistantModule {
       HassFetchAPIService,
       HassSocketAPIService,
       PushBinarySensorService,
+      PushButtonService,
       PushEntityConfigService,
       PushEntityService,
       PushProxyService,
@@ -156,7 +165,9 @@ export class HomeAssistantModule {
         useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
       },
     ];
+    options.controllers ??= true;
     return {
+      controllers: options.controllers ? [TalkBackController] : [],
       exports: services,
       global: true,
       imports: [RegisterCache()],

@@ -58,6 +58,7 @@ export class PushSwitchService {
     } as SwitchTemplateYaml;
     sensor.unique_id = "steggy_switch_" + is.hash(entity_id);
     sensor.availability_template = availability;
+    // switches must obey the availability of the service hosting them
     sensor.value_template = GET_STATE_TEMPLATE;
     sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
     sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");

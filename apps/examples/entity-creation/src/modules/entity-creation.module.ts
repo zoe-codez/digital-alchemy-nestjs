@@ -17,7 +17,7 @@ import { ExampleService } from "../services";
         },
         button: {
           entity_creation_button: {
-            name: "Example switch",
+            name: "Example button",
           },
         },
         sensor: {

@@ -6,6 +6,7 @@ import {
 } from "./utility";
 
 interface Base {
+  attributes?: Record<string, Template>;
   availability?: Template;
   icon?: Icon;
   name?: string;
@@ -20,7 +21,6 @@ export type Icon = string;
 
 export type SensorTemplate = Base &
   SensorDeviceClasses & {
-    attributes?: Record<string, Template>;
     picture?: Template;
     state: Template;
     state_class?: "measurement" | "total" | "total_increasing";
@@ -28,7 +28,6 @@ export type SensorTemplate = Base &
 
 export type BinarySensorTemplate = Base &
   Pick<SensorDeviceClasses, "device_class"> & {
-    attributes?: Record<string, Template>;
     auto_off?: Timer;
     delay_off?: Timer;
     delay_on?: Timer;

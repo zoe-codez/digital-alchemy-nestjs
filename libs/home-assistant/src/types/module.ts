@@ -1,5 +1,5 @@
 import { SensorDeviceClasses } from "./sensor-device-class";
-import { Icon, Timer } from "./template";
+import { Icon, Template, Timer } from "./template";
 
 type SensorValueType = string;
 
@@ -23,6 +23,7 @@ export type BinarySensorConfig = {
   BaseConfig;
 
 export type BaseConfig = {
+  availability?: Template;
   icon?: Icon;
   name?: string;
   track_history?: boolean;
@@ -45,6 +46,7 @@ export type SwitchConfig = {
 export type ButtonConfig = BaseConfig;
 
 export interface HomeAssistantModuleConfiguration {
+  controllers?: boolean;
   generate_entities?: {
     /**
      * Binary sensors will not be created unless they are also injected using `@InjectPushEntity`

@@ -17,6 +17,7 @@ import {
 } from "../types";
 import {
   PushBinarySensorService,
+  PushButtonService,
   PushSensorService,
   PushSwitchService,
 } from "./template";
@@ -35,6 +36,7 @@ export class PushProxyService {
     private readonly configuration: HomeAssistantModuleConfiguration,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    private readonly pushButton: PushButtonService,
     private readonly pushSensor: PushSensorService,
     private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
@@ -46,6 +48,9 @@ export class PushProxyService {
       "_",
     )}_online", "on") }}`;
     return {
+      rest_command: {
+        ...this.pushButton.restCommands(),
+      },
       switch: [
         {
           platform: "template",
@@ -53,8 +58,9 @@ export class PushProxyService {
         },
       ],
       template: [
-        ...this.pushBinarySensor.createSensorYaml(availability),
+        ...this.pushBinarySensor.createBinarySensorYaml(availability),
         ...this.pushSensor.createSensorYaml(availability),
+        ...this.pushButton.createButtonYaml(availability),
       ],
     };
   }

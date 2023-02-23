@@ -1,10 +1,6 @@
 {
-  "bin": {
-    "entity-creation": "main.js"
-  },
   "name": "@steggy/entity-creation",
   "license": "MIT",
-  "main": "main.js",
   "displayName": "Entity Creation",
   "version": "23.8.2",
   "homepage": "https://github.com/mp3three/steggy",

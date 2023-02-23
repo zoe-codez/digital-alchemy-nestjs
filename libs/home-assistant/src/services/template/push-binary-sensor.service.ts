@@ -21,19 +21,7 @@ export class PushBinarySensorService {
     private readonly logger: AutoLogService,
     private readonly pushEntity: PushEntityService<"binary_sensor">,
   ) {}
-
-  public createProxy(id: PICK_GENERATED_ENTITY<"binary_sensor">) {
-    return this.pushEntity.generate(id, {
-      validate: (property, value) => {
-        if (property === "state") {
-          return is.boolean(value);
-        }
-        return true;
-      },
-    });
-  }
-
-  public createSensorYaml(
+  public createBinarySensorYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"binary_sensor">,
   ): BinarySensorTemplateYaml[] {
@@ -46,6 +34,17 @@ export class PushBinarySensorService {
     );
   }
 
+  public createProxy(id: PICK_GENERATED_ENTITY<"binary_sensor">) {
+    return this.pushEntity.generate(id, {
+      validate: (property, value) => {
+        if (property === "state") {
+          return is.boolean(value);
+        }
+        return true;
+      },
+    });
+  }
+
   private createYaml(
     availability: Template,
     storage: PushStorageMap<"binary_sensor">,
@@ -54,7 +53,7 @@ export class PushBinarySensorService {
     const { config } = storage.get(entity_id);
     const sensor = {
       auto_off: config.auto_off,
-      availability,
+      availability: config.availability ?? availability,
       delay_off: config.delay_off,
       delay_on: config.delay_on,
       device_class: config.device_class,
@@ -72,7 +71,6 @@ export class PushBinarySensorService {
         )
       : {};
     sensor.attributes.managed_by = this.application;
-
     return {
       binary_sensor: [sensor],
       trigger: UPDATE_TRIGGER("binary_sensor", entity_id),

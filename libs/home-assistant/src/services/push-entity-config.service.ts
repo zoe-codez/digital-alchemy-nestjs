@@ -107,6 +107,12 @@ export class PushEntityConfigService {
       "_",
     )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
     this.pushEntity.insert(online_id, {
+      /**
+       * This sensor should always be available, regardless of application state.
+       *
+       * The delay_off manages the available for all the other connected entities
+       */
+      availability: "1",
       delay_off: {
         seconds: 30,
       },
