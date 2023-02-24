@@ -78,12 +78,16 @@ export class PushSwitchService {
     // switches must obey the availability of the service hosting them
     sensor.value_template = GET_STATE_TEMPLATE;
     sensor.turn_on = {
-      platform: "webhook",
-      webhook_id: TemplateButtonCommandId(this.application, entity_id) + "_on",
+      service:
+        "rest_command." +
+        TemplateButtonCommandId(this.application, entity_id) +
+        "_on",
     };
     sensor.turn_off = {
-      platform: "webhook",
-      webhook_id: TemplateButtonCommandId(this.application, entity_id) + "_off",
+      service:
+        "rest_command." +
+        TemplateButtonCommandId(this.application, entity_id) +
+        "_off",
     };
     return sensor;
   }
