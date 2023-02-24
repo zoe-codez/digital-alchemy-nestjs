@@ -136,7 +136,7 @@ export class PushProxyService {
       writeFileSync(join(base, `${key}.yaml`), dump(command), "utf8");
     });
     // * add an appropriate include
-    return `rest_command: !include_dir_list ./${folder}`;
+    return `rest_command: !include_dir_named ./${folder}`;
   }
 
   private buildSwitches(packageFolder: string, availability: string): string {
@@ -156,7 +156,7 @@ export class PushProxyService {
     return [
       `switch:`,
       `  - platform: "template"`,
-      `    switches: !include_dir_list ./${folder}`,
+      `    switches: !include_dirnamed ./${folder}`,
     ].join(`\n`);
   }
 
