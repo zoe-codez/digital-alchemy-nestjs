@@ -26,7 +26,6 @@ import {
   ServiceListFieldDescription,
   ServiceListServiceTarget,
 } from "../types";
-import { EntityManagerService } from "./entity-manager.service";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
@@ -50,7 +49,6 @@ export class HassCallTypeGenerator {
     private readonly fetchApi: HassFetchAPIService,
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socketApi: HassSocketAPIService,
-    private readonly entityManager: EntityManagerService,
   ) {}
 
   /**

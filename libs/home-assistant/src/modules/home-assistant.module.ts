@@ -28,6 +28,7 @@ import {
   HassSocketAPIService,
   PushBinarySensorService,
   PushButtonService,
+  PushCallService,
   PushEntityConfigService,
   PushEntityService,
   PushProxyService,
@@ -167,10 +168,12 @@ export class HomeAssistantModule {
       ConnectionBuilderService,
       EntityManagerService,
       EntityRegistryService,
+      HassCallTypeGenerator,
       HassFetchAPIService,
       HassSocketAPIService,
       PushBinarySensorService,
       PushButtonService,
+      PushCallService,
       PushEntityConfigService,
       PushEntityService,
       PushProxyService,
@@ -195,7 +198,6 @@ export class HomeAssistantModule {
       module: HomeAssistantModule,
       providers: [
         ...services,
-        HassCallTypeGenerator,
         {
           provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
           useValue: options,

@@ -41,7 +41,7 @@ export const SERIALIZE = {
 
 export type InjectedPushConfig = {
   storage: () => [name: string, data: object];
-  yaml: (current_config: object) => object;
+  yaml: () => [filename: string, data: object][];
 };
 
 export class PluginConfig {

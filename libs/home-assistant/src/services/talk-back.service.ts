@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ACTIVE_APPLICATION, InjectConfig } from "@steggy/boilerplate";
 import { ADMIN_KEY, ADMIN_KEY_HEADER, LIB_SERVER } from "@steggy/server";
 import { is } from "@steggy/utilities";
@@ -21,7 +21,9 @@ export class TalkBackService {
     private readonly baseUrl: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    @Inject(forwardRef(() => PushButtonService))
     private readonly pushButton: PushButtonService,
+    @Inject(forwardRef(() => PushSwitchService))
     private readonly pushSwitch: PushSwitchService,
   ) {
     this.headers = is.empty(this.adminKey)

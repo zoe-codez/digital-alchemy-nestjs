@@ -12,11 +12,17 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";
 
-import { HOME_ASSISTANT_PACKAGE_FOLDER } from "../config";
+import {
+  APPLICATION_IDENTIFIER,
+  DEFAULT_APPLICATION_IDENTIFIER,
+  HOME_ASSISTANT_PACKAGE_FOLDER,
+  VERIFICATION_FILE,
+} from "../config";
 import {
   HassSteggySerializeState,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
+  InjectedPushConfig,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   SERIALIZE,
@@ -28,13 +34,7 @@ import { PushProxyService } from "./push-proxy.service";
 /**
  * Stored as mildly obfuscated
  */
-const VERIFICATION_FILE = `steggy_configuration`;
 const boot = dayjs();
-
-export type InjectedPushConfig = {
-  storage: () => [name: string, data: object];
-  yaml: () => [filename: string, data: object][];
-};
 
 /**
  * Functionality for managing a particular application's push entity configuration within Home Assistant.
@@ -51,11 +51,19 @@ export class PushEntityConfigService {
     private readonly application: string,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
+    @InjectConfig(APPLICATION_IDENTIFIER)
+    private readonly applicationIdentifier: string,
+    @InjectConfig(VERIFICATION_FILE)
+    private readonly verificationFile: string,
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
     private readonly pushProxy: PushProxyService,
     private readonly pushEntity: PushEntityService,
-  ) {}
+  ) {
+    if (this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER) {
+      this.applicationIdentifier = this.application.replaceAll("-", "_");
+    }
+  }
 
   /**
    * Mapping between mount points and extra data.
@@ -76,6 +84,11 @@ export class PushEntityConfigService {
    * ID will be different
    */
   private uptimeProxy: PUSH_PROXY<"sensor.online">;
+
+  private get appRoot() {
+    return join(this.targetFolder, this.applicationIdentifier);
+  }
+
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
     await this.verifyYaml();
@@ -96,8 +109,8 @@ export class PushEntityConfigService {
   }
 
   private async cleanup(): Promise<boolean> {
-    const path = this.targetFolder;
-    if (!existsSync(join(path, VERIFICATION_FILE)) && existsSync(path)) {
+    const path = this.appRoot;
+    if (!existsSync(join(path, this.verificationFile)) && existsSync(path)) {
       this.logger.error(
         { path },
         `exists without a verification file, clean up manually`,
@@ -116,21 +129,17 @@ export class PushEntityConfigService {
       return;
     }
     this.logger.debug(`Starting build`);
-    mkdirSync(this.targetFolder);
+    mkdirSync(this.appRoot);
     writeFileSync(
-      join(this.targetFolder, VERIFICATION_FILE),
+      join(this.appRoot, this.verificationFile),
       // ? obfuscate to discourage tampering, not intended to actually "hide" data
       // tampering could result in the generation of types that reflect neither the yaml nor application runtime state
       // no human should mess with that info by hand, just generate it again
       SERIALIZE.serialize(this.serializeState()),
       "utf8",
     );
-    const rootYaml = this.pushProxy.applicationYaml(this.targetFolder);
-    writeFileSync(
-      join(this.targetFolder, "include.yaml"),
-      dump(rootYaml),
-      "utf8",
-    );
+    const rootYaml = this.pushProxy.applicationYaml(this.appRoot);
+    writeFileSync(join(this.appRoot, "include.yaml"), dump(rootYaml), "utf8");
     this.logger.debug(`Done`);
   }
 
