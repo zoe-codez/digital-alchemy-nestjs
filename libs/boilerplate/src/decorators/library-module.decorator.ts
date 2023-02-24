@@ -2,7 +2,7 @@
 import { Global, ModuleMetadata } from "@nestjs/common";
 import { ClassConstructor } from "class-transformer";
 
-import { AnyConfig, LOGGER_LIBRARY, MODULE_METADATA } from "../contracts";
+import { AnyConfig, LOGGER_LIBRARY, MODULE_METADATA } from "../types";
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
   configuration: Record<string, AnyConfig>;

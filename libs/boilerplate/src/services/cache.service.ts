@@ -2,8 +2,8 @@ import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
 import { Cache } from "cache-manager";
 
 import { CACHE_PREFIX } from "../config";
-import { ACTIVE_APPLICATION } from "../contracts";
 import { InjectConfig } from "../decorators/inject-config.decorator";
+import { ACTIVE_APPLICATION } from "../types";
 
 @Injectable()
 export class CacheService {

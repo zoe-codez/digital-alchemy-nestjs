@@ -4,6 +4,7 @@ import { is } from "@steggy/utilities";
 import { AsyncLocalStorage } from "async_hooks";
 import pino from "pino";
 
+import { mappedContexts } from "../decorators";
 import {
   ACTIVE_APPLICATION,
   GetLogContext,
@@ -11,8 +12,7 @@ import {
   iLoggerCore,
   LogLevels,
   MISSING_CONTEXT,
-} from "../contracts";
-import { mappedContexts } from "../decorators";
+} from "../types";
 
 export const storage = new AsyncLocalStorage<pino.Logger>();
 

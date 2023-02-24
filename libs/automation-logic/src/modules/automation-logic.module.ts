@@ -1,3 +1,4 @@
+import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 
@@ -20,6 +21,8 @@ import {
   StateEnforcerService,
   TransitionRunnerService,
 } from "../services";
+import { AUTOMATION_LOGIC_MODULE_CONFIGURATION } from "../types";
+import { AutomationLogicModuleConfiguration } from "../types/configuration";
 
 @LibraryModule({
   configuration: {
@@ -65,18 +68,31 @@ import {
       type: "number",
     },
   },
-  exports: [CircadianService, SceneRoomService, SolarCalcService],
-  imports: [DiscoveryModule, RegisterCache()],
   library: "automation-logic",
-  providers: [
-    CircadianService,
-    EntityToolsService,
-    GradualDimService,
-    StateEnforcerService,
-    SceneRoomService,
-    SequenceActivateService,
-    SolarCalcService,
-    TransitionRunnerService,
-  ],
 })
-export class ControllerLogicModule {}
+export class AutomationLogicModule {
+  public static forRoot(
+    configuration: AutomationLogicModuleConfiguration = {},
+  ): DynamicModule {
+    return {
+      exports: [CircadianService, SceneRoomService, SolarCalcService],
+      global: true,
+      imports: [DiscoveryModule, RegisterCache()],
+      module: AutomationLogicModule,
+      providers: [
+        CircadianService,
+        EntityToolsService,
+        GradualDimService,
+        StateEnforcerService,
+        SceneRoomService,
+        SequenceActivateService,
+        SolarCalcService,
+        TransitionRunnerService,
+        {
+          provide: AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+          useValue: configuration,
+        },
+      ],
+    };
+  }
+}

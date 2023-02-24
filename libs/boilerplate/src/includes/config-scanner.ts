@@ -1,13 +1,13 @@
 import { INestApplication } from "@nestjs/common";
 
+import { AutoConfigService } from "../services";
 import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   ConfigDefinitionDTO,
   ConfigTypeDTO,
-} from "../contracts";
-import { CONFIG_DEFAULTS } from "../contracts/constants";
-import { AutoConfigService } from "../services";
+} from "../types";
+import { CONFIG_DEFAULTS } from "../types/constants";
 
 export function ScanConfig(
   app: INestApplication,

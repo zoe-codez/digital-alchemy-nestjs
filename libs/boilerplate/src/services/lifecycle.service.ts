@@ -2,8 +2,8 @@ import { INestApplication, Injectable } from "@nestjs/common";
 import { eachSeries } from "@steggy/utilities";
 import { Express } from "express";
 
-import { iSteggyProvider } from "../contracts";
 import { BootstrapOptions } from "../includes";
+import { iSteggyProvider } from "../types";
 import { ModuleScannerService } from "./explorers/module-scanner.service";
 
 /**

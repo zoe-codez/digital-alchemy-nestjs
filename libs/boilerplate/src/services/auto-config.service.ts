@@ -11,6 +11,11 @@ import { argv, env, exit } from "process";
 
 import { LIB_BOILERPLATE, LOG_LEVEL } from "../config";
 import {
+  LibraryModuleMetadata,
+  MESSY_INJECTED_CONFIGS,
+  NO_APPLICATION,
+} from "../decorators";
+import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   AnyConfig,
@@ -20,12 +25,7 @@ import {
   LOGGER_LIBRARY,
   MODULE_METADATA,
   SKIP_CONFIG_INIT,
-} from "../contracts";
-import {
-  LibraryModuleMetadata,
-  MESSY_INJECTED_CONFIGS,
-  NO_APPLICATION,
-} from "../decorators";
+} from "../types";
 import { AutoLogService } from "./auto-log.service";
 import { WorkspaceService } from "./workspace.service";
 

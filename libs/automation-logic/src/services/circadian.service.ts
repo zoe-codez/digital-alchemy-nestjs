@@ -14,7 +14,7 @@ import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
 } from "../config";
-import { CIRCADIAN_UPDATE, LOCATION_UPDATED } from "../contracts";
+import { CIRCADIAN_UPDATE, LOCATION_UPDATED } from "../types";
 import { SolarCalcService } from "./solar-calc.service";
 
 const MIN = 0;

@@ -18,7 +18,7 @@ import {
   MAX_BRIGHTNESS,
   OFF,
   SCENE_SET_ENTITY,
-} from "../contracts";
+} from "../types";
 
 const UP = 1;
 const DOWN = -1;

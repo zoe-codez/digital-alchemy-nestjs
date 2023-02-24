@@ -11,7 +11,7 @@ import {
   LOG_LEVEL,
   SCAN_CONFIG,
 } from "../config";
-import { SKIP_CONFIG_INIT } from "../contracts";
+import { SKIP_CONFIG_INIT } from "../types";
 import { AutoConfigService } from "../services";
 import { CollisionAModule, CollisionBModule } from "./modules";
 import { InjectionInlineTest, InjectionModuleTest } from "./services";

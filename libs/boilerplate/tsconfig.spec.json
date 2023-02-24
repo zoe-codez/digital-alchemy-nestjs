@@ -11,5 +11,5 @@
   "include": [
     "jest.config.ts",
     "**/*.ts"
-  ]
+, "../automation-logic/src/dynamic.ts"  ]
 }

@@ -7,11 +7,11 @@ import isBetween from "dayjs/plugin/isBetween";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 
 export * from "./config";
-export * from "./contracts";
 export * from "./decorators";
 export * from "./includes";
 export * from "./modules";
 export * from "./services";
+export * from "./types";
 
 // ? both required for `dayjs().format("ww")`
 // prints week number as part of the format string

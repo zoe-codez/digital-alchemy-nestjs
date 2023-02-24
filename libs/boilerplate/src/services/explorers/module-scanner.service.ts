@@ -3,11 +3,7 @@ import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
 import { is } from "@steggy/utilities";
 import { isProxy } from "util/types";
 
-import {
-  ACTIVE_APPLICATION,
-  GetLogContext,
-  LOGGER_LIBRARY,
-} from "../../contracts";
+import { ACTIVE_APPLICATION, GetLogContext, LOGGER_LIBRARY } from "../../types";
 import { AutoLogService } from "../auto-log.service";
 // Crashy crashy if importing from directory
 

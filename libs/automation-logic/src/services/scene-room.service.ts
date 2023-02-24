@@ -14,6 +14,8 @@ import {
   iCallService,
   InjectCallProxy,
   PICK_ENTITY,
+  PushEntityService,
+  PushProxyService,
 } from "@steggy/home-assistant";
 import {
   each,
@@ -30,6 +32,14 @@ import { nextTick } from "process";
 
 import { DEFAULT_DIM } from "../config";
 import {
+  iSceneRoom,
+  iSceneRoomOptions,
+  MethodTransition,
+  SCENE_ROOM_MAP,
+  SCENE_ROOM_SETTINGS,
+  SceneTransitionInterceptor,
+} from "../decorators";
+import {
   CannedTransitions,
   CIRCADIAN_UPDATE,
   LightTransition,
@@ -40,15 +50,7 @@ import {
   SCENE_SET_ENTITY,
   tScene,
   tSceneType,
-} from "../contracts";
-import {
-  iSceneRoom,
-  iSceneRoomOptions,
-  MethodTransition,
-  SCENE_ROOM_MAP,
-  SCENE_ROOM_SETTINGS,
-  SceneTransitionInterceptor,
-} from "../decorators";
+} from "../types";
 import { CircadianService } from "./circadian.service";
 import { TransitionRunnerService } from "./transition-runner.service";
 
@@ -66,6 +68,7 @@ type tTransitions<SCOPED extends string> = Partial<
 export const SET_ROOM_SCENE_EVENT = (room: string, scene: string) =>
   `room-set-scene/${room}/${scene}`;
 const ANY = "*";
+// const CURRENT_SCENE_SENSORS
 
 /**
  * Importing this provider is required to actually register a room.
@@ -94,6 +97,8 @@ export class SceneRoomService<
     private readonly defaultDim: number,
     private readonly transition: TransitionRunnerService,
     private readonly scanner: ModuleScannerService,
+    private readonly pushProxy: PushProxyService,
+    private readonly pushEntity: PushEntityService,
   ) {}
 
   public get current() {

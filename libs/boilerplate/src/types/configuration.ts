@@ -116,7 +116,7 @@ export class ConfigDefinitionDTO {
   public config: ConfigTypeDTO[];
 }
 
-export class ConfigTypeDTO<T = AnyConfig> {
+export class ConfigTypeDTO<METADATA extends AnyConfig = AnyConfig> {
   /**
    * Name of project
    */
@@ -124,7 +124,7 @@ export class ConfigTypeDTO<T = AnyConfig> {
   /**
    * Description of a single config item as passed into the module
    */
-  public metadata: T;
+  public metadata: METADATA;
   /**
    * Property name
    */

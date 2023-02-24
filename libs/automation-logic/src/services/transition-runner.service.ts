@@ -4,7 +4,7 @@ import { domain, PICK_ENTITY } from "@steggy/home-assistant";
 import { DEFAULT_LIMIT, each, is } from "@steggy/utilities";
 import dayjs from "dayjs";
 
-import { CannedTransitions, LightTransition, OFF, tScene } from "../contracts";
+import { CannedTransitions, LightTransition, OFF, tScene } from "../types";
 import { GradualDimService } from "./gradual-dim.service";
 
 @Injectable()

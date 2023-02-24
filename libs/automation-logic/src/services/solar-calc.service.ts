@@ -23,8 +23,8 @@ import EventEmitter from "eventemitter3";
 import SolarCalc from "solar-calc";
 import SolarCalcType from "solar-calc/types/solarCalc";
 
-import { LOCATION_UPDATED } from "../contracts";
 import { SOLAR_EVENT } from "../decorators";
+import { LOCATION_UPDATED } from "../types";
 
 const CALC_EXPIRE = HALF * MINUTE;
 export enum SolarEvents {

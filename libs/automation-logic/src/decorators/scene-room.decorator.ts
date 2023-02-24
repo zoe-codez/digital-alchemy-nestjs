@@ -1,7 +1,7 @@
 import { Controller, Injectable } from "@nestjs/common";
 import { PICK_ENTITY } from "@steggy/home-assistant";
 
-import { SceneTransitionMapping } from "../contracts";
+import { ALL_ROOM_NAMES, ROOM_SCENES, SceneTransitionMapping } from "../types";
 
 export type iSceneRoom<SCENES extends string = string> = {};
 
@@ -10,13 +10,12 @@ export type SceneList<SCENES extends string> = Record<
   Partial<Record<PICK_ENTITY, unknown>>
 >;
 export interface iSceneRoomOptions<
-  SCENES extends string,
-  NAMES extends string = string,
+  ROOM_NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES,
 > {
   /**
-   * Turning on lights without specifying an `rgb_color` will put the light into an automatically color temperature mode.
+   * Turning on lights without specifying an `rgb_color` will put the light into an automatically circadian mode.
    *
-   * default: true
+   * default: `true`
    */
   auto_circadian?: boolean;
   /**
@@ -26,33 +25,17 @@ export interface iSceneRoomOptions<
    */
   controller?: string;
   /**
-   * Requires `AvailabilityMonitor` to use functionality.
-   *
-   * Provide as empty Set to enable.
-   * By default, the set will auto populate with entities utilized in scenes.
-   * Additional values can be added to the set, which will automatically merge values
-   */
-  ensure_availability?: Set<PICK_ENTITY>;
-  /**
-   * Whenever these lights are on, they will be issued circadian updates
-   */
-  force_circadian?: Set<PICK_ENTITY<"light">>;
-  /**
-   * Tell the availability monitor to not notify for certain entities
-   */
-  ignore_availability?: Set<PICK_ENTITY>;
-  /**
    * Simple name to call room, preferably 1 word
    */
-  name: NAMES;
+  name: ROOM_NAME;
   /**
    * Scene declarations
    */
-  scenes?: Partial<SceneList<SCENES>>;
+  scenes?: SceneList<ROOM_SCENES<ROOM_NAME>>;
   /**
    * Describe
    */
-  transitions?: SceneTransitionMapping<SCENES>;
+  transitions?: SceneTransitionMapping<ROOM_SCENES<ROOM_NAME>>;
 }
 
 export const SCENE_ROOM_MAP = new Map<string, iSceneRoomOptions<string>>();

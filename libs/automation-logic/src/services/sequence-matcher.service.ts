@@ -9,8 +9,8 @@ import { HA_EVENT_STATE_CHANGE, HassEventDTO } from "@steggy/home-assistant";
 import { each } from "async";
 
 import { SEQUENCE_TIMEOUT } from "../config";
-import { SequenceWatchDTO } from "../contracts";
 import { SequenceWatcher } from "../decorators";
+import { SequenceWatchDTO } from "../types";
 
 type SequenceWatcher = SequenceWatchDTO & {
   callback: () => Promise<void>;

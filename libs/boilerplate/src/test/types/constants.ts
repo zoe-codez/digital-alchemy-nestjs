@@ -1,4 +1,4 @@
-import { AnyConfig } from "../../contracts";
+import { AnyConfig } from "../../types";
 
 export const COLLISION_LIBRARY = "collision-library";
 export const TEST_CONFIG_A = "TEST_CONFIG_A";

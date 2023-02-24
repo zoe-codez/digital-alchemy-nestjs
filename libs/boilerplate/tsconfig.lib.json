@@ -8,7 +8,7 @@
   },
   "include": [
     "**/*.ts"
-  ],
+, "../automation-logic/src/dynamic.ts"  ],
   "exclude": [
     "jest.config.ts",
     "**/test/*.ts"
