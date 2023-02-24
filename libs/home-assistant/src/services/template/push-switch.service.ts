@@ -42,7 +42,7 @@ export class PushSwitchService {
       [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
         entity_id => {
           const [, id] = generated_entity_split(entity_id);
-          return [entity_id, this.createYaml(availability, storage, entity_id)];
+          return [id, this.createYaml(availability, storage, entity_id)];
         },
       ),
     );

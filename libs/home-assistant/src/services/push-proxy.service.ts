@@ -156,7 +156,7 @@ export class PushProxyService {
     return [
       `switch:`,
       `  - platform: "template"`,
-      `    switches: !include_dirnamed ./${folder}`,
+      `    switches: !include_dir_named ./${folder}`,
     ].join(`\n`);
   }
 
