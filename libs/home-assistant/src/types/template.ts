@@ -1,3 +1,4 @@
+import { TemplateButtonCommandId } from "../decorators";
 import { SensorDeviceClasses } from "./sensor-device-class";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
@@ -118,14 +119,11 @@ UPDATE_TRIGGER.event = (
   entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
 ) => `steggy_${entity.replace(".", "_")}_update`;
 
-export const TALK_BACK_ACTION = (
-  entity: PICK_GENERATED_ENTITY,
-  action: string,
-) => {
+export const TALK_BACK_ACTION = (webhook_id: string) => {
   return [
     {
       platform: "webhook",
-      webhook_id: TALK_BACK_ACTION.event(entity, action),
+      webhook_id,
     },
   ];
 };

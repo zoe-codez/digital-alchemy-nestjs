@@ -1,7 +1,8 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { Inject, Injectable } from "@nestjs/common";
+import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
+import { TemplateButtonCommandId } from "../../decorators";
 
 import {
   generated_entity_split,
@@ -18,6 +19,8 @@ import { TalkBackService } from "../talk-back.service";
 export class PushSwitchService {
   constructor(
     private readonly logger: AutoLogService,
+    @Inject(ACTIVE_APPLICATION)
+    private readonly application: string,
     private readonly talkBack: TalkBackService,
     private readonly pushEntity: PushEntityService<"switch">,
   ) {}
@@ -74,8 +77,14 @@ export class PushSwitchService {
     sensor.availability_template = availability;
     // switches must obey the availability of the service hosting them
     sensor.value_template = GET_STATE_TEMPLATE;
-    sensor.turn_on = TALK_BACK_ACTION(entity_id, "turn_on");
-    sensor.turn_off = TALK_BACK_ACTION(entity_id, "turn_off");
+    sensor.turn_on = {
+      platform: "webhook",
+      webhook_id: TemplateButtonCommandId(this.application, entity_id) + "_on",
+    };
+    sensor.turn_off = {
+      platform: "webhook",
+      webhook_id: TemplateButtonCommandId(this.application, entity_id) + "_off",
+    };
     return sensor;
   }
 }
