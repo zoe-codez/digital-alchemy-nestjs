@@ -1,11 +1,13 @@
 import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
+import { PICK_ENTITY } from "@steggy/home-assistant";
 
 import {
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
+  CIRCADIAN_SENSOR,
   DEFAULT_DIM,
   GRADUAL_DIM_DEFAULT_INTERVAL,
   MIN_BRIGHTNESS,
@@ -29,7 +31,7 @@ import { AutomationLogicModuleConfiguration } from "../types/configuration";
     [CIRCADIAN_ENABLED]: {
       default: true,
       description:
-        "Setting to false will prevent lights from having their temperature managed",
+        "Take responsibility for generating [CIRCADIAN_SENSOR] and emitting updates",
       type: "boolean",
     },
     [CIRCADIAN_MAX_TEMP]: {
@@ -43,6 +45,11 @@ import { AutomationLogicModuleConfiguration } from "../types/configuration";
       description:
         "Minimum color temperature for circadian lighting. Used while it's dark out",
       type: "number",
+    },
+    [CIRCADIAN_SENSOR]: {
+      default: "sensor.current_circadian_temperature" as PICK_ENTITY<"sensor">,
+      description: "Sensor for reading / writing current light temperature to",
+      type: "string",
     },
     [DEFAULT_DIM]: {
       default: 50,

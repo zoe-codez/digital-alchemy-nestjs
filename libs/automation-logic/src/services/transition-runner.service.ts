@@ -4,7 +4,13 @@ import { domain, PICK_ENTITY } from "@steggy/home-assistant";
 import { DEFAULT_LIMIT, each, is } from "@steggy/utilities";
 import dayjs from "dayjs";
 
-import { CannedTransitions, LightTransition, OFF, tScene } from "../types";
+import {
+  CannedTransitions,
+  LightOn,
+  LightTransition,
+  OFF,
+  tScene,
+} from "../types";
 import { GradualDimService } from "./gradual-dim.service";
 
 @Injectable()
@@ -47,7 +53,9 @@ export class TransitionRunnerService {
 
     await each(list, async (entity_id: PICK_ENTITY<"light">) => {
       const target =
-        scene[entity_id].state === "off" ? OFF : scene[entity_id].brightness;
+        scene[entity_id].state === "off"
+          ? OFF
+          : (scene[entity_id] as LightOn).brightness;
       if (!is.number(target)) {
         this.logger.error(
           { scene, transition },

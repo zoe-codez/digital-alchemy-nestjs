@@ -66,7 +66,6 @@ export class CircadianService {
       return;
     }
     this.CURRENT_LIGHT_TEMPERATURE = kelvin;
-    this.logger.debug(`Circadian temperature: {${kelvin}}k`);
     this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
   }
 

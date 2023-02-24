@@ -1,14 +1,14 @@
 import { Controller, Injectable } from "@nestjs/common";
-import { PICK_ENTITY } from "@steggy/home-assistant";
 
-import { ALL_ROOM_NAMES, ROOM_SCENES, SceneTransitionMapping } from "../types";
+import {
+  ALL_ROOM_NAMES,
+  iSceneRoom,
+  ROOM_SCENES,
+  SCENE_ROOM_OPTIONS,
+  SceneList,
+  SceneTransitionMapping,
+} from "../types";
 
-export type iSceneRoom<SCENES extends string = string> = {};
-
-export type SceneList<SCENES extends string> = Record<
-  SCENES,
-  Partial<Record<PICK_ENTITY, unknown>>
->;
 export interface iSceneRoomOptions<
   ROOM_NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES,
 > {
@@ -35,31 +35,44 @@ export interface iSceneRoomOptions<
   /**
    * Describe
    */
-  transitions?: SceneTransitionMapping<ROOM_SCENES<ROOM_NAME>>;
+  transitions?: SceneTransitionMapping<ROOM_NAME>;
 }
 
-export const SCENE_ROOM_MAP = new Map<string, iSceneRoomOptions<string>>();
-export const SCENE_ROOM_SETTINGS = new Map<
-  iSceneRoomOptions<string>,
-  iSceneRoom<string>
->();
-export const SCENE_ROOM_SETTINGS_REVERSE = new Map<
-  iSceneRoom<string>,
-  iSceneRoomOptions<string>
->();
-export const SCENE_ROOM_OPTIONS = Symbol.for("scene-room");
-
-export function SceneRoom<SCENES extends string, NAMES extends string = string>(
-  options: iSceneRoomOptions<SCENES, NAMES>,
+export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
+  options: iSceneRoomOptions<NAME>,
 ): ClassDecorator {
-  return function (target) {
-    SCENE_ROOM_SETTINGS.set(options, target as iSceneRoom<string>);
-    SCENE_ROOM_SETTINGS_REVERSE.set(target as iSceneRoom<string>, options);
-    SCENE_ROOM_MAP.set(options.name, options);
+  return function (target: iSceneRoom<NAME>) {
+    SceneRoom.SCENE_ROOM_SETTINGS.set(options, target);
+    SceneRoom.SCENE_ROOM_SETTINGS_REVERSE.set(target, options);
+    SceneRoom.SCENE_ROOM_MAP.set(options.name, options);
+    //
     target[SCENE_ROOM_OPTIONS] = options;
+
+    // Pick the correct annotation based on the `controller` option
     if (options.controller) {
       return Controller(options.controller)(target);
     }
     return Injectable()(target);
   };
 }
+/**
+ * name => provider
+ */
+SceneRoom.SCENE_ROOM_MAP = new Map<
+  ALL_ROOM_NAMES,
+  iSceneRoomOptions<ALL_ROOM_NAMES>
+>();
+/**
+ * options => provider
+ */
+SceneRoom.SCENE_ROOM_SETTINGS = new Map<
+  iSceneRoomOptions<ALL_ROOM_NAMES>,
+  iSceneRoom<ALL_ROOM_NAMES>
+>();
+/**
+ * provider => options
+ */
+SceneRoom.SCENE_ROOM_SETTINGS_REVERSE = new Map<
+  iSceneRoom<ALL_ROOM_NAMES>,
+  iSceneRoomOptions<ALL_ROOM_NAMES>
+>();
