@@ -119,12 +119,12 @@ export class AutoConfigService {
   }
 
   public set(
-    path: string | [symbol, string],
+    path: string | [project: string, property: string],
     value: unknown,
     write = false,
   ): void {
     if (Array.isArray(path)) {
-      path = ["libs", path[LABEL].description, path[VALUE]].join(".");
+      path = ["libs", path[LABEL], path[VALUE]].join(".");
     }
     set(this.config, path, value);
     if (write) {

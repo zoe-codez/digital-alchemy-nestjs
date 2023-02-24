@@ -150,9 +150,9 @@ export interface MenuComponentOptions<VALUE = unknown> {
   /**
    * Static text to stick at the top of the component.
    *
-   * If passed as array, each item is it's own line
+   * If passed as array, each item is it's own line. Intended for object printing
    */
-  headerMessage?: string | [string, string][];
+  headerMessage?: string | [key: string, value: string][];
   /**
    * Extra padding to shift the header over by
    */
@@ -789,9 +789,6 @@ export class MenuComponentService<VALUE = unknown | string>
           )
           .join(`\n`);
       }
-      // const headerMessage = is.string(this.opt.headerMessage)
-      //   ? this.opt.headerMessage
-      //   : this.opt.headerMessage.map(([label,value]) => chalk``).join(`\n`);
       message += headerMessage + `\n\n`;
     }
     const out = is.empty(this.opt.left)

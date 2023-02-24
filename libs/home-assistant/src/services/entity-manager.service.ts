@@ -3,11 +3,14 @@ import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import dayjs from "dayjs";
 import EventEmitter from "eventemitter3";
+import { get } from "object-path";
+import { Get } from "type-fest";
 
 import { OnEntityUpdate } from "../decorators";
 import {
   ALL_DOMAINS,
   domain,
+  entity_split,
   ENTITY_STATE,
   EntityHistoryDTO,
   EntityHistoryResult,
@@ -199,19 +202,17 @@ export class EntityManagerService {
       key => delete this.MASTER_STATE[key],
     );
     states.forEach(entity => {
-      const [domain, id] = entity.entity_id.split(".");
+      const cast = entity.entity_id as PICK_ENTITY;
+      const [domain, id] = entity_split(cast);
       this.MASTER_STATE[domain] ??= {};
       this.MASTER_STATE[domain][id] = entity;
 
-      const state = this.ENTITIES.get(entity.entity_id as PICK_ENTITY);
+      const state = this.ENTITIES.get(cast);
       if (state?.last_changed === entity.last_changed) {
         return;
       }
-      this.ENTITIES.set(entity.entity_id as PICK_ENTITY, entity);
-      this.eventEmitter.emit(
-        OnEntityUpdate.updateEvent(entity.entity_id as PICK_ENTITY),
-        entity.state,
-      );
+      this.ENTITIES.set(cast, entity);
+      this.eventEmitter.emit(OnEntityUpdate.updateEvent(cast), entity.state);
     });
     this.init = true;
   }
@@ -224,7 +225,8 @@ export class EntityManagerService {
    */
   protected onEntityUpdate(event: HassEventDTO): void {
     const { entity_id, new_state, old_state } = event.data;
-    const [domain, id] = entity_id.split(".");
+    const cast = entity_id as PICK_ENTITY;
+    const [domain, id] = entity_split(cast);
 
     this.MASTER_STATE[domain] ??= {};
     this.MASTER_STATE[domain][id] = new_state;
@@ -241,27 +243,26 @@ export class EntityManagerService {
     await this.refresh();
   }
 
-  protected proxyGetLogic<ENTITY extends PICK_ENTITY = PICK_ENTITY>(
-    entity: ENTITY,
-    property: string,
-  ): unknown {
+  protected proxyGetLogic<
+    ENTITY extends PICK_ENTITY = PICK_ENTITY,
+    PROPERTY extends string = string,
+  >(entity: ENTITY, property: PROPERTY): Get<ENTITY_STATE<ENTITY>, PROPERTY> {
     if (!this.init) {
       return undefined;
     }
     const current = this.byId<ENTITY>(entity);
+    const defaultValue = (property === "attributes" ? {} : undefined) as Get<
+      ENTITY_STATE<ENTITY>,
+      PROPERTY
+    >;
     if (!current) {
-      // Theory: attributes only gets accessed to use the sub-properties
-      // It is frequent to forget optional chains `attribute?.friendly_name`
-      // Providing an object by default reduces crashes
-      // Doesn't matter for other properties, which aren't directly chained (or as generally used)
-      const defaultValue = property === "attributes" ? {} : undefined;
       this.logger.error(
         { context: `InjectEntityProxy(${entity})`, defaultValue },
-        `Proxy cannot find entity to provide {${property}}. Is application in a valid state?`,
+        `[proxyGetLogic] cannot find entity {%s}`,
+        property,
       );
-      return defaultValue;
     }
-    return current ? current[property] : undefined;
+    return get(current, property, defaultValue);
   }
 
   /**

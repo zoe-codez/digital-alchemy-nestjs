@@ -89,11 +89,15 @@ type BinarySensorProxy = {
   state: boolean;
 };
 
-export type PUSH_PROXY_DOMAINS = "switch" | "sensor" | "binary_sensor";
-export function IsPushDomain(
-  domain: ALL_DOMAINS,
-): domain is PUSH_PROXY_DOMAINS {
-  return ["switch", "sensor", "binary_sensor"].includes(domain);
+export enum PushProxyDomains {
+  switch = "switch",
+  sensor = "sensor",
+  binary_sensor = "binary_sensor",
+}
+
+export type PUSH_PROXY_DOMAINS = `${PushProxyDomains}`;
+export function IsPushDomain(domain: string): domain is PushProxyDomains {
+  return is.undefined(PushProxyDomains[domain]);
 }
 
 export type PUSH_PROXY<

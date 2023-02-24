@@ -44,7 +44,9 @@ export class ApplicationManagerService {
   private activeEditor: iBuilderEditor;
   private header = "";
   private readonly leftPadding: string;
-  private parts: [string, string] | [string] = [""];
+  private parts: [primary: string, secondary: string] | [primary: string] = [
+    "",
+  ];
 
   /**
    * Start an component instance, and set it as the primary active bit

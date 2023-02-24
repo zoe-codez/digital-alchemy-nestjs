@@ -1,3 +1,10 @@
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
+
 import { SensorDeviceClasses } from "./sensor-device-class";
 import { Icon, Template, Timer } from "./template";
 
@@ -22,53 +29,64 @@ export type BinarySensorConfig = {
 } & SensorDeviceClasses &
   BaseConfig;
 
-export type BaseConfig = {
-  availability?: Template;
-  icon?: Icon;
-  name?: string;
-  track_history?: boolean;
-};
+export class BaseConfig {
+  @IsString()
+  @IsOptional()
+  public availability?: Template;
+  @IsString()
+  @IsOptional()
+  public icon?: Icon;
+  @IsString()
+  @IsOptional()
+  public name?: string;
+  @IsString()
+  @IsOptional()
+  public track_history?: boolean;
+}
 
-export type SwitchConfig = {
-  /**
-   * ## if true
-   *
-   * Switch will automatically initialize, and be available for use and normal comparisons via standard websocket commands.
-   *
-   * ## if false
-   *
-   * Switch will not be created unless
-   *
-   * > **default**: false
-   */
-  autoInit?: boolean;
-} & BaseConfig;
+export const SwitchConfig = BaseConfig;
+export const ButtonConfig = BaseConfig;
+export type SwitchConfig = BaseConfig;
 export type ButtonConfig = BaseConfig;
 
-export interface HomeAssistantModuleConfiguration {
-  controllers?: boolean;
-  generate_entities?: {
-    /**
-     * Binary sensors will not be created unless they are also injected using `@InjectPushEntity`
-     */
-    binary_sensor?: Record<string, BinarySensorConfig>;
-    /**
-     * Buttons will be created on load.
-     *
-     * Annotate methods with `@TemplateButton` to receive activation events
-     */
-    button?: Record<string, ButtonConfig>;
-    /**
-     * Binary sensors will not be created unless they are also injected.
-     *
-     * Use `@InjectPushEntity` + `
-     */
-    sensor?: Record<string, SensorConfig>;
-    /**
-     * Switches are created on load.
-     *
-     * Use standard api commands to manage state
-     */
-    switch?: Record<string, SwitchConfig>;
-  };
+export class GenerateEntities {
+  /**
+   * Binary sensors will not be created unless they are also injected using `@InjectPushEntity`
+   */
+  @ValidateNested()
+  @IsOptional()
+  public binary_sensor?: Record<string, BinarySensorConfig>;
+  /**
+   * Buttons will be created on load.
+   *
+   * Annotate methods with `@TemplateButton` to receive activation events
+   */
+  @ValidateNested()
+  @IsOptional()
+  public button?: Record<string, ButtonConfig>;
+  /**
+   * Binary sensors will not be created unless they are also injected.
+   *
+   * Use `@InjectPushEntity` + `
+   */
+  @ValidateNested()
+  @IsOptional()
+  public sensor?: Record<string, SensorConfig>;
+  /**
+   * Switches are created on load.
+   *
+   * Use standard api commands to manage state
+   */
+  @ValidateNested()
+  @IsOptional()
+  public switch?: Record<string, SwitchConfig>;
+}
+
+export class HomeAssistantModuleConfiguration {
+  @IsOptional()
+  @IsBoolean()
+  public controllers?: boolean;
+  @IsOptional()
+  @ValidateNested()
+  public generate_entities?: GenerateEntities;
 }

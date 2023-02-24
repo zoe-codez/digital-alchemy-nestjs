@@ -2,7 +2,9 @@ import { Key } from "readline";
 
 import { HighlightCallbacks } from "../components";
 export type KeyDescriptor = { key: Key; value?: string };
-export type MenuEntry<T extends unknown = string> = [string, T] | [string];
+export type MenuEntry<T extends unknown = string> =
+  | [label: string, value: T]
+  | [label_and_value: string];
 export interface MainMenuEntry<T = unknown> {
   entry: MenuEntry<T>;
   /**

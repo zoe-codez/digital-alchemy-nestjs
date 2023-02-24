@@ -1,7 +1,6 @@
 import { SensorDeviceClasses } from "./sensor-device-class";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
-  generated_domain,
   PICK_GENERATED_ENTITY,
 } from "./utility";
 
@@ -125,16 +124,13 @@ export const TALK_BACK_ACTION = (
 ) => {
   return [
     {
-      event: TALK_BACK_ACTION.event(generated_domain(entity), action),
-      event_data: {
-        action,
-        sensor_id: entity,
-      },
+      platform: "webhook",
+      webhook_id: TALK_BACK_ACTION.event(entity, action),
     },
   ];
 };
 
 TALK_BACK_ACTION.event = (
-  domain: ALL_GENERATED_SERVICE_DOMAINS,
+  entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
   action: string,
-) => `steggy_${domain}_talk_back_${action}`;
+) => `steggy_${entity}_talk_back_${action}`;
