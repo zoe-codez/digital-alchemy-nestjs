@@ -9,7 +9,6 @@ import { CronExpression, TitleCase } from "@steggy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { dump } from "js-yaml";
 import { join } from "path";
 
 import {
@@ -139,7 +138,7 @@ export class PushEntityConfigService {
       "utf8",
     );
     const rootYaml = this.pushProxy.applicationYaml(this.appRoot);
-    writeFileSync(join(this.appRoot, "include.yaml"), dump(rootYaml), "utf8");
+    writeFileSync(join(this.appRoot, "include.yaml"), rootYaml, "utf8");
     this.logger.debug(`Done`);
   }
 

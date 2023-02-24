@@ -49,7 +49,7 @@ export class PushProxyService {
     private readonly pushSwitch: PushSwitchService,
   ) {}
 
-  public applicationYaml(packageFolder: string) {
+  public applicationYaml(packageFolder: string): string {
     const app = this.application.replaceAll("-", "_");
     const availability = `{{ is_state("binary_sensor.${app}_online", "on") }}`;
 
