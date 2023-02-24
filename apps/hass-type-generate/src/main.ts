@@ -11,7 +11,7 @@ import JSON from "comment-json";
 import { existsSync, writeFileSync } from "fs";
 import { set } from "object-path";
 import { join } from "path";
-import { cwd, exit } from "process";
+import { exit } from "process";
 
 const IT_BROKE = 1;
 
@@ -26,7 +26,6 @@ export class TypeGenerate {
     private readonly gen: HassCallTypeGenerator,
     private readonly push: PushCallService,
     @InjectConfig("TARGET_FILE", {
-      default: join(cwd(), "example.d.ts"),
       description: "Alternate file to write to",
       type: "string",
     })
