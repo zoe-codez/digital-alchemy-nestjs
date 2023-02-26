@@ -5,8 +5,7 @@ import { is } from "./is";
 type PassThroughCallback = (...pass_through: unknown[]) => void | Promise<void>;
 
 interface DynamicAttach<OPTIONS> {
-  (options: OPTIONS, callback: PassThroughCallback): void;
-  (options: OPTIONS): AttachMethodDecorator;
+  (options: OPTIONS, callback?: PassThroughCallback): AttachMethodDecorator;
 }
 
 export type AttachMethodDecorator = MethodDecorator & {
@@ -103,19 +102,6 @@ export function MethodDecoratorFactory<
     options: OPTIONS,
     exec?: PassThroughCallback,
   ) {
-    const addEvent = (exec: PassThroughCallback) => {
-      const event = { callback: exec, options };
-      fastForwardEvents.push(event);
-      watchStreams.forEach(stream => stream(event));
-    };
-
-    // ? If a callback is passed, then it should be run in the same circumstances as an annotated method
-    // The annotation is NOT returned
-    if (is.function(exec)) {
-      addEvent(exec);
-      return;
-    }
-
     // * User is using this as an annotation
     const attachAnnotation = function (target, key, descriptor) {
       const data: OPTIONS[] =
@@ -125,8 +111,15 @@ export function MethodDecoratorFactory<
       return descriptor;
     };
     attachAnnotation.pipe = (exec: PassThroughCallback) => {
-      addEvent(exec);
+      const event = { callback: exec, options };
+      fastForwardEvents.push(event);
+      watchStreams.forEach(stream => stream(event));
     };
+    // ? If a callback is passed, then it should be run in the same circumstances as an annotated method
+    // The annotation is NOT returned
+    if (is.function(exec)) {
+      attachAnnotation.pipe(exec);
+    }
     return attachAnnotation;
   };
   // * Attach the decorator key for later lookup

@@ -14,8 +14,6 @@ import {
   iCallService,
   InjectCallProxy,
   PICK_ENTITY,
-  PushEntityService,
-  PushProxyService,
 } from "@steggy/home-assistant";
 import {
   each,
@@ -32,11 +30,7 @@ import { nextTick } from "process";
 import { LiteralUnion } from "type-fest";
 
 import { DEFAULT_DIM } from "../config";
-import {
-  iSceneRoomOptions,
-  SceneRoom,
-  SceneTransitionInterceptor,
-} from "../decorators";
+import { iSceneRoomOptions, SceneRoom } from "../decorators";
 import {
   ALL_GLOBAL_SCENES,
   ALL_ROOM_NAMES,
@@ -45,14 +39,12 @@ import {
   iSceneRoom,
   LightTransition,
   MAX_BRIGHTNESS,
-  MethodTransition,
   OFF,
   REGISTER_ROOM,
   ROOM_SCENES,
   SCENE_CHANGE,
   SCENE_SET_ENTITY,
   tScene,
-  tSceneType,
 } from "../types";
 import { CircadianService } from "./circadian.service";
 import { TransitionRunnerService } from "./transition-runner.service";
@@ -105,8 +97,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     private readonly defaultDim: number,
     private readonly transition: TransitionRunnerService,
     private readonly scanner: ModuleScannerService,
-    private readonly pushProxy: PushProxyService,
-    private readonly pushEntity: PushEntityService,
   ) {}
 
   public get current() {
@@ -336,7 +326,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     const value = await this.cache.get<string>(SCENE_CACHE(this.roomName));
     current.set(this.roomName, value);
 
-    this.loadTransitions(this.parent.constructor.name);
     this.logger.info(`Room [${this.roomName}] loaded`);
 
     // Run through each individual scene, doing individual registration
@@ -461,30 +450,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     }
     const source = this.transitions[from] ?? this.transitions[ANY];
     return source[to] ?? source[ANY];
-  }
-
-  private loadTransitions(name: string): void {
-    const transitions = this.scanner.findAnnotatedMethods<
-      MethodTransition<NAME>
-    >(SceneTransitionInterceptor);
-    this.transitions["*"] = {};
-    transitions.forEach((targets, instance) => {
-      if (instance.constructor.name !== name) {
-        return;
-      }
-      targets.forEach(({ exec, context, data }) => {
-        const from = data.from ?? ANY;
-        const to = data.to ?? ANY;
-        this.logger.info(
-          { context },
-          `[@SceneTransitionInterceptor] {%s,%s}`,
-          from,
-          to,
-        );
-        this.transitions[from] ??= {};
-        this.transitions[from][to] = exec;
-      });
-    });
   }
 
   private async runTransitions(

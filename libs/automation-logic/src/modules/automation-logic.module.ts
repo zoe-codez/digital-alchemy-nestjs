@@ -18,6 +18,7 @@ import {
   CircadianService,
   EntityToolsService,
   GradualDimService,
+  SceneControllerService,
   SceneRoomService,
   SequenceActivateService,
   SolarCalcService,
@@ -25,8 +26,8 @@ import {
   TransitionRunnerService,
 } from "../services";
 import {
-  AutomationLogicModuleConfiguration,
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+  AutomationLogicModuleConfiguration,
 } from "../types";
 
 @LibraryModule({
@@ -93,10 +94,11 @@ export class AutomationLogicModule {
         CircadianService,
         EntityToolsService,
         GradualDimService,
-        StateEnforcerService,
+        SceneControllerService,
         SceneRoomService,
         SequenceActivateService,
         SolarCalcService,
+        StateEnforcerService,
         TransitionRunnerService,
         {
           provide: AUTOMATION_LOGIC_MODULE_CONFIGURATION,

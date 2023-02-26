@@ -71,6 +71,7 @@
               "bitrate",
               "bson",
               "cachable",
+              "mdi",
               "calc",
               "cancelled",
               "cbc",

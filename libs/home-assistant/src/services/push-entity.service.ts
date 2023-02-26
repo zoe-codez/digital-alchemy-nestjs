@@ -7,6 +7,7 @@ import { nextTick } from "process";
 
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
+  BinarySensorConfig,
   domain,
   generated_entity_split,
   GET_CONFIG,
@@ -15,7 +16,9 @@ import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
+  SensorConfig,
   StorageData,
+  SwitchConfig,
   UPDATE_TRIGGER,
 } from "../types";
 import { EntityManagerService } from "./entity-manager.service";
@@ -168,6 +171,12 @@ export class PushEntityService<
     return this.STORAGE.get(entity);
   }
 
+  public insert(
+    entity: NewEntityId<"binary_sensor">,
+    config: BinarySensorConfig,
+  ): void;
+  public insert(entity: NewEntityId<"sensor">, config: SensorConfig): void;
+  public insert(entity: NewEntityId<"switch">, config: SwitchConfig): void;
   public insert<CREATE_DOMAIN extends DOMAIN = DOMAIN>(
     entity: NewEntityId<CREATE_DOMAIN>,
     config: GET_CONFIG<CREATE_DOMAIN>,

@@ -61,6 +61,7 @@ export type MethodTransition<
    */
   from?: FROM;
   method: string;
+  room: ROOM_NAME;
   /**
    * Run if scene matches.
    * "*" = default value & match all
