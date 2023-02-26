@@ -17,6 +17,7 @@
     "hass:compress": "./tools/scripts/compress.sh",
     "hass:cleanup": "rm -rf ./apps/examples/docker/homeassistant/config",
     "hass:decompress": "./tools/scripts/decompress.sh",
+    "hass:prep": "./tools/scripts/hass-prep.sh",
     "hass:reset": "./tools/scripts/hass-reset.sh",
     "container:hass:start": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml up -d",
     "container:hass:stop": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml stop",
