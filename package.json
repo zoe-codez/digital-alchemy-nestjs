@@ -13,7 +13,8 @@
     "test": "nx run-many --all --target=test",
     "nx-migrate": "nx migrate latest",
     "record": "terminalizer record -c ./terminalizer.yml -k",
-    "play": "terminalizer play"
+    "play": "terminalizer play",
+    "hass:compress": "tar -czvf apps/examples/docker/homeassistant/reference.tar.tz apps/examples/docker/homeassistant/config"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
