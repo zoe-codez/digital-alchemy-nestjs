@@ -31,11 +31,27 @@ type AnnotationData<TYPE> = {
   key?: string;
 };
 
-type Binding<TYPE> = AnnotationData<TYPE> & {
+type Binding<TYPE> = {
+  /**
+   * Context string for logging. Format:
+   *
+   * > Ex:  **library:Provider#method** (used as annotation)
+   * > Ex:  **{{}}** (onEvent generated default)
+   * > Ex:  {provided context} (onEvent w/ provided context)
+   */
+  context: string;
+  /**
+   * Options provided to a single annotations
+   */
+  data: TYPE;
   /**
    * Execute the method on the instance, with optional parameters.
    */
   exec: AnnotationPassThrough;
+  /**
+   * Method name
+   */
+  key?: string;
 };
 
 type FindMethodsMap<TYPE, CLASS extends object = Record<string, Type>> = Map<
@@ -44,7 +60,7 @@ type FindMethodsMap<TYPE, CLASS extends object = Record<string, Type>> = Map<
 >;
 type FindPropertiesMap<TYPE> = Map<
   Record<string, Type>,
-  Omit<AnnotationData<TYPE>, "key">[]
+  AnnotationData<TYPE>[]
 >;
 
 type BindingCallback<TYPE, CLASS extends unknown = unknown> = (
@@ -85,15 +101,20 @@ export class ModuleScannerService {
    *
    * Callback runs for all annotated methods, and individually attached events.
    *
-   * > NOTE: This callback may be run at any time during the application lifecycle.
-   * > This should be used during `onApplicationBootstrap` lifecycle event
+   * > NOTE: This callback may be run at any time during the application lifecycle
+   * > This method should be run during `onApplicationBootstrap` lifecycle event
    */
   public bindMethodDecorator<
-    ANNOTATION extends CompleteAnnotation<OPTIONS, CLASS>,
     OPTIONS extends unknown = unknown,
     CLASS extends Class<object> = Class<object>,
+    ANNOTATION extends CompleteAnnotation<OPTIONS, CLASS> = CompleteAnnotation<
+      OPTIONS,
+      CLASS
+    >,
   >(
     decorator: ANNOTATION,
+    // TODO: Why does this this binding not actually bind properly?
+    // options gets lost unless explicitly passed, but each individual transformation is fine
     bindingCallback: BindingCallback<OPTIONS, CLASS>,
   ): void {
     const providers = this.searchForMethods<OPTIONS, CLASS>(
@@ -104,8 +125,12 @@ export class ModuleScannerService {
         bindingCallback(bindingInfo, [instance, key]);
       });
     });
-    decorator.attachedEvents.forEach(event => {
-      //
+    decorator.catchUp(({ options, callback }) => {
+      bindingCallback({
+        context: "Dynamic",
+        data: options,
+        exec: callback,
+      });
     });
   }
 

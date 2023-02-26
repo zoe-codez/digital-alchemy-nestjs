@@ -1,7 +1,17 @@
 import { PICK_ENTITY } from "@steggy/home-assistant";
-import { CronExpression, PropertyDecoratorFactory } from "@steggy/utilities";
+import {
+  CompleteAnnotation,
+  CronExpression,
+  PropertyDecoratorFactory,
+} from "@steggy/utilities";
 
 export interface DeterministicSwitchOptions {
+  /**
+   * Receive updates from configured annotations
+   */
+  attachAnnotation?:
+    | CompleteAnnotation<unknown>
+    | CompleteAnnotation<unknown>[];
   /**
    * Set the state of this switch
    */
@@ -12,7 +22,6 @@ export interface DeterministicSwitchOptions {
    * Default: EVERY_10_MINUTES
    */
   interval?: CronExpression | `${CronExpression}` | string;
-
   /**
    * Check on update of this entity
    */

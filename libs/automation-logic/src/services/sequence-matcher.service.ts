@@ -36,10 +36,9 @@ export class SequenceActivateService {
   private readonly WATCHERS = new Map<string, unknown[]>();
 
   protected onApplicationBootstrap(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<SequenceWatchDTO>(SequenceWatcher);
-    providers.forEach(targets => {
-      targets.forEach(({ context, exec, data }) => {
+    this.scanner.bindMethodDecorator<SequenceWatchDTO>(
+      SequenceWatcher,
+      ({ context, exec, data }) => {
         this.logger.info(
           { context },
           `[@SequenceWatcher]({%s}) states ${data.match
@@ -56,8 +55,8 @@ export class SequenceActivateService {
           },
         });
         this.WATCHED_SENSORS.set(data.sensor, watcher);
-      });
-    });
+      },
+    );
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)

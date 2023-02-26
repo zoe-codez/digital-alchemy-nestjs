@@ -92,15 +92,12 @@ export class PushButtonService {
   }
 
   private scan(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<PICK_GENERATED_ENTITY<"button">>(
-        TemplateButton,
-      );
-    providers.forEach(targets => {
-      targets.forEach(({ context, exec, data }) => {
+    this.scanner.bindMethodDecorator<PICK_GENERATED_ENTITY<"button">>(
+      TemplateButton,
+      ({ context, exec, data }) => {
         this.logger.info({ context }, `[@TemplateButton]({%s})`, data);
         this.passthrough.set(data, exec);
-      });
-    });
+      },
+    );
   }
 }

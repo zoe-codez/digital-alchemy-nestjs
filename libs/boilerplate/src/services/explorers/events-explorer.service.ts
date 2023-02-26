@@ -18,10 +18,9 @@ export class EventsExplorerService {
   ) {}
 
   public loadEventListeners(): void {
-    const annotated =
-      this.scanner.findAnnotatedMethods<OnEventOptions>(OnEvent);
-    annotated.forEach(targets => {
-      targets.forEach(({ data, exec, context }) => {
+    this.scanner.bindMethodDecorator<OnEventOptions>(
+      OnEvent,
+      ({ data, exec, context }) => {
         const events = is.string(data) ? [data] : data.events;
         this.logger.info({ context }, `[@OnEvent] {%s events}`, events.length);
         events.forEach(event => {
@@ -31,8 +30,8 @@ export class EventsExplorerService {
             await exec(...parameters);
           });
         });
-      });
-    });
+      },
+    );
   }
 
   protected onApplicationBootstrap(): void {

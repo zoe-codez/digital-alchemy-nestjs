@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import {
+  AnnotationPassThrough,
   AutoLogService,
   CacheService,
   Cron,
@@ -24,8 +25,6 @@ import SolarCalc from "solar-calc";
 import SolarCalcType from "solar-calc/types/solarCalc";
 
 import { SolarEvent } from "../decorators";
-
-type EmitCallback = (event: `${SolarEvents}`) => void;
 
 const CALC_EXPIRE = HALF * MINUTE;
 export enum SolarEvents {
@@ -67,8 +66,11 @@ export class SolarCalcService {
   public latitude = EMPTY;
   public longitude = EMPTY;
   private CALCULATOR;
+  private readonly callbacks = new Map<
+    `${SolarEvents}`,
+    AnnotationPassThrough[]
+  >();
   private emit = false;
-  private emitCallback: EmitCallback;
 
   public get astronomicalDawn() {
     return this.getCalcSync().astronomicalDawn;
@@ -212,17 +214,15 @@ export class SolarCalcService {
   }
 
   private initScan(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<`${SolarEvents}`>(SolarEvent);
-    const execList = [];
-    this.emitCallback = name => {
-      execList.forEach(i => i(name));
-    };
-    providers.forEach(targets => {
-      targets.forEach(({ exec, context, data }) => {
-        //
-      });
-    });
+    this.scanner.bindMethodDecorator<`${SolarEvents}`>(
+      SolarEvent,
+      ({ exec, data, context }) => {
+        this.logger.info({ context }, `[@SolarEvent] {%s}`, data);
+        const current = this.callbacks.get(data) ?? [];
+        current.push(exec);
+        this.callbacks.set(data, current);
+      },
+    );
   }
 
   private async waitForEvent(
@@ -247,6 +247,7 @@ export class SolarCalcService {
     );
     const timer = new CronTime(calc[key]);
     await sleep(timer.getTimeout());
-    this.emitCallback(key);
+    const list = this.callbacks.get(key) ?? [];
+    list.forEach(callback => callback());
   }
 }

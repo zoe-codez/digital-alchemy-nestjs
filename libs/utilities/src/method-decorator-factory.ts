@@ -1,3 +1,5 @@
+import { Class } from "type-fest";
+
 import { is } from "./is";
 
 type PassThroughCallback = (...pass_through: unknown[]) => void | Promise<void>;
@@ -8,7 +10,7 @@ interface DynamicAttach<OPTIONS> {
 }
 
 export type AttachMethodDecorator = MethodDecorator & {
-  pipe: (callback: ConfiguredCallback) => void;
+  pipe: (callback: PassThroughCallback) => void;
 };
 type Decorator<OPTIONS extends unknown = unknown> = DynamicAttach<OPTIONS>;
 
@@ -68,7 +70,6 @@ export type CompleteAnnotation<
   OPTIONS,
   CLASS_TYPE extends unknown = unknown,
 > = Decorator<OPTIONS> & {
-  catchUp: (callback: ConfiguredCallback) => void;
   /**
    * Internal use - purely for keeping the linter happy and making the infer work
    */
@@ -77,16 +78,11 @@ export type CompleteAnnotation<
    * Internal use
    */
   metadataKey: string;
+  catchUp(stream: (options: tFF<OPTIONS>) => void): void;
 };
 
-type ConfiguredCallback =
-  | PassThroughCallback
-  | {
-      callback: PassThroughCallback;
-      context: string;
-    };
 type tFF<OPTIONS> = {
-  callback: ConfiguredCallback;
+  callback: PassThroughCallback;
   options: OPTIONS;
 };
 
@@ -97,18 +93,17 @@ type tFF<OPTIONS> = {
  */
 export function MethodDecoratorFactory<
   OPTIONS,
-  CLASS_TYPE extends unknown = unknown,
+  CLASS_TYPE extends Class<object> = Class<object>,
 >(metadataKey: string): CompleteAnnotation<OPTIONS, CLASS_TYPE> {
   const fastForwardEvents = [] as tFF<OPTIONS>[];
-  type ffCallback = (options: tFF<OPTIONS>) => void;
-  const watchStreams = [] as ffCallback[];
+  const watchStreams = [] as ((options: tFF<OPTIONS>) => void)[];
 
   // * Annotation (without attached methods)
   const decoratorWithConfig = function (
     options: OPTIONS,
-    exec?: ConfiguredCallback,
+    exec?: PassThroughCallback,
   ) {
-    const addEvent = (exec: ConfiguredCallback) => {
+    const addEvent = (exec: PassThroughCallback) => {
       const event = { callback: exec, options };
       fastForwardEvents.push(event);
       watchStreams.forEach(stream => stream(event));
@@ -129,8 +124,7 @@ export function MethodDecoratorFactory<
       Reflect.defineMetadata(metadataKey, data, descriptor.value);
       return descriptor;
     };
-    // ? Gotcha!
-    attachAnnotation.pipe = (exec: ConfiguredCallback) => {
+    attachAnnotation.pipe = (exec: PassThroughCallback) => {
       addEvent(exec);
     };
     return attachAnnotation;
@@ -140,7 +134,7 @@ export function MethodDecoratorFactory<
 
   // * Run catchUp method for all current event receiver functions
   // If any additional arrive in the future, they will also be provided
-  decoratorWithConfig.catchUp = (stream: ffCallback) => {
+  decoratorWithConfig.catchUp = (stream: (options: tFF<OPTIONS>) => void) => {
     watchStreams.push(stream);
     fastForwardEvents.forEach(event => stream(event));
   };
