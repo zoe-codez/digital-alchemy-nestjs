@@ -1,25 +1,16 @@
+import { is } from "./is";
+
 type PassThroughCallback = (...pass_through: unknown[]) => void | Promise<void>;
-// type DynamicAttach<OPTIONS> = (
-//   options: OPTIONS,
-//   callback: PassThroughCallback,
-// ) => void;
 
 interface DynamicAttach<OPTIONS> {
   (options: OPTIONS, callback: PassThroughCallback): void;
-}
-interface DecoratorAttach<OPTIONS> {
   (options: OPTIONS): AttachMethodDecorator;
 }
 
 export type AttachMethodDecorator = MethodDecorator & {
-  pipe: (callback: PassThroughCallback) => void;
+  pipe: (callback: ConfiguredCallback) => void;
 };
-type Decorator<
-  DECORATOR extends DecoratorAttach<OPTIONS> | DynamicAttach<OPTIONS>,
-  OPTIONS extends unknown = unknown,
-> = DECORATOR extends DynamicAttach<OPTIONS>
-  ? DynamicAttach<OPTIONS>
-  : DecoratorAttach<OPTIONS>;
+type Decorator<OPTIONS extends unknown = unknown> = DynamicAttach<OPTIONS>;
 
 export type GET_ANNOTATION_OPTIONS<ANNOTATION> =
   ANNOTATION extends CompleteAnnotation<infer OPTIONS> ? OPTIONS : never;
@@ -111,18 +102,26 @@ export function MethodDecoratorFactory<
   const fastForwardEvents = [] as tFF<OPTIONS>[];
   type ffCallback = (options: tFF<OPTIONS>) => void;
   const watchStreams = [] as ffCallback[];
-  const out = function (
-    // configuration
+
+  // * Annotation (without attached methods)
+  const decoratorWithConfig = function (
     options: OPTIONS,
-    //
     exec?: ConfiguredCallback,
   ) {
-    if (exec) {
-      fastForwardEvents.forEach(i => {
-        //
-      });
+    const addEvent = (exec: ConfiguredCallback) => {
+      const event = { callback: exec, options };
+      fastForwardEvents.push(event);
+      watchStreams.forEach(stream => stream(event));
+    };
+
+    // ? If a callback is passed, then it should be run in the same circumstances as an annotated method
+    // The annotation is NOT returned
+    if (is.function(exec)) {
+      addEvent(exec);
       return;
     }
+
+    // * User is using this as an annotation
     const attachAnnotation = function (target, key, descriptor) {
       const data: OPTIONS[] =
         Reflect.getMetadata(metadataKey, descriptor.value) ?? [];
@@ -130,24 +129,20 @@ export function MethodDecoratorFactory<
       Reflect.defineMetadata(metadataKey, data, descriptor.value);
       return descriptor;
     };
-    attachAnnotation.pipe = (callback: PassThroughCallback) => {
-      fastForwardEvents.push({ callback, options });
-      watchStreams.forEach(runtime => runtime({ callback, options }));
+    // ? Gotcha!
+    attachAnnotation.pipe = (exec: ConfiguredCallback) => {
+      addEvent(exec);
     };
     return attachAnnotation;
   };
-  out.catchUp = (callback: ffCallback) => {
-    //
+  // * Attach the decorator key for later lookup
+  decoratorWithConfig.metadataKey = metadataKey;
+
+  // * Run catchUp method for all current event receiver functions
+  // If any additional arrive in the future, they will also be provided
+  decoratorWithConfig.catchUp = (stream: ffCallback) => {
+    watchStreams.push(stream);
+    fastForwardEvents.forEach(event => stream(event));
   };
-  out.metadataKey = metadataKey;
-  return out;
-}
-const decorator = MethodDecoratorFactory<boolean>("");
-const result = decorator(true, () => {
-  //
-});
-class Test {
-  doStuff() {
-    //
-  }
+  return decoratorWithConfig;
 }
