@@ -51,7 +51,7 @@ export class PushProxyService {
 
   public applicationYaml(packageFolder: string): string {
     const app = this.application.replaceAll("-", "_");
-    const availability = `{{ is_state("binary_sensor.${app}_online", "on") }}`;
+    const availability = `{{ is_state("binary_sensor.app_${app}_online", "on") }}`;
 
     return [
       // Rest commands always available, let them fail
@@ -186,7 +186,7 @@ export class PushProxyService {
       data[key].forEach(fileData =>
         writeFileSync(
           join(base, `${fileData.unique_id}.yaml`),
-          dump(fileData),
+          dump(data),
           "utf8",
         ),
       );

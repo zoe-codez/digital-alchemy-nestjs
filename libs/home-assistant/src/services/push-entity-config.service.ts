@@ -70,15 +70,15 @@ export class PushEntityConfigService {
    * > example: ["mqtt", { ... }]
    */
   public readonly LOCAL_PLUGINS = new Map<string, InjectedPushConfig>();
+  /**
+   * ID will be different
+   */
+  public onlineProxy: PUSH_PROXY<"binary_sensor.online">;
 
   /**
    * ID will be different
    */
   private lastBuildDate: PUSH_PROXY<"sensor.last_build_date">;
-  /**
-   * ID will be different
-   */
-  private onlineProxy: PUSH_PROXY<"binary_sensor.online">;
   /**
    * ID will be different
    */
@@ -90,7 +90,7 @@ export class PushEntityConfigService {
 
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
-    await this.verifyYaml();
+    // await this.verifyYaml();
   }
 
   protected async onModuleInit() {
@@ -179,12 +179,20 @@ export class PushEntityConfigService {
    * If the setup requires a restart, this will remain false until the newest code is loaded.
    */
   private async initialize() {
+    const initSwitches = this.configuration?.generate_entities?.switch ?? {};
     // * `binary_sensor.{app}_online`
     const online_id = `binary_sensor.app_${this.application.replace(
       "-",
       "_",
     )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
+    const attr = Object.fromEntries(
+      Object.keys(initSwitches).map(name => {
+        return [name, `{{ trigger.json.attributes.${name} }}`];
+      }),
+    ) as Record<string, string>;
+    console.log(attr);
     this.pushEntity.insert(online_id, {
+      attributes: attr,
       /**
        * This sensor should always be available, regardless of application state.
        *
@@ -194,7 +202,7 @@ export class PushEntityConfigService {
       delay_off: {
         seconds: 30,
       },
-      name: `${TitleCase(this.application)} Online`,
+      name: `App ${TitleCase(this.application)} Online`,
       track_history: true,
     });
     this.onlineProxy = await this.pushProxy.createPushProxy(online_id);

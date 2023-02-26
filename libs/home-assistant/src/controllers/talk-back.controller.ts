@@ -1,4 +1,5 @@
 import { Controller, Get, Param } from "@nestjs/common";
+import { AutoLogService } from "@steggy/boilerplate";
 import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@steggy/server";
 
 import { TalkBackService } from "../services";
@@ -10,7 +11,10 @@ import { PICK_GENERATED_ENTITY } from "../types";
 @Controller("/talk-back")
 @AuthStack()
 export class TalkBackController {
-  constructor(private readonly talkBack: TalkBackService) {}
+  constructor(
+    private readonly logger: AutoLogService,
+    private readonly talkBack: TalkBackService,
+  ) {}
 
   @Get("/button-press/:button")
   public onButtonPress(
