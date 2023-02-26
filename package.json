@@ -14,7 +14,14 @@
     "nx-migrate": "nx migrate latest",
     "record": "terminalizer record -c ./terminalizer.yml -k",
     "play": "terminalizer play",
-    "hass:compress": "tar -czvf apps/examples/docker/homeassistant/reference.tar.tz apps/examples/docker/homeassistant/config"
+    "hass:compress": "./tools/scripts/compress.sh",
+    "hass:cleanup": "rm -rf ./apps/examples/docker/homeassistant/config",
+    "hass:decompress": "./tools/scripts/decompress.sh",
+    "hass:reset": "./tools/scripts/hass-reset.sh",
+    "container:hass:start": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml up -d",
+    "container:hass:stop": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml stop",
+    "container:redis:start": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml up -d",
+    "container:redis:stop": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml stop"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",

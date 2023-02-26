@@ -9,9 +9,3 @@ A reference docker install of Home Assistant is provided for use with these exam
 It is possible to use all the code with an existing install, but there may be additional cleanup work involved.
 
 ### Reference install
-
-> username: steggy
-> password: nom nom
-
-The reference install is a barely configured Home Assistant install, set up on a non-standard port as to not conflict with any other installs.
-It
