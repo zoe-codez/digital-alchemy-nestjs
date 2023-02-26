@@ -29,23 +29,26 @@ import {
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";
+import { LiteralUnion } from "type-fest";
 
 import { DEFAULT_DIM } from "../config";
 import {
-  iSceneRoom,
   iSceneRoomOptions,
-  MethodTransition,
-  SCENE_ROOM_MAP,
-  SCENE_ROOM_SETTINGS,
+  SceneRoom,
   SceneTransitionInterceptor,
 } from "../decorators";
 import {
+  ALL_GLOBAL_SCENES,
+  ALL_ROOM_NAMES,
   CannedTransitions,
   CIRCADIAN_UPDATE,
+  iSceneRoom,
   LightTransition,
   MAX_BRIGHTNESS,
+  MethodTransition,
   OFF,
   REGISTER_ROOM,
+  ROOM_SCENES,
   SCENE_CHANGE,
   SCENE_SET_ENTITY,
   tScene,
@@ -54,19 +57,28 @@ import {
 import { CircadianService } from "./circadian.service";
 import { TransitionRunnerService } from "./transition-runner.service";
 
-const SCENE_CACHE = (room: string) => `ROOM_SCENE:${room}`;
-const ROOMS = new Map<string, SceneRoomService<string>>();
-const current = new Map<string, string>();
+const SCENE_CACHE = (room: ALL_ROOM_NAMES) => `ROOM_SCENE:${room}`;
+const ROOMS = new Map<string, SceneRoomService>();
+const current = new Map<ALL_ROOM_NAMES, string>();
 interface HasKelvin {
   kelvin: number;
 }
 
 type tTransitions<SCOPED extends string> = Partial<
-  Record<SCOPED | "*", Partial<Record<SCOPED | "*", AnnotationPassThrough>>>
+  Record<
+    LiteralUnion<SCOPED, "*">,
+    Partial<Record<LiteralUnion<SCOPED, "*">, AnnotationPassThrough>>
+  >
 >;
 
-export const SET_ROOM_SCENE_EVENT = (room: string, scene: string) =>
-  `room-set-scene/${room}/${scene}`;
+export function SET_ROOM_SCENE_EVENT<
+  ROOM extends ALL_ROOM_NAMES = ALL_ROOM_NAMES,
+  SCENE extends ROOM_SCENES<ROOM> = ROOM_SCENES<ROOM>,
+>(room: ROOM, scene: SCENE): `room-set-scene/${ROOM}/${SCENE}` {
+  return `room-set-scene/${room}/${scene}`;
+}
+// export const SET_ROOM_SCENE_EVENT = (room: ALL_ROOM_NAMES, scene: string) =>
+//   `room-set-scene/${room}/${scene}`;
 const ANY = "*";
 // const CURRENT_SCENE_SENSORS
 
@@ -75,12 +87,8 @@ const ANY = "*";
  * The annotation itself is not enough
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class SceneRoomService<
-  LOCAL extends string,
-  GLOBAL extends string = LOCAL,
-  NAME extends string = string,
-> {
-  public static RoomState<NAME extends string>(room: NAME): string {
+export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
+  public static RoomState<NAME extends ALL_ROOM_NAMES>(room: NAME): string {
     return current.get(room);
   }
 
@@ -102,23 +110,22 @@ export class SceneRoomService<
   ) {}
 
   public get current() {
-    return (current.get(this.roomName) ?? "off") as LOCAL | GLOBAL;
+    return (current.get(this.roomName) ?? "off") as ROOM_SCENES<NAME>;
   }
 
   public roomName: NAME;
   private entities: Set<PICK_ENTITY> = new Set();
-  private scenes: Map<LOCAL | GLOBAL, tScene> = new Map();
-  private readonly transitions: tTransitions<LOCAL | GLOBAL> = {};
+  private scenes: Map<ROOM_SCENES<NAME>, tScene> = new Map();
+  private readonly transitions: tTransitions<ROOM_SCENES<NAME>> = {};
 
   private get parent() {
-    return SCENE_ROOM_SETTINGS.get(this.options) as iSceneRoom<LOCAL | GLOBAL>;
+    return SceneRoom.SCENE_ROOM_SETTINGS.get(this.options) as iSceneRoom<NAME>;
   }
 
   private get options() {
-    return SCENE_ROOM_MAP.get(this.roomName) as iSceneRoomOptions<
-      LOCAL | GLOBAL,
-      NAME
-    >;
+    return SceneRoom.SCENE_ROOM_MAP.get(
+      this.roomName,
+    ) as iSceneRoomOptions<NAME>;
   }
 
   public dimmableLights(
@@ -146,7 +153,7 @@ export class SceneRoomService<
   }
 
   public async global(
-    scene: GLOBAL,
+    scene: ALL_GLOBAL_SCENES,
     { excludeSelf = false }: { excludeSelf?: boolean } = {},
   ): Promise<void> {
     this.logger.info(`Setting global scene {${scene}}`);
@@ -154,14 +161,14 @@ export class SceneRoomService<
       if (excludeSelf && name === this.roomName) {
         return;
       }
-      await sceneService.set(scene);
+      await sceneService.set(scene as ROOM_SCENES<NAME>);
     });
   }
 
   /**
    * type guard
    */
-  public isValidScene(scene: string): scene is LOCAL | GLOBAL {
+  public isValidScene(scene: string): scene is ROOM_SCENES<NAME> {
     return (
       !is.undefined(this.options.scenes[scene]) ||
       // Canned transitions (not sure how this wouldn't also be caught in the scene list tho)
@@ -211,7 +218,7 @@ export class SceneRoomService<
   public load(name: NAME, instance: unknown): void {
     this.roomName = name;
     this.options.scenes ??= {};
-    SCENE_ROOM_SETTINGS.set(this.options, instance);
+    SceneRoom.SCENE_ROOM_SETTINGS.set(this.options, instance);
     this.eventEmitter.emit(REGISTER_ROOM, [name, instance]);
   }
 
@@ -219,7 +226,7 @@ export class SceneRoomService<
    * Change the current scene
    * Will automatically process
    */
-  public set(sceneName: LOCAL | GLOBAL): void {
+  public set(sceneName: ROOM_SCENES<NAME>): void {
     if (is.empty(this.roomName)) {
       this.logger.error(`Cannot set scene {${sceneName}}`);
       return;
@@ -252,8 +259,8 @@ export class SceneRoomService<
         // Set lights to current color temp
         new Promise<void>(async done => {
           await eachSeries(
-            Object.entries(lights),
-            async ([id, change]: [PICK_ENTITY<"light">, tSceneType]) => {
+            Object.keys(lights),
+            async (id: PICK_ENTITY<"light">) => {
               this.eventEmitter.emit(SCENE_SET_ENTITY, id);
               await this.call.light.turn_on({
                 brightness: change.brightness,
@@ -321,7 +328,8 @@ export class SceneRoomService<
     this.scenes = new Map();
 
     // Register room provider
-    ROOMS.set(this.roomName, this);
+    const service = this as unknown;
+    ROOMS.set(this.roomName, service as SceneRoomService);
 
     // Identify the current scene
     // This may be wrong if cache data isn't available, but that should be a temporary state
@@ -333,8 +341,8 @@ export class SceneRoomService<
 
     // Run through each individual scene, doing individual registration
     Object.entries(this.options.scenes).forEach(
-      ([name, scene]: [LOCAL | GLOBAL, unknown]) => {
-        this.scenes.set(name as LOCAL | GLOBAL, scene as tScene);
+      ([name, scene]: [ROOM_SCENES<NAME>, unknown]) => {
+        this.scenes.set(name as ROOM_SCENES<NAME>, scene as tScene);
         this.logger.debug(` - scene {${name}}`);
         // Add entities used in the scene to the local list of entities used in this room
         Object.entries(scene).forEach(([entityName]) =>
@@ -360,23 +368,22 @@ export class SceneRoomService<
    * These are separated out from the entities that are being otherwise set in the scene, and have the current kelvin injected into their attributes
    *
    */
-  private dynamicProperties(scene: LOCAL | GLOBAL) {
+  private dynamicProperties(scene: ROOM_SCENES<NAME>) {
     const item = this.scenes.get(scene) ?? {};
-    const list = Object.entries(item).map(
-      ([name, value]: [
-        PICK_ENTITY<"light">,
-        { kelvin?: number; state: string },
-      ]) => {
-        if (!this.shouldCircadian(name, value?.state)) {
-          return [name, value];
-        }
-        this.logger.debug(`circadian {${name}}`);
-        return [
-          name,
-          { kelvin: this.circadian.CURRENT_LIGHT_TEMPERATURE, ...value },
-        ];
-      },
-    );
+    const list = Object.keys(item).map((name: PICK_ENTITY<"light">) => {
+      if (domain(name)) {
+        return undefined;
+      }
+      const value = item[name];
+      if (!this.shouldCircadian(name, value?.state)) {
+        return [name, value];
+      }
+      this.logger.debug(`circadian {${name}}`);
+      return [
+        name,
+        { kelvin: this.circadian.CURRENT_LIGHT_TEMPERATURE, ...value },
+      ];
+    });
     return {
       lights: Object.fromEntries(
         list.filter(i => !is.undefined((i[VALUE] as HasKelvin).kelvin)),
@@ -391,8 +398,8 @@ export class SceneRoomService<
    * Retrieve a scene - scene transition step (if exists)
    */
   private getTransition(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
     useMethods = true,
   ) {
@@ -419,8 +426,8 @@ export class SceneRoomService<
   }
 
   private getTransitionCanned(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
   ): CannedTransitions[] {
     const transitions = this.options.transitions;
@@ -445,8 +452,8 @@ export class SceneRoomService<
    * exact match > to match > from match > complete wildcard
    */
   private getTransitionMethod(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
   ): AnnotationPassThrough {
     if (explicit) {
@@ -458,7 +465,7 @@ export class SceneRoomService<
 
   private loadTransitions(name: string): void {
     const transitions = this.scanner.findAnnotatedMethods<
-      MethodTransition<LOCAL | GLOBAL>
+      MethodTransition<NAME>
     >(SceneTransitionInterceptor);
     this.transitions["*"] = {};
     transitions.forEach((targets, instance) => {
@@ -481,9 +488,9 @@ export class SceneRoomService<
   }
 
   private async runTransitions(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
-  ): Promise<LOCAL | GLOBAL> {
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
+  ): Promise<ROOM_SCENES<NAME>> {
     let transition = this.getTransition(from, to);
     if (is.undefined(transition)) {
       return to;
@@ -503,7 +510,9 @@ export class SceneRoomService<
       }
 
       // the method should return a scene name, or void
-      const result: LOCAL | GLOBAL | undefined = await this.parent[transition]({
+      const result: ROOM_SCENES<NAME> | undefined = await this.parent[
+        transition
+      ]({
         from,
         stop,
         to,
@@ -566,17 +575,13 @@ export class SceneRoomService<
     entity_id: PICK_ENTITY<"light">,
     target?: string,
   ): boolean {
-    const { auto_circadian, force_circadian } = this.options;
+    const { auto_circadian } = this.options;
     if (domain(entity_id) !== "light") {
       return false;
     }
     if ((!is.empty(target) && target !== "on") || auto_circadian === false) {
       return false;
     }
-    if (force_circadian && force_circadian.has(entity_id)) {
-      return true;
-    }
-
     const currentScene = this.scenes.get(this.current) ?? {};
     if (!currentScene[entity_id]) {
       return true;

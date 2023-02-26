@@ -17,9 +17,9 @@ export type GetRoomConfiguration<ROOM extends ALL_ROOM_NAMES> =
   (typeof MODULE_CONFIGURATION.room_configuration)[ROOM];
 
 export type PICK_ROOM<ROOM extends ALL_ROOM_NAMES> = GetRoomConfiguration<ROOM>;
-export type ROOM_SCENES<ROOM extends ALL_ROOM_NAMES> = Extract<
-  keyof Get<PICK_ROOM<ROOM>, "local_scenes">,
-  string
+export type ROOM_SCENES<ROOM extends ALL_ROOM_NAMES> = Exclude<
+  Extract<keyof Get<PICK_ROOM<ROOM>, "local_scenes">, string>,
+  ALL_GLOBAL_SCENES
 >;
 export const SCENE_ROOM_OPTIONS = "scene-room";
 export type iSceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> =

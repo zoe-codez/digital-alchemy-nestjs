@@ -12,7 +12,9 @@ export const MODULE_CONFIGURATION = {
   },
   room_configuration: {
     office: {
-      local_scenes: {
+      scenes: {
+        off: {},
+        on: {},
         auto: {
           friendly_name: "Test",
         },

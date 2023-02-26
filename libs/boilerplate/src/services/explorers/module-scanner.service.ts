@@ -1,6 +1,7 @@
 import { Inject, Injectable, Type } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
-import { is } from "@steggy/utilities";
+import { CompleteAnnotation, is } from "@steggy/utilities";
+import { Class } from "type-fest";
 import { isProxy } from "util/types";
 
 import { ACTIVE_APPLICATION, GetLogContext, LOGGER_LIBRARY } from "../../types";
@@ -15,7 +16,9 @@ type AnnotationData<TYPE> = {
   /**
    * Context string for logging. Format:
    *
-   * > **library:Provider#method**
+   * > Ex:  **library:Provider#method** (used as annotation)
+   * > Ex:  **{{}}** (onEvent generated default)
+   * > Ex:  {provided context} (onEvent w/ provided context)
    */
   context: string;
   /**
@@ -25,22 +28,32 @@ type AnnotationData<TYPE> = {
   /**
    * Method name
    */
-  key: string;
+  key?: string;
 };
 
-type FindMethodsMap<TYPE> = Map<
-  Record<string, Type>,
-  (AnnotationData<TYPE> & {
-    /**
-     * Execute the method on the instance, with optional parameters.
-     */
-    exec: AnnotationPassThrough;
-  })[]
+type Binding<TYPE> = AnnotationData<TYPE> & {
+  /**
+   * Execute the method on the instance, with optional parameters.
+   */
+  exec: AnnotationPassThrough;
+};
+
+type FindMethodsMap<TYPE, CLASS extends object = Record<string, Type>> = Map<
+  CLASS,
+  Binding<TYPE>[]
 >;
 type FindPropertiesMap<TYPE> = Map<
   Record<string, Type>,
-  AnnotationData<TYPE>[]
+  Omit<AnnotationData<TYPE>, "key">[]
 >;
+
+type BindingCallback<TYPE, CLASS extends unknown = unknown> = (
+  /**
+   *
+   */
+  options: Binding<TYPE>,
+  provider?: [CLASS, string],
+) => void;
 
 /**
  * The repo uses a standard of replacing the `@Injectable()` NestJS annotation with a specialized wrapper.
@@ -68,55 +81,32 @@ export class ModuleScannerService {
   }
 
   /**
-   * Search out the application looking for methods that have been annotated with an annotation created from `MethodDecoratorFactory`
+   * Pass in a decorator created via `MethodDecoratorFactory`, and a callback.
    *
-   * Returns back a map a map that associates the provider with an array of all the instances of the annotation that were applied to it
+   * Callback runs for all annotated methods, and individually attached events.
+   *
+   * > NOTE: This callback may be run at any time during the application lifecycle.
+   * > This should be used during `onApplicationBootstrap` lifecycle event
    */
-  public findAnnotatedMethods<TYPE>(
-    search: string | { metadataKey: string },
-  ): FindMethodsMap<TYPE> {
-    search = is.string(search) ? search : search.metadataKey;
-    const providers = this.discovery.getProviders();
-    const controllers = this.discovery.getControllers();
-    const out = new Map() as FindMethodsMap<TYPE>;
-    [...providers, ...controllers]
-      .filter(wrapper => wrapper.instance)
-      .forEach(wrapper => {
-        if (!wrapper.isDependencyTreeStatic() || !wrapper.instance) {
-          return undefined;
-        }
-        const { instance } = wrapper;
-        const prototype = Object.getPrototypeOf(instance);
-        if (!prototype || isProxy(instance)) {
-          return undefined;
-        }
-        this.metadataScanner.scanFromPrototype(
-          instance,
-          prototype,
-          (key: string) => {
-            const list = this.reflector.get(search, instance[key]) as TYPE[];
-            if (is.empty(list)) {
-              return;
-            }
-            const current = out.get(instance) ?? [];
-            const context = [
-              GetLogContext(instance, this.application),
-              key,
-            ].join("#");
-            const exec = async (...data) => {
-              try {
-                await instance[key].call(instance, ...data);
-              } catch (error) {
-                this.logger.error({ context, error }, `[%s] caught exception`);
-                console.log(error);
-              }
-            };
-            current.push(...list.map(data => ({ context, data, exec, key })));
-            out.set(instance, current);
-          },
-        );
+  public bindMethodDecorator<
+    ANNOTATION extends CompleteAnnotation<OPTIONS, CLASS>,
+    OPTIONS extends unknown = unknown,
+    CLASS extends Class<object> = Class<object>,
+  >(
+    decorator: ANNOTATION,
+    bindingCallback: BindingCallback<OPTIONS, CLASS>,
+  ): void {
+    const providers = this.searchForMethods<OPTIONS, CLASS>(
+      decorator.metadataKey,
+    );
+    providers.forEach((targets, instance) => {
+      targets.forEach(({ key, ...bindingInfo }) => {
+        bindingCallback(bindingInfo, [instance, key]);
       });
-    return out;
+    });
+    decorator.attachedEvents.forEach(event => {
+      //
+    });
   }
 
   /**
@@ -198,5 +188,52 @@ export class ModuleScannerService {
         return true;
       })
       .map(wrapper => wrapper.instance);
+  }
+
+  private searchForMethods<TYPE, CLASS extends object>(search: string) {
+    const providers = this.discovery.getProviders();
+    const controllers = this.discovery.getControllers();
+    const out = new Map() as FindMethodsMap<TYPE, CLASS>;
+    [...providers, ...controllers]
+      .filter(wrapper => wrapper.instance)
+      .forEach(wrapper => {
+        if (!wrapper.isDependencyTreeStatic() || !wrapper.instance) {
+          return undefined;
+        }
+        const { instance } = wrapper;
+        const prototype = Object.getPrototypeOf(instance);
+        if (!prototype || isProxy(instance)) {
+          return undefined;
+        }
+        this.metadataScanner.scanFromPrototype(
+          instance,
+          prototype,
+          (key: string) => {
+            const list = this.reflector.get(search, instance[key]) as TYPE[];
+            if (is.empty(list)) {
+              return;
+            }
+            const current = out.get(instance) ?? [];
+            const context = [
+              GetLogContext(instance, this.application),
+              key,
+            ].join("#");
+            const exec = async (...data) => {
+              try {
+                await instance[key].call(instance, ...data);
+              } catch (error) {
+                this.logger.error({ context, error }, `[%s] caught exception`);
+                // Extra super escalate it
+                // These can be super annoying to debug in the moment
+                // eslint-disable-next-line no-console
+                console.log(error);
+              }
+            };
+            current.push(...list.map(data => ({ context, data, exec, key })));
+            out.set(instance, current);
+          },
+        );
+      });
+    return out;
   }
 }

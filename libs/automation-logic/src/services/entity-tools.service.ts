@@ -6,13 +6,14 @@ import {
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import { is } from "@steggy/utilities";
+import { SceneRoom } from "../decorators";
+import { ALL_ROOM_NAMES } from "../types";
 
-import { SCENE_ROOM_MAP } from "../decorators";
 import { SceneRoomService } from "./scene-room.service";
 
 interface CircadianTestOptions {
   allowOff?: boolean;
-  room?: string;
+  room?: ALL_ROOM_NAMES;
 }
 
 @Injectable()
@@ -33,7 +34,6 @@ export class EntityToolsService {
     if (domain(entity_id) !== "light") {
       return false;
     }
-
     if (!allowOff) {
       const entity = this.entity.byId(entity_id);
       if (entity.state === "off") {
@@ -41,14 +41,16 @@ export class EntityToolsService {
       }
     }
     if (is.empty(room)) {
-      const result = [...SCENE_ROOM_MAP.entries()].find(([name, options]) => {
-        const scene = SceneRoomService.RoomState(name);
-        if (!is.empty(scene)) {
-          return false;
-        }
-        const current = options.scenes[scene] ?? {};
-        return !!current[entity_id];
-      });
+      const result = [...SceneRoom.SCENE_ROOM_MAP.entries()].find(
+        ([name, options]) => {
+          const scene = SceneRoomService.RoomState(name);
+          if (!is.empty(scene)) {
+            return false;
+          }
+          const current = options.scenes[scene] ?? {};
+          return !!current[entity_id];
+        },
+      );
       if (!result) {
         return false;
       }
@@ -56,13 +58,9 @@ export class EntityToolsService {
       room = roomName;
     }
     const scene = SceneRoomService.RoomState(room);
-    const { auto_circadian, force_circadian, scenes } =
-      SCENE_ROOM_MAP.get(room);
+    const { auto_circadian, scenes } = SceneRoom.SCENE_ROOM_MAP.get(room);
     if (auto_circadian === false) {
       return false;
-    }
-    if (force_circadian && force_circadian.has(entity_id)) {
-      return true;
     }
     const currentScene = scenes[scene] ?? {};
     if (!currentScene[entity_id]) {

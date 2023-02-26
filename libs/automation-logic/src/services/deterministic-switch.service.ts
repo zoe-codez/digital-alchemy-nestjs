@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { DiscoveryService } from "@nestjs/core";
 import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
 import {
   EntityManagerService,
@@ -21,7 +20,6 @@ export class StateEnforcerService {
     @InjectCallProxy()
     private readonly call: iCallService,
     private readonly scanner: ModuleScannerService,
-    private readonly discovery: DiscoveryService,
     private readonly logger: AutoLogService,
     private readonly manager: EntityManagerService,
     private readonly event: EventEmitter,

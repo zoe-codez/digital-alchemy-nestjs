@@ -10,6 +10,7 @@ import {
   CIRCADIAN_SENSOR,
   DEFAULT_DIM,
   GRADUAL_DIM_DEFAULT_INTERVAL,
+  LIB_AUTOMATION_LOGIC,
   MIN_BRIGHTNESS,
   SEQUENCE_TIMEOUT,
 } from "../config";
@@ -23,8 +24,10 @@ import {
   StateEnforcerService,
   TransitionRunnerService,
 } from "../services";
-import { AUTOMATION_LOGIC_MODULE_CONFIGURATION } from "../types";
-import { AutomationLogicModuleConfiguration } from "../types/configuration";
+import {
+  AutomationLogicModuleConfiguration,
+  AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+} from "../types";
 
 @LibraryModule({
   configuration: {
@@ -47,7 +50,7 @@ import { AutomationLogicModuleConfiguration } from "../types/configuration";
       type: "number",
     },
     [CIRCADIAN_SENSOR]: {
-      default: "sensor.current_circadian_temperature" as PICK_ENTITY<"sensor">,
+      default: "sensor.current_light_temperature" as PICK_ENTITY<"sensor">,
       description: "Sensor for reading / writing current light temperature to",
       type: "string",
     },
@@ -75,7 +78,7 @@ import { AutomationLogicModuleConfiguration } from "../types/configuration";
       type: "number",
     },
   },
-  library: "automation-logic",
+  library: LIB_AUTOMATION_LOGIC,
 })
 export class AutomationLogicModule {
   public static forRoot(

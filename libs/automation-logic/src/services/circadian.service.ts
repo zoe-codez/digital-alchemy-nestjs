@@ -5,16 +5,22 @@ import {
   InjectConfig,
   OnEvent,
 } from "@steggy/boilerplate";
+import {
+  PICK_GENERATED_ENTITY,
+  PushEntityService,
+  PushProxyService,
+  PUSH_PROXY,
+} from "@steggy/home-assistant";
 import { CronExpression, EMPTY } from "@steggy/utilities";
 import dayjs from "dayjs";
-import EventEmitter from "eventemitter3";
 
 import {
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
+  CIRCADIAN_SENSOR,
 } from "../config";
-import { CIRCADIAN_UPDATE, LOCATION_UPDATED } from "../types";
+import { LOCATION_UPDATED } from "../types";
 import { SolarCalcService } from "./solar-calc.service";
 
 const MIN = 0;
@@ -25,7 +31,9 @@ const MAX = 1;
  * The temperature can be looked up on demand, and subscribed to via an observable
  */
 @Injectable()
-export class CircadianService {
+export class CircadianService<
+  SENSOR extends PICK_GENERATED_ENTITY<"sensor"> = PICK_GENERATED_ENTITY<"sensor">,
+> {
   constructor(
     private readonly logger: AutoLogService,
     private readonly solarCalc: SolarCalcService,
@@ -35,23 +43,35 @@ export class CircadianService {
     private readonly minTemperature: number,
     @InjectConfig(CIRCADIAN_ENABLED)
     private readonly circadianEnabled: boolean,
-    private readonly eventEmitter: EventEmitter,
+    @InjectConfig(CIRCADIAN_SENSOR)
+    private readonly circadianSensor: SENSOR,
+    private readonly pushProxy: PushProxyService,
+    private readonly pushEntity: PushEntityService,
   ) {}
 
-  public CURRENT_LIGHT_TEMPERATURE: number;
+  private circadianEntity: PUSH_PROXY<SENSOR>;
 
-  protected onApplicationBootstrap(): void {
+  protected async onApplicationBootstrap() {
     if (!this.circadianEnabled) {
       this.logger.warn(`Circadian lighting updates disabled`);
       return;
     }
+    this.pushEntity.insert(this.circadianSensor, {
+      device_class: "temperature",
+      icon: "mdi:sun-thermometer",
+      name: "Light temperature",
+      unit_of_measurement: "K",
+    });
+    this.circadianEntity = await this.pushProxy.createPushProxy(
+      this.circadianSensor,
+    );
     this.updateKelvin();
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   @OnEvent(LOCATION_UPDATED)
   protected updateKelvin(): void {
-    if (!this.circadianEnabled) {
+    if (!this.circadianEntity) {
       return;
     }
     if (
@@ -61,12 +81,11 @@ export class CircadianService {
       this.logger.debug(`[lat]/[long] not loaded yet`);
       return;
     }
-    const kelvin = this.getCurrentTemperature();
-    if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
-      return;
-    }
-    this.CURRENT_LIGHT_TEMPERATURE = kelvin;
-    this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
+    const offset = this.getColorOffset();
+    this.circadianEntity.state = Math.floor(
+      (this.maxTemperature - this.minTemperature) * offset +
+        this.minTemperature,
+    );
   }
 
   /**
@@ -96,13 +115,5 @@ export class CircadianService {
     }
     // Until midnight
     return MIN;
-  }
-
-  private getCurrentTemperature() {
-    const offset = this.getColorOffset();
-    return Math.floor(
-      (this.maxTemperature - this.minTemperature) * offset +
-        this.minTemperature,
-    );
   }
 }
