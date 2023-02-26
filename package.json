@@ -20,6 +20,8 @@
     "hass:reset": "./tools/scripts/hass-reset.sh",
     "container:hass:start": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml up -d",
     "container:hass:stop": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml stop",
+    "container:hass:restart": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml restart",
+    "container:hass:logs": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml logs -f --until 1m",
     "container:redis:start": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml up -d",
     "container:redis:stop": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml stop"
   },
