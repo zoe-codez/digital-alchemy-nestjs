@@ -16,5 +16,6 @@ export type RoomConfiguration = {
   scenes?: Record<ALL_GLOBAL_SCENES, RoomScene> & Record<string, RoomScene>;
 };
 export type RoomScene = {
+  description?: string;
   friendly_name?: string;
 };

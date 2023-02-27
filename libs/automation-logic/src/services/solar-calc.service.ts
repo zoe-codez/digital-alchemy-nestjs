@@ -24,7 +24,7 @@ import dayjs from "dayjs";
 import SolarCalc from "solar-calc";
 import SolarCalcType from "solar-calc/types/solarCalc";
 
-import { SolarEvent } from "../decorators";
+import { SolarEvent, SolarOptions } from "../decorators";
 
 const CALC_EXPIRE = HALF * MINUTE;
 export enum SolarEvents {
@@ -66,10 +66,7 @@ export class SolarCalcService {
   public latitude = EMPTY;
   public longitude = EMPTY;
   private CALCULATOR;
-  private readonly callbacks = new Map<
-    `${SolarEvents}`,
-    AnnotationPassThrough[]
-  >();
+  private readonly callbacks = new Map<SolarOptions, AnnotationPassThrough[]>();
   private emit = false;
 
   public get astronomicalDawn() {
@@ -214,7 +211,7 @@ export class SolarCalcService {
   }
 
   private initScan(): void {
-    this.scanner.bindMethodDecorator<`${SolarEvents}`>(
+    this.scanner.bindMethodDecorator<SolarOptions>(
       SolarEvent,
       ({ exec, data, context }) => {
         this.logger.info({ context }, `[@SolarEvent] {%s}`, data);
@@ -247,7 +244,10 @@ export class SolarCalcService {
     );
     const timer = new CronTime(calc[key]);
     await sleep(timer.getTimeout());
-    const list = this.callbacks.get(key) ?? [];
-    list.forEach(callback => callback());
+    [
+      // .Specific to event, and wildcard
+      ...this.callbacks.get(key),
+      ...this.callbacks.get("*"),
+    ].forEach(callback => callback());
   }
 }

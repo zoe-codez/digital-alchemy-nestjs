@@ -1,17 +1,11 @@
 import { PICK_ENTITY } from "@steggy/home-assistant";
 import {
-  CompleteAnnotation,
+  AttachMethodDecorator,
   CronExpression,
   PropertyDecoratorFactory,
 } from "@steggy/utilities";
 
 export interface DeterministicSwitchOptions {
-  /**
-   * Receive updates from configured annotations
-   */
-  attachAnnotation?:
-    | CompleteAnnotation<unknown>
-    | CompleteAnnotation<unknown>[];
   /**
    * Set the state of this switch
    */
@@ -27,9 +21,9 @@ export interface DeterministicSwitchOptions {
    */
   onEntityUpdate?: PICK_ENTITY | PICK_ENTITY[];
   /**
-   * Watching global EventEmitter for events
+   * Receive updates from configured annotations
    */
-  onEvent?: string | string[];
+  onEvent?: AttachMethodDecorator | AttachMethodDecorator[];
 }
 
 /**

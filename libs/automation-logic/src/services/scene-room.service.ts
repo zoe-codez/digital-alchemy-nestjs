@@ -6,7 +6,6 @@ import {
   CacheService,
   InjectConfig,
   InjectLogger,
-  ModuleScannerService,
 } from "@steggy/boilerplate";
 import {
   domain,
@@ -88,7 +87,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = "office"> {
     @InjectConfig(DEFAULT_DIM)
     private readonly defaultDim: number,
     private readonly transition: TransitionRunnerService,
-    private readonly scanner: ModuleScannerService,
   ) {}
 
   public get current() {

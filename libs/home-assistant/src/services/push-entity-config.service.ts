@@ -5,7 +5,7 @@ import {
   Cron,
   InjectConfig,
 } from "@steggy/boilerplate";
-import { CronExpression, TitleCase } from "@steggy/utilities";
+import { CronExpression, each, is, TitleCase } from "@steggy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
@@ -142,6 +142,43 @@ export class PushEntityConfigService {
     this.logger.debug(`Done`);
   }
 
+  private async initOnline() {
+    const initSwitches = this.configuration?.generate_entities?.switch ?? {};
+    // * `binary_sensor.{app}_online`
+    const online_id = `binary_sensor.app_${this.application.replace(
+      "-",
+      "_",
+    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
+    const switchAttributes = Object.keys(initSwitches).map(name => {
+      return [name, `{{ trigger.json.attributes.${name} }}`];
+    });
+    this.pushEntity.insert(online_id, {
+      attributes: {
+        ...Object.fromEntries(switchAttributes),
+      },
+      /**
+       * This sensor should always be available, regardless of application state.
+       *
+       * The delay_off manages the available for all the other connected entities
+       */
+      availability: "1",
+      delay_off: {
+        seconds: 30,
+      },
+      name: `App ${TitleCase(this.application)} Online`,
+      track_history: true,
+    });
+    const proxy = await this.pushProxy.createPushProxy(online_id);
+    this.onlineProxy = proxy;
+    await each(switchAttributes, async ([name]) => {
+      if (!is.undefined(proxy.attributes[name])) {
+        return;
+      }
+      // ! switches default to off?
+      proxy.attributes[name] = false;
+    });
+  }
+
   /**
    * Automatically generate a few entities that should apply across any app.
    * This will grow in the future, but also become more configurable.
@@ -179,33 +216,7 @@ export class PushEntityConfigService {
    * If the setup requires a restart, this will remain false until the newest code is loaded.
    */
   private async initialize() {
-    const initSwitches = this.configuration?.generate_entities?.switch ?? {};
-    // * `binary_sensor.{app}_online`
-    const online_id = `binary_sensor.app_${this.application.replace(
-      "-",
-      "_",
-    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
-    const attr = Object.fromEntries(
-      Object.keys(initSwitches).map(name => {
-        return [name, `{{ trigger.json.attributes.${name} }}`];
-      }),
-    ) as Record<string, string>;
-    this.pushEntity.insert(online_id, {
-      attributes: attr,
-      /**
-       * This sensor should always be available, regardless of application state.
-       *
-       * The delay_off manages the available for all the other connected entities
-       */
-      availability: "1",
-      delay_off: {
-        seconds: 30,
-      },
-      name: `App ${TitleCase(this.application)} Online`,
-      track_history: true,
-    });
-    this.onlineProxy = await this.pushProxy.createPushProxy(online_id);
-
+    await this.initOnline();
     // * `sensor.{app}_last_build`
     const last_build_id = `sensor.app_${this.application.replace(
       "-",
