@@ -1,3 +1,4 @@
+import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
 // Blatantly ripped off code from chalk-template package
@@ -17,23 +18,23 @@ const ESCAPE_REGEX =
   /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
 
 const ESCAPES = new Map([
-  ['n', '\n'],
-  ['r', '\r'],
-  ['t', '\t'],
-  ['b', '\b'],
-  ['f', '\f'],
-  ['v', '\v'],
-  ['0', '\0'],
-  ['\\', '\\'],
-  ['e', '\u001B'],
-  ['a', '\u0007'],
+  ["n", "\n"],
+  ["r", "\r"],
+  ["t", "\t"],
+  ["b", "\b"],
+  ["f", "\f"],
+  ["v", "\v"],
+  ["0", "\0"],
+  ["\\", "\\"],
+  ["e", "\u001B"],
+  ["a", "\u0007"],
 ]);
 
 function unescape(c) {
-  const u = c[0] === 'u';
-  const bracket = c[1] === '{';
+  const u = c[0] === "u";
+  const bracket = c[1] === "{";
 
-  if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
+  if ((u && !bracket && c.length === 5) || (c[0] === "x" && c.length === 3)) {
     return String.fromCharCode(Number.parseInt(c.slice(1), 16));
   }
 
@@ -94,11 +95,11 @@ function parseStyle(style) {
       results.push([name, ...parseArguments(name, matches[2])]);
     } else if (matches[3] || matches[4]) {
       if (matches[3]) {
-        results.push(['rgb', ...parseHex(matches[3])]);
+        results.push(["rgb", ...parseHex(matches[3])]);
       }
 
       if (matches[4]) {
-        results.push(['bgRgb', ...parseHex(matches[4])]);
+        results.push(["bgRgb", ...parseHex(matches[4])]);
       }
     } else {
       results.push([name]);
@@ -119,7 +120,7 @@ function buildStyle(styles) {
 
   let current = chalk;
   for (const [styleName, styles] of Object.entries(enabled)) {
-    if (!Array.isArray(styles)) {
+    if (!is.array(styles)) {
       continue;
     }
 
@@ -146,16 +147,16 @@ export function template(string) {
       if (escapeCharacter) {
         chunk.push(unescape(escapeCharacter));
       } else if (style) {
-        const string = chunk.join('');
+        const string = chunk.join("");
         chunk = [];
         chunks.push(styles.length === 0 ? string : buildStyle(styles)(string));
         styles.push({ inverse, styles: parseStyle(style) });
       } else if (close) {
         if (styles.length === 0) {
-          throw new Error('Found extraneous } in Chalk template literal');
+          throw new Error("Found extraneous } in Chalk template literal");
         }
 
-        chunks.push(buildStyle(styles)(chunk.join('')));
+        chunks.push(buildStyle(styles)(chunk.join("")));
         chunk = [];
         styles.pop();
       } else {
@@ -164,36 +165,36 @@ export function template(string) {
     },
   );
 
-  chunks.push(chunk.join(''));
+  chunks.push(chunk.join(""));
 
   if (styles.length > 0) {
     throw new Error(
       `Chalk template literal is missing ${styles.length} closing bracket${
-        styles.length === 1 ? '' : 's'
+        styles.length === 1 ? "" : "s"
       } (\`}\`)`,
     );
   }
 
-  return chunks.join('');
+  return chunks.join("");
 }
 
 export default function chalkTemplate(
   firstString: { raw: string[] },
   ...arguments_
 ) {
-  if (!Array.isArray(firstString) || !Array.isArray(firstString.raw)) {
+  if (!is.array(firstString) || !is.array(firstString.raw)) {
     // If chalkTemplate() was called by itself or with a string
-    throw new TypeError('A tagged template literal must be provided');
+    throw new TypeError("A tagged template literal must be provided");
   }
 
   const parts = [firstString.raw[0]];
 
   for (let index = 1; index < firstString.raw.length; index++) {
     parts.push(
-      String(arguments_[index - 1]).replace(/[{}\\]/g, '\\$&'),
+      String(arguments_[index - 1]).replace(/[{}\\]/g, "\\$&"),
       String(firstString.raw[index]),
     );
   }
 
-  return template(parts.join(''));
+  return template(parts.join(""));
 }

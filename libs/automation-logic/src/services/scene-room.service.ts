@@ -501,7 +501,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = "office"> {
 
       // Identify if there are any canned transitions to run
       transition = this.getTransition(from, to, false, false);
-      if (!Array.isArray(transition)) {
+      if (!is.array(transition)) {
         // No canned stuff to run
         return out;
       }

@@ -109,7 +109,7 @@ export class HassFetchAPIService {
       },
       url: `/api/history/period/${from.toISOString()}`,
     });
-    if (!Array.isArray(result)) {
+    if (!is.array(result)) {
       this.logger.error({ result }, `Unexpected return result`);
       return [];
     }

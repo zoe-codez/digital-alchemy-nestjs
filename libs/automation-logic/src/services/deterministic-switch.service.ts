@@ -6,6 +6,7 @@ import {
   iCallService,
   InjectCallProxy,
   OnEntityUpdate,
+  OnEntityUpdateOptions,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import { CronExpression, is } from "@steggy/utilities";
@@ -52,18 +53,16 @@ export class StateEnforcerService {
         const job = new CronJob(interval, update);
         job.start();
 
-        // Convert to array
-        const onEvent = is.string(on_event) ? [on_event] : [...on_event];
-        const entityToEventList = is.string(on_entity_update)
-          ? [on_entity_update]
-          : [...on_entity_update];
-
-        // Convert entity list to list of event emitter update events, then merge onto event
-        onEvent.push(
-          ...entityToEventList.map(i => OnEntityUpdate.updateEvent(i)),
-        );
-        // * Attach event emitter events
-        onEvent.forEach(event => this.event.on(event, update));
+        // * Convert to array
+        const onEvent = [on_event].flat();
+        // * Convert any passed entity watcher ids to an a watchable annotation
+        if (!is.empty(on_entity_update)) {
+          onEvent.push(OnEntityUpdate([on_entity_update].flat()));
+        }
+        // * Bind to all annotations
+        onEvent.forEach(decorator => {
+          decorator.pipe(async () => await update());
+        });
       });
     });
   }

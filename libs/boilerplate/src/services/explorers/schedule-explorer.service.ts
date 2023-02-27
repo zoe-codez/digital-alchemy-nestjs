@@ -19,7 +19,7 @@ export class ScheduleExplorerService {
     this.scanner.bindMethodDecorator<CronOptions>(
       Cron,
       ({ context, data, exec }) => {
-        const schedules = Array.isArray(data) ? data : [data];
+        const schedules = [data].flat();
         this.logger.info(
           { context },
           `[@Cron] {%s schedules}`,

@@ -47,13 +47,13 @@ export class JSONFilterService {
       case FILTER_OPERATIONS.ne:
         return !this.eq(value, filter.value);
       case FILTER_OPERATIONS.in:
-        if (!Array.isArray(filter.value)) {
+        if (!is.array(filter.value)) {
           this.logger.warn({ filter }, `value is not an array`);
           return false;
         }
         return filter.value.some(cmp => this.eq(cmp, value));
       case FILTER_OPERATIONS.nin:
-        if (!Array.isArray(filter.value)) {
+        if (!is.array(filter.value)) {
           this.logger.warn({ filter }, `value is not an array`);
           return false;
         }
@@ -61,7 +61,7 @@ export class JSONFilterService {
       case FILTER_OPERATIONS.regex:
         return this.regex(value, filter.value as string | RegExp);
       case FILTER_OPERATIONS.elem:
-        if (!Array.isArray(value)) {
+        if (!is.array(value)) {
           this.logger.warn(
             { filter, value },
             `Cannot use elem match on non-array values`,

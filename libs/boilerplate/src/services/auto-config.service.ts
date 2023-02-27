@@ -88,7 +88,7 @@ export class AutoConfigService {
   }
 
   public get<T extends unknown = string>(path: string | [string, string]): T {
-    if (Array.isArray(path)) {
+    if (is.array(path)) {
       path =
         path[LABEL] === this.APPLICATION
           ? ["application", path[VALUE]].join(".")
@@ -123,7 +123,7 @@ export class AutoConfigService {
     value: unknown,
     write = false,
   ): void {
-    if (Array.isArray(path)) {
+    if (is.array(path)) {
       path = ["libs", path[LABEL], path[VALUE]].join(".");
     }
     set(this.config, path, value);
@@ -153,7 +153,7 @@ export class AutoConfigService {
         if (is.undefined(data)) {
           return [];
         }
-        if (Array.isArray(data)) {
+        if (is.array(data)) {
           return data.map(String);
         }
         // This occurs with cli switches
@@ -386,7 +386,7 @@ export class AutoConfigService {
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key]?.default)) {
           let defaultValue = configuration[key].default;
-          if (Array.isArray(defaultValue)) {
+          if (is.array(defaultValue)) {
             defaultValue = [...defaultValue];
           } else
             defaultValue = is.object(defaultValue)

@@ -164,7 +164,7 @@ export class FetchService {
   }
 
   private cast(item: FetchParameterTypes): string {
-    if (Array.isArray(item)) {
+    if (is.array(item)) {
       return item.map(i => this.cast(i)).join(",");
     }
     if (item instanceof Date) {

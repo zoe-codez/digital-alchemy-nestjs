@@ -176,7 +176,7 @@ export class PushProxyService {
     templates.forEach(data => {
       const key = Object.keys(data).find(
         // 🪄 - Either brilliant, or terrible. Let's see if it breaks somehow
-        key => Array.isArray(data[key]) && key !== "trigger",
+        key => is.array(data[key]) && key !== "trigger",
       ) as TemplateTypes;
       if (is.empty(data[key])) {
         return;

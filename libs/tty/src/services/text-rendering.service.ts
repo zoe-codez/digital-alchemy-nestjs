@@ -270,7 +270,7 @@ export class TextRenderingService {
           (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
       );
     }
-    if (Array.isArray(item)) {
+    if (is.array(item)) {
       if (is.empty(item)) {
         return chalk.gray(`empty array`);
       }

@@ -11,7 +11,7 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 import { parse, parseDate } from "chrono-node";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
@@ -132,7 +132,7 @@ export class DateEditorService
       return helpNotes;
     }
     if (is.function(helpNotes)) {
-      if (Array.isArray(this.value)) {
+      if (is.array(this.value)) {
         return helpNotes(this.value.map(i => i.toDate()));
       }
       return helpNotes(this.value.toDate());
@@ -171,10 +171,12 @@ export class DateEditorService
     this.value = dayjs(this.opt.current);
     this.done = done;
     this.setKeymap();
-    const start = Array.isArray(this.value) ? this.value[START] : this.value;
+    const start = is.array(this.value)
+      ? (this.value[START] as Dayjs)
+      : this.value;
     this.edit = this.type === "time" ? "hour" : "year";
-    const end = Array.isArray(this.value)
-      ? this.value[VALUE] ?? this.value[START]
+    const end = is.array(this.value)
+      ? ((this.value[VALUE] ?? this.value[START]) as Dayjs)
       : this.value;
     [this.year, this.month, this.day, this.hour, this.minute, this.second] =
       start.format("YYYY-MM-DD-HH-mm-ss").split("-");
@@ -572,7 +574,7 @@ export class DateEditorService
 
   private renderComplete(): void {
     let message = ``;
-    if (Array.isArray(this.value)) {
+    if (is.array(this.value)) {
       const [from, to] = this.value;
       message += [
         ``,

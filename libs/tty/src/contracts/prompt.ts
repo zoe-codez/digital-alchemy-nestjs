@@ -14,7 +14,7 @@ export const TTY = {
    * Standardized method for retrieving values from menu entries, and casting it
    */
   GV: <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>): T => {
-    if (!Array.isArray(item)) {
+    if (!is.array(item)) {
       item = item?.entry;
     }
     if (is.empty(item)) {

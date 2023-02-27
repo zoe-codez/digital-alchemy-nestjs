@@ -62,7 +62,7 @@ export class MQTTExplorerService {
     this.scanner.bindMethodDecorator<MqttSubscribeOptions>(
       OnMQTT,
       ({ data, exec, context }) => {
-        const topics = Array.isArray(data.topic) ? data.topic : [data.topic];
+        const topics = [data.topic].flat();
         this.logger.info({ context }, `[@OnMQTT] {%s topics}`, topics.length);
         topics.forEach(topic => {
           this.logger.debug({ context }, ` - {%s}`, topic);

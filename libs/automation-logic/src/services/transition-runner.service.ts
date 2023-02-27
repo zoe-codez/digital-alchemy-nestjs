@@ -25,7 +25,7 @@ export class TransitionRunnerService {
     scene: tScene,
     stop: () => void,
   ): Promise<void> {
-    if (!Array.isArray(operations)) {
+    if (!is.array(operations)) {
       this.logger.error(
         { operations },
         `Invalid operations list (must be array)`,

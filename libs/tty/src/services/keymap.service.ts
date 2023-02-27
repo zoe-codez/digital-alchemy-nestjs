@@ -96,7 +96,7 @@ export class KeymapService {
           : active.join("/") + chalk.cyan("+");
         const activate = config.catchAll
           ? chalk.yellow("default")
-          : (Array.isArray(config.key)
+          : (is.array(config.key)
               ? config.key.map(i => modifiers + i)
               : [modifiers + config.key]
             )

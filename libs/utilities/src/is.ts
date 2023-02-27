@@ -7,6 +7,10 @@ import { EMPTY, EVEN, START } from "./utilities";
  * type testing and basic conversion tools
  */
 export class is {
+  public static array(test: unknown): test is Array<unknown> {
+    return Array.isArray(test);
+  }
+
   public static boolean(test: unknown): test is boolean {
     return typeof test === "boolean";
   }
@@ -23,7 +27,7 @@ export class is {
       | Map<unknown, unknown>
       | object,
   ): boolean {
-    if (is.string(type) || Array.isArray(type)) {
+    if (is.string(type) || is.array(type)) {
       return type.length === EMPTY;
     }
     if (type instanceof Map || type instanceof Set) {

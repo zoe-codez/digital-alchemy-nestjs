@@ -721,7 +721,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return map[key];
     }
     const item = Object.entries(map).find(([, item]) => {
-      if (Array.isArray(item)) {
+      if (is.array(item)) {
         return false;
       }
       const alias = item.alias ?? [];
@@ -778,7 +778,7 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     if (!is.empty(this.opt.headerMessage)) {
       let headerMessage = this.opt.headerMessage;
-      if (Array.isArray(headerMessage)) {
+      if (is.array(headerMessage)) {
         const max =
           ansiMaxLength(headerMessage.map(([label]) => label)) + INCREMENT;
         headerMessage = headerMessage
@@ -834,7 +834,7 @@ export class MenuComponentService<VALUE = unknown | string>
                       aliases.push(...advanced.alias);
                     }
                   }
-                  if (!Array.isArray(item)) {
+                  if (!is.array(item)) {
                     return undefined;
                   }
                   const [label] = item;
@@ -971,7 +971,7 @@ export class MenuComponentService<VALUE = unknown | string>
         is.object(value)
       ) {
         // Multiple id paths may show up in mixed object type menus
-        if (Array.isArray(restore.idProperty)) {
+        if (is.array(restore.idProperty)) {
           const out = restore.idProperty.find(id => {
             const a = get(local as object, id);
             const b = get(value as object, id);
