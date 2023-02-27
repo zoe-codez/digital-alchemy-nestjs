@@ -9,9 +9,11 @@ import {
 } from "@steggy/boilerplate";
 import {
   domain,
+  ENTITY_STATE,
   EntityManagerService,
   iCallService,
   InjectCallProxy,
+  OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import {
@@ -28,13 +30,12 @@ import { get } from "object-path";
 import { nextTick } from "process";
 import { LiteralUnion } from "type-fest";
 
-import { DEFAULT_DIM } from "../config";
+import { CIRCADIAN_SENSOR, DEFAULT_DIM } from "../config";
 import { iSceneRoomOptions, SceneRoom } from "../decorators";
 import {
   ALL_GLOBAL_SCENES,
   ALL_ROOM_NAMES,
   CannedTransitions,
-  CIRCADIAN_UPDATE,
   iSceneRoom,
   LightTransition,
   MAX_BRIGHTNESS,
@@ -86,6 +87,8 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = "office"> {
     private readonly circadian: CircadianService,
     @InjectConfig(DEFAULT_DIM)
     private readonly defaultDim: number,
+    @InjectConfig(CIRCADIAN_SENSOR)
+    private readonly circadianSensor: PICK_ENTITY<"sensor">,
     private readonly transition: TransitionRunnerService,
   ) {}
 
@@ -327,9 +330,11 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = "office"> {
         );
       },
     );
-    // Annotation based bindings don't work as expected in transient providers
-    this.eventEmitter.on(CIRCADIAN_UPDATE, temperature =>
-      this.circadianLightingUpdate(temperature),
+    OnEntityUpdate(
+      this.circadianSensor,
+      (entity: ENTITY_STATE<typeof this.circadianSensor>) => {
+        this.circadianLightingUpdate(Number(entity.state));
+      },
     );
   }
 

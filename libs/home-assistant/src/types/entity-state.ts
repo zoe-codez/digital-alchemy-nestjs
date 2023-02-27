@@ -1,4 +1,4 @@
-import { PICK_ENTITY } from "./utility";
+import { ENTITY_STATE, PICK_ENTITY } from "./utility";
 
 export enum HassEvents {
   state_changed = "state_changed",
@@ -19,30 +19,22 @@ export class GenericEntityDTO<
 > {
   public attributes: ATTRIBUTES;
   public context: ContextDTO;
-  public entity_id: PICK_ENTITY | string;
+  public entity_id: PICK_ENTITY;
   public last_changed: string;
   public last_updated: string;
   public state: STATE;
 }
 
-export declare class EventDataDTO<
-  ID extends PICK_ENTITY = PICK_ENTITY,
-  STATE extends Record<never, unknown> = unknown,
-  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
-> {
+export declare class EventDataDTO<ID extends PICK_ENTITY = PICK_ENTITY> {
   entity_id?: ID;
   event?: number;
   id?: string;
-  new_state?: GenericEntityDTO<STATE, ATTRIBUTES>;
-  old_state?: GenericEntityDTO<STATE, ATTRIBUTES>;
+  new_state?: ENTITY_STATE<ID>;
+  old_state?: ENTITY_STATE<ID>;
 }
-export declare class HassEventDTO<
-  ID extends PICK_ENTITY = PICK_ENTITY,
-  STATE extends Record<never, unknown> = unknown,
-  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
-> {
+export declare class HassEventDTO<ID extends PICK_ENTITY = PICK_ENTITY> {
   context: ContextDTO;
-  data: EventDataDTO<ID, STATE, ATTRIBUTES>;
+  data: EventDataDTO<ID>;
   event_type: HassEvents;
   origin: "local";
   result?: string;

@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, CacheService } from "@steggy/boilerplate";
 import { is, TitleCase } from "@steggy/utilities";
-import deepEqual from "deep-equal";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 
@@ -118,7 +117,7 @@ export class PushEntityService<
       Object.keys(updates.attributes).forEach(key => {
         const from = data.attributes[key];
         const to = updates.attributes[key];
-        const matches = deepEqual(from, to);
+        const matches = is.equal(from, to);
         if (matches) {
           return;
         }
@@ -238,7 +237,7 @@ export class PushEntityService<
     } as StorageData<GET_CONFIG<DOMAIN>>;
     const value = await this.cache.get<StorageData<GET_CONFIG<DOMAIN>>>(key);
     if (value) {
-      const equal = deepEqual(value.config, config);
+      const equal = is.equal(value.config, config);
       if (!equal) {
         this.logger.warn({ context }, `Changed configuration`);
       }

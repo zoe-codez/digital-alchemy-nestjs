@@ -1,3 +1,5 @@
+import deepEqual from "deep-equal";
+
 import { EMPTY, EVEN, START } from "./utilities";
 
 // TODO: declaration merging to allow other libs to create definitions here
@@ -31,6 +33,13 @@ export class is {
       return Object.keys(type).length === EMPTY;
     }
     return true;
+  }
+
+  /**
+   * Wrapper for `deep-equal`
+   */
+  public static equal(a: unknown, b: unknown): boolean {
+    return deepEqual(a, b);
   }
 
   public static even(test: number): boolean {

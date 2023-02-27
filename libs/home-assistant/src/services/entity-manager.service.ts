@@ -1,28 +1,35 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
+import { eachSeries, EMPTY, INCREMENT, is } from "@steggy/utilities";
 import dayjs from "dayjs";
 import EventEmitter from "eventemitter3";
-import { get } from "object-path";
+import { get, set } from "object-path";
+import { nextTick } from "process";
 import { Get } from "type-fest";
+import { v4 } from "uuid";
 
-import { OnEntityUpdate } from "../decorators";
+import { OnEntityUpdate, OnEntityUpdateOptions } from "../decorators";
 import {
   ALL_DOMAINS,
   domain,
-  entity_split,
   ENTITY_STATE,
   EntityHistoryDTO,
   EntityHistoryResult,
-  GenericEntityDTO,
-  HassEventDTO,
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
 } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
-const TIMEOUT = 5000;
+type WatchFunction<ENTITY_ID extends PICK_ENTITY> = (
+  new_state: ENTITY_STATE<ENTITY_ID>,
+  old_state: ENTITY_STATE<ENTITY_ID>,
+) => Promise<void> | void;
+type Watcher<ENTITY_ID extends PICK_ENTITY = PICK_ENTITY> = {
+  callback: WatchFunction<ENTITY_ID>;
+  id: string;
+  type: "once" | "dynamic" | "annotation";
+};
 const TIME_OFFSET = 1000;
 
 /**
@@ -39,16 +46,21 @@ export class EntityManagerService {
     private readonly socket: HassSocketAPIService,
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
+    private readonly scanner: ModuleScannerService,
   ) {}
 
-  public readonly ENTITIES = new Map<PICK_ENTITY, GenericEntityDTO>();
+  public readonly ENTITIES = new Map<PICK_ENTITY, ENTITY_STATE<PICK_ENTITY>>();
 
   /**
    * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
    */
-  public MASTER_STATE: Record<string, Record<string, GenericEntityDTO>> = {};
-
+  public MASTER_STATE: Record<
+    ALL_DOMAINS,
+    Record<string, ENTITY_STATE<PICK_ENTITY>>
+  > = {};
   public init = false;
+  private readonly emittingEvents = new Map<PICK_ENTITY, number>();
+  private readonly entityWatchers = new Map<PICK_ENTITY, Watcher[]>();
 
   /**
    * Retrieve an entity's state
@@ -86,50 +98,10 @@ export class EntityManagerService {
   /**
    * Retrieve an entity's state
    */
-  public getEntities<T extends GenericEntityDTO = GenericEntityDTO>(
-    entityId: PICK_ENTITY[],
-  ): T[] {
+  public getEntities<
+    T extends ENTITY_STATE<PICK_ENTITY> = ENTITY_STATE<PICK_ENTITY>,
+  >(entityId: PICK_ENTITY[]): T[] {
     return entityId.map(id => this.ENTITIES.get(id) as T);
-  }
-
-  /**
-   * Retrieve the state for an entity that may or may not exist.
-   * Has internal timeout
-   *
-   * Useful for secondary default values
-   */
-  public async getState<VALUE extends unknown>(
-    entity_id: PICK_ENTITY,
-    timeout = TIMEOUT,
-  ): Promise<VALUE> {
-    let done = false;
-    return await new Promise((accept, reject) => {
-      if (this.init) {
-        done = true;
-        accept(this.byId(entity_id).state);
-        return;
-      }
-      const callback = result => {
-        if (done) {
-          // wat
-          return;
-        }
-        accept(result);
-        done = true;
-      };
-      setTimeout(() => {
-        if (done) {
-          return;
-        }
-        reject(`timeout`);
-        done = true;
-        this.eventEmitter.removeListener(
-          OnEntityUpdate.updateEvent(entity_id),
-          callback,
-        );
-      }, timeout);
-      this.eventEmitter.once(OnEntityUpdate.updateEvent(entity_id), callback);
-    });
   }
 
   public async history<ENTITES extends PICK_ENTITY[]>(
@@ -183,11 +155,16 @@ export class EntityManagerService {
   public async nextState<ID extends PICK_ENTITY = PICK_ENTITY>(
     entity_id: ID,
   ): Promise<ENTITY_STATE<ID>> {
-    return await new Promise<ENTITY_STATE<ID>>(done =>
-      this.eventEmitter.once(OnEntityUpdate.updateEvent(entity_id), result =>
-        done(result),
-      ),
-    );
+    return await new Promise<ENTITY_STATE<ID>>(done => {
+      const current = this.entityWatchers.get(entity_id) ?? [];
+      const item: Watcher = {
+        callback: new_state => done(new_state as ENTITY_STATE<ID>),
+        id: v4(),
+        type: "once",
+      };
+      current.push(item);
+      this.entityWatchers.set(entity_id, current);
+    });
   }
 
   /**
@@ -197,24 +174,32 @@ export class EntityManagerService {
    */
   public async refresh(): Promise<void> {
     const states = await this.fetch.getAllEntities();
+    const oldState = this.MASTER_STATE;
     this.MASTER_STATE = {};
-    Object.keys(this.MASTER_STATE).forEach(
-      key => delete this.MASTER_STATE[key],
-    );
-    states.forEach(entity => {
-      const cast = entity.entity_id as PICK_ENTITY;
-      const [domain, id] = entity_split(cast);
-      this.MASTER_STATE[domain] ??= {};
-      this.MASTER_STATE[domain][id] = entity;
 
-      const state = this.ENTITIES.get(cast);
-      if (state?.last_changed === entity.last_changed) {
+    states.forEach(entity => {
+      // ? Set first, ensure data is populated
+      // `nextTick` will fire AFTER loop finishes
+      set(
+        this.MASTER_STATE,
+        entity.entity_id,
+        entity,
+        get(oldState, entity.entity_id),
+      );
+      const old = get(oldState, entity.entity_id);
+      if (is.equal(old, entity)) {
+        this.logger.trace(`[%s] no change on refresh`, entity.entity_id);
         return;
       }
-      this.ENTITIES.set(cast, entity);
-      this.eventEmitter.emit(OnEntityUpdate.updateEvent(cast), entity.state);
+      nextTick(async () => {
+        await this.onEntityUpdate(entity.entity_id, entity);
+      });
     });
     this.init = true;
+  }
+
+  protected async onApplicationBootstrap() {
+    await this.refresh();
   }
 
   /**
@@ -223,24 +208,35 @@ export class EntityManagerService {
    *
    * Leave as protected method to hide from editor auto complete
    */
-  protected onEntityUpdate(event: HassEventDTO): void {
-    const { entity_id, new_state, old_state } = event.data;
-    const cast = entity_id as PICK_ENTITY;
-    const [domain, id] = entity_split(cast);
+  protected async onEntityUpdate<ENTITY extends PICK_ENTITY = PICK_ENTITY>(
+    entity_id: PICK_ENTITY,
+    new_state: ENTITY_STATE<ENTITY>,
+    old_state?: ENTITY_STATE<ENTITY>,
+  ): Promise<void> {
+    set(this.MASTER_STATE, entity_id, new_state);
+    const value = this.emittingEvents.get(entity_id);
+    if (value > EMPTY) {
+      this.logger.error(
+        `[%s] emitted an update before the previous finished processing`,
+      );
+      this.emittingEvents.set(entity_id, value + INCREMENT);
+      return;
+    }
 
-    this.MASTER_STATE[domain] ??= {};
-    this.MASTER_STATE[domain][id] = new_state;
-    this.ENTITIES.set(entity_id, new_state);
-    this.eventEmitter.emit(
-      OnEntityUpdate.updateEvent(entity_id),
-      new_state,
-      old_state,
-      event,
-    );
+    const list = this.entityWatchers.get(entity_id);
+    if (is.empty(list)) {
+      return;
+    }
+    await eachSeries(list, async watcher => {
+      await watcher.callback(new_state, old_state);
+      if (watcher.type === "once") {
+        this.remove(entity_id, watcher.id);
+      }
+    });
   }
 
-  protected async onModuleInit(): Promise<void> {
-    await this.refresh();
+  protected onModuleInit() {
+    this.scan();
   }
 
   protected proxyGetLogic<
@@ -278,5 +274,37 @@ export class EntityManagerService {
       `Entity proxy does not accept value setting`,
     );
     return false;
+  }
+
+  private remove(entity_id: PICK_ENTITY, id: string): void {
+    const current = this.entityWatchers.get(entity_id) ?? [];
+    const filtered = current.filter(watcher => id !== watcher.id);
+    if (is.empty(filtered)) {
+      this.entityWatchers.delete(entity_id);
+      return;
+    }
+    this.entityWatchers.set(entity_id, filtered);
+  }
+
+  private scan(): void {
+    this.scanner.bindMethodDecorator<OnEntityUpdateOptions>(
+      OnEntityUpdate,
+      ({ exec, context, data }) => {
+        const list = [data].flat();
+        list.forEach(entity_id => {
+          const current = this.entityWatchers.get(entity_id) ?? [];
+          const item: Watcher<typeof entity_id> = {
+            callback: async (...data) => {
+              this.logger.trace({ context }, `[OnEntityUpdate](%s)`, entity_id);
+              await exec(...data);
+            },
+            id: v4(),
+            type: "annotation",
+          };
+          current.push(item);
+          this.entityWatchers.set(entity_id, current);
+        });
+      },
+    );
   }
 }

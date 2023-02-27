@@ -1,4 +1,3 @@
-export const CIRCADIAN_UPDATE = "CIRCADIAN_UPDATE";
 export const LOCATION_UPDATED = "LOCATION_UPDATED";
 
 export const SCENE_CHANGE = <T extends string = string>(room: T) =>

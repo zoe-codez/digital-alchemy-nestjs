@@ -20,7 +20,6 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
-import deepEqual from "deep-equal";
 import { get } from "object-path";
 import { nextTick } from "process";
 
@@ -979,7 +978,7 @@ export class MenuComponentService<VALUE = unknown | string>
             if (is.undefined(a) || is.undefined(b)) {
               return false;
             }
-            return deepEqual(a, b);
+            return is.equal(a, b);
           });
           return !!out;
         }
@@ -988,9 +987,9 @@ export class MenuComponentService<VALUE = unknown | string>
         if (is.undefined(a) || is.undefined(b)) {
           return false;
         }
-        return deepEqual(a, b);
+        return is.equal(a, b);
       }
-      return deepEqual(local, value);
+      return is.equal(local, value);
     });
   }
 

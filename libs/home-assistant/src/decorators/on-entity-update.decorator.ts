@@ -1,26 +1,7 @@
-import { OnEvent } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { MethodDecoratorFactory } from "@steggy/utilities";
 
-import { HA_EVENT_STATE_CHANGE, PICK_ENTITY } from "../types";
+import { PICK_ENTITY } from "../types";
 
-/**
- * ```typescript
- * class {
- *   @OnEntityUpdate("sensor.example")
- *   private updateExample(
- *     new_state: ENTITY_STATE<"sensor.example">,
- *     old_state: ENTITY_STATE<"sensor.example">,
- *     event: HassEventDTO<"sensor.example">,
- *   ): void {}
- * }
- * ```
- */
-export function OnEntityUpdate(...list: PICK_ENTITY[]): MethodDecorator {
-  if (is.empty(list)) {
-    return OnEvent(HA_EVENT_STATE_CHANGE);
-  }
-  return OnEvent({
-    events: list.map(entity => OnEntityUpdate.updateEvent(entity)),
-  });
-}
-OnEntityUpdate.updateEvent = (entity: PICK_ENTITY) => `${entity}/update`;
+export type OnEntityUpdateOptions = PICK_ENTITY[] | PICK_ENTITY;
+export const OnEntityUpdate =
+  MethodDecoratorFactory<OnEntityUpdateOptions>("ON_ENTITY_UPDATE");
