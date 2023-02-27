@@ -6,7 +6,6 @@ import {
   iCallService,
   InjectCallProxy,
   OnEntityUpdate,
-  OnEntityUpdateOptions,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import { CronExpression, is } from "@steggy/utilities";

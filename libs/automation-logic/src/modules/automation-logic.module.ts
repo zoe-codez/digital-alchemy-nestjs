@@ -2,6 +2,7 @@ import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
 import { PICK_ENTITY } from "@steggy/home-assistant";
+import { MQTTModule } from "@steggy/mqtt";
 
 import {
   CIRCADIAN_ENABLED,
@@ -88,7 +89,7 @@ export class AutomationLogicModule {
     return {
       exports: [CircadianService, SceneRoomService, SolarCalcService],
       global: true,
-      imports: [DiscoveryModule, RegisterCache()],
+      imports: [DiscoveryModule, RegisterCache(), MQTTModule],
       module: AutomationLogicModule,
       providers: [
         CircadianService,

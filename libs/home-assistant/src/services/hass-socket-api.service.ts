@@ -26,7 +26,6 @@ import {
   AreaDTO,
   HA_EVENT_STATE_CHANGE,
   HassConfig,
-  HassEventDTO,
   HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,

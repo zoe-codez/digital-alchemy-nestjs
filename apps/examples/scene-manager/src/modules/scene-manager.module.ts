@@ -1,6 +1,10 @@
 import { AutomationLogicModule } from "@steggy/automation-logic";
 import { ApplicationModule } from "@steggy/boilerplate";
-import { HomeAssistantModule } from "@steggy/home-assistant";
+import {
+  HassSocketAPIService,
+  HomeAssistantModule,
+} from "@steggy/home-assistant";
+import { MQTTModule } from "@steggy/mqtt";
 import { ServerModule } from "@steggy/server";
 
 import { Bedroom, Loft, Office } from "../rooms";
@@ -83,6 +87,10 @@ import { Bedroom, Loft, Office } from "../rooms";
           },
         },
         switch: {
+          office_plants: {
+            name: "Office plant lights",
+            track_history: true,
+          },
           windows_open: {
             name: "Window is open",
             track_history: true,
@@ -90,9 +98,15 @@ import { Bedroom, Loft, Office } from "../rooms";
         },
       },
     }),
-    // MQTTModule,
+    MQTTModule,
     ServerModule,
   ],
   providers: [Bedroom, Office, Loft],
 })
-export class SceneManagerModule {}
+export class SceneManagerModule {
+  constructor(private readonly socket: HassSocketAPIService) {}
+
+  protected async onApplicationBootstrap(): Promise<void> {
+    await this.socket.init();
+  }
+}
