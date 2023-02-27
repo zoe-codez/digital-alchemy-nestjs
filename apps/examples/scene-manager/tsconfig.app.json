@@ -17,6 +17,8 @@
     "**/*.ts",
     "../../../libs/boilerplate/**/*.ts",
     "../../../libs/server/**/*.ts",
+    "../../../libs/mqtt/**/*.ts",
+    "../../../libs/automation-logic/**/*.ts",
     "../../../libs/home-assistant/**/*.ts",
     "../../../libs/utilities/**/*.ts"
   ]

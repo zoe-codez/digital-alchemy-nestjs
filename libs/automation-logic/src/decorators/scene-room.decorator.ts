@@ -6,7 +6,6 @@ import {
   ROOM_SCENES,
   SCENE_ROOM_OPTIONS,
   SceneList,
-  SceneTransitionMapping,
 } from "../types";
 
 export interface iSceneRoomOptions<
@@ -32,11 +31,11 @@ export interface iSceneRoomOptions<
    * Scene declarations
    */
   scenes?: SceneList<ROOM_SCENES<ROOM_NAME>>;
-  /**
-   * Describe
-   */
-  transitions?: SceneTransitionMapping<ROOM_NAME>;
 }
+// /**
+//  * Describe
+//  */
+// transitions?: SceneTransitionMapping<ROOM_NAME>;
 
 export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
   options: iSceneRoomOptions<NAME>,

@@ -1,13 +1,41 @@
+import { AutomationLogicModule } from "@steggy/automation-logic";
 import { ApplicationModule } from "@steggy/boilerplate";
 import { HomeAssistantModule } from "@steggy/home-assistant";
+import { MQTTModule } from "@steggy/mqtt";
 import { ServerModule } from "@steggy/server";
 
-import { ExampleService } from "../services";
+import { Bedroom, Loft, Office } from "../rooms";
 
 @ApplicationModule({
   application: "scene-manager",
   imports: [
-    ServerModule,
+    AutomationLogicModule.forRoot({
+      global_scenes: { high: true, off: true },
+      room_configuration: {
+        bedroom: {
+          name: "Bedroom",
+          scenes: {
+            dimmed: { friendly_name: "Dimmed" },
+            high: { friendly_name: "On" },
+            off: { friendly_name: "Off" },
+          },
+        },
+        loft: {
+          name: "Loft",
+          scenes: {
+            high: { friendly_name: "On" },
+            off: { friendly_name: "Off" },
+          },
+        },
+        office: {
+          name: "Office",
+          scenes: {
+            high: { friendly_name: "On" },
+            off: { friendly_name: "Off" },
+          },
+        },
+      },
+    }),
     HomeAssistantModule.forRoot({
       controllers: true,
       generate_entities: {
@@ -35,7 +63,9 @@ import { ExampleService } from "../services";
         },
       },
     }),
+    MQTTModule,
+    ServerModule,
   ],
-  providers: [ExampleService],
+  providers: [Bedroom, Office, Loft],
 })
-export class EntityCreationModule {}
+export class SceneManagerModule {}

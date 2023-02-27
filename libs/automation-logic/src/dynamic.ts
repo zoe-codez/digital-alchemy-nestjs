@@ -3,21 +3,30 @@ import { AutomationLogicModuleConfiguration } from "./types";
 // Not actually dynamic yet, but potentially will be in the future
 export const MODULE_CONFIGURATION = {
   global_scenes: {
-    off: {
-      friendly_name: "off",
-    },
-    on: {
-      friendly_name: "on",
-    },
+    high: true,
+    off: true,
   },
   room_configuration: {
-    office: {
+    bedroom: {
+      name: "Bedroom",
       scenes: {
-        off: {},
-        on: {},
-        auto: {
-          friendly_name: "Test",
-        },
+        dimmed: { friendly_name: "Dimmed" },
+        high: { friendly_name: "On" },
+        off: { friendly_name: "Off" },
+      },
+    },
+    loft: {
+      name: "Loft",
+      scenes: {
+        high: { friendly_name: "On" },
+        off: { friendly_name: "Off" },
+      },
+    },
+    office: {
+      name: "Office",
+      scenes: {
+        high: { friendly_name: "On" },
+        off: { friendly_name: "Off" },
       },
     },
   },

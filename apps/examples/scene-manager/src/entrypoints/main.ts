@@ -4,9 +4,9 @@ import {
   LIB_BOILERPLATE,
 } from "@steggy/boilerplate";
 
-import { EntityCreationModule } from "../modules/scene-manager.module";
+import { SceneManagerModule } from "../modules/scene-manager.module";
 
-Bootstrap(EntityCreationModule, {
+Bootstrap(SceneManagerModule, {
   config: {
     libs: {
       [LIB_BOILERPLATE]: { [CACHE_PROVIDER]: "redis" },
