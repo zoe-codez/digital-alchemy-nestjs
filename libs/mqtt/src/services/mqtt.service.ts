@@ -49,7 +49,7 @@ export class MqttService {
         return;
       }
       (topics as string[]).forEach(topic => {
-        this.logger.debug(`Subscribe {${topic}}`);
+        this.logger.debug(`Subscribe {%s}`, topic);
         this.subscriptions.add(topic);
       });
       this.client.subscribe(topics, options, (error, granted) => {
@@ -113,11 +113,11 @@ export class MqttService {
       (topic: string, payload: Buffer, packet: Packet) => {
         const [callbacks, options] = this.callbacks.get(topic) ?? [];
         if (is.empty(callbacks)) {
-          this.logger.warn(`Incoming MQTT {${topic}} with no callbacks`);
+          this.logger.warn(`Incoming MQTT {%s} with no callbacks`, topic);
           return;
         }
         if (!options?.omitIncoming) {
-          this.logger.debug(`Incoming MQTT {${topic}} (${callbacks.length})`);
+          this.logger.debug(`Incoming MQTT {%s} (%s)`, topic, callbacks.length);
         }
         callbacks.forEach(callback => {
           callback(this.handlePayload(payload), packet);

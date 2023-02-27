@@ -7,9 +7,9 @@ import {
 } from "@steggy/boilerplate";
 import {
   PICK_GENERATED_ENTITY,
+  PUSH_PROXY,
   PushEntityService,
   PushProxyService,
-  PUSH_PROXY,
 } from "@steggy/home-assistant";
 import { CronExpression, EMPTY } from "@steggy/utilities";
 import dayjs from "dayjs";
@@ -49,7 +49,7 @@ export class CircadianService<
     private readonly pushEntity: PushEntityService,
   ) {}
 
-  private circadianEntity: PUSH_PROXY<SENSOR>;
+  public circadianEntity: PUSH_PROXY<SENSOR>;
 
   protected async onApplicationBootstrap() {
     if (!this.circadianEnabled) {

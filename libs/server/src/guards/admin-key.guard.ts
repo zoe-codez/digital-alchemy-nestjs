@@ -38,7 +38,7 @@ export class AdminKeyGuard implements CanActivate {
    */
   protected onModuleInit(): void {
     if (this.adminKey) {
-      this.logger.warn(`{${ADMIN_KEY_HEADER}} usable`);
+      this.logger.warn(`{%s} usable`, ADMIN_KEY_HEADER);
     }
   }
 }
