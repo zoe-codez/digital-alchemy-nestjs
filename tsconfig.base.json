@@ -80,6 +80,9 @@
       "path": "./apps/examples/entity-creation/tsconfig.json"
     },
     {
+      "path": "./apps/examples/scene-manager/tsconfig.json"
+    },
+    {
       "path": "./apps/hass-type-generate/tsconfig.json"
     },
     {

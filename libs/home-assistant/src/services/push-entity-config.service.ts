@@ -190,7 +190,6 @@ export class PushEntityConfigService {
         return [name, `{{ trigger.json.attributes.${name} }}`];
       }),
     ) as Record<string, string>;
-    console.log(attr);
     this.pushEntity.insert(online_id, {
       attributes: attr,
       /**
