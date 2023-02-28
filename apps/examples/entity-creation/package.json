@@ -2,7 +2,7 @@
   "name": "@steggy/entity-creation",
   "license": "MIT",
   "displayName": "Entity Creation",
-  "version": "23.9.1",
+  "version": "23.9.2",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
     "node": ">=16.0.0"
