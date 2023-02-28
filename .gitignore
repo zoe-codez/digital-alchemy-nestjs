@@ -110,6 +110,7 @@ apps/**/artifacts
 !/.auto-config-testrc
 !/.prettierrc
 !/.entity-creationrc
+!/.scene-managerrc
 !/.pino-prettyrc
 /.storage
 apps/examples/docker/homeassistant/config
