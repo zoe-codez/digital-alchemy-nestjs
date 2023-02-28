@@ -210,7 +210,7 @@ export class HassFetchAPIService {
   }
 
   public async webhook(id: string, data: object = {}): Promise<void> {
-    this.logger.trace({ id, data }, `webhook`);
+    this.logger.warn({ data, id }, `webhook`);
     await this.fetch({
       body: data,
       method: "post",

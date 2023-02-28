@@ -54,7 +54,7 @@ export type PushStorageMap<
 /**
  * TODO: Update type to emit errors if using a hard coded id
  */
-type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
+export type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
   `${CREATE_DOMAIN}.${string}`;
 
 type SettableProperties = "state" | `attributes.${string}`;

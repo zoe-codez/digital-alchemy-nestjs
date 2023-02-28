@@ -7,9 +7,11 @@ import {
   ScannerBinding,
 } from "@steggy/boilerplate";
 import {
+  GET_ATTRIBUTE_TEMPLATE,
   iCallService,
   Icon,
   InjectCallProxy,
+  NewEntityId,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PushEntityConfigService,
@@ -162,9 +164,11 @@ export class SceneControllerService {
       const room = room_configuration[name];
       this.logger.info(`[%s] init room`, room?.name ?? name);
       // * current scene sensor
-      const id =
-        `sensor.room_${name}_current_scene` as PICK_GENERATED_ENTITY<"sensor">;
+      const id = `sensor.room_${name}_current_scene` as NewEntityId<"sensor">;
       this.pushEntity.insert(id, {
+        attributes: {
+          scene: GET_ATTRIBUTE_TEMPLATE("scene"),
+        },
         icon,
         name: `${room?.name || TitleCase(name)} current scene`,
       });
