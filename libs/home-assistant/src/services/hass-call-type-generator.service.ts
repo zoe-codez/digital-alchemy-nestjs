@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { is, TitleCase } from "@steggy/utilities";
 import { dump } from "js-yaml";
@@ -21,13 +16,10 @@ import {
 } from "typescript";
 
 import {
-  HASSIO_WS_COMMAND,
-  HassServiceDTO,
   ServiceListFieldDescription,
   ServiceListServiceTarget,
 } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
-import { HassSocketAPIService } from "./hass-socket-api.service";
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(
@@ -37,8 +29,6 @@ const resultFile = createSourceFile(
   false,
   ScriptKind.TS,
 );
-let services: HassServiceDTO[] = [];
-let domains: string[] = [];
 let lastBuild: string;
 let lastServices: string;
 
@@ -47,70 +37,7 @@ export class HassCallTypeGenerator {
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetchApi: HassFetchAPIService,
-    @Inject(forwardRef(() => HassSocketAPIService))
-    private readonly socketApi: HassSocketAPIService,
   ) {}
-
-  /**
-   * This proxy is intended to be assigned to a constant, then injected into the VM.
-   * The type definitions for the proxy object not making sense is alright, since separate definitions are provided to monaco
-   *
-   * This returns a proxy object, which contains functions for all the callable services.
-   * Sanity checking isn't performed here on the service_data, if the user wants to bypass type checking,
-   * they are more than welcome to do it.
-   */
-  public buildCallProxy(): Record<
-    string,
-    Record<string, (...arguments_) => Promise<void>>
-  > {
-    return new Proxy(
-      {},
-      {
-        get: (t, domain: string) => {
-          if (!domains?.includes(domain)) {
-            return undefined;
-          }
-          const domainItem: HassServiceDTO = services.find(
-            i => i.domain === domain,
-          );
-          if (!domainItem) {
-            throw new InternalServerErrorException(
-              `Cannot access call_service#${domain}. Home Assistant doesn't list it as a real domain.`,
-            );
-          }
-          const callback = async (
-            service: string,
-            service_data: Record<string, unknown>,
-          ) => {
-            // User can just not await this call if they don't care about the "waitForChange"
-            await this.socketApi.sendMessage(
-              {
-                domain,
-                service,
-                service_data,
-                type: HASSIO_WS_COMMAND.call_service,
-              },
-              true,
-            );
-          };
-          const out = Object.fromEntries(
-            Object.entries(domainItem.services).map(([key]) => [
-              key,
-              (parameters: Record<string, unknown>) =>
-                callback(key, parameters),
-            ]),
-          );
-          return out;
-        },
-        set: (t, property: string) => {
-          // No really, bad developer
-          throw new InternalServerErrorException(
-            `Cannot modify call_service#${property}. Why do you want to do that?! 😕`,
-          );
-        },
-      },
-    );
-  }
 
   public async buildTypes(): Promise<string> {
     const domains = await this.fetchApi.listServices();
@@ -196,23 +123,6 @@ export class HassCallTypeGenerator {
       resultFile,
     );
     return lastBuild;
-  }
-
-  /**
-   * Describe the current services, and build up a proxy api based on that.
-   *
-   * This API matches the api at the time the this function is run, which may be different from any generated typescript definitions from the past.
-   */
-  public async initialize() {
-    this.logger.info(`Fetching service list`);
-    services = await this.fetchApi.listServices();
-    domains = services.map(i => i.domain);
-    services.forEach(value => {
-      this.logger.debug(`[%s]`, value.domain);
-      Object.entries(value.services).forEach(([serviceName]) =>
-        this.logger.debug(` - {%s}`, serviceName),
-      );
-    });
   }
 
   private createTarget(target: ServiceListServiceTarget) {

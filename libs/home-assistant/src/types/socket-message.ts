@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 
 import { HASSIO_WS_COMMAND, HassSocketMessageTypes } from "./constants";
 import { HassEventDTO } from "./entity-state";
-import { ENTITY_STATE, PICK_ENTITY } from "./utility";
+import { ALL_DOMAINS, ENTITY_STATE, PICK_ENTITY } from "./utility";
 
 export class AreaDTO {
   public area_id: string;
@@ -67,13 +67,20 @@ export class SendSocketMessageDTO {
   public type: HASSIO_WS_COMMAND;
 }
 
-export class UpdateEntityMessageDTO {
+export class UpdateEntityMessageDTO<DOMAIN extends ALL_DOMAINS = ALL_DOMAINS> {
   public area_id?: string;
-  public entity_id: string;
+  public disabled_by?: "user";
+  public entity_id: PICK_ENTITY<DOMAIN>;
+  public hidden_by?: "user";
   public icon?: string;
   public name: string;
-  public new_entity_id: string;
+  public new_entity_id: PICK_ENTITY<DOMAIN>;
   public type: HASSIO_WS_COMMAND.registry_update;
+}
+
+export class RemoveEntityMessageDTO {
+  public entity_id: PICK_ENTITY;
+  public type: HASSIO_WS_COMMAND.entity_remove;
 }
 
 export class FindRelatedDTO {
@@ -132,6 +139,7 @@ export type SOCKET_MESSAGES = { id?: number } & (
   | RegistryGetDTO
   | RemoveBackupDTO
   | RenderTemplateDTO
+  | RemoveEntityMessageDTO
   | SendSocketMessageDTO
   | SignPathDTO
   | SubscribeTriggerDTO

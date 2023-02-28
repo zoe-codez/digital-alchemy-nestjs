@@ -8,6 +8,7 @@ import { FetchWith, is, SECOND } from "@steggy/utilities";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
+  ALL_DOMAINS,
   CheckConfigResult,
   ENTITY_STATE,
   GenericEntityDTO,
@@ -40,6 +41,18 @@ export class HassFetchAPIService {
 
   public get valid() {
     return !is.empty(this.baseUrl) && !is.empty(this.bearer);
+  }
+
+  public async callService(
+    domain: ALL_DOMAINS,
+    service: string,
+    data: object,
+  ): Promise<ENTITY_STATE<PICK_ENTITY>[]> {
+    return await this.fetch({
+      body: { ...data },
+      method: "post",
+      url: `/api/services/${domain}/${service}`,
+    });
   }
 
   /**

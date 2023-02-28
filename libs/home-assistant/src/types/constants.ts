@@ -12,6 +12,7 @@ export enum HASSIO_WS_COMMAND {
   call_service = "call_service",
   device_list = "config/device_registry/list",
   entity_list = "config/entity_registry/list",
+  entity_remove = "config/entity_registry/remove",
   registry_update = "config/entity_registry/update",
   get_config = "get_config",
   generate_backup = "backup/generate",

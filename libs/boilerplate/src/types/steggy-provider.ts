@@ -73,3 +73,11 @@ export interface iSteggyProvider {
     options: BootstrapOptions,
   ) => NO_RESULT;
 }
+
+export const ALL_NEST_LIFECYCLE_EVENTS = [
+  "onModuleInit",
+  "onApplicationBootstrap",
+  "onModuleDestroy",
+  "beforeApplicationShutdown",
+  "onApplicationShutdown",
+];

@@ -8,12 +8,14 @@ import {
   PromptService,
   TTYModule,
 } from "@steggy/tty";
+import chalk from "chalk";
 import { homedir } from "os";
 import { join } from "path";
 
 import { DOWNLOAD_DIR } from "../config";
 import {
   BackupControlsService,
+  EntityRemoverService,
   EntityService,
   NotificationControlsService,
 } from "../services";
@@ -36,6 +38,7 @@ import {
   providers: [
     BackupControlsService,
     EntityService,
+    EntityRemoverService,
     NotificationControlsService,
   ],
 })
@@ -47,6 +50,7 @@ export class HassCLI {
     private readonly backup: BackupControlsService,
     private readonly socket: SocketManagerService,
     private readonly notification: NotificationControlsService,
+    private readonly remover: EntityRemoverService,
   ) {}
 
   public async exec(value: string): Promise<void> {
@@ -81,10 +85,20 @@ export class HassCLI {
           entry: ["Notifications", "notifications"],
           helpText: "View and manage current notifications for home assistant",
         },
+        {
+          entry: ["Entity remover", "remover"],
+          helpText: [
+            `Batch remove entities from the Home Assistant entity registry`,
+            "  " + chalk.bgRed.white.bold`!!DESTRUCTIVE!!`,
+          ].join(`\n`),
+        },
       ],
       value,
     });
     switch (action) {
+      case "remover":
+        await this.remover.exec();
+        return await this.exec(action);
       case "done":
         return;
       case "entity_inspect":
@@ -100,7 +114,7 @@ export class HassCLI {
   }
 
   protected async onApplicationBootstrap(): Promise<void> {
-    this.socket.BUILD_PROXY = false;
+    // this.socket.BUILD_PROXY = false;
     this.socket.SUBSCRIBE_EVENTS = false;
     await this.socket.connect();
   }

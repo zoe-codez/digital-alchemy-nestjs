@@ -3,6 +3,7 @@ import { CacheService } from "@steggy/boilerplate";
 import {
   ALL_DOMAINS,
   domain,
+  ENTITY_STATE,
   EntityRegistryService,
   GenericEntityDTO,
   HassFetchAPIService,
@@ -38,7 +39,7 @@ export class EntityService {
     private readonly icons: IconService,
   ) {}
 
-  private entities: GenericEntityDTO[];
+  private entities: ENTITY_STATE<PICK_ENTITY>[];
   private lastRefresh: Date;
 
   public async exec(): Promise<void> {
@@ -169,10 +170,10 @@ export class EntityService {
       // case "area":
       //   return;
       case "change_id":
-        const new_id = await this.prompt.string({
+        const new_id = (await this.prompt.string({
           current: id,
           label: "New entity_id",
-        });
+        })) as PICK_ENTITY;
         await this.registry.setEntityId(id, new_id);
         break;
       case "change_name":

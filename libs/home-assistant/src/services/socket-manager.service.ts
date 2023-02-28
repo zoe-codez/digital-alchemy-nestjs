@@ -4,7 +4,6 @@ import EventEmitter from "eventemitter3";
 
 import { HASSIO_WS_COMMAND, SOCKET_READY } from "../types";
 import { EntityManagerService } from "./entity-manager.service";
-import { HassCallTypeGenerator } from "./hass-call-type-generator.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 
 /**
@@ -18,12 +17,13 @@ export class SocketManagerService {
     private readonly socket: HassSocketAPIService,
     private readonly logger: AutoLogService,
     private readonly entity: EntityManagerService,
-    private readonly proxy: HassCallTypeGenerator,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
   /**
    * Enable the websocket proxy api
+   *
+   * ? Referenced by `CallProxyService`, which builds proxy objects
    */
   public BUILD_PROXY = true;
 
@@ -59,20 +59,11 @@ export class SocketManagerService {
    */
   protected async onAuth(): Promise<void> {
     // * Init internal workflows first
-    await this.buildProxy();
     await this.subscribeEvents();
     // TODO: registry subscriptions
     // * Open up to the larger application
     this.logger.info("🏡 Home Assistant socket ready 🏡");
     this.eventEmitter.emit(SOCKET_READY);
-  }
-
-  private async buildProxy(): Promise<void> {
-    if (!this.BUILD_PROXY) {
-      this.logger.debug(`[Proxy API] skipping`);
-      return;
-    }
-    await this.proxy.initialize();
   }
 
   /**

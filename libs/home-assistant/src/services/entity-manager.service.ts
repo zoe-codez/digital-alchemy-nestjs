@@ -186,6 +186,9 @@ export class EntityManagerService {
         entity,
         get(oldState, entity.entity_id),
       );
+      if (!this.init) {
+        return;
+      }
       const old = get(oldState, entity.entity_id);
       if (is.equal(old, entity)) {
         this.logger.trace(`[%s] no change on refresh`, entity.entity_id);
@@ -252,7 +255,7 @@ export class EntityManagerService {
       return;
     }
     const current = this.byId<ENTITY>(entity);
-    const defaultValue = (property === "attributes" ? {} : undefined) as Get<
+    const defaultValue = (property === "state" ? undefined : {}) as Get<
       ENTITY_STATE<ENTITY>,
       PROPERTY
     >;

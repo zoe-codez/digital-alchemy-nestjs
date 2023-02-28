@@ -6,11 +6,10 @@ import {
 } from "@nestjs/common";
 import {
   AutoLogService,
-  Cron,
   InjectConfig,
   InjectLogger,
 } from "@steggy/boilerplate";
-import { CronExpression, SECOND, sleep, START } from "@steggy/utilities";
+import { SECOND, sleep, START } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
 import WS from "ws";
@@ -41,6 +40,8 @@ const CONNECTION_OPEN = 1;
 let connection: WS;
 let CONNECTION_ACTIVE = false;
 let messageCount = START;
+const CLEANUP_INTERVAL = 5;
+const PING_INTERVAL = 10;
 
 /**
  * Management for
@@ -211,7 +212,6 @@ export class HassSocketAPIService {
   /**
    * Keep the running running count of recent messages
    */
-  @Cron(CronExpression.EVERY_5_SECONDS)
   protected cleanup(): void {
     const now = Date.now();
     this.MESSAGE_TIMESTAMPS = this.MESSAGE_TIMESTAMPS.filter(
@@ -219,7 +219,12 @@ export class HassSocketAPIService {
     );
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  protected onModuleInit() {
+    // Don't use cron to set these up, it's overkill
+    setInterval(() => this.cleanup(), CLEANUP_INTERVAL * SECOND);
+    setInterval(async () => await this.ping(), PING_INTERVAL * SECOND);
+  }
+
   protected async ping(): Promise<void> {
     if (!CONNECTION_ACTIVE) {
       return;

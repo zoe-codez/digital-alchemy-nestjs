@@ -48,6 +48,13 @@ export class EntityRegistryService {
     });
   }
 
+  public async remove(entity_id: PICK_ENTITY): Promise<void> {
+    await this.socket.sendMessage({
+      entity_id,
+      type: HASSIO_WS_COMMAND.entity_remove,
+    });
+  }
+
   public async setArea(entity_id: PICK_ENTITY, area_id: string): Promise<void> {
     const current = await this.byId(entity_id);
     return await this.socket.sendMessage({
@@ -65,7 +72,7 @@ export class EntityRegistryService {
    */
   public async setEntityId(
     entity_id: PICK_ENTITY,
-    new_entity_id: string,
+    new_entity_id: PICK_ENTITY,
   ): Promise<void> {
     const current = await this.byId(entity_id);
     return await this.socket.sendMessage({

@@ -9,10 +9,10 @@ import { HomeAssistantModule } from "../modules";
 import {
   ConnectionBuilderService,
   EntityManagerService,
-  HassCallTypeGenerator,
   HassSocketAPIService,
   SocketManagerService,
 } from "../services";
+import { CallProxyService } from "../services/call-proxy.service";
 import { ON_SOCKET_AUTH } from "../types";
 import { MockServerService, Next } from "./services";
 import { SLEEP_SHORT } from "./types";
@@ -28,7 +28,7 @@ describe("Socket Manager", () => {
   let manager: SocketManagerService;
   let mockServer: MockServerService;
   let next: Next;
-  let proxy: HassCallTypeGenerator;
+  let proxy: CallProxyService;
   let socket: WS;
   let socketApi: HassSocketAPIService;
 
@@ -59,7 +59,7 @@ describe("Socket Manager", () => {
     manager = app.get(SocketManagerService);
     mockServer = app.get(MockServerService);
     next = app.get(Next);
-    proxy = app.get(HassCallTypeGenerator);
+    proxy = app.get(CallProxyService);
     socketApi = app.get(HassSocketAPIService);
 
     manager.BUILD_PROXY = false;
@@ -119,19 +119,19 @@ describe("Socket Manager", () => {
     expect(resolved).toBe(true);
   });
 
-  it("Will not initialize proxy api if BUILD_PROXY = false", async () => {
-    manager.BUILD_PROXY = false;
-    proxy.initialize = jest.fn();
-    await manager["onAuth"]();
-    expect(proxy.initialize).not.toHaveBeenCalled();
-  });
+  // it("Will not initialize proxy api if BUILD_PROXY = false", async () => {
+  //   manager.BUILD_PROXY = false;
+  //   proxy.initialize = jest.fn();
+  //   await manager["onAuth"]();
+  //   expect(proxy.initialize).not.toHaveBeenCalled();
+  // });
 
-  it("Will initialize proxy api if BUILD_PROXY = true", async () => {
-    manager.BUILD_PROXY = true;
-    proxy.initialize = jest.fn();
-    await manager["onAuth"]();
-    expect(proxy.initialize).toHaveBeenCalled();
-  });
+  // it("Will initialize proxy api if BUILD_PROXY = true", async () => {
+  //   manager.BUILD_PROXY = true;
+  //   proxy.initialize = jest.fn();
+  //   await manager["onAuth"]();
+  //   expect(proxy.initialize).toHaveBeenCalled();
+  // });
 
   it("Will not initialize entities api if SUBSCRIBE_EVENTS = false", async () => {
     manager.SUBSCRIBE_EVENTS = false;

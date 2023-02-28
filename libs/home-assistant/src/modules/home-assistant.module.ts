@@ -20,6 +20,7 @@ import { TalkBackController } from "../controllers";
 import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
 import {
   BackupService,
+  CallProxyService,
   ConnectionBuilderService,
   EntityManagerService,
   EntityRegistryService,
@@ -127,7 +128,7 @@ import {
       type: "number",
     },
     [TALK_BACK_BASE_URL]: {
-      default: "http://192.168.1.223:7000",
+      default: "http://192.168.1.1:7000",
       description: "Base url to use with callbacks in home assistant",
       type: "string",
     },
@@ -154,10 +155,10 @@ import {
       type: "string",
     },
   },
-  exports: [HassFetchAPIService],
+  exports: [HassFetchAPIService, HassCallTypeGenerator],
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
-  providers: [HassFetchAPIService],
+  providers: [HassFetchAPIService, HassCallTypeGenerator],
 })
 export class HomeAssistantModule {
   public static forRoot(
@@ -178,15 +179,16 @@ export class HomeAssistantModule {
       PushEntityService,
       PushProxyService,
       PushSensorService,
+      CallProxyService,
       PushSwitchService,
       SocketManagerService,
       TalkBackService,
       ...InjectEntityProxy.providers,
       ...InjectPushEntity.providers,
       {
-        inject: [HassCallTypeGenerator],
+        inject: [CallProxyService],
         provide: CALL_PROXY,
-        useFactory: (call: HassCallTypeGenerator) => call.buildCallProxy(),
+        useFactory: (call: CallProxyService) => call.buildCallProxy(),
       },
     ];
     options.controllers ??= false;

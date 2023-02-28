@@ -1,4 +1,5 @@
 export * from "./backup.service";
+export * from "./call-proxy.service";
 export * from "./connection-builder.service";
 export * from "./entity-manager.service";
 export * from "./entity-registry.service";
