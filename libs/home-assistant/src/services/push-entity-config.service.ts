@@ -2,10 +2,9 @@ import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
-  Cron,
   InjectConfig,
 } from "@steggy/boilerplate";
-import { CronExpression, is, TitleCase } from "@steggy/utilities";
+import { is, SECOND, TitleCase } from "@steggy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
@@ -34,6 +33,7 @@ import { PushProxyService } from "./push-proxy.service";
  * Stored as mildly obfuscated
  */
 const boot = dayjs();
+const HEALTH_CHECK_INTERVAL = 10;
 
 /**
  * Functionality for managing a particular application's push entity configuration within Home Assistant.
@@ -90,21 +90,14 @@ export class PushEntityConfigService {
 
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
-    // await this.verifyYaml();
+    await this.verifyYaml();
   }
 
   protected async onModuleInit() {
     await this.initialize();
-  }
-
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  protected sendHealthCheck() {
-    if (!this.onlineProxy) {
-      this.logger.warn(`Cannot send uptime, no proxy available`);
-      return;
-    }
-    this.onlineProxy.state = true;
-    this.uptimeProxy.state = dayjs().diff(boot, "second");
+    setInterval(() => {
+      this.sendHealthCheck();
+    }, HEALTH_CHECK_INTERVAL * SECOND);
   }
 
   private async cleanup(): Promise<boolean> {
@@ -245,6 +238,15 @@ export class PushEntityConfigService {
       unit_of_measurement: "s",
     });
     this.uptimeProxy = await this.pushProxy.createPushProxy(uptime_id);
+  }
+
+  private sendHealthCheck() {
+    if (!this.onlineProxy) {
+      this.logger.warn(`Cannot send uptime, no proxy available`);
+      return;
+    }
+    this.onlineProxy.state = true;
+    this.uptimeProxy.state = dayjs().diff(boot, "second");
   }
 
   private serializeState(): HassSteggySerializeState {

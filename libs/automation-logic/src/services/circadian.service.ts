@@ -1,17 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import {
-  AutoLogService,
-  Cron,
-  InjectConfig,
-  OnEvent,
-} from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig, OnEvent } from "@steggy/boilerplate";
 import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PushEntityService,
   PushProxyService,
 } from "@steggy/home-assistant";
-import { CronExpression, EMPTY } from "@steggy/utilities";
+import { EMPTY, MINUTE } from "@steggy/utilities";
 import dayjs from "dayjs";
 
 import {
@@ -66,9 +61,11 @@ export class CircadianService<
       this.circadianSensor,
     );
     this.updateKelvin();
+    setInterval(() => {
+      this.updateKelvin();
+    }, MINUTE);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
   @OnEvent(LOCATION_UPDATED)
   protected updateKelvin(): void {
     if (!this.circadianEntity) {

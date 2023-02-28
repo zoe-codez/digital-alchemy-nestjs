@@ -2,13 +2,13 @@ import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
-  Cron,
   InjectConfig,
 } from "@steggy/boilerplate";
 import { MqttService } from "@steggy/mqtt";
-import { CronExpression } from "@steggy/utilities";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
+
+const HEALTH_CHECK_INTERVAL = 10;
 
 @Injectable()
 export class MQTTHealth {
@@ -33,9 +33,10 @@ export class MQTTHealth {
 
   private readonly topic: string;
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  protected sendHealthCheck() {
-    this.logger.trace("🤖 still alive");
-    this.mqtt.publish(this.topic, "online");
+  protected onApplicationBootstrap() {
+    setInterval(() => {
+      this.logger.trace("🤖 still alive");
+      this.mqtt.publish(this.topic, "online");
+    }, HEALTH_CHECK_INTERVAL);
   }
 }
