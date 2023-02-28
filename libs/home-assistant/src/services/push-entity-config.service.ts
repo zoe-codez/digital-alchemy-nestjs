@@ -135,6 +135,7 @@ export class PushEntityConfigService {
       // tampering could result in the generation of types that reflect neither the yaml nor application runtime state
       // no human should mess with that info by hand, just generate it again
       SERIALIZE.serialize(this.serializeState()),
+      // JSON.stringify(this.serializeState(), undefined, "  "), // for debugging
       "utf8",
     );
     let rootYaml = this.pushProxy.applicationYaml(this.appRoot);

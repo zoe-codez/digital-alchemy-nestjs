@@ -25,7 +25,11 @@ import { dump } from "js-yaml";
 import { join } from "path";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
-import { OnSceneChange, OnSceneChangeOptions } from "../decorators";
+import {
+  OnSceneChange,
+  OnSceneChangeOptions,
+  ROOM_CONFIG_MAP,
+} from "../decorators";
 import {
   ALL_GLOBAL_SCENES,
   ALL_ROOM_NAMES,
@@ -56,6 +60,8 @@ export class SceneControllerService {
     private readonly prefix: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    @Inject(ROOM_CONFIG_MAP)
+    private readonly roomConfiguration: ROOM_CONFIG_MAP,
   ) {}
 
   public readonly currentScenes = new Map<
@@ -112,7 +118,13 @@ export class SceneControllerService {
   private addPlugin(): void {
     const name = "scene_controller";
     this.config.LOCAL_PLUGINS.set(name, {
-      storage: () => [name, undefined],
+      storage: () => [
+        name,
+        {
+          target: join(__dirname, "..", "dynamic.d.ts"),
+          typesData: this.generateTypes(),
+        },
+      ],
       yaml: (base: string) => {
         const { room_configuration } = this.configuration;
         if (is.empty(room_configuration)) {
@@ -194,6 +206,24 @@ export class SceneControllerService {
         });
       }
     });
+  }
+
+  private generateTypes(): string {
+    return [
+      `import { iSceneRoomOptions } from "./decorators";`,
+      `import { ALL_ROOM_NAMES, AutomationLogicModuleConfiguration } from "./types";`,
+      `export const MODULE_CONFIGURATION: AutomationLogicModuleConfiguration = ${JSON.stringify(
+        this.configuration,
+        undefined,
+        "  ",
+      )};`,
+      `export const ROOM_MAPPINGS: Record<`,
+      `  ALL_ROOM_NAMES,`,
+      `  iSceneRoomOptions<ALL_ROOM_NAMES>`,
+      `> = ${JSON.stringify(
+        Object.fromEntries(this.roomConfiguration.entries()),
+      )};`,
+    ].join(`\n`);
   }
 
   private scanForOnSceneChange(): void {

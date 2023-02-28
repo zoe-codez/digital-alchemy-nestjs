@@ -3,12 +3,25 @@ import {
   GenericEntityDTO,
   HassCallTypeGenerator,
   HassFetchAPIService,
+  HassSteggySerializeState,
+  HOME_ASSISTANT_PACKAGE_FOLDER,
   HomeAssistantModule,
   HomeAssistantModuleConfiguration,
+  LIB_HOME_ASSISTANT,
   PushCallService,
+  SERIALIZE,
+  VERIFICATION_FILE,
 } from "@steggy/home-assistant";
 import JSON from "comment-json";
-import { existsSync, writeFileSync } from "fs";
+import {
+  exists,
+  existsSync,
+  lstatSync,
+  readdir,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "fs";
 import { set } from "object-path";
 import { join } from "path";
 import { exit } from "process";
@@ -30,6 +43,10 @@ export class TypeGenerate {
       type: "string",
     })
     private readonly targetFile: string,
+    @InjectConfig(HOME_ASSISTANT_PACKAGE_FOLDER, LIB_HOME_ASSISTANT)
+    private readonly packageFolder: string,
+    @InjectConfig(VERIFICATION_FILE, LIB_HOME_ASSISTANT)
+    private readonly verificationFile: string,
   ) {}
 
   public async exec(): Promise<void> {
@@ -80,9 +97,52 @@ export class TypeGenerate {
         ].join(`\n`),
       );
       this.logger.info(`Successfully updated types at path {${path}}`);
+      this.findExtraTypes();
     } catch (error) {
       this.logger.fatal({ error });
       exit(IT_BROKE);
     }
+  }
+
+  private findExtraTypes(): void {
+    if (!lstatSync(this.packageFolder).isDirectory()) {
+      this.logger.warn(
+        `[%s] is not a folder, cannot scan for extra types`,
+        this.packageFolder,
+      );
+      return;
+    }
+    const list = readdirSync(this.packageFolder);
+    list.forEach(item => {
+      const base = join(this.packageFolder, item);
+      if (!lstatSync(base).isDirectory()) {
+        return;
+      }
+      if (!existsSync(join(base, this.verificationFile))) {
+        this.logger.warn(
+          { base },
+          `Cannot find verification file {%s}`,
+          this.verificationFile,
+        );
+        return;
+      }
+      const data = SERIALIZE.unserialize(
+        readFileSync(join(base, this.verificationFile), "utf8"),
+        HassSteggySerializeState,
+      );
+      if (!data) {
+        this.logger.error(`Failed data casting`);
+        return;
+      }
+      data.plugins.forEach(item => {
+        const [, data] = item.storage;
+        this.logger.info(
+          { file: data.target },
+          `[%s] loading plugin`,
+          item.name,
+        );
+        writeFileSync(data.target, data.typesData, "utf8");
+      });
+    });
   }
 }
