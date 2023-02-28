@@ -210,18 +210,15 @@ export class SceneControllerService {
 
   private generateTypes(): string {
     return [
-      `import { iSceneRoomOptions } from "./decorators";`,
-      `import { ALL_ROOM_NAMES, AutomationLogicModuleConfiguration } from "./types";`,
-      `export const MODULE_CONFIGURATION: AutomationLogicModuleConfiguration = ${JSON.stringify(
+      `export const MODULE_CONFIGURATION = ${JSON.stringify(
         this.configuration,
         undefined,
         "  ",
       )};`,
-      `export const ROOM_MAPPINGS: Record<`,
-      `  ALL_ROOM_NAMES,`,
-      `  iSceneRoomOptions<ALL_ROOM_NAMES>`,
-      `> = ${JSON.stringify(
+      `export const ROOM_MAPPINGS = ${JSON.stringify(
         Object.fromEntries(this.roomConfiguration.entries()),
+        undefined,
+        "  ",
       )};`,
     ].join(`\n`);
   }

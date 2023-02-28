@@ -333,6 +333,10 @@ export class HassSocketAPIService {
       // Always keep entity manager up to date
       // It also implements the interrupt internally
       const { new_state, old_state } = message.event.data;
+      if (!new_state) {
+        // FIXME: probably removal
+        return;
+      }
       this.entityManager["onEntityUpdate"](
         new_state.entity_id,
         new_state,
