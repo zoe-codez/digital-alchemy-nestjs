@@ -201,10 +201,6 @@ export class EntityManagerService {
     this.init = true;
   }
 
-  protected async onApplicationBootstrap() {
-    await this.refresh();
-  }
-
   /**
    * Pretend like this has an `@OnEvent(HA_EVENT_STATE_CHANGE)` on it.
    * Socket service calls this separately from the event to ensure data is available here first.
@@ -239,8 +235,9 @@ export class EntityManagerService {
     });
   }
 
-  protected onModuleInit() {
+  protected async onModuleInit() {
     this.scan();
+    await this.refresh();
   }
 
   protected proxyGetLogic<
