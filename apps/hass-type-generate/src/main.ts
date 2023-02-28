@@ -28,7 +28,7 @@ const IT_BROKE = 1;
 
 @QuickScript({
   application: "hass-type-generate",
-  imports: [HomeAssistantModule],
+  imports: [HomeAssistantModule.forRoot()],
 })
 export class TypeGenerate {
   constructor(
