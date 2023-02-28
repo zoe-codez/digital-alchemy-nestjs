@@ -86,8 +86,11 @@ export class SceneControllerService {
   public onSceneChange<ROOM extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
     room: ROOM,
     scene: ROOM_SCENES<ROOM>,
+    name: string,
   ): void {
-    //
+    const target = this.currentScenes.get(room);
+    target.state = name;
+    target.attributes.scene = scene;
   }
 
   public register(

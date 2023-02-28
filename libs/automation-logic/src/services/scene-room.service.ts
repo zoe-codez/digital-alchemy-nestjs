@@ -70,6 +70,9 @@ const ANY = "*";
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
+  /**
+   * pre-create rooms to ensure they are created at least once
+   */
   public static buildProviders(
     configuration: AutomationLogicModuleConfiguration,
   ): Provider[] {
@@ -79,7 +82,8 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
           inject: [SceneRoomService],
           provide: v4(),
           useFactory(room: SceneRoomService) {
-            room.name = i;
+            room.load(i);
+            return room;
           },
         } as Provider;
       },
@@ -275,10 +279,11 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
           done();
         }),
       ]);
-      this.controller.onSceneChange(this.name, sceneName);
-      // await this.cache.set(SCENE_CACHE(this.name), sceneName);
-
-      // this.eventEmitter.emit(SCENE_CHANGE(this.name), sceneName);
+      this.controller.onSceneChange(
+        this.name,
+        sceneName,
+        this.options.scenes[sceneName].friendly_name,
+      );
     });
   }
 
