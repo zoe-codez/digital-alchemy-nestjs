@@ -6,9 +6,7 @@
     "types": [],
     "target": "ES2022"
   },
-  "include": [
-    "**/*.ts"
-, "../automation-logic/src/dynamic.ts"  ],
+  "include": [ "**/*.ts" ],
   "exclude": [
     "jest.config.ts",
     "**/test/*.ts"
