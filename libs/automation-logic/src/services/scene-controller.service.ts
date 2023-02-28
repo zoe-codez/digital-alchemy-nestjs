@@ -3,6 +3,8 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
+  ModuleScannerService,
+  ScannerBinding,
 } from "@steggy/boilerplate";
 import {
   iCallService,
@@ -21,6 +23,7 @@ import { dump } from "js-yaml";
 import { join } from "path";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
+import { OnSceneChange, OnSceneChangeOptions } from "../decorators";
 import {
   ALL_GLOBAL_SCENES,
   ALL_ROOM_NAMES,
@@ -36,6 +39,13 @@ const icon: Icon = undefined;
 @Injectable()
 export class SceneControllerService {
   constructor(
+    private readonly config: PushEntityConfigService,
+    private readonly health: MQTTHealth,
+    private readonly logger: AutoLogService,
+    private readonly mqtt: MqttService,
+    private readonly pushEntity: PushEntityService,
+    private readonly pushProxy: PushProxyService,
+    private readonly scanner: ModuleScannerService,
     @InjectCallProxy()
     private readonly call: iCallService,
     @Inject(AUTOMATION_LOGIC_MODULE_CONFIGURATION)
@@ -44,18 +54,13 @@ export class SceneControllerService {
     private readonly prefix: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
-    private readonly mqtt: MqttService,
-    private readonly logger: AutoLogService,
-    private readonly pushProxy: PushProxyService,
-    private readonly config: PushEntityConfigService,
-    private readonly pushEntity: PushEntityService,
-    private readonly health: MQTTHealth,
   ) {}
 
-  private readonly currentScenes = new Map<
+  public readonly currentScenes = new Map<
     ALL_ROOM_NAMES,
     PUSH_PROXY<PICK_GENERATED_ENTITY<"sensor">>
   >();
+  private readonly bindings: ScannerBinding<OnSceneChangeOptions>[] = [];
   private readonly setProxy = new Map<
     ALL_ROOM_NAMES,
     SceneRoomService<ALL_ROOM_NAMES>
@@ -78,6 +83,13 @@ export class SceneControllerService {
     rooms.forEach(room => this.setProxy.get(room).set(scene));
   }
 
+  public onSceneChange<ROOM extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
+    room: ROOM,
+    scene: ROOM_SCENES<ROOM>,
+  ): void {
+    //
+  }
+
   public register(
     room: ALL_ROOM_NAMES,
     setter: SceneRoomService<ALL_ROOM_NAMES>,
@@ -88,7 +100,8 @@ export class SceneControllerService {
 
   protected async onModuleInit(): Promise<void> {
     this.addPlugin();
-    await this.scan();
+    this.scanForOnSceneChange();
+    await this.findRooms();
   }
 
   private addPlugin(): void {
@@ -139,7 +152,7 @@ export class SceneControllerService {
     });
   }
 
-  private async scan(): Promise<void> {
+  private async findRooms(): Promise<void> {
     const { room_configuration } = this.configuration;
     const rooms = Object.keys(room_configuration ?? {});
     await each(rooms, async (name: ALL_ROOM_NAMES) => {
@@ -174,5 +187,12 @@ export class SceneControllerService {
         });
       }
     });
+  }
+
+  private scanForOnSceneChange(): void {
+    this.scanner.bindMethodDecorator<OnSceneChangeOptions>(
+      OnSceneChange,
+      binding => this.bindings.push(binding),
+    );
   }
 }

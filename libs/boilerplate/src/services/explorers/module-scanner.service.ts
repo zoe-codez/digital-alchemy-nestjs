@@ -31,7 +31,7 @@ type AnnotationData<TYPE> = {
   key?: string;
 };
 
-type Binding<TYPE> = {
+export type ScannerBinding<TYPE> = {
   /**
    * Context string for logging. Format:
    *
@@ -56,7 +56,7 @@ type Binding<TYPE> = {
 
 type FindMethodsMap<TYPE, CLASS extends object = Record<string, Type>> = Map<
   CLASS,
-  Binding<TYPE>[]
+  ScannerBinding<TYPE>[]
 >;
 type FindPropertiesMap<TYPE> = Map<
   Record<string, Type>,
@@ -67,7 +67,7 @@ type BindingCallback<TYPE, CLASS extends unknown = unknown> = (
   /**
    *
    */
-  options: Binding<TYPE>,
+  options: ScannerBinding<TYPE>,
   provider?: [CLASS, string],
 ) => void;
 

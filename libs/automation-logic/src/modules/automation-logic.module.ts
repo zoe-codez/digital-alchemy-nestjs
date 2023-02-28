@@ -19,7 +19,6 @@ import {
 import { ROOM_CONFIG_MAP } from "../decorators";
 import {
   CircadianService,
-  EntityToolsService,
   GradualDimService,
   MQTTHealth,
   ScannerService,
@@ -102,7 +101,6 @@ export class AutomationLogicModule {
       module: AutomationLogicModule,
       providers: [
         CircadianService,
-        EntityToolsService,
         GradualDimService,
         MQTTHealth,
         SceneControllerService,

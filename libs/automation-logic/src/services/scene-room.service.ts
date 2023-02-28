@@ -4,10 +4,8 @@ import { INQUIRER } from "@nestjs/core";
 import {
   AnnotationPassThrough,
   AutoLogService,
-  CacheService,
   InjectConfig,
   InjectLogger,
-  ModuleScannerService,
 } from "@steggy/boilerplate";
 import {
   domain,
@@ -29,7 +27,7 @@ import {
 } from "@steggy/utilities";
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
-import { exit, nextTick } from "process";
+import { nextTick } from "process";
 import { LiteralUnion } from "type-fest";
 import { v4 } from "uuid";
 
@@ -44,7 +42,6 @@ import {
   MAX_BRIGHTNESS,
   OFF,
   ROOM_SCENES,
-  SCENE_CHANGE,
   SCENE_ROOM_OPTIONS,
   SCENE_SET_ENTITY,
   SceneList,
@@ -53,9 +50,7 @@ import {
 import { CircadianService } from "./circadian.service";
 import { SceneControllerService } from "./scene-controller.service";
 
-const SCENE_CACHE = (room: ALL_ROOM_NAMES) => `ROOM_SCENE:${room}`;
 const ROOMS = new Map<string, SceneRoomService>();
-const current = new Map<ALL_ROOM_NAMES, string>();
 interface HasKelvin {
   kelvin: number;
 }
@@ -68,7 +63,6 @@ type tTransitions<SCOPED extends string> = Partial<
 >;
 
 const ANY = "*";
-// const CURRENT_SCENE_SENSORS
 
 /**
  * Importing this provider is required to actually register a room.
@@ -76,10 +70,6 @@ const ANY = "*";
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
-  public static RoomState<NAME extends ALL_ROOM_NAMES>(room: NAME): string {
-    return current.get(room);
-  }
-
   public static buildProviders(
     configuration: AutomationLogicModuleConfiguration,
   ): Provider[] {
@@ -97,7 +87,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
   }
 
   constructor(
-    private readonly cache: CacheService,
     private readonly circadian: CircadianService,
     private readonly controller: SceneControllerService,
     private readonly entityManager: EntityManagerService,
@@ -118,12 +107,13 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
   ) {}
 
   public get current() {
-    return (current.get(this.name) ?? "off") as ROOM_SCENES<NAME>;
+    return this.controller.currentScenes.get(this.name)
+      .state as ROOM_SCENES<NAME>;
   }
 
   public name: NAME;
-  private entities: Set<PICK_ENTITY> = new Set();
-  private scenes: Map<ROOM_SCENES<NAME>, tScene> = new Map();
+  private readonly entities: Set<PICK_ENTITY> = new Set();
+  private readonly scenes: Map<ROOM_SCENES<NAME>, tScene> = new Map();
   private readonly transitions: tTransitions<ROOM_SCENES<NAME>> = {};
 
   /**
@@ -285,9 +275,10 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
           done();
         }),
       ]);
-      current.set(this.name, sceneName);
-      await this.cache.set(SCENE_CACHE(this.name), sceneName);
-      this.eventEmitter.emit(SCENE_CHANGE(this.name), sceneName);
+      this.controller.onSceneChange(this.name, sceneName);
+      // await this.cache.set(SCENE_CACHE(this.name), sceneName);
+
+      // this.eventEmitter.emit(SCENE_CHANGE(this.name), sceneName);
     });
   }
 
@@ -329,7 +320,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     });
   }
 
-  protected async onApplicationBootstrap(): Promise<void> {
+  protected onApplicationBootstrap() {
     if (is.empty(this.name)) {
       // Technically valid, but not ideal
       // Would like to prevent non-scene rooms from importing this class in the future
@@ -338,16 +329,11 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
       this.logger.warn(`Scene set imported by non-room`);
       return;
     }
-    this.scenes = new Map();
 
     // Register room provider
     const service = this as unknown;
     ROOMS.set(this.name, service as SceneRoomService);
 
-    // Identify the current scene
-    // This may be wrong if cache data isn't available, but that should be a temporary state
-    const value = await this.cache.get<string>(SCENE_CACHE(this.name));
-    current.set(this.name, value);
     const scenes = this.options?.scenes;
 
     this.logger.info(`Room [%s] loaded`, this.name);

@@ -244,10 +244,8 @@ export class SolarCalcService {
     );
     const timer = new CronTime(calc[key]);
     await sleep(timer.getTimeout());
-    [
-      // .Specific to event, and wildcard
-      ...this.callbacks.get(key),
-      ...this.callbacks.get("*"),
-    ].forEach(callback => callback());
+    const current = this.callbacks.get(key) ?? [];
+    const wildcard = this.callbacks.get("*") ?? [];
+    [current, wildcard].flat().forEach(callback => callback());
   }
 }
