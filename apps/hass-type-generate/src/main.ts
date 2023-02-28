@@ -14,10 +14,8 @@ import {
 } from "@steggy/home-assistant";
 import JSON from "comment-json";
 import {
-  exists,
   existsSync,
   lstatSync,
-  readdir,
   readdirSync,
   readFileSync,
   writeFileSync,
