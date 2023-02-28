@@ -247,6 +247,10 @@ export class EntityManagerService {
     if (!this.init) {
       return undefined;
     }
+    const valid = ["state", "attributes"].some(i => property.startsWith(i));
+    if (!valid) {
+      return;
+    }
     const current = this.byId<ENTITY>(entity);
     const defaultValue = (property === "attributes" ? {} : undefined) as Get<
       ENTITY_STATE<ENTITY>,
