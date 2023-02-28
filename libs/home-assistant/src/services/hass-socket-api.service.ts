@@ -157,7 +157,10 @@ export class HassSocketAPIService {
         connection.once("open", () => done());
       });
     } catch (error) {
-      this.logger.error({ error }, `initConnection error`);
+      this.logger.error(
+        { error, url: this.builder.getUrl() },
+        `initConnection error`,
+      );
     }
   }
 

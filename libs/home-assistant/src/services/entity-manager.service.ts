@@ -11,7 +11,6 @@ import { v4 } from "uuid";
 import { OnEntityUpdate, OnEntityUpdateOptions } from "../decorators";
 import {
   ALL_DOMAINS,
-  domain,
   ENTITY_STATE,
   EntityHistoryDTO,
   EntityHistoryResult,
@@ -49,8 +48,6 @@ export class EntityManagerService {
     private readonly scanner: ModuleScannerService,
   ) {}
 
-  public readonly ENTITIES = new Map<PICK_ENTITY, ENTITY_STATE<PICK_ENTITY>>();
-
   /**
    * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
    */
@@ -65,8 +62,10 @@ export class EntityManagerService {
   /**
    * Retrieve an entity's state
    */
-  public byId<T extends PICK_ENTITY>(id: T): ENTITY_STATE<T> {
-    return this.ENTITIES.get(id) as ENTITY_STATE<T>;
+  public byId<ENTITY_ID extends PICK_ENTITY>(
+    entity_id: ENTITY_ID,
+  ): ENTITY_STATE<ENTITY_ID> {
+    return get(this.MASTER_STATE, entity_id);
   }
 
   public createEntityProxy(entity: PICK_ENTITY) {
@@ -80,19 +79,12 @@ export class EntityManagerService {
   /**
    * list all entities by domain
    */
-  public findByDomain<
-    DOMAIN extends ALL_DOMAINS = ALL_DOMAINS,
-    STATES extends ENTITY_STATE<PICK_ENTITY<DOMAIN>> = ENTITY_STATE<
+  public findByDomain<DOMAIN extends ALL_DOMAINS = ALL_DOMAINS>(
+    target: DOMAIN,
+  ) {
+    return Object.values(this.MASTER_STATE[target] ?? {}) as ENTITY_STATE<
       PICK_ENTITY<DOMAIN>
-    >,
-  >(target: DOMAIN): STATES[] {
-    const out: STATES[] = [];
-    this.ENTITIES.forEach((state, key) => {
-      if (domain(key) === target) {
-        out.push(state as STATES);
-      }
-    });
-    return out.filter(i => is.object(i));
+    >[];
   }
 
   /**
@@ -101,7 +93,7 @@ export class EntityManagerService {
   public getEntities<
     T extends ENTITY_STATE<PICK_ENTITY> = ENTITY_STATE<PICK_ENTITY>,
   >(entityId: PICK_ENTITY[]): T[] {
-    return entityId.map(id => this.ENTITIES.get(id) as T);
+    return entityId.map(id => this.byId(id) as T);
   }
 
   public async history<ENTITES extends PICK_ENTITY[]>(
@@ -137,15 +129,19 @@ export class EntityManagerService {
   /**
    * is id a valid entity?
    */
-  public isEntity(entityId: string): entityId is PICK_ENTITY {
-    return this.ENTITIES.has(entityId as PICK_ENTITY);
+  public isEntity(entityId: PICK_ENTITY): entityId is PICK_ENTITY {
+    return is.undefined(get(this.MASTER_STATE, entityId));
   }
 
   /**
    * Simple listing of all entity ids
    */
   public listEntities(): PICK_ENTITY[] {
-    return [...this.ENTITIES.keys()];
+    return Object.keys(this.MASTER_STATE).flatMap(domain =>
+      Object.keys(this.MASTER_STATE[domain]).map(
+        id => `${domain}.${id}` as PICK_ENTITY,
+      ),
+    );
   }
 
   /**
@@ -213,7 +209,6 @@ export class EntityManagerService {
     old_state?: ENTITY_STATE<ENTITY>,
   ): Promise<void> {
     set(this.MASTER_STATE, entity_id, new_state);
-    this.ENTITIES.set(entity_id, new_state);
     const value = this.emittingEvents.get(entity_id);
     if (value > EMPTY) {
       this.logger.error(

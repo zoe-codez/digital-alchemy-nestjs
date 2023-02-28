@@ -16,7 +16,7 @@ export class ConnectionBuilderService {
     return new WS(this.getUrl());
   }
 
-  private getUrl() {
+  public getUrl() {
     const url = new URL(this.baseUrl);
     return (
       this.websocketUrl ||
