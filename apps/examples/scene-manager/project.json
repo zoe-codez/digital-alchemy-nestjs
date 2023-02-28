@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "scene-manager:build",
         "inspect": "inspect",
-        "port": 33344
+        "port": 33345
       }
     },
     "build": {

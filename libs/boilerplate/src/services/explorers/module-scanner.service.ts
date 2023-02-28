@@ -187,7 +187,7 @@ export class ModuleScannerService {
   public findWithSymbol<
     VALUE extends unknown = unknown,
     PROVIDER_TYPE extends unknown = unknown,
-  >(find: symbol): Map<PROVIDER_TYPE, VALUE> {
+  >(find: symbol | string): Map<PROVIDER_TYPE, VALUE> {
     const out = new Map();
     this.applicationProviders<PROVIDER_TYPE>().forEach(instance => {
       const ctor = instance.constructor;

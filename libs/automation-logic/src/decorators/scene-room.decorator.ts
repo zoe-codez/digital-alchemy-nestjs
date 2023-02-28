@@ -8,6 +8,12 @@ import {
   SceneList,
 } from "../types";
 
+export const ROOM_CONFIG_MAP = "ROOM_CONFIG_MAP";
+export type ROOM_CONFIG_MAP = Map<
+  ALL_ROOM_NAMES,
+  iSceneRoomOptions<ALL_ROOM_NAMES>
+>;
+
 export interface iSceneRoomOptions<
   ROOM_NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES,
 > {
@@ -41,8 +47,6 @@ export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
   options: iSceneRoomOptions<NAME>,
 ): ClassDecorator {
   return function (target: iSceneRoom<NAME>) {
-    SceneRoom.SCENE_ROOM_SETTINGS.set(options, target);
-    SceneRoom.SCENE_ROOM_SETTINGS_REVERSE.set(target, options);
     SceneRoom.SCENE_ROOM_MAP.set(options.name, options);
     //
     target[SCENE_ROOM_OPTIONS] = options;
@@ -59,19 +63,5 @@ export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
  */
 SceneRoom.SCENE_ROOM_MAP = new Map<
   ALL_ROOM_NAMES,
-  iSceneRoomOptions<ALL_ROOM_NAMES>
->();
-/**
- * options => provider
- */
-SceneRoom.SCENE_ROOM_SETTINGS = new Map<
-  iSceneRoomOptions<ALL_ROOM_NAMES>,
-  iSceneRoom<ALL_ROOM_NAMES>
->();
-/**
- * provider => options
- */
-SceneRoom.SCENE_ROOM_SETTINGS_REVERSE = new Map<
-  iSceneRoom<ALL_ROOM_NAMES>,
   iSceneRoomOptions<ALL_ROOM_NAMES>
 >();

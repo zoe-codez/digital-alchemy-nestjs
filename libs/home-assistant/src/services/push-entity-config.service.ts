@@ -5,7 +5,7 @@ import {
   Cron,
   InjectConfig,
 } from "@steggy/boilerplate";
-import { CronExpression, each, is, TitleCase } from "@steggy/utilities";
+import { CronExpression, is, TitleCase } from "@steggy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
@@ -67,7 +67,7 @@ export class PushEntityConfigService {
   /**
    * Mapping between mount points and extra data.
    *
-   * > example: ["mqtt", { ... }]
+   * > example: ["my_plugin", { ... }]
    */
   public readonly LOCAL_PLUGINS = new Map<string, InjectedPushConfig>();
   /**
@@ -137,7 +137,11 @@ export class PushEntityConfigService {
       SERIALIZE.serialize(this.serializeState()),
       "utf8",
     );
-    const rootYaml = this.pushProxy.applicationYaml(this.appRoot);
+    let rootYaml = this.pushProxy.applicationYaml(this.appRoot);
+    this.LOCAL_PLUGINS.forEach(({ yaml }) => {
+      rootYaml += "\n" + yaml(this.appRoot).root_include;
+    });
+    // rootYaml += "# test";
     writeFileSync(join(this.appRoot, "include.yaml"), rootYaml, "utf8");
     this.logger.debug(`Done`);
   }
@@ -170,7 +174,7 @@ export class PushEntityConfigService {
     });
     const proxy = await this.pushProxy.createPushProxy(online_id);
     this.onlineProxy = proxy;
-    await each(switchAttributes, async ([name]) => {
+    switchAttributes.forEach(([name]) => {
       if (!is.undefined(proxy.attributes[name])) {
         return;
       }
@@ -249,7 +253,6 @@ export class PushEntityConfigService {
       plugins: [...this.LOCAL_PLUGINS.entries()].map(([name, data]) => ({
         name,
         storage: data.storage(),
-        yaml: data.yaml(),
       })),
     };
   }

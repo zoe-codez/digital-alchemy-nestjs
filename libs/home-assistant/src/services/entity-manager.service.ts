@@ -214,6 +214,7 @@ export class EntityManagerService {
     old_state?: ENTITY_STATE<ENTITY>,
   ): Promise<void> {
     set(this.MASTER_STATE, entity_id, new_state);
+    this.ENTITIES.set(entity_id, new_state);
     const value = this.emittingEvents.get(entity_id);
     if (value > EMPTY) {
       this.logger.error(

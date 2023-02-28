@@ -3,6 +3,7 @@ import { ApplicationModule } from "@steggy/boilerplate";
 import {
   HassSocketAPIService,
   HomeAssistantModule,
+  PushEntityConfigService,
 } from "@steggy/home-assistant";
 import { MQTTModule } from "@steggy/mqtt";
 import { ServerModule } from "@steggy/server";
@@ -104,9 +105,18 @@ import { Bedroom, Loft, Office } from "../rooms";
   providers: [Bedroom, Office, Loft],
 })
 export class SceneManagerModule {
-  constructor(private readonly socket: HassSocketAPIService) {}
+  constructor(
+    private readonly socket: HassSocketAPIService,
+    private readonly config: PushEntityConfigService,
+  ) {}
 
   protected async onApplicationBootstrap(): Promise<void> {
     await this.socket.init();
+  }
+
+  protected onPostInit() {
+    setTimeout(async () => {
+      await this.config.rebuild();
+    }, 5000);
   }
 }

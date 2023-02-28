@@ -39,9 +39,13 @@ export const SERIALIZE = {
   },
 };
 
+type InjectYamlReturn = {
+  root_include: string;
+};
+
 export type InjectedPushConfig = {
   storage: () => [name: string, data: object];
-  yaml: () => [filename: string, data: object][];
+  yaml: (basePath: string) => InjectYamlReturn;
 };
 
 export class PluginConfig {
@@ -49,8 +53,6 @@ export class PluginConfig {
   public name: string;
   @IsObject()
   public storage: object;
-  @IsString()
-  public yaml: [filename: string, data: object][];
 }
 
 export class HassSteggySerializeState {

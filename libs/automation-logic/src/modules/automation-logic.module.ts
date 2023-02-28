@@ -13,12 +13,16 @@ import {
   GRADUAL_DIM_DEFAULT_INTERVAL,
   LIB_AUTOMATION_LOGIC,
   MIN_BRIGHTNESS,
+  MQTT_TOPIC_PREFIX,
   SEQUENCE_TIMEOUT,
 } from "../config";
+import { ROOM_CONFIG_MAP } from "../decorators";
 import {
   CircadianService,
   EntityToolsService,
   GradualDimService,
+  MQTTHealth,
+  ScannerService,
   SceneControllerService,
   SceneRoomService,
   SequenceActivateService,
@@ -73,6 +77,11 @@ import {
         "Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers",
       type: "number",
     },
+    [MQTT_TOPIC_PREFIX]: {
+      default: "steggy",
+      description: "Prefix to use in front of mqtt message topics",
+      type: "string",
+    },
     [SEQUENCE_TIMEOUT]: {
       default: 1500,
       description:
@@ -95,16 +104,24 @@ export class AutomationLogicModule {
         CircadianService,
         EntityToolsService,
         GradualDimService,
+        MQTTHealth,
         SceneControllerService,
         SceneRoomService,
         SequenceActivateService,
         SolarCalcService,
+        ScannerService,
         StateEnforcerService,
         TransitionRunnerService,
         {
           provide: AUTOMATION_LOGIC_MODULE_CONFIGURATION,
           useValue: configuration,
         },
+        {
+          inject: [ScannerService],
+          provide: ROOM_CONFIG_MAP,
+          useFactory: (scanner: ScannerService) => scanner.build(),
+        },
+        ...SceneRoomService.buildProviders(configuration),
       ],
     };
   }
