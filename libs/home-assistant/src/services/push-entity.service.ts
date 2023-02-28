@@ -1,12 +1,12 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, CacheService } from "@steggy/boilerplate";
 import { is, TitleCase } from "@steggy/utilities";
-import deepEqual from "deep-equal";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
+  BinarySensorConfig,
   domain,
   generated_entity_split,
   GET_CONFIG,
@@ -15,7 +15,9 @@ import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
+  SensorConfig,
   StorageData,
+  SwitchConfig,
   UPDATE_TRIGGER,
 } from "../types";
 import { EntityManagerService } from "./entity-manager.service";
@@ -52,7 +54,7 @@ export type PushStorageMap<
 /**
  * TODO: Update type to emit errors if using a hard coded id
  */
-type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
+export type NewEntityId<CREATE_DOMAIN extends ALL_GENERATED_SERVICE_DOMAINS> =
   `${CREATE_DOMAIN}.${string}`;
 
 type SettableProperties = "state" | `attributes.${string}`;
@@ -115,7 +117,7 @@ export class PushEntityService<
       Object.keys(updates.attributes).forEach(key => {
         const from = data.attributes[key];
         const to = updates.attributes[key];
-        const matches = deepEqual(from, to);
+        const matches = is.equal(from, to);
         if (matches) {
           return;
         }
@@ -168,6 +170,12 @@ export class PushEntityService<
     return this.STORAGE.get(entity);
   }
 
+  public insert(
+    entity: NewEntityId<"binary_sensor">,
+    config: BinarySensorConfig,
+  ): void;
+  public insert(entity: NewEntityId<"sensor">, config: SensorConfig): void;
+  public insert(entity: NewEntityId<"switch">, config: SwitchConfig): void;
   public insert<CREATE_DOMAIN extends DOMAIN = DOMAIN>(
     entity: NewEntityId<CREATE_DOMAIN>,
     config: GET_CONFIG<CREATE_DOMAIN>,
@@ -229,7 +237,7 @@ export class PushEntityService<
     } as StorageData<GET_CONFIG<DOMAIN>>;
     const value = await this.cache.get<StorageData<GET_CONFIG<DOMAIN>>>(key);
     if (value) {
-      const equal = deepEqual(value.config, config);
+      const equal = is.equal(value.config, config);
       if (!equal) {
         this.logger.warn({ context }, `Changed configuration`);
       }

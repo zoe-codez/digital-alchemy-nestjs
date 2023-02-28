@@ -12,6 +12,7 @@ import { TemplateButton, TemplateButtonCommandId } from "../../decorators";
 import {
   ButtonTemplate,
   ButtonTemplateYaml,
+  entity_split,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   PICK_GENERATED_ENTITY,
@@ -85,22 +86,20 @@ export class PushButtonService {
         },
       ],
     } as ButtonTemplate;
-    button.unique_id = "steggy_button_" + is.hash(entity_id);
+    const [, id] = entity_split(entity_id);
+    button.unique_id = "steggy_button_" + id;
     return {
       button: [button],
     };
   }
 
   private scan(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<PICK_GENERATED_ENTITY<"button">>(
-        TemplateButton,
-      );
-    providers.forEach(targets => {
-      targets.forEach(({ context, exec, data }) => {
+    this.scanner.bindMethodDecorator<PICK_GENERATED_ENTITY<"button">>(
+      TemplateButton,
+      ({ context, exec, data }) => {
         this.logger.info({ context }, `[@TemplateButton]({%s})`, data);
         this.passthrough.set(data, exec);
-      });
-    });
+      },
+    );
   }
 }

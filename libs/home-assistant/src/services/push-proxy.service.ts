@@ -51,7 +51,7 @@ export class PushProxyService {
 
   public applicationYaml(packageFolder: string): string {
     const app = this.application.replaceAll("-", "_");
-    const availability = `{{ is_state("binary_sensor.${app}_online", "on") }}`;
+    const availability = `{{ is_state("binary_sensor.app_${app}_online", "on") }}`;
 
     return [
       // Rest commands always available, let them fail
@@ -176,7 +176,7 @@ export class PushProxyService {
     templates.forEach(data => {
       const key = Object.keys(data).find(
         // 🪄 - Either brilliant, or terrible. Let's see if it breaks somehow
-        key => Array.isArray(data[key]) && key !== "trigger",
+        key => is.array(data[key]) && key !== "trigger",
       ) as TemplateTypes;
       if (is.empty(data[key])) {
         return;
@@ -186,7 +186,7 @@ export class PushProxyService {
       data[key].forEach(fileData =>
         writeFileSync(
           join(base, `${fileData.unique_id}.yaml`),
-          dump(fileData),
+          dump(data),
           "utf8",
         ),
       );

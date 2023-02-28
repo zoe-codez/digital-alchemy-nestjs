@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   INCREMENT,
+  is,
   LABEL,
   START,
   VALUE,
@@ -108,7 +109,7 @@ export class FormService<
       }
     }
     if (element.type === "pick-many") {
-      if (!Array.isArray(raw)) {
+      if (!is.array(raw)) {
         return raw;
       }
       return raw.map(item => {

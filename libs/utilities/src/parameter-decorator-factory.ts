@@ -32,7 +32,6 @@ export function ParameterDecoratorFactory<
     key: string,
     index: number,
   ) => BUILT,
-  tag?: string,
 ): CompleteAnnotation<OPTIONS, BUILT> {
   const decorator = function (options: OPTIONS): ParameterDecorator {
     return function (target, key: string, index: number) {

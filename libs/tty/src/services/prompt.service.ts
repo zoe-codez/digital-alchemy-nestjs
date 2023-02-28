@@ -105,7 +105,7 @@ export class PromptService {
       label,
       ...options,
     });
-    if (Array.isArray(result)) {
+    if (is.array(result)) {
       const [from, to] = result;
       return {
         from: new Date(from),

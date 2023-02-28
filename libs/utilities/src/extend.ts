@@ -19,7 +19,7 @@ export function deepCloneArray<TYPE = unknown>(
 ): Array<TYPE> {
   return array.map(item => {
     if (is.object(item)) {
-      if (Array.isArray(item)) {
+      if (is.array(item)) {
         return deepCloneArray(item);
       }
       if (isSpecificValue(item)) {
@@ -38,7 +38,7 @@ function safeGetProperty(object: unknown, key: string) {
 }
 
 export function deepExtend<A, B>(target: A, object: B): A & B {
-  if (typeof object !== "object" || object === null || Array.isArray(object)) {
+  if (typeof object !== "object" || object === null || is.array(object)) {
     return target as A & B;
   }
   Object.keys(object).forEach(key => {
@@ -51,7 +51,7 @@ export function deepExtend<A, B>(target: A, object: B): A & B {
       (target as Record<string, unknown>)[key] = value;
       return;
     }
-    if (Array.isArray(value)) {
+    if (is.array(value)) {
       (target as Record<string, unknown>)[key] = deepCloneArray(value);
       return;
     }
@@ -59,11 +59,7 @@ export function deepExtend<A, B>(target: A, object: B): A & B {
       (target as Record<string, unknown>)[key] = cloneSpecificValue(value);
       return;
     }
-    if (
-      typeof source !== "object" ||
-      source === null ||
-      Array.isArray(source)
-    ) {
+    if (typeof source !== "object" || source === null || is.array(source)) {
       (target as Record<string, unknown>)[key] = deepExtend({}, value);
       return;
     }

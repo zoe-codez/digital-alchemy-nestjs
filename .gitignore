@@ -109,5 +109,8 @@ apps/**/artifacts
 /.*rc
 !/.auto-config-testrc
 !/.prettierrc
+!/.entity-creationrc
 !/.pino-prettyrc
-.storage
+/.storage
+apps/examples/docker/homeassistant/config
+apps/examples/docker/homeassistant/config

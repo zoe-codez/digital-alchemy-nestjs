@@ -3,14 +3,14 @@ import { is } from "@steggy/utilities";
 import { ClassConstructor } from "class-transformer";
 import EventEmitter from "eventemitter3";
 
+import { RegisterCache } from "../includes";
+import { BoilerplateModule } from "../modules";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
   LOGGER_LIBRARY,
   MODULE_METADATA,
-} from "../contracts";
-import { RegisterCache } from "../includes";
-import { BoilerplateModule } from "../modules";
+} from "../types";
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application?: string;

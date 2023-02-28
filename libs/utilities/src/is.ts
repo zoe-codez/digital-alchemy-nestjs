@@ -1,3 +1,5 @@
+import deepEqual from "deep-equal";
+
 import { EMPTY, EVEN, START } from "./utilities";
 
 // TODO: declaration merging to allow other libs to create definitions here
@@ -5,6 +7,10 @@ import { EMPTY, EVEN, START } from "./utilities";
  * type testing and basic conversion tools
  */
 export class is {
+  public static array(test: unknown): test is Array<unknown> {
+    return Array.isArray(test);
+  }
+
   public static boolean(test: unknown): test is boolean {
     return typeof test === "boolean";
   }
@@ -21,7 +27,7 @@ export class is {
       | Map<unknown, unknown>
       | object,
   ): boolean {
-    if (is.string(type) || Array.isArray(type)) {
+    if (is.string(type) || is.array(type)) {
       return type.length === EMPTY;
     }
     if (type instanceof Map || type instanceof Set) {
@@ -31,6 +37,13 @@ export class is {
       return Object.keys(type).length === EMPTY;
     }
     return true;
+  }
+
+  /**
+   * Wrapper for `deep-equal`
+   */
+  public static equal(a: unknown, b: unknown): boolean {
+    return deepEqual(a, b);
   }
 
   public static even(test: number): boolean {

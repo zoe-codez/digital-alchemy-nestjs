@@ -1,18 +1,19 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
-import { TemplateButtonCommandId } from "../../decorators";
+import { nextTick } from "process";
 
+import { TemplateButtonCommandId } from "../../decorators";
 import {
   generated_entity_split,
-  GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   SwitchTemplateYaml,
-  TALK_BACK_ACTION,
   Template,
 } from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
 import { PushEntityService, PushStorageMap } from "../push-entity.service";
+import { PushEntityConfigService } from "../push-entity-config.service";
 import { TalkBackService } from "../talk-back.service";
 
 @Injectable()
@@ -21,9 +22,18 @@ export class PushSwitchService {
     private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    @Inject(forwardRef(() => PushEntityConfigService))
+    private readonly config: PushEntityConfigService,
     private readonly talkBack: TalkBackService,
+    private readonly fetch: HassFetchAPIService,
     private readonly pushEntity: PushEntityService<"switch">,
   ) {}
+
+  public readonly switchStates = {};
+  private readonly attributes = new Map<
+    PICK_GENERATED_ENTITY<"switch">,
+    Pick<SwitchTemplateYaml, "friendly_name">
+  >();
 
   public createProxy(id: PICK_GENERATED_ENTITY<"switch">) {
     return this.pushEntity.generate(id, {
@@ -55,7 +65,21 @@ export class PushSwitchService {
     entity_id: PICK_GENERATED_ENTITY<"switch">,
     action: "turn_on" | "turn_off",
   ): void {
-    this.pushEntity.proxySet(entity_id, "state", action === "turn_on");
+    const [, id] = generated_entity_split(entity_id);
+    const state = action === "turn_on" ? "on" : "off";
+    this.config.onlineProxy.attributes[id] = state;
+    nextTick(async () => {
+      const data = {
+        attributes: this.attributes.get(entity_id),
+        state,
+      };
+      // Double tap prevents the switch from being indecisive
+      this.logger.trace({ data }, `[%s] switch state double tap`, entity_id);
+      await this.fetch.updateEntity(entity_id, {
+        attributes: this.attributes.get(entity_id),
+        state,
+      });
+    });
   }
 
   public restCommands() {
@@ -69,14 +93,24 @@ export class PushSwitchService {
     entity_id: PICK_GENERATED_ENTITY<"switch">,
   ) {
     const { config } = storage.get(entity_id);
+    const [, id] = generated_entity_split(entity_id);
     const sensor = {
       friendly_name: config.name,
       icon_template: config.icon,
     } as SwitchTemplateYaml;
     sensor.unique_id = "steggy_switch_" + is.hash(entity_id);
     sensor.availability_template = availability;
+    this.attributes.set(entity_id, {
+      // availability_template: availability,
+      friendly_name: config.name,
+      // icon_template: config.icon,
+    });
     // switches must obey the availability of the service hosting them
-    sensor.value_template = GET_STATE_TEMPLATE;
+    const online_id = `binary_sensor.app_${this.application.replace(
+      "-",
+      "_",
+    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
+    sensor.value_template = `{{ is_state_attr('${online_id}', '${id}','on') }}`;
     sensor.turn_on = {
       service:
         "rest_command." +

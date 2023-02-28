@@ -13,7 +13,18 @@
     "test": "nx run-many --all --target=test",
     "nx-migrate": "nx migrate latest",
     "record": "terminalizer record -c ./terminalizer.yml -k",
-    "play": "terminalizer play"
+    "play": "terminalizer play",
+    "hass:compress": "./tools/scripts/compress.sh",
+    "hass:cleanup": "rm -rf ./apps/examples/docker/homeassistant/config",
+    "hass:decompress": "./tools/scripts/decompress.sh",
+    "hass:prep": "./tools/scripts/hass-prep.sh",
+    "hass:reset": "./tools/scripts/hass-reset.sh",
+    "container:hass:start": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml up -d",
+    "container:hass:stop": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml stop",
+    "container:hass:restart": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml restart",
+    "container:hass:logs": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml logs -f --tail 20",
+    "container:redis:start": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml up -d",
+    "container:redis:stop": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml stop"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",

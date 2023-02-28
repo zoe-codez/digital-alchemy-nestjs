@@ -18,7 +18,7 @@ import {
   MAX_BRIGHTNESS,
   OFF,
   SCENE_SET_ENTITY,
-} from "../contracts";
+} from "../types";
 
 const UP = 1;
 const DOWN = -1;
@@ -34,7 +34,7 @@ export class GradualDimService {
     private readonly chunkSize: number,
   ) {}
 
-  private ENTITY_LOCK = new Map<PICK_ENTITY, string>();
+  private ENTITY_LOCK = new Map<PICK_ENTITY<"light">, string>();
 
   // eslint-disable-next-line radar/cognitive-complexity
   public async run({
@@ -48,32 +48,35 @@ export class GradualDimService {
     // Setup & sanity check
     const entity = this.entityManager.byId(entity_id);
     if (!entity) {
-      this.logger.error(`[${entity}] could not look up!`);
+      this.logger.error(`[%s] could not look up!`, entity);
       return;
     }
     if (!is.number(target)) {
-      this.logger.error(`[${entity_id}] no transition target!`);
+      this.logger.error(`[%s] no transition target!`, entity_id);
       return;
     }
     if (target < OFF) {
-      this.logger.warn(`[${entity_id}] invalid target brightness: ${target}`);
+      this.logger.warn(`[%s] invalid target brightness: %s`, entity_id, target);
       target = OFF;
     }
     if (target > MAX_BRIGHTNESS) {
-      this.logger.warn(`[${entity_id}] invalid target brightness: ${target}`);
+      this.logger.warn(`[%s] invalid target brightness: %s`, entity_id, target);
       target = MAX_BRIGHTNESS;
     }
     if (dayjs().isAfter(end)) {
       this.logger.error(
         { end, target },
-        `[${entity_id}] cannot gradual dim, endDate has already passed`,
+        `[%s] cannot gradual dim, endDate has already passed`,
+        entity_id,
       );
       return;
     }
     const { brightness = OFF } = entity.attributes as { brightness?: number };
     if (brightness === target) {
       this.logger.debug(
-        `[${entity_id}] skipping dim, already at target {${target}}`,
+        `[%s] skipping dim, already at target {%s}`,
+        entity_id,
+        target,
       );
       return;
     }
@@ -95,7 +98,13 @@ export class GradualDimService {
 
     this.logger.info(
       { runId },
-      `[${entity_id}] gradual dim {${brightness}} => {${target}} ({${interval}}ms / {${steps}} steps = {${diff}}s total)`,
+      `[%s] gradual dim {%s} => {%s} ({%s}ms / {%s} steps = {%s}s total)`,
+      entity_id,
+      brightness,
+      target,
+      interval,
+      steps,
+      diff,
     );
     // Gradual dim loop
     for (let sc = START; sc <= steps; sc++) {
@@ -111,14 +120,16 @@ export class GradualDimService {
       // Send the update off-thread to not throw off the sleep timer
       nextTick(async () => {
         if (target <= OFF) {
-          this.logger.debug({ runId }, `[${entity_id}] gradual dim turn off`);
+          this.logger.debug({ runId }, `[%s] gradual dim turn off`, entity_id);
           await this.call.light.turn_off({
             entity_id,
           });
         } else {
           this.logger.debug(
             { runId },
-            `[${entity_id}] set brightness {${target}}`,
+            `[%s] set brightness {%s}`,
+            entity_id,
+            target,
           );
           await this.call.light.turn_on({
             brightness: target,
@@ -130,9 +141,8 @@ export class GradualDimService {
     }
   }
 
-  @OnEvent(ANIMATION_INTERRUPT)
-  @OnEvent(SCENE_SET_ENTITY)
-  protected onSceneSetEntity(entity_id: PICK_ENTITY): void {
+  @OnEvent({ events: [ANIMATION_INTERRUPT, SCENE_SET_ENTITY] })
+  protected onSceneSetEntity(entity_id: PICK_ENTITY<"light">): void {
     this.ENTITY_LOCK.delete(entity_id);
   }
 }

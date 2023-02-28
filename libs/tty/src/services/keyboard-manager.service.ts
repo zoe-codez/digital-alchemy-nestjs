@@ -102,7 +102,7 @@ export class KeyboardManagerService {
           catchAll.push([target, callback]);
           return;
         }
-        const keys = Array.isArray(options.key) ? options.key : [options.key];
+        const keys = [options.key].flat();
         if (!keys.includes(mixed)) {
           return;
         }

@@ -254,7 +254,7 @@ export class ConfigScanner implements iQuickScript {
         break;
       case "string":
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
-        result = Array.isArray(metadata.enum)
+        result = is.array(metadata.enum)
           ? await this.prompt.pickOne({
               current,
               headerMessage: config.property,

@@ -1,4 +1,3 @@
-import { TemplateButtonCommandId } from "../decorators";
 import { SensorDeviceClasses } from "./sensor-device-class";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
@@ -91,7 +90,7 @@ export type TemplateYaml =
 
 export const GET_STATE_TEMPLATE = `{{ trigger.json.state }}`;
 export const GET_ATTRIBUTE_TEMPLATE = (attribute: string) =>
-  `{{ trigger.event.data.attributes.${attribute} }}`;
+  `{{ trigger.json.attributes.${attribute} }}`;
 export type StorageData<CONFIG extends object = object> = {
   attributes: Record<string, unknown>;
   config: CONFIG;

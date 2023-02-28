@@ -1,3 +1,4 @@
+import { is } from "./is";
 import { ARRAY_OFFSET, START } from "./utilities";
 
 // ? Functions written to be similar to the offerings from the async library
@@ -19,7 +20,7 @@ export async function eachSeries<T = unknown>(
   if (item instanceof Set) {
     item = [...item.values()];
   }
-  if (!Array.isArray(item)) {
+  if (!is.array(item)) {
     throw new TypeError(`Not provided an array`);
   }
   for (let i = START; i <= item.length - ARRAY_OFFSET; i++) {

@@ -6,11 +6,12 @@ import {
   OnEvent,
 } from "@steggy/boilerplate";
 import { HA_EVENT_STATE_CHANGE, HassEventDTO } from "@steggy/home-assistant";
+import { PEAT } from "@steggy/utilities";
 import { each } from "async";
 
 import { SEQUENCE_TIMEOUT } from "../config";
-import { SequenceWatchDTO } from "../contracts";
 import { SequenceWatcher } from "../decorators";
+import { SequenceWatchDTO } from "../types";
 
 type SequenceWatcher = SequenceWatchDTO & {
   callback: () => Promise<void>;
@@ -36,16 +37,15 @@ export class SequenceActivateService {
   private readonly WATCHERS = new Map<string, unknown[]>();
 
   protected onApplicationBootstrap(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<SequenceWatchDTO>(SequenceWatcher);
-    providers.forEach(targets => {
-      targets.forEach(({ context, exec, data }) => {
+    this.scanner.bindMethodDecorator<SequenceWatchDTO>(
+      SequenceWatcher,
+      ({ context, exec, data }) => {
+        const smear = PEAT(data.match.length, "%s").join(", ");
         this.logger.info(
           { context },
-          `[@SequenceWatcher]({%s}) states ${data.match
-            .map(i => `{${i}}`)
-            .join(", ")}`,
+          `[@SequenceWatcher]({%s}) states ${smear}`,
           data.sensor,
+          ...data.match,
         );
         const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
         watcher.push({
@@ -56,8 +56,8 @@ export class SequenceActivateService {
           },
         });
         this.WATCHED_SENSORS.set(data.sensor, watcher);
-      });
-    });
+      },
+    );
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -65,7 +65,9 @@ export class SequenceActivateService {
     if (this.WATCHERS.has(data?.entity_id)) {
       this.logger.debug(
         { attributes: data.new_state.attributes },
-        `[${data.entity_id}] state change {${data.new_state.state}}`,
+        `[%s] state change {%s}`,
+        data.entity_id,
+        data.new_state.state,
       );
       this.WATCHERS.get(data.entity_id).push(data.new_state.state);
       this.logger.debug(
@@ -117,7 +119,7 @@ export class SequenceActivateService {
         this.ACTIVE_MATCHERS.delete(data.entity_id);
         clearTimeout(this.TIMERS.get(data.entity_id));
         this.TIMERS.delete(data.entity_id);
-        this.logger.debug(`sensor reset {${data.entity_id}}`);
+        this.logger.debug(`sensor reset {%s}`, data.entity_id);
       }
     });
   }

@@ -1,5 +1,9 @@
 import { PICK_ENTITY } from "@steggy/home-assistant";
-import { CronExpression, PropertyDecoratorFactory } from "@steggy/utilities";
+import {
+  AttachMethodDecorator,
+  CronExpression,
+  PropertyDecoratorFactory,
+} from "@steggy/utilities";
 
 export interface DeterministicSwitchOptions {
   /**
@@ -12,15 +16,14 @@ export interface DeterministicSwitchOptions {
    * Default: EVERY_10_MINUTES
    */
   interval?: CronExpression | `${CronExpression}` | string;
-
   /**
    * Check on update of this entity
    */
   onEntityUpdate?: PICK_ENTITY | PICK_ENTITY[];
   /**
-   * Watching global EventEmitter for events
+   * Receive updates from configured annotations
    */
-  onEvent?: string | string[];
+  onEvent?: AttachMethodDecorator | AttachMethodDecorator[];
 }
 
 /**

@@ -1,18 +1,19 @@
 /* eslint-disable radar/cognitive-complexity */
-import { Injectable, Scope } from "@nestjs/common";
+import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
+import { INQUIRER } from "@nestjs/core";
 import {
   AnnotationPassThrough,
   AutoLogService,
-  CacheService,
   InjectConfig,
   InjectLogger,
-  ModuleScannerService,
 } from "@steggy/boilerplate";
 import {
   domain,
+  ENTITY_STATE,
   EntityManagerService,
   iCallService,
   InjectCallProxy,
+  OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import {
@@ -27,44 +28,40 @@ import {
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";
+import { LiteralUnion } from "type-fest";
+import { v4 } from "uuid";
 
-import { DEFAULT_DIM } from "../config";
+import { CIRCADIAN_SENSOR, DEFAULT_DIM } from "../config";
+import { iSceneRoomOptions, ROOM_CONFIG_MAP } from "../decorators";
 import {
+  ALL_GLOBAL_SCENES,
+  ALL_ROOM_NAMES,
+  AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+  AutomationLogicModuleConfiguration,
   CannedTransitions,
-  CIRCADIAN_UPDATE,
-  LightTransition,
   MAX_BRIGHTNESS,
   OFF,
-  REGISTER_ROOM,
-  SCENE_CHANGE,
+  ROOM_SCENES,
+  SCENE_ROOM_OPTIONS,
   SCENE_SET_ENTITY,
+  SceneList,
   tScene,
-  tSceneType,
-} from "../contracts";
-import {
-  iSceneRoom,
-  iSceneRoomOptions,
-  MethodTransition,
-  SCENE_ROOM_MAP,
-  SCENE_ROOM_SETTINGS,
-  SceneTransitionInterceptor,
-} from "../decorators";
+} from "../types";
 import { CircadianService } from "./circadian.service";
-import { TransitionRunnerService } from "./transition-runner.service";
+import { SceneControllerService } from "./scene-controller.service";
 
-const SCENE_CACHE = (room: string) => `ROOM_SCENE:${room}`;
-const ROOMS = new Map<string, SceneRoomService<string>>();
-const current = new Map<string, string>();
+const ROOMS = new Map<string, SceneRoomService>();
 interface HasKelvin {
   kelvin: number;
 }
 
 type tTransitions<SCOPED extends string> = Partial<
-  Record<SCOPED | "*", Partial<Record<SCOPED | "*", AnnotationPassThrough>>>
+  Record<
+    LiteralUnion<SCOPED, "*">,
+    Partial<Record<LiteralUnion<SCOPED, "*">, AnnotationPassThrough>>
+  >
 >;
 
-export const SET_ROOM_SCENE_EVENT = (room: string, scene: string) =>
-  `room-set-scene/${room}/${scene}`;
 const ANY = "*";
 
 /**
@@ -72,55 +69,76 @@ const ANY = "*";
  * The annotation itself is not enough
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class SceneRoomService<
-  LOCAL extends string,
-  GLOBAL extends string = LOCAL,
-  NAME extends string = string,
-> {
-  public static RoomState<NAME extends string>(room: NAME): string {
-    return current.get(room);
+export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
+  /**
+   * pre-create rooms to ensure they are created at least once
+   */
+  public static buildProviders(
+    configuration: AutomationLogicModuleConfiguration,
+  ): Provider[] {
+    return Object.keys(configuration.room_configuration).map(
+      (i: ALL_ROOM_NAMES) => {
+        return {
+          inject: [SceneRoomService],
+          provide: v4(),
+          useFactory(room: SceneRoomService) {
+            room.load(i);
+            return room;
+          },
+        } as Provider;
+      },
+    );
   }
 
   constructor(
-    @InjectLogger()
-    private readonly logger: AutoLogService,
+    private readonly circadian: CircadianService,
+    private readonly controller: SceneControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly eventEmitter: EventEmitter,
-    private readonly cache: CacheService,
+    @Inject(INQUIRER) private inquirer: unknown,
+    @InjectLogger()
+    private readonly logger: AutoLogService,
     @InjectCallProxy()
     private readonly call: iCallService,
-    private readonly circadian: CircadianService,
+    @InjectConfig(CIRCADIAN_SENSOR)
+    private readonly circadianSensor: PICK_ENTITY<"sensor">,
     @InjectConfig(DEFAULT_DIM)
     private readonly defaultDim: number,
-    private readonly transition: TransitionRunnerService,
-    private readonly scanner: ModuleScannerService,
+    @Inject(AUTOMATION_LOGIC_MODULE_CONFIGURATION)
+    private readonly moduleConfiguration: AutomationLogicModuleConfiguration,
+    @Inject(ROOM_CONFIG_MAP)
+    private readonly roomConfigurations: ROOM_CONFIG_MAP,
   ) {}
 
   public get current() {
-    return (current.get(this.roomName) ?? "off") as LOCAL | GLOBAL;
+    return this.controller.currentScenes.get(this.name)
+      .state as ROOM_SCENES<NAME>;
   }
 
-  public roomName: NAME;
-  private entities: Set<PICK_ENTITY> = new Set();
-  private scenes: Map<LOCAL | GLOBAL, tScene> = new Map();
-  private readonly transitions: tTransitions<LOCAL | GLOBAL> = {};
+  public name: NAME;
+  private readonly entities: Set<PICK_ENTITY> = new Set();
+  private readonly scenes: Map<ROOM_SCENES<NAME>, tScene> = new Map();
+  private readonly transitions: tTransitions<ROOM_SCENES<NAME>> = {};
 
-  private get parent() {
-    return SCENE_ROOM_SETTINGS.get(this.options) as iSceneRoom<LOCAL | GLOBAL>;
+  /**
+   * From specific provider annotation configuration
+   */
+  private get configuration() {
+    return this.roomConfigurations.get(this.name);
   }
 
+  /**
+   * From module configuration
+   */
   private get options() {
-    return SCENE_ROOM_MAP.get(this.roomName) as iSceneRoomOptions<
-      LOCAL | GLOBAL,
-      NAME
-    >;
+    return this.moduleConfiguration.room_configuration[this.name];
   }
 
   public dimmableLights(
     circadian = false,
     includeOff = false,
   ): PICK_ENTITY<"light">[] {
-    if (is.empty(this.roomName)) {
+    if (is.empty(this.name)) {
       return [];
     }
     const lights: PICK_ENTITY<"light">[] = [];
@@ -141,12 +159,12 @@ export class SceneRoomService<
   }
 
   public async global(
-    scene: GLOBAL,
+    scene: ALL_GLOBAL_SCENES,
     { excludeSelf = false }: { excludeSelf?: boolean } = {},
   ): Promise<void> {
-    this.logger.info(`Setting global scene {${scene}}`);
+    this.logger.info(`Setting global scene {%s}`, scene);
     await each([...ROOMS.entries()], async ([name, sceneService]) => {
-      if (excludeSelf && name === this.roomName) {
+      if (excludeSelf && name === this.name) {
         return;
       }
       await sceneService.set(scene);
@@ -156,14 +174,12 @@ export class SceneRoomService<
   /**
    * type guard
    */
-  public isValidScene(scene: string): scene is LOCAL | GLOBAL {
-    return (
-      !is.undefined(this.options.scenes[scene]) ||
-      // Canned transitions (not sure how this wouldn't also be caught in the scene list tho)
-      Object.entries(this.options.transitions ?? {}).some(
-        ([from, targets]) => from === scene || !is.undefined(targets[scene]),
-      )
-    );
+  public isValidScene(scene: string): scene is ROOM_SCENES<NAME> {
+    return !is.undefined(this.configuration.scenes[scene]);
+    // Canned transitions (not sure how this wouldn't also be caught in the scene list tho)
+    // Object.entries(this.options.transitions ?? {}).some(
+    //   ([from, targets]) => from === scene || !is.undefined(targets[scene]),
+    // )
   }
 
   /**
@@ -172,7 +188,7 @@ export class SceneRoomService<
    * To go under 5, turn off the light instead
    */
   public async lightDim(amount: number = this.defaultDim): Promise<void> {
-    if (is.empty(this.roomName)) {
+    if (is.empty(this.name)) {
       this.logger.error(`Cannot light dim`);
       return;
     }
@@ -192,9 +208,11 @@ export class SceneRoomService<
       }
       this.logger.debug(
         { amount },
-        `[${entity_id}] set brightness: {${brightness}/${MAX_BRIGHTNESS} (${Math.floor(
-          (brightness * PERCENT) / MAX_BRIGHTNESS,
-        )}%)}`,
+        `[%s] set brightness: {%s/%s (%s%)}`,
+        entity_id,
+        brightness,
+        MAX_BRIGHTNESS,
+        Math.floor((brightness * PERCENT) / MAX_BRIGHTNESS),
       );
       await this.call.light.turn_on({
         brightness,
@@ -203,29 +221,29 @@ export class SceneRoomService<
     });
   }
 
-  public load(name: NAME, instance: unknown): void {
-    this.roomName = name;
-    this.options.scenes ??= {};
-    SCENE_ROOM_SETTINGS.set(this.options, instance);
-    this.eventEmitter.emit(REGISTER_ROOM, [name, instance]);
+  public load(name: NAME): void {
+    this.name = name;
+    const ref = this as unknown;
+    this.controller.register(name, ref as SceneRoomService<ALL_ROOM_NAMES>);
   }
 
   /**
    * Change the current scene
    * Will automatically process
    */
-  public set(sceneName: LOCAL | GLOBAL): void {
-    if (is.empty(this.roomName)) {
-      this.logger.error(`Cannot set scene {${sceneName}}`);
+  public set(sceneName: ROOM_SCENES<NAME>): void {
+    if (is.empty(this.name)) {
+      this.logger.error(`Cannot set scene {%s}`, sceneName);
       return;
     }
     nextTick(async () => {
-      sceneName = await this.runTransitions(this.current, sceneName);
+      // sceneName = await this.runTransitions(this.current, sceneName);
+      // transitions disabled
       if (!this.scenes.has(sceneName)) {
         this.logger.info(`Scene set interrupted: transition cleared target`);
         return;
       }
-      this.logger.debug(`[${this.roomName}] Setting scene {${sceneName}}`);
+      this.logger.debug(`[%s] Setting scene {%s}`, this.name, sceneName);
 
       const { scene, lights } = this.dynamicProperties(sceneName);
 
@@ -247,8 +265,9 @@ export class SceneRoomService<
         // Set lights to current color temp
         new Promise<void>(async done => {
           await eachSeries(
-            Object.entries(lights),
-            async ([id, change]: [PICK_ENTITY<"light">, tSceneType]) => {
+            Object.keys(lights),
+            async (id: PICK_ENTITY<"light">) => {
+              const change = lights[id];
               this.eventEmitter.emit(SCENE_SET_ENTITY, id);
               await this.call.light.turn_on({
                 brightness: change.brightness,
@@ -260,9 +279,11 @@ export class SceneRoomService<
           done();
         }),
       ]);
-      current.set(this.roomName, sceneName);
-      await this.cache.set(SCENE_CACHE(this.roomName), sceneName);
-      this.eventEmitter.emit(SCENE_CHANGE(this.roomName), sceneName);
+      this.controller.onSceneChange(
+        this.name,
+        sceneName,
+        this.options.scenes[sceneName].friendly_name,
+      );
     });
   }
 
@@ -304,8 +325,8 @@ export class SceneRoomService<
     });
   }
 
-  protected async onApplicationBootstrap(): Promise<void> {
-    if (is.empty(this.roomName)) {
+  protected onApplicationBootstrap() {
+    if (is.empty(this.name)) {
       // Technically valid, but not ideal
       // Would like to prevent non-scene rooms from importing this class in the future
       // Causes some weird side effects, and the analogies really don't work all that well
@@ -313,39 +334,53 @@ export class SceneRoomService<
       this.logger.warn(`Scene set imported by non-room`);
       return;
     }
-    this.scenes = new Map();
 
     // Register room provider
-    ROOMS.set(this.roomName, this);
+    const service = this as unknown;
+    ROOMS.set(this.name, service as SceneRoomService);
 
-    // Identify the current scene
-    // This may be wrong if cache data isn't available, but that should be a temporary state
-    const value = await this.cache.get<string>(SCENE_CACHE(this.roomName));
-    current.set(this.roomName, value);
+    const scenes = this.options?.scenes;
 
-    this.loadTransitions(this.parent.constructor.name);
-    this.logger.info(`Room [${this.roomName}] loaded`);
-
+    this.logger.info(`Room [%s] loaded`, this.name);
     // Run through each individual scene, doing individual registration
-    Object.entries(this.options.scenes).forEach(
-      ([name, scene]: [LOCAL | GLOBAL, unknown]) => {
-        this.scenes.set(name as LOCAL | GLOBAL, scene as tScene);
-        this.logger.debug(` - scene {${name}}`);
-        // Add entities used in the scene to the local list of entities used in this room
-        Object.entries(scene).forEach(([entityName]) =>
-          this.entities.add(entityName as PICK_ENTITY),
+    Object.keys(scenes).forEach((name: ROOM_SCENES<NAME>) => {
+      const roomScenes = this.configuration.scenes as SceneList<
+        ROOM_SCENES<NAME>
+      >;
+      if (is.empty(roomScenes)) {
+        this.logger.error(
+          `[@SceneRoom]({%s}) does not define scenes`,
+          this.name,
         );
-        // Add an event emitter subscription for this specific scene
-        // Note: `hass-mqtt` will bind MQTT to this event to allow scene setting via mqtt entities
-        this.eventEmitter.on(SET_ROOM_SCENE_EVENT(this.roomName, name), () => {
-          this.set(name);
-        });
+        return;
+      }
+      const scene = roomScenes[name];
+      this.scenes.set(name as ROOM_SCENES<NAME>, scene as tScene);
+      this.logger.debug(` - scene {%s}`, name);
+      // Add entities used in the scene to the local list of entities used in this room
+      Object.entries(scene).forEach(([entityName]) =>
+        this.entities.add(entityName as PICK_ENTITY),
+      );
+    });
+    OnEntityUpdate(
+      this.circadianSensor,
+      (entity: ENTITY_STATE<typeof this.circadianSensor>) => {
+        this.circadianLightingUpdate(Number(entity.state));
       },
     );
-    // Annotation based bindings don't work as expected in transient providers
-    this.eventEmitter.on(CIRCADIAN_UPDATE, temperature =>
-      this.circadianLightingUpdate(temperature),
-    );
+  }
+
+  protected onModuleInit(): void {
+    if (!this.inquirer) {
+      return;
+    }
+    const options = this.inquirer.constructor[
+      SCENE_ROOM_OPTIONS
+    ] as iSceneRoomOptions<NAME>;
+    if (!is.object(options)) {
+      return;
+    }
+    this.load(options.name);
   }
 
   /**
@@ -355,23 +390,27 @@ export class SceneRoomService<
    * These are separated out from the entities that are being otherwise set in the scene, and have the current kelvin injected into their attributes
    *
    */
-  private dynamicProperties(scene: LOCAL | GLOBAL) {
+  private dynamicProperties(scene: ROOM_SCENES<NAME>) {
     const item = this.scenes.get(scene) ?? {};
-    const list = Object.entries(item).map(
-      ([name, value]: [
-        PICK_ENTITY<"light">,
-        { kelvin?: number; state: string },
-      ]) => {
+    const list = Object.keys(item)
+      .map((name: PICK_ENTITY<"light">) => {
+        const value = item[name];
+        if (domain(name) === "switch") {
+          return [name, value];
+        }
+        if (domain(name) !== "light") {
+          return undefined;
+        }
         if (!this.shouldCircadian(name, value?.state)) {
           return [name, value];
         }
-        this.logger.debug(`circadian {${name}}`);
+        this.logger.debug(`circadian {%s}`, name);
         return [
           name,
-          { kelvin: this.circadian.CURRENT_LIGHT_TEMPERATURE, ...value },
+          { kelvin: this.circadian.circadianEntity.state, ...value },
         ];
-      },
-    );
+      })
+      .filter(i => !is.undefined(i));
     return {
       lights: Object.fromEntries(
         list.filter(i => !is.undefined((i[VALUE] as HasKelvin).kelvin)),
@@ -386,8 +425,8 @@ export class SceneRoomService<
    * Retrieve a scene - scene transition step (if exists)
    */
   private getTransition(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
     useMethods = true,
   ) {
@@ -414,11 +453,12 @@ export class SceneRoomService<
   }
 
   private getTransitionCanned(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
   ): CannedTransitions[] {
-    const transitions = this.options.transitions;
+    // const transitions = this.options.transitions;
+    const transitions = undefined;
     if (!transitions) {
       return undefined;
     }
@@ -440,8 +480,8 @@ export class SceneRoomService<
    * exact match > to match > from match > complete wildcard
    */
   private getTransitionMethod(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
     explicit = false,
   ): AnnotationPassThrough {
     if (explicit) {
@@ -451,103 +491,84 @@ export class SceneRoomService<
     return source[to] ?? source[ANY];
   }
 
-  private loadTransitions(name: string): void {
-    const transitions = this.scanner.findAnnotatedMethods<
-      MethodTransition<LOCAL | GLOBAL>
-    >(SceneTransitionInterceptor);
-    this.transitions["*"] = {};
-    transitions.forEach((targets, instance) => {
-      if (instance.constructor.name !== name) {
-        return;
-      }
-      targets.forEach(({ exec, context, data }) => {
-        const from = data.from ?? ANY;
-        const to = data.to ?? ANY;
-        this.logger.info(
-          { context },
-          `[@SceneTransitionInterceptor] {%s,%s}`,
-          from,
-          to,
-        );
-        this.transitions[from] ??= {};
-        this.transitions[from][to] = exec;
-      });
-    });
-  }
-
   private async runTransitions(
-    from: LOCAL | GLOBAL,
-    to: LOCAL | GLOBAL,
-  ): Promise<LOCAL | GLOBAL> {
-    let transition = this.getTransition(from, to);
-    if (is.undefined(transition)) {
-      return to;
-    }
+    from: ROOM_SCENES<NAME>,
+    to: ROOM_SCENES<NAME>,
+  ): Promise<ROOM_SCENES<NAME>> {
+    return await undefined;
+    // let transition = this.getTransition(from, to);
+    // if (is.undefined(transition)) {
+    //   return to;
+    // }
 
-    let interrupt = false;
-    const stop = () => (interrupt = true);
+    // let interrupt = false;
+    // const stop = () => (interrupt = true);
 
-    // string result = method name
-    if (is.string(transition)) {
-      // wat
-      if (!is.function(this.parent[transition])) {
-        this.logger.error(
-          `[${this.roomName}] failed to run transition function {${transition}} (undefined)`,
-        );
-        return to;
-      }
+    // // string result = method name
+    // if (is.string(transition)) {
+    //   // wat
+    //   if (!is.function(this.parent[transition])) {
+    //     this.logger.error(
+    //       `[%s] failed to run transition function {%s} (undefined)`,
+    //       this.name,
+    //       transition,
+    //     );
+    //     return to;
+    //   }
 
-      // the method should return a scene name, or void
-      const result: LOCAL | GLOBAL | undefined = await this.parent[transition]({
-        from,
-        stop,
-        to,
-      });
-      const out = interrupt ? undefined : to;
+    //   // the method should return a scene name, or void
+    //   const result: ROOM_SCENES<NAME> | undefined = await this.parent[
+    //     transition
+    //   ]({
+    //     from,
+    //     stop,
+    //     to,
+    //   });
+    //   const out = interrupt ? undefined : to;
 
-      // sanity check: did the function return an invalid scene?
-      // "valid" is defined as being in the scene list.
-      // It can be assumed that if typescript isn't erroring, and it's in this list, it's valid
-      if (is.string(result) && !this.scenes.has(result)) {
-        //  ...whatever
-        const runAnyway = this.getTransition(from, result, true);
-        if (!runAnyway) {
-          this.logger.error(
-            { from, method: transition, result, to },
-            `Invalid transition result. Should be scene name, or undefined`,
-          );
-          return out;
-        }
-      }
+    //   // sanity check: did the function return an invalid scene?
+    //   // "valid" is defined as being in the scene list.
+    //   // It can be assumed that if typescript isn't erroring, and it's in this list, it's valid
+    //   if (is.string(result) && !this.scenes.has(result)) {
+    //     //  ...whatever
+    //     const runAnyway = this.getTransition(from, result, true);
+    //     if (!runAnyway) {
+    //       this.logger.error(
+    //         { from, method: transition, result, to },
+    //         `Invalid transition result. Should be scene name, or undefined`,
+    //       );
+    //       return out;
+    //     }
+    //   }
 
-      // if the returned value is the same as the original target, skip down to the internal transition runner
-      if (result !== to) {
-        // recurse if valid
-        if (this.scenes.has(result)) {
-          const runResult = await this.runTransitions(from, result);
-          return this.scenes.has(runResult) || is.undefined(runResult)
-            ? runResult
-            : to;
-        }
-        return out;
-      }
+    //   // if the returned value is the same as the original target, skip down to the internal transition runner
+    //   if (result !== to) {
+    //     // recurse if valid
+    //     if (this.scenes.has(result)) {
+    //       const runResult = await this.runTransitions(from, result);
+    //       return this.scenes.has(runResult) || is.undefined(runResult)
+    //         ? runResult
+    //         : to;
+    //     }
+    //     return out;
+    //   }
 
-      // Identify if there are any canned transitions to run
-      transition = this.getTransition(from, to, false, false);
-      if (!Array.isArray(transition)) {
-        // No canned stuff to run
-        return out;
-      }
-    }
+    //   // Identify if there are any canned transitions to run
+    //   transition = this.getTransition(from, to, false, false);
+    //   if (!is.array(transition)) {
+    //     // No canned stuff to run
+    //     return out;
+    //   }
+    // }
 
-    // hand off logic
-    // this cannot do redirects
-    await this.transition.run(
-      transition as LightTransition[],
-      this.scenes.get(to) ?? {},
-      stop,
-    );
-    return interrupt ? undefined : to;
+    // // hand off logic
+    // // this cannot do redirects
+    // await this.transition.run(
+    //   transition as LightTransition[],
+    //   this.scenes.get(to) ?? {},
+    //   stop,
+    // );
+    // return interrupt ? undefined : to;
   }
 
   /**
@@ -561,17 +582,12 @@ export class SceneRoomService<
     entity_id: PICK_ENTITY<"light">,
     target?: string,
   ): boolean {
-    const { auto_circadian, force_circadian } = this.options;
     if (domain(entity_id) !== "light") {
       return false;
     }
-    if ((!is.empty(target) && target !== "on") || auto_circadian === false) {
+    if (!is.empty(target) && target !== "on") {
       return false;
     }
-    if (force_circadian && force_circadian.has(entity_id)) {
-      return true;
-    }
-
     const currentScene = this.scenes.get(this.current) ?? {};
     if (!currentScene[entity_id]) {
       return true;

@@ -1,32 +1,45 @@
+import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
+import { PICK_ENTITY } from "@steggy/home-assistant";
+import { MQTTModule } from "@steggy/mqtt";
 
 import {
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
+  CIRCADIAN_SENSOR,
   DEFAULT_DIM,
   GRADUAL_DIM_DEFAULT_INTERVAL,
+  LIB_AUTOMATION_LOGIC,
   MIN_BRIGHTNESS,
+  MQTT_TOPIC_PREFIX,
   SEQUENCE_TIMEOUT,
 } from "../config";
+import { ROOM_CONFIG_MAP } from "../decorators";
 import {
   CircadianService,
-  EntityToolsService,
   GradualDimService,
+  MQTTHealth,
+  ScannerService,
+  SceneControllerService,
   SceneRoomService,
   SequenceActivateService,
   SolarCalcService,
   StateEnforcerService,
   TransitionRunnerService,
 } from "../services";
+import {
+  AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+  AutomationLogicModuleConfiguration,
+} from "../types";
 
 @LibraryModule({
   configuration: {
     [CIRCADIAN_ENABLED]: {
       default: true,
       description:
-        "Setting to false will prevent lights from having their temperature managed",
+        "Take responsibility for generating [CIRCADIAN_SENSOR] and emitting updates",
       type: "boolean",
     },
     [CIRCADIAN_MAX_TEMP]: {
@@ -40,6 +53,11 @@ import {
       description:
         "Minimum color temperature for circadian lighting. Used while it's dark out",
       type: "number",
+    },
+    [CIRCADIAN_SENSOR]: {
+      default: "sensor.current_light_temperature" as PICK_ENTITY<"sensor">,
+      description: "Sensor for reading / writing current light temperature to",
+      type: "string",
     },
     [DEFAULT_DIM]: {
       default: 50,
@@ -58,6 +76,11 @@ import {
         "Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers",
       type: "number",
     },
+    [MQTT_TOPIC_PREFIX]: {
+      default: "steggy",
+      description: "Prefix to use in front of mqtt message topics",
+      type: "string",
+    },
     [SEQUENCE_TIMEOUT]: {
       default: 1500,
       description:
@@ -65,18 +88,39 @@ import {
       type: "number",
     },
   },
-  exports: [CircadianService, SceneRoomService, SolarCalcService],
-  imports: [DiscoveryModule, RegisterCache()],
-  library: "automation-logic",
-  providers: [
-    CircadianService,
-    EntityToolsService,
-    GradualDimService,
-    StateEnforcerService,
-    SceneRoomService,
-    SequenceActivateService,
-    SolarCalcService,
-    TransitionRunnerService,
-  ],
+  library: LIB_AUTOMATION_LOGIC,
 })
-export class ControllerLogicModule {}
+export class AutomationLogicModule {
+  public static forRoot(
+    configuration: AutomationLogicModuleConfiguration = {},
+  ): DynamicModule {
+    return {
+      exports: [CircadianService, SceneRoomService, SolarCalcService],
+      global: true,
+      imports: [DiscoveryModule, RegisterCache(), MQTTModule],
+      module: AutomationLogicModule,
+      providers: [
+        CircadianService,
+        GradualDimService,
+        MQTTHealth,
+        SceneControllerService,
+        SceneRoomService,
+        SequenceActivateService,
+        SolarCalcService,
+        ScannerService,
+        StateEnforcerService,
+        TransitionRunnerService,
+        {
+          provide: AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+          useValue: configuration,
+        },
+        {
+          inject: [ScannerService],
+          provide: ROOM_CONFIG_MAP,
+          useFactory: (scanner: ScannerService) => scanner.build(),
+        },
+        ...SceneRoomService.buildProviders(configuration),
+      ],
+    };
+  }
+}

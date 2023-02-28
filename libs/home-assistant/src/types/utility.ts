@@ -106,7 +106,7 @@ export type PUSH_PROXY<
   binary_sensor: BinarySensorProxy;
   sensor: SensorProxy;
   switch: SwitchProxy;
-}[GetGeneratedDomain<ENTITY>];
+}[GetDomain<ENTITY>];
 
 /**
  * Type definitions to match a specific entity.
@@ -156,10 +156,10 @@ type GetGeneratedStateType<DOMAIN extends PushSensorDomains> = {
 export type iPushSensor<
   ENTITY extends PICK_GENERATED_ENTITY<PushSensorDomains>,
 > = {
-  state: GetGeneratedStateType<GetGeneratedDomain<ENTITY>>;
+  state: GetGeneratedStateType<GetDomain<ENTITY>>;
 };
 
-export type GetGeneratedDomain<ENTITY extends PICK_GENERATED_ENTITY> =
+export type GetDomain<ENTITY extends PICK_ENTITY | PICK_GENERATED_ENTITY> =
   ENTITY extends `${infer domain}.${string}` ? domain : never;
 
 export type ConfigDomainMap = {

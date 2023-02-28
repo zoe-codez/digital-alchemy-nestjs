@@ -1,8 +1,10 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import {
+  AnnotationPassThrough,
   AutoLogService,
   CacheService,
   Cron,
+  ModuleScannerService,
   OnEvent,
 } from "@steggy/boilerplate";
 import { HassFetchAPIService, SOCKET_READY } from "@steggy/home-assistant";
@@ -19,12 +21,10 @@ import {
 } from "@steggy/utilities";
 import { CronTime } from "cron";
 import dayjs from "dayjs";
-import EventEmitter from "eventemitter3";
 import SolarCalc from "solar-calc";
 import SolarCalcType from "solar-calc/types/solarCalc";
 
-import { LOCATION_UPDATED } from "../contracts";
-import { SOLAR_EVENT } from "../decorators";
+import { SolarEvent, SolarOptions } from "../decorators";
 
 const CALC_EXPIRE = HALF * MINUTE;
 export enum SolarEvents {
@@ -53,9 +53,9 @@ let claimed = false;
 export class SolarCalcService {
   constructor(
     private readonly cache: CacheService,
-    private readonly eventEmitter: EventEmitter,
     private readonly fetch: HassFetchAPIService,
     private readonly logger: AutoLogService,
+    private readonly scanner: ModuleScannerService,
   ) {
     if (!claimed) {
       this.emit = true;
@@ -66,6 +66,7 @@ export class SolarCalcService {
   public latitude = EMPTY;
   public longitude = EMPTY;
   private CALCULATOR;
+  private readonly callbacks = new Map<SolarOptions, AnnotationPassThrough[]>();
   private emit = false;
 
   public get astronomicalDawn() {
@@ -184,6 +185,7 @@ export class SolarCalcService {
   protected async onModuleInit(): Promise<void> {
     this.longitude = await this.cache.get(CACHE_LONG, EMPTY);
     this.latitude = await this.cache.get(CACHE_LAT, EMPTY);
+    this.initScan();
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -204,9 +206,20 @@ export class SolarCalcService {
       this.longitude = config.longitude;
       await this.cache.set(CACHE_LONG, config.longitude);
       await this.cache.set(CACHE_LAT, config.latitude);
-      this.eventEmitter.emit(LOCATION_UPDATED);
       this.updateCalculator();
     }, SECOND);
+  }
+
+  private initScan(): void {
+    this.scanner.bindMethodDecorator<SolarOptions>(
+      SolarEvent,
+      ({ exec, data, context }) => {
+        this.logger.info({ context }, `[@SolarEvent] {%s}`, data);
+        const current = this.callbacks.get(data) ?? [];
+        current.push(exec);
+        this.callbacks.set(data, current);
+      },
+    );
   }
 
   private async waitForEvent(
@@ -218,19 +231,21 @@ export class SolarCalcService {
     }
     if (dayjs().isAfter(calc[key])) {
       this.logger.debug(
-        `[${key}] already fired for today {${(
-          calc[key] as Date
-        ).toLocaleTimeString()}}`,
+        `[%s] already fired for today {%s}`,
+        key,
+        (calc[key] as Date).toLocaleTimeString(),
       );
       return;
     }
     this.logger.info(
-      `[${key}] will fire at {${(calc[key] as Date).toLocaleTimeString()}}`,
+      `[%s] will fire at {%s}`,
+      key,
+      (calc[key] as Date).toLocaleTimeString(),
     );
     const timer = new CronTime(calc[key]);
     await sleep(timer.getTimeout());
-    this.eventEmitter.emit(`solar/${key}`);
-    this.eventEmitter.emit(SOLAR_EVENT, key);
-    this.logger.info(`solar/${key}`);
+    const current = this.callbacks.get(key) ?? [];
+    const wildcard = this.callbacks.get("*") ?? [];
+    [current, wildcard].flat().forEach(callback => callback());
   }
 }

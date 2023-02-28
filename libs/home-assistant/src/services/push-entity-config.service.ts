@@ -5,7 +5,7 @@ import {
   Cron,
   InjectConfig,
 } from "@steggy/boilerplate";
-import { CronExpression, TitleCase } from "@steggy/utilities";
+import { CronExpression, is, TitleCase } from "@steggy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
@@ -67,18 +67,18 @@ export class PushEntityConfigService {
   /**
    * Mapping between mount points and extra data.
    *
-   * > example: ["mqtt", { ... }]
+   * > example: ["my_plugin", { ... }]
    */
   public readonly LOCAL_PLUGINS = new Map<string, InjectedPushConfig>();
+  /**
+   * ID will be different
+   */
+  public onlineProxy: PUSH_PROXY<"binary_sensor.online">;
 
   /**
    * ID will be different
    */
   private lastBuildDate: PUSH_PROXY<"sensor.last_build_date">;
-  /**
-   * ID will be different
-   */
-  private onlineProxy: PUSH_PROXY<"binary_sensor.online">;
   /**
    * ID will be different
    */
@@ -90,7 +90,7 @@ export class PushEntityConfigService {
 
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
-    await this.verifyYaml();
+    // await this.verifyYaml();
   }
 
   protected async onModuleInit() {
@@ -135,11 +135,53 @@ export class PushEntityConfigService {
       // tampering could result in the generation of types that reflect neither the yaml nor application runtime state
       // no human should mess with that info by hand, just generate it again
       SERIALIZE.serialize(this.serializeState()),
+      // JSON.stringify(this.serializeState(), undefined, "  "), // for debugging
       "utf8",
     );
-    const rootYaml = this.pushProxy.applicationYaml(this.appRoot);
+    let rootYaml = this.pushProxy.applicationYaml(this.appRoot);
+    this.LOCAL_PLUGINS.forEach(({ yaml }) => {
+      rootYaml += "\n" + yaml(this.appRoot).root_include;
+    });
+    // rootYaml += "# test";
     writeFileSync(join(this.appRoot, "include.yaml"), rootYaml, "utf8");
     this.logger.debug(`Done`);
+  }
+
+  private async initOnline() {
+    const initSwitches = this.configuration?.generate_entities?.switch ?? {};
+    // * `binary_sensor.{app}_online`
+    const online_id = `binary_sensor.app_${this.application.replace(
+      "-",
+      "_",
+    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
+    const switchAttributes = Object.keys(initSwitches).map(name => {
+      return [name, `{{ trigger.json.attributes.${name} }}`];
+    });
+    this.pushEntity.insert(online_id, {
+      attributes: {
+        ...Object.fromEntries(switchAttributes),
+      },
+      /**
+       * This sensor should always be available, regardless of application state.
+       *
+       * The delay_off manages the available for all the other connected entities
+       */
+      availability: "1",
+      delay_off: {
+        seconds: 30,
+      },
+      name: `App ${TitleCase(this.application)} Online`,
+      track_history: true,
+    });
+    const proxy = await this.pushProxy.createPushProxy(online_id);
+    this.onlineProxy = proxy;
+    switchAttributes.forEach(([name]) => {
+      if (!is.undefined(proxy.attributes[name])) {
+        return;
+      }
+      // ! switches default to off?
+      proxy.attributes[name] = false;
+    });
   }
 
   /**
@@ -179,26 +221,7 @@ export class PushEntityConfigService {
    * If the setup requires a restart, this will remain false until the newest code is loaded.
    */
   private async initialize() {
-    // * `binary_sensor.{app}_online`
-    const online_id = `binary_sensor.app_${this.application.replace(
-      "-",
-      "_",
-    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
-    this.pushEntity.insert(online_id, {
-      /**
-       * This sensor should always be available, regardless of application state.
-       *
-       * The delay_off manages the available for all the other connected entities
-       */
-      availability: "1",
-      delay_off: {
-        seconds: 30,
-      },
-      name: `${TitleCase(this.application)} Online`,
-      track_history: true,
-    });
-    this.onlineProxy = await this.pushProxy.createPushProxy(online_id);
-
+    await this.initOnline();
     // * `sensor.{app}_last_build`
     const last_build_id = `sensor.app_${this.application.replace(
       "-",
@@ -231,7 +254,6 @@ export class PushEntityConfigService {
       plugins: [...this.LOCAL_PLUGINS.entries()].map(([name, data]) => ({
         name,
         storage: data.storage(),
-        yaml: data.yaml(),
       })),
     };
   }

@@ -3,8 +3,8 @@ import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
 
-import { MqttEvents, MqttSubscriber } from "../contracts";
-import { AnnotatedMQTTSubscription, InjectMQTT, OnMQTT } from "../decorators";
+import { MqttEvents, MqttSubscribeOptions, MqttSubscriber } from "../contracts";
+import { InjectMQTT, OnMQTT } from "../decorators";
 import { MqttService } from "./mqtt.service";
 
 const FIRST = 0;
@@ -59,11 +59,10 @@ export class MQTTExplorerService {
   public subscribers: MqttSubscriber[] = [];
 
   protected onApplicationBootstrap(): void {
-    const providers =
-      this.scanner.findAnnotatedMethods<AnnotatedMQTTSubscription>(OnMQTT);
-    providers.forEach(targets => {
-      targets.forEach(({ data, exec, context }) => {
-        const topics = Array.isArray(data.topic) ? data.topic : [data.topic];
+    this.scanner.bindMethodDecorator<MqttSubscribeOptions>(
+      OnMQTT,
+      ({ data, exec, context }) => {
+        const topics = [data.topic].flat();
         this.logger.info({ context }, `[@OnMQTT] {%s topics}`, topics.length);
         topics.forEach(topic => {
           this.logger.debug({ context }, ` - {%s}`, topic);
@@ -76,8 +75,8 @@ export class MQTTExplorerService {
             data,
           );
         });
-      });
-    });
+      },
+    );
   }
 
   protected onModuleInit(): void {

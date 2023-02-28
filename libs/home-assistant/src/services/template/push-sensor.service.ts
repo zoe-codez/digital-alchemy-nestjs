@@ -4,7 +4,7 @@ import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
 import {
-  GET_ATTRIBUTE_TEMPLATE,
+  entity_split,
   GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   SensorTemplate,
@@ -63,15 +63,10 @@ export class PushSensorService {
       state: GET_STATE_TEMPLATE,
       unit_of_measurement: config.unit_of_measurement,
     } as SensorTemplate;
-    sensor.unique_id = "steggy_sensor_" + is.hash(entity_id);
-    sensor.attributes = config.attributes
-      ? Object.fromEntries(
-          Object.keys(config.attributes).map(key => [
-            key,
-            GET_ATTRIBUTE_TEMPLATE(key),
-          ]),
-        )
-      : {};
+    const [, id] = entity_split(entity_id);
+    sensor.unique_id = "steggy_sensor_" + id;
+    sensor.attributes = config.attributes ?? {};
+
     sensor.attributes.managed_by = this.application;
 
     return {

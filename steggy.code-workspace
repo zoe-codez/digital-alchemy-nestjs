@@ -26,6 +26,15 @@
         "type": "node"
       },
       {
+        "name": "Attach examples/Scene Creation",
+        "port": 33344,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
         "name": "Attach Sampler App",
         "port": 33343,
         "request": "attach",

@@ -3,8 +3,8 @@ import { DEFAULT_LIMIT, is } from "@steggy/utilities";
 import { ClassConstructor } from "class-transformer";
 import { exit } from "process";
 
-import { iSteggyProvider, MODULE_METADATA } from "../contracts";
 import { Bootstrap, BootstrapOptions } from "../includes";
+import { iSteggyProvider, MODULE_METADATA } from "../types";
 import {
   ApplicationModule,
   ApplicationModuleMetadata,

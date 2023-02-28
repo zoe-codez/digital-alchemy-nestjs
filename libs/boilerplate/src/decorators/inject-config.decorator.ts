@@ -2,13 +2,13 @@ import { Inject, Provider } from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import { v4 as uuid } from "uuid";
 
+import { AutoConfigService } from "../services/auto-config.service";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-} from "../contracts";
-import { AutoConfigService } from "../services/auto-config.service";
+} from "../types";
 
 export const CONFIG_PROVIDERS = new Set<Provider>();
 export const MESSY_INJECTED_CONFIGS = new Map<string, AnyConfig>();

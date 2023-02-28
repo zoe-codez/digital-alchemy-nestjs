@@ -60,7 +60,7 @@ export const ansiSort = (text: string[]): string[] =>
 export const ansiMaxLength = (...items: (string[] | string)[]): number =>
   Math.max(
     ...items.flatMap(list =>
-      (Array.isArray(list) ? list : (list ?? "").split(`\n`)).map(
+      (is.array(list) ? list : (list ?? "").split(`\n`)).map(
         line => ansiStrip(String(line)).length,
       ),
     ),

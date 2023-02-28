@@ -208,9 +208,9 @@ export class HassCallTypeGenerator {
     services = await this.fetchApi.listServices();
     domains = services.map(i => i.domain);
     services.forEach(value => {
-      this.logger.debug(`[${value.domain}]`);
+      this.logger.debug(`[%s]`, value.domain);
       Object.entries(value.services).forEach(([serviceName]) =>
-        this.logger.debug(` - {${serviceName}}`),
+        this.logger.debug(` - {%s}`, serviceName),
       );
     });
   }

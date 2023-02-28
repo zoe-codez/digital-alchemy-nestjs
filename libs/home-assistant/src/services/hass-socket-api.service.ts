@@ -332,7 +332,12 @@ export class HassSocketAPIService {
     if (message.event.event_type === HassEvents.state_changed) {
       // Always keep entity manager up to date
       // It also implements the interrupt internally
-      this.entityManager["onEntityUpdate"](message.event);
+      const { new_state, old_state } = message.event.data;
+      this.entityManager["onEntityUpdate"](
+        new_state.entity_id,
+        new_state,
+        old_state,
+      );
       this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
     }
     if (this.waitingCallback.has(id)) {

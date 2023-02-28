@@ -8,8 +8,8 @@ import { homedir } from "os";
 import { join } from "path";
 import { cwd, platform } from "process";
 
-import { AbstractConfig } from "../contracts/configuration";
-import { ACTIVE_APPLICATION } from "../contracts/constants";
+import { AbstractConfig } from "../types/configuration";
+import { ACTIVE_APPLICATION } from "../types/constants";
 
 const extensions = ["json", "ini", "yaml", "yml"];
 

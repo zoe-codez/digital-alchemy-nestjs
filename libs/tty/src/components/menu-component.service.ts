@@ -20,7 +20,6 @@ import {
 } from "@steggy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
-import deepEqual from "deep-equal";
 import { get } from "object-path";
 import { nextTick } from "process";
 
@@ -722,7 +721,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return map[key];
     }
     const item = Object.entries(map).find(([, item]) => {
-      if (Array.isArray(item)) {
+      if (is.array(item)) {
         return false;
       }
       const alias = item.alias ?? [];
@@ -779,7 +778,7 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     if (!is.empty(this.opt.headerMessage)) {
       let headerMessage = this.opt.headerMessage;
-      if (Array.isArray(headerMessage)) {
+      if (is.array(headerMessage)) {
         const max =
           ansiMaxLength(headerMessage.map(([label]) => label)) + INCREMENT;
         headerMessage = headerMessage
@@ -835,7 +834,7 @@ export class MenuComponentService<VALUE = unknown | string>
                       aliases.push(...advanced.alias);
                     }
                   }
-                  if (!Array.isArray(item)) {
+                  if (!is.array(item)) {
                     return undefined;
                   }
                   const [label] = item;
@@ -972,14 +971,14 @@ export class MenuComponentService<VALUE = unknown | string>
         is.object(value)
       ) {
         // Multiple id paths may show up in mixed object type menus
-        if (Array.isArray(restore.idProperty)) {
+        if (is.array(restore.idProperty)) {
           const out = restore.idProperty.find(id => {
             const a = get(local as object, id);
             const b = get(value as object, id);
             if (is.undefined(a) || is.undefined(b)) {
               return false;
             }
-            return deepEqual(a, b);
+            return is.equal(a, b);
           });
           return !!out;
         }
@@ -988,9 +987,9 @@ export class MenuComponentService<VALUE = unknown | string>
         if (is.undefined(a) || is.undefined(b)) {
           return false;
         }
-        return deepEqual(a, b);
+        return is.equal(a, b);
       }
-      return deepEqual(local, value);
+      return is.equal(local, value);
     });
   }
 

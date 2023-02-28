@@ -3,9 +3,9 @@ import { DiscoveryService } from "@nestjs/core";
 import { is } from "@steggy/utilities";
 
 import { LOG_LEVEL } from "../../config";
-import { LOG_CONTEXT, LOGGER_LIBRARY } from "../../contracts";
 import { mappedContexts } from "../../decorators";
 import { InjectConfig } from "../../decorators/inject-config.decorator";
+import { LOG_CONTEXT, LOGGER_LIBRARY } from "../../types";
 
 // Don't remove LOG_LEVEL injection
 // Including it here forces it to appear in config builder

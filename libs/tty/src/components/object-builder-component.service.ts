@@ -540,7 +540,7 @@ export class ObjectBuilderComponentService<
       set(this.value, column.path, column.default(this.value));
       return;
     }
-    if (Array.isArray(defaultValue)) {
+    if (is.array(defaultValue)) {
       defaultValue = deepCloneArray(defaultValue);
     } else if (is.object(defaultValue)) {
       defaultValue = deepExtend({}, defaultValue);

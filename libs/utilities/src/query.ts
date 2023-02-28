@@ -137,7 +137,7 @@ export function controlToQuery(
       field = `${field}__${f.operation}`;
     }
     let value = f.value;
-    if (Array.isArray(value)) {
+    if (is.array(value)) {
       value = value.join(",");
     }
     if (value instanceof Date) {
@@ -159,7 +159,7 @@ export function buildFilter(
   switch (operation) {
     case "in":
     case "nin":
-      if (!Array.isArray(value)) {
+      if (!is.array(value)) {
         value = is.string(value) ? value.split(",") : [value];
       }
       return {

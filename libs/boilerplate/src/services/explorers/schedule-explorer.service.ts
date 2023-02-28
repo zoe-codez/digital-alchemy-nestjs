@@ -16,10 +16,10 @@ export class ScheduleExplorerService {
   ) {}
 
   protected onApplicationBootstrap(): void {
-    const annotated = this.scanner.findAnnotatedMethods<CronOptions>(Cron);
-    annotated.forEach(targets => {
-      targets.forEach(({ context, data, exec }) => {
-        const schedules = Array.isArray(data) ? data : [data];
+    this.scanner.bindMethodDecorator<CronOptions>(
+      Cron,
+      ({ context, data, exec }) => {
+        const schedules = [data].flat();
         this.logger.info(
           { context },
           `[@Cron] {%s schedules}`,
@@ -33,7 +33,7 @@ export class ScheduleExplorerService {
           });
           cronJob.start();
         });
-      });
-    });
+      },
+    );
   }
 }
