@@ -114,7 +114,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     const entity = this.entityManager.byId(
       `sensor.room_${this.name}_current_scene`,
     );
-    return entity.state as ROOM_SCENES<NAME>;
+    return (entity?.state || "unknown") as ROOM_SCENES<NAME>;
   }
 
   public name: NAME;
