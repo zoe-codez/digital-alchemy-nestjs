@@ -42,6 +42,13 @@ import { SceneRoomService } from "./scene-room.service";
 
 const icon: Icon = undefined;
 
+const currentScenes = new Map<
+  ALL_ROOM_NAMES,
+  PUSH_PROXY<PICK_GENERATED_ENTITY<"sensor">>
+>();
+const bindings: ScannerBinding<OnSceneChangeOptions>[] = [];
+const setProxy = new Map<ALL_ROOM_NAMES, SceneRoomService<ALL_ROOM_NAMES>>();
+
 @Injectable()
 export class SceneControllerService {
   constructor(
@@ -64,15 +71,9 @@ export class SceneControllerService {
     private readonly roomConfiguration: ROOM_CONFIG_MAP,
   ) {}
 
-  public readonly currentScenes = new Map<
-    ALL_ROOM_NAMES,
-    PUSH_PROXY<PICK_GENERATED_ENTITY<"sensor">>
-  >();
-  private readonly bindings: ScannerBinding<OnSceneChangeOptions>[] = [];
-  private readonly setProxy = new Map<
-    ALL_ROOM_NAMES,
-    SceneRoomService<ALL_ROOM_NAMES>
-  >();
+  public currentScene(room: ALL_ROOM_NAMES) {
+    return currentScenes.get(room);
+  }
 
   /**
    * Set a common scene across multiple rooms.
@@ -87,8 +88,8 @@ export class SceneControllerService {
     const rooms =
       is.object(options) && "include" in options
         ? options.include
-        : [...this.setProxy.keys()].filter(i => !exclude.includes(i));
-    rooms.forEach(room => this.setProxy.get(room).set(scene));
+        : [...setProxy.keys()].filter(i => !exclude.includes(i));
+    rooms.forEach(room => setProxy.get(room).set(scene));
   }
 
   public onSceneChange<ROOM extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
@@ -96,7 +97,7 @@ export class SceneControllerService {
     scene: ROOM_SCENES<ROOM>,
     name: string,
   ): void {
-    const target = this.currentScenes.get(room);
+    const target = currentScenes.get(room);
     target.state = name;
     target.attributes.scene = scene;
   }
@@ -106,7 +107,7 @@ export class SceneControllerService {
     setter: SceneRoomService<ALL_ROOM_NAMES>,
   ): void {
     this.logger.warn(`[%s] register`, room);
-    this.setProxy.set(room, setter);
+    setProxy.set(room, setter);
   }
 
   protected async onModuleInit(): Promise<void> {
@@ -184,7 +185,7 @@ export class SceneControllerService {
         icon,
         name: `${room?.name || TitleCase(name)} current scene`,
       });
-      this.currentScenes.set(name, await this.pushProxy.createPushProxy(id));
+      currentScenes.set(name, await this.pushProxy.createPushProxy(id));
 
       // * mqtt set scene binding
       if (!is.empty(room?.scenes)) {
@@ -200,7 +201,7 @@ export class SceneControllerService {
             `${this.prefix}/${this.application}/room-scene/${name}/${id}`,
             () => {
               this.logger.debug({ id, name }, "[%s] scene set", fullName);
-              this.setProxy.get(name).set(id as ROOM_SCENES<typeof name>);
+              setProxy.get(name).set(id as ROOM_SCENES<typeof name>);
             },
           );
         });
@@ -227,7 +228,7 @@ export class SceneControllerService {
     this.logger.info(`[@OnSceneChange] binding`);
     this.scanner.bindMethodDecorator<OnSceneChangeOptions>(
       OnSceneChange,
-      binding => this.bindings.push(binding),
+      binding => bindings.push(binding),
     );
   }
 }

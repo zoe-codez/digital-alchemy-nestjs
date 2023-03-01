@@ -111,8 +111,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
   ) {}
 
   public get current() {
-    return this.controller.currentScenes.get(this.name)
-      .state as ROOM_SCENES<NAME>;
+    return this.controller.currentScene(this.name).state as ROOM_SCENES<NAME>;
   }
 
   public name: NAME;
