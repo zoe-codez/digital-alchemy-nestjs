@@ -171,6 +171,7 @@
       "steggy": "home",
       "strategies": "animation",
       "strings": "template",
+      "push": "interface",
       "symbols": "mappings",
       "terminal": "batch",
       "tty": "command",

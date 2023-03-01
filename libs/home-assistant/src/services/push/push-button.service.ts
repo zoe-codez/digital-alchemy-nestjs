@@ -18,7 +18,7 @@ import {
   PICK_GENERATED_ENTITY,
   Template,
 } from "../../types";
-import { TalkBackService } from "../talk-back.service";
+import { TalkBackService } from "../utilities";
 
 @Injectable()
 export class PushButtonService {

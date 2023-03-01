@@ -224,6 +224,7 @@ export class SceneControllerService {
   }
 
   private scanForOnSceneChange(): void {
+    this.logger.info(`[@OnSceneChange] binding`);
     this.scanner.bindMethodDecorator<OnSceneChangeOptions>(
       OnSceneChange,
       binding => this.bindings.push(binding),

@@ -24,6 +24,7 @@ import {
   ConnectionBuilderService,
   EntityManagerService,
   EntityRegistryService,
+  EventManagerService,
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
@@ -164,14 +165,7 @@ export class HomeAssistantModule {
   public static forRoot(
     options: HomeAssistantModuleConfiguration = {},
   ): DynamicModule {
-    const services: Provider[] = [
-      BackupService,
-      ConnectionBuilderService,
-      EntityManagerService,
-      EntityRegistryService,
-      HassCallTypeGenerator,
-      HassFetchAPIService,
-      HassSocketAPIService,
+    const push_services: Provider[] = [
       PushBinarySensorService,
       PushButtonService,
       PushCallService,
@@ -179,8 +173,20 @@ export class HomeAssistantModule {
       PushEntityService,
       PushProxyService,
       PushSensorService,
-      CallProxyService,
       PushSwitchService,
+    ];
+
+    const services: Provider[] = [
+      ...push_services,
+      BackupService,
+      CallProxyService,
+      ConnectionBuilderService,
+      EntityManagerService,
+      EntityRegistryService,
+      EventManagerService,
+      HassCallTypeGenerator,
+      HassFetchAPIService,
+      HassSocketAPIService,
       SocketManagerService,
       TalkBackService,
       ...InjectEntityProxy.providers,

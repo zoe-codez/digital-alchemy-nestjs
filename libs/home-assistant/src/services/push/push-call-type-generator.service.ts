@@ -13,12 +13,12 @@ import {
   DEFAULT_APPLICATION_IDENTIFIER,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   VERIFICATION_FILE,
-} from "../config";
+} from "../../config";
 import {
   GenerateEntities,
   HassSteggySerializeState,
   SERIALIZE,
-} from "../types";
+} from "../../types";
 
 type ModuleConfigurations = Map<string, HassSteggySerializeState>;
 

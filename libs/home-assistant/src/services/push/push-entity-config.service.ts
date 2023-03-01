@@ -15,7 +15,7 @@ import {
   DEFAULT_APPLICATION_IDENTIFIER,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   VERIFICATION_FILE,
-} from "../config";
+} from "../../config";
 import {
   HassSteggySerializeState,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -24,8 +24,8 @@ import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   SERIALIZE,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
 import { PushEntityService } from "./push-entity.service";
 import { PushProxyService } from "./push-proxy.service";
 

@@ -1,32 +1,44 @@
+/* eslint-disable spellcheck/spell-checker */
 import { Inject, Injectable } from "@nestjs/common";
 import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 
 import {
-  BinarySensorTemplate,
-  BinarySensorTemplateYaml,
   entity_split,
   GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
+  SensorTemplate,
+  SensorTemplateYaml,
   Template,
   UPDATE_TRIGGER,
 } from "../../types";
-import { PushEntityService, PushStorageMap } from "../push-entity.service";
+import { PushEntityService, PushStorageMap } from "./push-entity.service";
 
 @Injectable()
-export class PushBinarySensorService {
+export class PushSensorService {
   constructor(
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
     private readonly logger: AutoLogService,
-    private readonly pushEntity: PushEntityService<"binary_sensor">,
+    private readonly pushEntity: PushEntityService<"sensor">,
   ) {}
-  public createBinarySensorYaml(
-    availability?: Template,
-    entity_id?: PICK_GENERATED_ENTITY<"binary_sensor">,
-  ): BinarySensorTemplateYaml[] {
-    const storage = this.pushEntity.domainStorage("binary_sensor");
 
+  public createProxy(id: PICK_GENERATED_ENTITY<"sensor">) {
+    return this.pushEntity.generate(id, {
+      validate: (property, value) => {
+        if (property === "state") {
+          return is.string(value) || is.number(value);
+        }
+        return true;
+      },
+    });
+  }
+
+  public createSensorYaml(
+    availability?: Template,
+    entity_id?: PICK_GENERATED_ENTITY<"sensor">,
+  ): SensorTemplateYaml[] {
+    const storage = this.pushEntity.domainStorage("sensor");
     return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
       entity_id => {
         return this.createYaml(availability, storage, entity_id);
@@ -34,21 +46,10 @@ export class PushBinarySensorService {
     );
   }
 
-  public createProxy(id: PICK_GENERATED_ENTITY<"binary_sensor">) {
-    return this.pushEntity.generate(id, {
-      validate: (property, value) => {
-        if (property === "state") {
-          return is.boolean(value);
-        }
-        return true;
-      },
-    });
-  }
-
   private createYaml(
     availability: Template,
-    storage: PushStorageMap<"binary_sensor">,
-    entity_id: PICK_GENERATED_ENTITY<"binary_sensor">,
+    storage: PushStorageMap<"sensor">,
+    entity_id: PICK_GENERATED_ENTITY<"sensor">,
   ) {
     const { config } = storage.get(entity_id);
     const sensor = {
@@ -60,14 +61,17 @@ export class PushBinarySensorService {
       icon: config.icon,
       name: config.name,
       state: GET_STATE_TEMPLATE,
-    } as BinarySensorTemplate;
+      unit_of_measurement: config.unit_of_measurement,
+    } as SensorTemplate;
     const [, id] = entity_split(entity_id);
-    sensor.unique_id = "steggy_binary_sensor_" + id;
+    sensor.unique_id = "steggy_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
+
     sensor.attributes.managed_by = this.application;
+
     return {
-      binary_sensor: [sensor],
-      trigger: UPDATE_TRIGGER("binary_sensor", entity_id),
+      sensor: [sensor],
+      trigger: UPDATE_TRIGGER("sensor", entity_id),
     };
   }
 }

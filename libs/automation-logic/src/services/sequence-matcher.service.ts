@@ -3,9 +3,8 @@ import {
   AutoLogService,
   InjectConfig,
   ModuleScannerService,
-  OnEvent,
 } from "@steggy/boilerplate";
-import { HA_EVENT_STATE_CHANGE, HassEventDTO } from "@steggy/home-assistant";
+import { HassEventDTO } from "@steggy/home-assistant";
 import { PEAT } from "@steggy/utilities";
 import { each } from "async";
 
@@ -36,31 +35,7 @@ export class SequenceActivateService {
   private WATCHED_SENSORS = new Map<string, SequenceWatcher[]>();
   private readonly WATCHERS = new Map<string, unknown[]>();
 
-  protected onApplicationBootstrap(): void {
-    this.scanner.bindMethodDecorator<SequenceWatchDTO>(
-      SequenceWatcher,
-      ({ context, exec, data }) => {
-        const smear = PEAT(data.match.length, "%s").join(", ");
-        this.logger.info(
-          { context },
-          `[@SequenceWatcher]({%s}) states ${smear}`,
-          data.sensor,
-          ...data.match,
-        );
-        const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
-        watcher.push({
-          ...data,
-          callback: async () => {
-            this.logger.trace({ context, match: data.match }, `[%s] trigger`);
-            await exec();
-          },
-        });
-        this.WATCHED_SENSORS.set(data.sensor, watcher);
-      },
-    );
-  }
-
-  @OnEvent(HA_EVENT_STATE_CHANGE)
+  // @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
     if (this.WATCHERS.has(data?.entity_id)) {
       this.logger.debug(
@@ -122,6 +97,30 @@ export class SequenceActivateService {
         this.logger.debug(`sensor reset {%s}`, data.entity_id);
       }
     });
+  }
+
+  protected onModuleInit(): void {
+    this.scanner.bindMethodDecorator<SequenceWatchDTO>(
+      SequenceWatcher,
+      ({ context, exec, data }) => {
+        const smear = PEAT(data.match.length, "%s").join(", ");
+        this.logger.info(
+          { context },
+          `[@SequenceWatcher]({%s}) states ${smear}`,
+          data.sensor,
+          ...data.match,
+        );
+        const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
+        watcher.push({
+          ...data,
+          callback: async () => {
+            this.logger.trace({ context, match: data.match }, `[%s] trigger`);
+            await exec();
+          },
+        });
+        this.WATCHED_SENSORS.set(data.sensor, watcher);
+      },
+    );
   }
 
   /**

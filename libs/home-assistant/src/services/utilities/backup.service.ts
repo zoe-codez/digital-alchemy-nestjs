@@ -6,9 +6,9 @@ import {
   HASSIO_WS_COMMAND,
   HomeAssistantBackup,
   SignRequestResponse,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
-import { HassSocketAPIService } from "./hass-socket-api.service";
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
+import { HassSocketAPIService } from "../hass-socket-api.service";
 
 interface BackupResponse {
   backing_up: boolean;

@@ -2,13 +2,12 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
 import { eachSeries, EMPTY, INCREMENT, is } from "@steggy/utilities";
 import dayjs from "dayjs";
-import EventEmitter from "eventemitter3";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 import { Get } from "type-fest";
 import { v4 } from "uuid";
 
-import { OnEntityUpdate, OnEntityUpdateOptions } from "../decorators";
+import { OnEntityUpdate, OnEntityUpdateOptions } from "../../decorators";
 import {
   ALL_DOMAINS,
   ENTITY_STATE,
@@ -16,9 +15,9 @@ import {
   EntityHistoryResult,
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
-import { HassSocketAPIService } from "./hass-socket-api.service";
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
+import { HassSocketAPIService } from "../hass-socket-api.service";
 
 type WatchFunction<ENTITY_ID extends PICK_ENTITY> = (
   new_state: ENTITY_STATE<ENTITY_ID>,
@@ -44,7 +43,6 @@ export class EntityManagerService {
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socket: HassSocketAPIService,
     private readonly logger: AutoLogService,
-    private readonly eventEmitter: EventEmitter,
     private readonly scanner: ModuleScannerService,
   ) {}
 
@@ -291,7 +289,13 @@ export class EntityManagerService {
       OnEntityUpdate,
       ({ exec, context, data }) => {
         const list = [data].flat();
+        this.logger.info(
+          { context },
+          `[@OnEntityUpdate] {%s entities}`,
+          list.length,
+        );
         list.forEach(entity_id => {
+          this.logger.debug({ context }, ` - {%s}`, entity_id);
           const current = this.entityWatchers.get(entity_id) ?? [];
           const item: Watcher<typeof entity_id> = {
             callback: async (...data) => {

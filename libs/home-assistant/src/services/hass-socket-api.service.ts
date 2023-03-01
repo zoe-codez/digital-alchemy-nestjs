@@ -23,18 +23,15 @@ import {
 } from "../config";
 import {
   AreaDTO,
-  HA_EVENT_STATE_CHANGE,
   HassConfig,
-  HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
   ON_SOCKET_AUTH,
   SOCKET_MESSAGES,
   SocketMessageDTO,
 } from "../types";
-import { ConnectionBuilderService } from "./connection-builder.service";
-import { EntityManagerService } from "./entity-manager.service";
 import { SocketManagerService } from "./socket-manager.service";
+import { ConnectionBuilderService, EventManagerService } from "./utilities";
 
 const CONNECTION_OPEN = 1;
 let connection: WS;
@@ -59,7 +56,7 @@ export class HassSocketAPIService {
     private readonly CRASH_REQUESTS: number,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
-    private readonly entityManager: EntityManagerService,
+    private readonly eventManager: EventManagerService,
     private readonly builder: ConnectionBuilderService,
     @Inject(forwardRef(() => SocketManagerService))
     private readonly manager: SocketManagerService,
@@ -337,21 +334,7 @@ export class HassSocketAPIService {
   }
 
   private onMessageEvent(id: number, message: SocketMessageDTO) {
-    if (message.event.event_type === HassEvents.state_changed) {
-      // Always keep entity manager up to date
-      // It also implements the interrupt internally
-      const { new_state, old_state } = message.event.data;
-      if (!new_state) {
-        // FIXME: probably removal
-        return;
-      }
-      this.entityManager["onEntityUpdate"](
-        new_state.entity_id,
-        new_state,
-        old_state,
-      );
-      this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
-    }
+    this.eventManager.onMessage(message);
     if (this.waitingCallback.has(id)) {
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);

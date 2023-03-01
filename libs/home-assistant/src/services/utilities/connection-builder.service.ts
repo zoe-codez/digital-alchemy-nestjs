@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@steggy/boilerplate";
 import WS from "ws";
 
-import { BASE_URL, WEBSOCKET_URL } from "../config";
+import { BASE_URL, WEBSOCKET_URL } from "../../config";
 
 @Injectable()
 export class ConnectionBuilderService {

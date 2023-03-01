@@ -12,9 +12,9 @@ import {
   Template,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
-import { PushEntityService, PushStorageMap } from "../push-entity.service";
-import { PushEntityConfigService } from "../push-entity-config.service";
-import { TalkBackService } from "../talk-back.service";
+import { TalkBackService } from "../utilities";
+import { PushEntityService, PushStorageMap } from "./push-entity.service";
+import { PushEntityConfigService } from "./push-entity-config.service";
 
 @Injectable()
 export class PushSwitchService {

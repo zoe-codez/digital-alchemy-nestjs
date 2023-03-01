@@ -3,11 +3,10 @@ import { ACTIVE_APPLICATION, InjectConfig } from "@steggy/boilerplate";
 import { ADMIN_KEY, ADMIN_KEY_HEADER, LIB_SERVER } from "@steggy/server";
 import { is } from "@steggy/utilities";
 
-import { TALK_BACK_BASE_URL } from "../config";
-import { TemplateButtonCommandId } from "../decorators";
-import { PICK_GENERATED_ENTITY } from "../types";
-import { PushStorageMap } from "./push-entity.service";
-import { PushButtonService, PushSwitchService } from "./template";
+import { TALK_BACK_BASE_URL } from "../../config";
+import { TemplateButtonCommandId } from "../../decorators";
+import { PICK_GENERATED_ENTITY } from "../../types";
+import { PushButtonService, PushStorageMap, PushSwitchService } from "../push";
 
 /**
  * Note: generated url segments must be matched against `talk-back.controller`

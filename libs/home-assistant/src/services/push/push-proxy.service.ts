@@ -17,13 +17,11 @@ import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
-} from "../types";
-import {
-  PushBinarySensorService,
-  PushButtonService,
-  PushSensorService,
-  PushSwitchService,
-} from "./template";
+} from "../../types";
+import { PushBinarySensorService } from "./push-binary-sensor.service";
+import { PushButtonService } from "./push-button.service";
+import { PushSensorService } from "./push-sensor.service";
+import { PushSwitchService } from "./push-switch.service";
 
 const AUTO_INIT_DOMAINS = new Set<ALL_GENERATED_SERVICE_DOMAINS>([
   "button",
