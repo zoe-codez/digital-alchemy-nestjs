@@ -5,6 +5,7 @@ import {
   InjectConfig,
 } from "@steggy/boilerplate";
 import { MqttService } from "@steggy/mqtt";
+import { SECOND } from "@steggy/utilities";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
 
@@ -37,6 +38,6 @@ export class MQTTHealth {
     setInterval(() => {
       this.logger.trace("🤖 still alive");
       this.mqtt.publish(this.topic, "online");
-    }, HEALTH_CHECK_INTERVAL);
+    }, HEALTH_CHECK_INTERVAL * SECOND);
   }
 }

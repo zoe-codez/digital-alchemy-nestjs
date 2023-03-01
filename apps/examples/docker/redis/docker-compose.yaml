@@ -4,5 +4,5 @@ services:
     image: redis:latest
     container_name: steggy_redis
     ports:
-      - "7379:6379"
+      - "6379:6379"
     restart: unless-stopped

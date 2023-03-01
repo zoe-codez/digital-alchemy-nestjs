@@ -84,7 +84,7 @@ export class CallProxyService {
     if (DEF_NOT_DOMAINS.has(domain)) {
       return undefined;
     }
-    if (!domains || domains?.includes(domain)) {
+    if (!domains || !domains?.includes(domain)) {
       this.logger.error(`[%s] unknown domain`, domain);
       return undefined;
     }

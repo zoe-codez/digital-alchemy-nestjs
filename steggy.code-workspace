@@ -26,8 +26,8 @@
         "type": "node"
       },
       {
-        "name": "Attach examples/Scene Creation",
-        "port": 33344,
+        "name": "Attach examples/Scene Manager",
+        "port": 33345,
         "request": "attach",
         "skipFiles": [
           "<node_internals>/**"
