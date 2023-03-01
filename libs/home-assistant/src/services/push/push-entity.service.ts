@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, CacheService } from "@steggy/boilerplate";
 import { is, TitleCase } from "@steggy/utilities";
 import { get, set } from "object-path";
@@ -21,7 +21,6 @@ import {
   UPDATE_TRIGGER,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
-import { EntityManagerService } from "../utilities";
 
 type ProxyOptions = {
   getter?: (property: string) => unknown;
@@ -47,6 +46,17 @@ const LOG_CONTEXT = (entity_id: PICK_GENERATED_ENTITY) => {
   return `${tag}(${id})`;
 };
 
+const STORAGE: PushStorageMap = new Map();
+
+const proxyMap = new Map<
+  PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+  ProxyMapValue<PUSH_PROXY_DOMAINS>
+>();
+const proxyOptions = new Map<
+  PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
+  ProxyOptions
+>();
+
 export type PushStorageMap<
   DOMAIN extends PUSH_PROXY_DOMAINS = PUSH_PROXY_DOMAINS,
 > = Map<PICK_GENERATED_ENTITY<DOMAIN>, StorageData<GET_CONFIG<DOMAIN>>>;
@@ -69,26 +79,13 @@ export class PushEntityService<
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
-    @Inject(forwardRef(() => EntityManagerService))
-    private readonly entityRegistry: EntityManagerService,
   ) {
     configuration.generate_entities ??= {};
   }
 
-  private readonly STORAGE: PushStorageMap = new Map();
-
-  private readonly proxyMap = new Map<
-    PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
-    ProxyMapValue<DOMAIN>
-  >();
-  private readonly proxyOptions = new Map<
-    PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
-    ProxyOptions
-  >();
-
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
     return new Map(
-      [...this.STORAGE.entries()].filter(([id]) => domain(id) === search),
+      [...STORAGE.entries()].filter(([id]) => domain(id) === search),
     ) as PushStorageMap<DOMAIN>;
   }
 
@@ -99,7 +96,7 @@ export class PushEntityService<
     sensor_id: PICK_GENERATED_ENTITY<DOMAIN>,
     updates: MergeAndEmit<STATE, ATTRIBUTES>,
   ): Promise<void> {
-    const data = this.STORAGE.get(sensor_id);
+    const data = STORAGE.get(sensor_id);
     const context = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
@@ -128,7 +125,7 @@ export class PushEntityService<
     // Refresh / replace cache data
     await this.cache.set(key, data);
     if (dirty) {
-      this.STORAGE.set(sensor_id, data);
+      STORAGE.set(sensor_id, data);
     } else {
       this.logger.trace({ context }, `no changes to flush`);
     }
@@ -145,13 +142,13 @@ export class PushEntityService<
       PICK_GENERATED_ENTITY<DOMAIN>,
   >(entity: ENTITY, options: ProxyOptions): Promise<PUSH_PROXY<ENTITY>> {
     // If data has already been initialized, return the existing proxy
-    if (this.proxyOptions.has(entity)) {
-      return this.proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
+    if (proxyOptions.has(entity)) {
+      return proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
     }
-    this.proxyOptions.set(entity, options);
+    proxyOptions.set(entity, options);
     const context = LOG_CONTEXT(entity);
     this.logger.info({ context }, `initializing`);
-    this.proxyMap.set(
+    proxyMap.set(
       entity,
       new Proxy(
         {},
@@ -163,11 +160,11 @@ export class PushEntityService<
       ) as ProxyMapValue<DOMAIN>,
     );
     await this.initializeCache(entity, context);
-    return this.proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
+    return proxyMap.get(entity) as PUSH_PROXY<ENTITY>;
   }
 
   public get(entity: PICK_GENERATED_ENTITY<DOMAIN>) {
-    return this.STORAGE.get(entity);
+    return STORAGE.get(entity);
   }
 
   public insert(
@@ -187,7 +184,7 @@ export class PushEntityService<
   }
 
   public proxyGet(entity: PICK_GENERATED_ENTITY<DOMAIN>, property: string) {
-    const options = this.proxyOptions.get(entity);
+    const options = proxyOptions.get(entity);
     if (options.getter) {
       return options.getter(property);
     }
@@ -199,7 +196,7 @@ export class PushEntityService<
     property: SettableProperties,
     value: unknown,
   ): boolean {
-    const options = this.proxyOptions.get(entity);
+    const options = proxyOptions.get(entity);
     const status = options.validate(property, value);
     if (!status) {
       this.logger.error({ entity, value }, `Value failed validation`);
@@ -247,6 +244,6 @@ export class PushEntityService<
       this.logger.info({ context }, `initial cache populate`);
       await this.cache.set(key, data);
     }
-    this.STORAGE.set(entity, data);
+    STORAGE.set(entity, data);
   }
 }

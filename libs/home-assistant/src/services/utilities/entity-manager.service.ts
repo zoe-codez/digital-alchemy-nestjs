@@ -30,6 +30,15 @@ type Watcher<ENTITY_ID extends PICK_ENTITY = PICK_ENTITY> = {
 };
 const TIME_OFFSET = 1000;
 
+const emittingEvents = new Map<PICK_ENTITY, number>();
+const entityWatchers = new Map<PICK_ENTITY, Watcher[]>();
+/**
+ * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
+ */
+let MASTER_STATE: Record<
+  ALL_DOMAINS,
+  Record<string, ENTITY_STATE<PICK_ENTITY>>
+> = {};
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
  *
@@ -46,16 +55,7 @@ export class EntityManagerService {
     private readonly scanner: ModuleScannerService,
   ) {}
 
-  /**
-   * MASTER_STATE.switch.desk_light = {entity_id,state,attributes,...}
-   */
-  public MASTER_STATE: Record<
-    ALL_DOMAINS,
-    Record<string, ENTITY_STATE<PICK_ENTITY>>
-  > = {};
   public init = false;
-  private readonly emittingEvents = new Map<PICK_ENTITY, number>();
-  private readonly entityWatchers = new Map<PICK_ENTITY, Watcher[]>();
 
   /**
    * Retrieve an entity's state
@@ -63,7 +63,7 @@ export class EntityManagerService {
   public byId<ENTITY_ID extends PICK_ENTITY>(
     entity_id: ENTITY_ID,
   ): ENTITY_STATE<ENTITY_ID> {
-    return get(this.MASTER_STATE, entity_id);
+    return get(MASTER_STATE, entity_id);
   }
 
   public createEntityProxy(entity: PICK_ENTITY) {
@@ -80,7 +80,7 @@ export class EntityManagerService {
   public findByDomain<DOMAIN extends ALL_DOMAINS = ALL_DOMAINS>(
     target: DOMAIN,
   ) {
-    return Object.values(this.MASTER_STATE[target] ?? {}) as ENTITY_STATE<
+    return Object.values(MASTER_STATE[target] ?? {}) as ENTITY_STATE<
       PICK_ENTITY<DOMAIN>
     >[];
   }
@@ -128,15 +128,15 @@ export class EntityManagerService {
    * is id a valid entity?
    */
   public isEntity(entityId: PICK_ENTITY): entityId is PICK_ENTITY {
-    return is.undefined(get(this.MASTER_STATE, entityId));
+    return is.undefined(get(MASTER_STATE, entityId));
   }
 
   /**
    * Simple listing of all entity ids
    */
   public listEntities(): PICK_ENTITY[] {
-    return Object.keys(this.MASTER_STATE).flatMap(domain =>
-      Object.keys(this.MASTER_STATE[domain]).map(
+    return Object.keys(MASTER_STATE).flatMap(domain =>
+      Object.keys(MASTER_STATE[domain]).map(
         id => `${domain}.${id}` as PICK_ENTITY,
       ),
     );
@@ -150,14 +150,14 @@ export class EntityManagerService {
     entity_id: ID,
   ): Promise<ENTITY_STATE<ID>> {
     return await new Promise<ENTITY_STATE<ID>>(done => {
-      const current = this.entityWatchers.get(entity_id) ?? [];
+      const current = entityWatchers.get(entity_id) ?? [];
       const item: Watcher = {
         callback: new_state => done(new_state as ENTITY_STATE<ID>),
         id: v4(),
         type: "once",
       };
       current.push(item);
-      this.entityWatchers.set(entity_id, current);
+      entityWatchers.set(entity_id, current);
     });
   }
 
@@ -168,14 +168,14 @@ export class EntityManagerService {
    */
   public async refresh(): Promise<void> {
     const states = await this.fetch.getAllEntities();
-    const oldState = this.MASTER_STATE;
-    this.MASTER_STATE = {};
+    const oldState = MASTER_STATE;
+    MASTER_STATE = {};
 
     states.forEach(entity => {
       // ? Set first, ensure data is populated
       // `nextTick` will fire AFTER loop finishes
       set(
-        this.MASTER_STATE,
+        MASTER_STATE,
         entity.entity_id,
         entity,
         get(oldState, entity.entity_id),
@@ -206,17 +206,17 @@ export class EntityManagerService {
     new_state: ENTITY_STATE<ENTITY>,
     old_state?: ENTITY_STATE<ENTITY>,
   ): Promise<void> {
-    set(this.MASTER_STATE, entity_id, new_state);
-    const value = this.emittingEvents.get(entity_id);
+    set(MASTER_STATE, entity_id, new_state);
+    const value = emittingEvents.get(entity_id);
     if (value > EMPTY) {
       this.logger.error(
         `[%s] emitted an update before the previous finished processing`,
       );
-      this.emittingEvents.set(entity_id, value + INCREMENT);
+      emittingEvents.set(entity_id, value + INCREMENT);
       return;
     }
 
-    const list = this.entityWatchers.get(entity_id);
+    const list = entityWatchers.get(entity_id);
     if (is.empty(list)) {
       return;
     }
@@ -275,13 +275,13 @@ export class EntityManagerService {
   }
 
   private remove(entity_id: PICK_ENTITY, id: string): void {
-    const current = this.entityWatchers.get(entity_id) ?? [];
+    const current = entityWatchers.get(entity_id) ?? [];
     const filtered = current.filter(watcher => id !== watcher.id);
     if (is.empty(filtered)) {
-      this.entityWatchers.delete(entity_id);
+      entityWatchers.delete(entity_id);
       return;
     }
-    this.entityWatchers.set(entity_id, filtered);
+    entityWatchers.set(entity_id, filtered);
   }
 
   private scan(): void {
@@ -296,7 +296,7 @@ export class EntityManagerService {
         );
         list.forEach(entity_id => {
           this.logger.debug({ context }, ` - {%s}`, entity_id);
-          const current = this.entityWatchers.get(entity_id) ?? [];
+          const current = entityWatchers.get(entity_id) ?? [];
           const item: Watcher<typeof entity_id> = {
             callback: async (...data) => {
               this.logger.trace({ context }, `[OnEntityUpdate](%s)`, entity_id);
@@ -306,7 +306,7 @@ export class EntityManagerService {
             type: "annotation",
           };
           current.push(item);
-          this.entityWatchers.set(entity_id, current);
+          entityWatchers.set(entity_id, current);
         });
       },
     );

@@ -12,6 +12,7 @@ import { HassEventDTO, SocketMessageDTO } from "../../types";
 import { EntityManagerService } from "./entity-manager.service";
 
 type BindingPair = [context: string, callback: AnnotationPassThrough];
+const bindings = new Map<OnHassEventOptions, BindingPair>();
 
 @Injectable()
 export class EventManagerService {
@@ -21,15 +22,13 @@ export class EventManagerService {
     private readonly entityManager: EntityManagerService,
   ) {}
 
-  private readonly bindings = new Map<OnHassEventOptions, BindingPair>();
-
   public onMessage(message: SocketMessageDTO): void {
     if (message.event.event_type === "state_changed") {
       // This needs to explicitly happen first to ensure data availability
       this.onStateChanged(message.event);
     }
     const activate: [OnHassEventOptions, BindingPair][] = [];
-    this.bindings.forEach((callback, options) => {
+    bindings.forEach((callback, options) => {
       if (options.event_type !== message.event.event_type) {
         return;
       }
@@ -73,7 +72,7 @@ export class EventManagerService {
       OnHassEvent,
       ({ exec, context, data }) => {
         this.logger.info({ context }, `[@OnHassEvent]`);
-        this.bindings.set(data, [context, exec]);
+        bindings.set(data, [context, exec]);
       },
     );
   }
