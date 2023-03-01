@@ -55,7 +55,7 @@ import {
       type: "number",
     },
     [CIRCADIAN_SENSOR]: {
-      default: "sensor.current_light_temperature" as PICK_ENTITY<"sensor">,
+      default: "sensor.light_temperature" as PICK_ENTITY<"sensor">,
       description: "Sensor for reading / writing current light temperature to",
       type: "string",
     },
