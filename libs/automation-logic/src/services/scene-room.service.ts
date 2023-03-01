@@ -11,6 +11,7 @@ import {
   domain,
   ENTITY_STATE,
   EntityManagerService,
+  GenericEntityDTO,
   iCallService,
   InjectCallProxy,
   OnEntityUpdate,
@@ -112,9 +113,9 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
 
   public get current() {
     const entity = this.entityManager.byId(
-      `sensor.room_${this.name}_current_scene`,
-    );
-    return (entity?.state || "unknown") as ROOM_SCENES<NAME>;
+      `sensor.${this.name}_current_scene`,
+    ) as GenericEntityDTO<string, { scene: string }>;
+    return (entity?.attributes?.scene || "unknown") as ROOM_SCENES<NAME>;
   }
 
   public name: NAME;

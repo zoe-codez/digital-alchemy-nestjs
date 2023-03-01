@@ -177,7 +177,7 @@ export class SceneControllerService {
       const room = room_configuration[name];
       this.logger.info(`[%s] init room`, room?.name ?? name);
       // * current scene sensor
-      const id = `sensor.room_${name}_current_scene` as NewEntityId<"sensor">;
+      const id = `sensor.${name}_current_scene` as NewEntityId<"sensor">;
       this.pushEntity.insert(id, {
         attributes: {
           scene: GET_ATTRIBUTE_TEMPLATE("scene"),
