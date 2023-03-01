@@ -20,8 +20,8 @@ import {
   SwitchConfig,
   UPDATE_TRIGGER,
 } from "../../types";
-import { EntityManagerService } from "../entity-manager.service";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
+import { EntityManagerService } from "../utilities";
 
 type ProxyOptions = {
   getter?: (property: string) => unknown;

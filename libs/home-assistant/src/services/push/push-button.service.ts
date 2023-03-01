@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AnnotationPassThrough,
@@ -29,6 +34,7 @@ export class PushButtonService {
     private readonly scanner: ModuleScannerService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
+    @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
   ) {}
 

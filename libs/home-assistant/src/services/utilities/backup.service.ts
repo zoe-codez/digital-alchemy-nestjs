@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService } from "@steggy/boilerplate";
 import { HALF, is, SECOND, sleep } from "@steggy/utilities";
 
@@ -20,6 +20,7 @@ export class BackupService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
+    @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socket: HassSocketAPIService,
   ) {}
 

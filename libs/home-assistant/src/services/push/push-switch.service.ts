@@ -24,6 +24,7 @@ export class PushSwitchService {
     private readonly application: string,
     @Inject(forwardRef(() => PushEntityConfigService))
     private readonly config: PushEntityConfigService,
+    @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
     private readonly fetch: HassFetchAPIService,
     private readonly pushEntity: PushEntityService<"switch">,
