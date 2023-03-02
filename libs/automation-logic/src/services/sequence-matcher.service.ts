@@ -58,7 +58,10 @@ export class SequenceActivateService {
         watcher.push({
           ...data,
           callback: async () => {
-            this.logger.trace({ context, match: data.match }, `[%s] trigger`);
+            this.logger.trace(
+              { context, match: data.match },
+              `[SequenceWatcher] trigger`,
+            );
             await exec();
           },
         });
@@ -94,9 +97,6 @@ export class SequenceActivateService {
     this.WATCHED_EVENTS.get(type).forEach(async data => {
       const allowed = data.filter(event_data);
       if (!allowed) {
-        // Not sure what use case a filter that changes might have
-        // If this is your use case, let me know
-        this.ACTIVE.delete(data);
         return;
       }
 

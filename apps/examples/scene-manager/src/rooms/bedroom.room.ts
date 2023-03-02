@@ -1,4 +1,9 @@
-import { SceneRoom } from "@steggy/automation-logic";
+import { SceneRoom, SceneRoomService } from "@steggy/automation-logic";
+import { AutoLogService } from "@steggy/boilerplate";
+
+import { LutronPicoSequenceMatcher, PicoIds } from "../includes";
+
+const BedroomPico = LutronPicoSequenceMatcher(PicoIds.bedroom);
 
 @SceneRoom({
   name: "bedroom",
@@ -17,4 +22,20 @@ import { SceneRoom } from "@steggy/automation-logic";
     },
   },
 })
-export class Bedroom {}
+export class Bedroom {
+  constructor(
+    private readonly logger: AutoLogService,
+    private readonly scene: SceneRoomService<"bedroom">,
+  ) {}
+
+  @BedroomPico(["off", "off"])
+  protected onDoubleTapOff(): void {
+    this.logger.info(`Scene off via pico event`);
+    this.scene.set("off");
+  }
+
+  @BedroomPico(["stop", "raise", "raise"])
+  protected onSuperSecretEvent(): void {
+    this.logger.warn("Super secret combo code entered");
+  }
+}
