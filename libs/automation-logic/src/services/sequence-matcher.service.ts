@@ -4,13 +4,13 @@ import {
   InjectConfig,
   ModuleScannerService,
 } from "@steggy/boilerplate";
-import { HassEventDTO } from "@steggy/home-assistant";
-import { PEAT } from "@steggy/utilities";
-import { each } from "async";
+import { OnHassEvent } from "@steggy/home-assistant";
+import { is, PEAT, sleep } from "@steggy/utilities";
+import { get } from "object-path";
+import { nextTick } from "process";
 
 import { SEQUENCE_TIMEOUT } from "../config";
-import { SequenceWatcher } from "../decorators";
-import { SequenceWatchDTO } from "../types";
+import { SequenceWatchDTO, SequenceWatcher } from "../decorators";
 
 type SequenceWatcher = SequenceWatchDTO & {
   callback: () => Promise<void>;
@@ -26,78 +26,19 @@ export class SequenceSensorEvent {
 export class SequenceActivateService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
+    @InjectConfig(SEQUENCE_TIMEOUT) private readonly matchTimeout: number,
     private readonly scanner: ModuleScannerService,
   ) {}
 
-  private ACTIVE_MATCHERS = new Map<string, SequenceSensorEvent[]>();
-  private TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
-  private WATCHED_SENSORS = new Map<string, SequenceWatcher[]>();
-  private readonly WATCHERS = new Map<string, unknown[]>();
-
-  // @OnEvent(HA_EVENT_STATE_CHANGE)
-  protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
-    if (this.WATCHERS.has(data?.entity_id)) {
-      this.logger.debug(
-        { attributes: data.new_state.attributes },
-        `[%s] state change {%s}`,
-        data.entity_id,
-        data.new_state.state,
-      );
-      this.WATCHERS.get(data.entity_id).push(data.new_state.state);
-      this.logger.debug(
-        { entity_id: data.entity_id },
-        `Blocked event from sensor being recorded`,
-      );
-      return;
+  private readonly ACTIVE = new Map<
+    object,
+    {
+      interrupt: ReturnType<typeof sleep>;
+      match: string[];
+      reset: string;
     }
-    if (!this.WATCHED_SENSORS.has(data?.entity_id)) {
-      return;
-    }
-    this.initWatchers(data.entity_id);
-    // Build up list of active matchers
-    const process: SequenceSensorEvent[] = [];
-    const temporary = this.ACTIVE_MATCHERS.get(data.entity_id);
-    temporary.forEach(event => {
-      if (event.rejected || event.completed) {
-        return;
-      }
-      process.push(event);
-    });
-    const state = String(data.new_state.state);
-    // Append new state to each matcher, test, then run callback
-    await each(process, async item => {
-      const { match, reset: immediateReset } = item.watcher;
-      // Append to list of observed states
-      item.progress.push(state);
-      // Has appending this event invalidated the command?
-      const isValid = item.progress.every(
-        (item, index) => match[index] === item,
-      );
-      if (!isValid) {
-        item.rejected = true;
-        return;
-      }
-      // Has appending this event completed the command?
-      item.completed = item.progress.length === match.length;
-      if (!item.completed) {
-        return;
-      }
-      // Run callback
-      await item.watcher.callback();
-      if (immediateReset === "self") {
-        item.progress = [];
-        item.completed = false;
-        this.logger.debug({ item }, `self reset`);
-      }
-      if (immediateReset === "sensor") {
-        this.ACTIVE_MATCHERS.delete(data.entity_id);
-        clearTimeout(this.TIMERS.get(data.entity_id));
-        this.TIMERS.delete(data.entity_id);
-        this.logger.debug(`sensor reset {%s}`, data.entity_id);
-      }
-    });
-  }
+  >();
+  private WATCHED_EVENTS = new Map<string, SequenceWatcher[]>();
 
   protected onModuleInit(): void {
     this.scanner.bindMethodDecorator<SequenceWatchDTO>(
@@ -107,10 +48,13 @@ export class SequenceActivateService {
         this.logger.info(
           { context },
           `[@SequenceWatcher]({%s}) states ${smear}`,
-          data.sensor,
           ...data.match,
         );
-        const watcher = this.WATCHED_SENSORS.get(data.sensor) || [];
+        let watcher = this.WATCHED_EVENTS.get(data.event_type);
+        if (!watcher) {
+          watcher = [];
+          this.watchEvent(data.event_type);
+        }
         watcher.push({
           ...data,
           callback: async () => {
@@ -118,49 +62,77 @@ export class SequenceActivateService {
             await exec();
           },
         });
-        this.WATCHED_SENSORS.set(data.sensor, watcher);
+        this.WATCHED_EVENTS.set(data.event_type, watcher);
       },
     );
   }
 
-  /**
-   * Update the reset timeout
-   *
-   * If this entity is not part of active matchers, insert the entries to get it started
-   */
+  private cleanTags(reset: string): void {
+    [...this.ACTIVE.keys()].forEach(key => {
+      const item = this.ACTIVE.get(key);
+      if (item.reset === reset) {
+        item.interrupt.kill("stop");
+        this.ACTIVE.delete(key);
+      }
+    });
+  }
 
-  private initWatchers(entity_id: string): void {
-    // Clear out old timer
-    if (this.TIMERS.has(entity_id)) {
-      clearTimeout(this.TIMERS.get(entity_id));
+  private onMatch(data: SequenceWatcher): void {
+    nextTick(async () => await data.callback());
+    const reset = data.reset ?? "none";
+    if (reset === "self") {
+      this.ACTIVE.delete(data);
     }
-
-    // Set up new timer
-    const timer = setTimeout(() => {
-      this.TIMERS.delete(entity_id);
-      this.ACTIVE_MATCHERS.delete(entity_id);
-      this.logger.debug({ entity_id }, `Timeout`);
-    }, this.kunamiTimeout);
-    this.TIMERS.set(entity_id, timer);
-
-    // Set up active matcher if does not exist
-    if (!this.ACTIVE_MATCHERS.has(entity_id)) {
-      const initialEvents: SequenceSensorEvent[] = [];
-
-      this.WATCHED_SENSORS.forEach(watchers => {
-        watchers.forEach(watcher => {
-          if (watcher.sensor !== entity_id) {
-            return;
-          }
-          initialEvents.push({
-            progress: [],
-            rejected: false,
-            watcher,
-          });
-        });
-      });
-
-      this.ACTIVE_MATCHERS.set(entity_id, initialEvents);
+    if (reset.startsWith("tag")) {
+      // Retrieve everything with the same tag, and remove them all
+      // (will include self)
+      this.cleanTags(reset);
     }
+  }
+
+  private trigger(type: string, event_data: object): void {
+    this.WATCHED_EVENTS.get(type).forEach(async data => {
+      const allowed = data.filter(event_data);
+      if (!allowed) {
+        // Not sure what use case a filter that changes might have
+        // If this is your use case, let me know
+        this.ACTIVE.delete(data);
+        return;
+      }
+
+      // * Identify if it is already being watched
+      const current = this.ACTIVE.get(data);
+      const match = [];
+      if (current) {
+        // if so, kill the current sleep so it doesn't gc early
+        current.interrupt.kill("stop");
+        // prepend the current matches in to the new list
+        match.push(...current.match);
+      }
+
+      // * Grab the new value from the event, and add it on the list
+      const value = get(event_data, data.path);
+      match.push(value);
+
+      // * If the sequence matches, fire the callback
+      if (is.equal(match, data.match)) {
+        this.onMatch(data);
+      }
+
+      // * wait out the match timeout using a sleep that can be cancelled
+      const interrupt = sleep(this.matchTimeout);
+      this.ACTIVE.set(data, { interrupt, match, reset: data.reset });
+      await interrupt;
+
+      // * New event hasn't come in within time period. >>> GC
+      this.ACTIVE.delete(data);
+    });
+  }
+
+  private watchEvent(event_type: string) {
+    this.logger.debug(`[%s] watching event`, event_type);
+    OnHassEvent({ event_type }, (event: { data: object }) => {
+      this.trigger(event_type, event.data);
+    });
   }
 }
