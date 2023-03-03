@@ -1,9 +1,17 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
-import { eachSeries, EMPTY, INCREMENT, is } from "@steggy/utilities";
+import {
+  eachSeries,
+  EMPTY,
+  INCREMENT,
+  is,
+  SECOND,
+  sleep,
+  START,
+} from "@steggy/utilities";
 import dayjs from "dayjs";
 import { get, set } from "object-path";
-import { nextTick } from "process";
+import { exit, nextTick } from "process";
 import { Get } from "type-fest";
 import { v4 } from "uuid";
 
@@ -29,6 +37,9 @@ type Watcher<ENTITY_ID extends PICK_ENTITY = PICK_ENTITY> = {
   type: "once" | "dynamic" | "annotation";
 };
 const TIME_OFFSET = 1000;
+const FAILED_LOAD_DELAY = 5;
+const MAX_ATTEMPTS = 50;
+const FAILED = 1;
 
 const emittingEvents = new Map<PICK_ENTITY, number>();
 const entityWatchers = new Map<PICK_ENTITY, Watcher[]>();
@@ -166,8 +177,24 @@ export class EntityManagerService {
    *
    * Refresh occurs through home assistant rest api, and is not bound by the websocket lifecycle
    */
-  public async refresh(): Promise<void> {
+  public async refresh(recursion = START): Promise<void> {
     const states = await this.fetch.getAllEntities();
+    if (is.empty(states)) {
+      if (recursion > MAX_ATTEMPTS) {
+        this.logger.fatal(
+          `Failed to load service list from Home Assistant. Validate configuration`,
+        );
+        exit(FAILED);
+      }
+      this.logger.warn(
+        "Failed to retrieve {entity} list. Retrying {%s}/[%s]",
+        recursion,
+        MAX_ATTEMPTS,
+      );
+      await sleep(FAILED_LOAD_DELAY * SECOND);
+      await this.refresh(recursion + INCREMENT);
+      return;
+    }
     const oldState = MASTER_STATE;
     MASTER_STATE = {};
 

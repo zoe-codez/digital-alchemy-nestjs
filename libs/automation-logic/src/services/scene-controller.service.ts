@@ -8,9 +8,7 @@ import {
 } from "@steggy/boilerplate";
 import {
   GET_ATTRIBUTE_TEMPLATE,
-  iCallService,
   Icon,
-  InjectCallProxy,
   NewEntityId,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
@@ -59,8 +57,6 @@ export class SceneControllerService {
     private readonly pushEntity: PushEntityService,
     private readonly pushProxy: PushProxyService,
     private readonly scanner: ModuleScannerService,
-    @InjectCallProxy()
-    private readonly call: iCallService,
     @Inject(AUTOMATION_LOGIC_MODULE_CONFIGURATION)
     private readonly configuration: AutomationLogicModuleConfiguration,
     @InjectConfig(MQTT_TOPIC_PREFIX)

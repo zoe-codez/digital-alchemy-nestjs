@@ -13,7 +13,6 @@ import {
   EntityManagerService,
   GenericEntityDTO,
   iCallService,
-  InjectCallProxy,
   OnEntityUpdate,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
@@ -99,7 +98,6 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     @Inject(INQUIRER) private inquirer: unknown,
     @InjectLogger()
     private readonly logger: AutoLogService,
-    @InjectCallProxy()
     private readonly call: iCallService,
     @InjectConfig(CIRCADIAN_SENSOR)
     private readonly circadianSensor: PICK_ENTITY<"sensor">,

@@ -3,7 +3,6 @@ import { AutoLogService, InjectConfig, OnEvent } from "@steggy/boilerplate";
 import {
   EntityManagerService,
   iCallService,
-  InjectCallProxy,
   PICK_ENTITY,
 } from "@steggy/home-assistant";
 import { is, sleep, START } from "@steggy/utilities";
@@ -27,7 +26,6 @@ const DOWN = -1;
 export class GradualDimService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectCallProxy()
     private readonly call: iCallService,
     private readonly entityManager: EntityManagerService,
     @InjectConfig(GRADUAL_DIM_DEFAULT_INTERVAL)

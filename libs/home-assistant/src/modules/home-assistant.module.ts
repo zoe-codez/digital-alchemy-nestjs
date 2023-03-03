@@ -17,7 +17,8 @@ import {
   WEBSOCKET_URL,
 } from "../config";
 import { TalkBackController } from "../controllers";
-import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
+import { InjectEntityProxy, InjectPushEntity } from "../decorators";
+import { iCallService } from "../dynamic";
 import {
   BackupService,
   CallProxyService,
@@ -193,7 +194,7 @@ export class HomeAssistantModule {
       ...InjectPushEntity.providers,
       {
         inject: [CallProxyService],
-        provide: CALL_PROXY,
+        provide: iCallService,
         useFactory: (call: CallProxyService) => call.buildCallProxy(),
       },
     ];
