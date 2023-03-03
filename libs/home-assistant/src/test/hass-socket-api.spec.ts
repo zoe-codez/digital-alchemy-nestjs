@@ -33,13 +33,15 @@ describe("Hass Socket API", () => {
     base = `http://localhost:${port}`;
     const app = await Test.createTestingModule({
       bootstrap: {
-        config: {
-          libs: {
-            "home-assistant": {
-              [BASE_URL]: base,
-              [CRASH_REQUESTS_PER_SEC]: crashCount,
-              [TOKEN]: token,
-              [WARN_REQUESTS_PER_SEC]: warnCount,
+        application: {
+          config: {
+            libs: {
+              "home-assistant": {
+                [BASE_URL]: base,
+                [CRASH_REQUESTS_PER_SEC]: crashCount,
+                [TOKEN]: token,
+                [WARN_REQUESTS_PER_SEC]: warnCount,
+              },
             },
           },
         },

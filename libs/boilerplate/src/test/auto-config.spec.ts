@@ -11,8 +11,8 @@ import {
   LOG_LEVEL,
   SCAN_CONFIG,
 } from "../config";
-import { SKIP_CONFIG_INIT } from "../types";
 import { AutoConfigService } from "../services";
+import { SKIP_CONFIG_INIT } from "../types";
 import { CollisionAModule, CollisionBModule } from "./modules";
 import { InjectionInlineTest, InjectionModuleTest } from "./services";
 import { COLLISION_LIBRARY, TEST_CONFIG_A, TEST_CONFIG_B } from "./types";
@@ -23,9 +23,11 @@ describe("AutoConfig", () => {
   beforeAll(async () => {
     const app = await Test.createTestingModule({
       bootstrap: {
-        config: {
-          application: { foo: true },
-          libs: { boilerplate: { LOG_LEVEL: "debug" } },
+        application: {
+          config: {
+            application: { foo: true },
+            libs: { boilerplate: { LOG_LEVEL: "debug" } },
+          },
         },
       },
     }).compile();
@@ -100,12 +102,14 @@ describe("AutoConfig", () => {
     beforeEach(async () => {
       const app = await Test.createTestingModule({
         bootstrap: {
-          config: {
-            application: { foo: true },
-            libs: { boilerplate: { LOG_LEVEL: "debug" } },
+          application: {
+            config: {
+              application: { foo: true },
+              libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            },
           },
-          flags: [SKIP_CONFIG_INIT],
         },
+        globals: [{ provide: SKIP_CONFIG_INIT, useValue: true }],
       }).compile();
       configService = app.get<AutoConfigService>(AutoConfigService);
       delete env["LOG_LEVEL"];
@@ -223,14 +227,16 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test-no-file",
         bootstrap: {
-          config: {
-            application: {
-              BOOLEAN_CONFIG: false,
-              NUMBER_CONFIG: 75,
-              RECORD: { dance: "off" },
-              STRING_ARRAY: ["upside", "down"],
-              STRING_CONFIG: "override value",
-              STRING_CONFIG_NO_DEFAULT: "maybe it does",
+          application: {
+            config: {
+              application: {
+                BOOLEAN_CONFIG: false,
+                NUMBER_CONFIG: 75,
+                RECORD: { dance: "off" },
+                STRING_ARRAY: ["upside", "down"],
+                STRING_CONFIG: "override value",
+                STRING_CONFIG_NO_DEFAULT: "maybe it does",
+              },
             },
           },
         },
@@ -270,9 +276,11 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test",
         bootstrap: {
-          config: {
-            application: {
-              STRING_CONFIG: "override value",
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "override value",
+              },
             },
           },
         },
@@ -293,9 +301,11 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test",
         bootstrap: {
-          config: {
-            application: {
-              STRING_CONFIG: "override value",
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "override value",
+              },
             },
           },
         },
@@ -316,9 +326,11 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test",
         bootstrap: {
-          config: {
-            application: {
-              STRING_CONFIG: "override value",
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "override value",
+              },
             },
           },
         },
@@ -339,9 +351,11 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test",
         bootstrap: {
-          config: {
-            application: {
-              STRING_CONFIG: "override value",
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "override value",
+              },
             },
           },
         },
@@ -363,8 +377,10 @@ describe("AutoConfig", () => {
       const app = await Test.createTestingModule({
         application: "auto-config-test",
         bootstrap: {
-          config: {
-            application: { STRING_CONFIG: "override value" },
+          application: {
+            config: {
+              application: { STRING_CONFIG: "override value" },
+            },
           },
         },
         configuration: {
@@ -385,9 +401,11 @@ describe("AutoConfig", () => {
       it("module a", async () => {
         const app = await Test.createTestingModule({
           bootstrap: {
-            config: {
-              application: { foo: true },
-              libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            application: {
+              config: {
+                application: { foo: true },
+                libs: { boilerplate: { LOG_LEVEL: "debug" } },
+              },
             },
           },
           imports: [CollisionAModule],
@@ -404,9 +422,11 @@ describe("AutoConfig", () => {
       it("module b", async () => {
         const app = await Test.createTestingModule({
           bootstrap: {
-            config: {
-              application: { foo: true },
-              libs: { boilerplate: { LOG_LEVEL: "debug" } },
+            application: {
+              config: {
+                application: { foo: true },
+                libs: { boilerplate: { LOG_LEVEL: "debug" } },
+              },
             },
           },
           imports: [CollisionBModule],

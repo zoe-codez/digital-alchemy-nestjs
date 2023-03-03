@@ -40,11 +40,13 @@ describe("Socket Manager", () => {
     // Testing app
     const app = await Test.createTestingModule({
       bootstrap: {
-        config: {
-          libs: {
-            "home-assistant": {
-              [BASE_URL]: base,
-              [TOKEN]: token,
+        application: {
+          config: {
+            libs: {
+              "home-assistant": {
+                [BASE_URL]: base,
+                [TOKEN]: token,
+              },
             },
           },
         },
