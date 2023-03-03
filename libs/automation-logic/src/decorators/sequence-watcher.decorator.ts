@@ -5,6 +5,11 @@ export type SequenceWatchDTO<
   MATCH extends string = string,
 > = {
   /**
+   * Additional log context
+   */
+  context?: string;
+
+  /**
    * Pre-filter to only events of a given type
    */
   event_type: string;

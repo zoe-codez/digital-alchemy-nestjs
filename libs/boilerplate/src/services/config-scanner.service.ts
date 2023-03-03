@@ -20,7 +20,9 @@ export class ConfigScanner {
     }
     if (this.scanConfig) {
       // eslint-disable-next-line no-console
-      console.log(JSON.stringify(ScanConfig(app, options?.config)));
+      console.log(
+        JSON.stringify(ScanConfig(app, options?.application?.config)),
+      );
       exit();
     }
   }

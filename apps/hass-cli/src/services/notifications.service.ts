@@ -1,14 +1,11 @@
 import { Injectable } from "@nestjs/common";
+import { AutoLogService } from "@steggy/boilerplate";
 import {
   HASSIO_WS_COMMAND,
   HassNotificationDTO,
   HassSocketAPIService,
 } from "@steggy/home-assistant";
-import {
-  ApplicationManagerService,
-  PromptService,
-  SyncLoggerService,
-} from "@steggy/tty";
+import { ApplicationManagerService, PromptService } from "@steggy/tty";
 import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
@@ -19,7 +16,7 @@ type MenuResult = string | NotificationMenuResult;
 export class NotificationControlsService {
   constructor(
     private readonly prompt: PromptService,
-    private readonly logger: SyncLoggerService,
+    private readonly logger: AutoLogService,
     private readonly application: ApplicationManagerService,
     private readonly socket: HassSocketAPIService,
   ) {}

@@ -1,4 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { AutoLogService } from "@steggy/boilerplate";
 import { is } from "@steggy/utilities";
 import chalk from "chalk";
 
@@ -22,7 +23,6 @@ import {
   StringEditorRenderOptions,
 } from "../editors";
 import { ApplicationManagerService } from "./application-manager.service";
-import { SyncLoggerService } from "./sync-logger.service";
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<VALUE extends unknown = string> =
@@ -32,7 +32,7 @@ export type PromptEntry<VALUE extends unknown = string> =
 @Injectable()
 export class PromptService {
   constructor(
-    private readonly logger: SyncLoggerService,
+    private readonly logger: AutoLogService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}

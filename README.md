@@ -96,7 +96,7 @@ npx hass-type-generate
 ### [Log Formatter](apps/log-formatter)
 
 Pipe JSON logs in via stdin, get pretty/readable logs out.
-Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo so logs will format the same as during development.
+Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), internal formatter instead.
 
 ## Libraries
 

@@ -23,8 +23,10 @@ import {
 @QuickScript({
   application: "hass-cli",
   bootstrap: {
-    config: {
-      libs: { boilerplate: { [LOG_LEVEL]: "error" } },
+    application: {
+      config: {
+        libs: { boilerplate: { [LOG_LEVEL]: "error" } },
+      },
     },
   },
   configuration: {

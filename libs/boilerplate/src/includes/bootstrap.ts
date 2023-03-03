@@ -4,18 +4,15 @@
  * */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
-  DynamicModule,
   INestApplication,
   INestApplicationContext,
   ModuleMetadata,
-  Provider,
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { ExpressAdapter } from "@nestjs/platform-express";
 import {
   AbstractConfig,
   AutoLogService,
-  BOOTSTRAP_OPTIONS,
   CONFIG_DEFAULTS,
   LIB_BOILERPLATE,
   LifecycleService,
@@ -32,85 +29,107 @@ import { exit } from "process";
 
 export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
   /**
-   * Provide alternate default values for configurations.
-   * Takes priority over definitions from `@InjectConfig` and modules.
-   * Overridden by all user values.
+   * Changes to the way the application is wired & defaults
    */
-  config?: AbstractConfig;
+  application?: {
+    /**
+     * Provide alternate default values for configurations.
+     * Takes priority over definitions from `@InjectConfig` and modules.
+     * Overridden by all user values.
+     */
+    config?: AbstractConfig;
+    /**
+     * Ignore user provided configuration values.
+     * Only use defaults / bootstrap provided config
+     */
+    skipConfigLoad?: boolean;
+  };
+  http?: {
+    /**
+     * Server is cors enabled
+     *
+     * default: true
+     */
+    cors?: boolean;
+    /**
+     * Attach express to the nestjs app.
+     * `ServerModule` from `@steggy/server` needs to be imported to actually listen for requests
+     */
+    enabled?: boolean;
+  };
   /**
-   * Insert additional modules.
-   * Used for environment specific modules, 99% of the time these should be placed in the application module instead
+   * Modify the application lifecycle
    */
-  extraModules?: DynamicModule[];
+  lifecycle?: {
+    /**
+     * If set to false, the application module be created but not initialized.
+     * Testing feature
+     */
+    init?: boolean;
+    /**
+     * Additional functions to run postInit.
+     * First in line
+     */
+    postInit?: ((
+      app: INestApplication,
+      expressServer: Express,
+      bootOptions: BootstrapOptions,
+    ) => Promise<void> | void | unknown | Promise<unknown>)[];
+    /**
+     * Additional functions to run preInit.
+     * First in line
+     */
+    preInit?: ((
+      app: INestApplication,
+      expressServer: Express,
+      bootOptions: BootstrapOptions,
+    ) => Promise<void> | void)[];
+  };
   /**
-   * Activate application functionality by flags.
-   *
-   * Basically a more convenient way to add globals.
+   * Options to fine tune the logging experience
    */
-  flags?: Array<string | symbol>;
-  /**
-   * Insert additional providers with a global scope.
-   */
-  globals?: Provider[];
-  /**
-   * Attach express to the nestjs app.
-   * `ServerModule` from `@steggy/server` needs to be imported to actually listen for requests
-   */
-  http?: boolean;
-  /**
-   * If set to false, the application module be created but not initialized
-   *
-   * Use with testing
-   */
-  init?: boolean;
-  /**
-   * Disable nestjs log messages
-   */
-  nestNoopLogger?: boolean;
-  /**
-   * Additional functions to run postInit.
-   * Run before those in providers
-   */
-  postInit?: ((
-    app: INestApplication,
-    expressServer: Express,
-    bootOptions: BootstrapOptions,
-  ) => Promise<void> | void | unknown | Promise<unknown>)[];
-  /**
-   * Additional functions to run preInit.
-   * Run before those in providers
-   */
-  preInit?: ((
-    app: INestApplication,
-    expressServer: Express,
-    bootOptions: BootstrapOptions,
-  ) => Promise<void> | void)[];
-  /**
-   * Output logs using the pretty logger formatter instead of standard json logs.
-   * Use with development environments only
-   */
-  prettyLog?: boolean | PrettyLoggerConfig;
-  /**
-   * Ignore user provided configuration values.
-   * Only use defaults / bootstrap provided config
-   */
-  skipConfigLoad?: boolean;
+  logging?: {
+    /**
+     * Disable nestjs log messages
+     */
+    nestNoopLogger?: boolean;
+    /**
+     * Output logs using the pretty logger formatter instead of standard json logs.
+     * Use with development environments only
+     */
+    prettyLog?: boolean | PrettyLoggerConfig;
+
+    /**
+     * Log with blocking operations (default: false).
+     *
+     * Logging library does async logging for performance reasons.
+     * This can cause logs to render in strange ways when used with `@steggy/tty`.
+     * Forcing sync logs will resolve.
+     *
+     * Has a performance penalty for more traditional applications.
+     * Leave on for most normal nodejs applications
+     */
+    sync?: boolean;
+  };
 }
 
 /**
  * Standardized init process
  */
 export async function Bootstrap(
-  module: ClassConstructor<unknown>,
+  application: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
 ): Promise<INestApplicationContext> {
   // Environment files can append extra modules
-  const current = Reflect.getMetadata("imports", module) ?? [];
+  const current = Reflect.getMetadata("imports", application) ?? [];
   // console.log(current);
   if (!is.empty(bootOptions.imports)) {
     current.push(...bootOptions.imports);
-    Reflect.defineMetadata("imports", current, module);
+    Reflect.defineMetadata("imports", current, application);
   }
+
+  //  * Retrieve a dynamic module injected by the annotation.
+  //  * It contains additional providers that get injected globally, which are used to further bootstrap.
   const globals = current.find(item => item.type === "GLOBAL_SYMBOLS");
   if (!globals) {
     // Just not far enough along to have a real logger yet
@@ -120,44 +139,44 @@ export async function Bootstrap(
     );
     exit();
   }
-  bootOptions.flags ??= [];
-  bootOptions.globals ??= [];
-  bootOptions.globals.push({
-    provide: BOOTSTRAP_OPTIONS,
-    useFactory: () => bootOptions,
-  });
-  const append = [
-    ...bootOptions.globals,
-    ...bootOptions.flags.map(i => ({ provide: i, useValue: true })),
-  ];
-  append.push({
+  // * Add even more stuff to the globals
+  const configDefaults = {
     provide: CONFIG_DEFAULTS,
-    useValue: bootOptions.config ?? {},
-  });
-  globals.exports.push(...append);
-  globals.providers.push(...append);
+    useValue: bootOptions?.application?.config ?? {},
+  };
+  globals.exports.push(configDefaults);
+  globals.providers.push(configDefaults);
 
-  let { preInit, postInit } = bootOptions;
-  const { prettyLog, nestNoopLogger, http, init } = bootOptions;
+  // * Pull data out of the bootstrap config
+  const {
+    logging: { prettyLog = false, nestNoopLogger = false } = {},
+    http: { cors = true, enabled: httpEnabled = false } = {},
+    lifecycle: { init = true, preInit = [], postInit = [] } = {},
+  } = bootOptions;
 
+  // * Updates to the logger
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger(is.object(prettyLog) ? prettyLog : undefined);
   }
+
+  // * Set up the actual nest application
   let server: Express;
   const options = {
+    cors,
     // Shh... no talky
     logger: nestNoopLogger ? NEST_NOOP_LOGGER : AutoLogService.nestLogger,
   };
   let app: INestApplication;
   try {
-    if (http) {
+    if (httpEnabled) {
       server = express();
-      app = await NestFactory.create(module, new ExpressAdapter(server), {
-        ...options,
-        cors: true,
-      });
+      app = await NestFactory.create(
+        application,
+        new ExpressAdapter(server),
+        options,
+      );
     } else {
-      app = await NestFactory.create(module, options);
+      app = await NestFactory.create(application, options);
     }
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -166,27 +185,40 @@ export async function Bootstrap(
   if (init === false) {
     return app;
   }
-  app.enableShutdownHooks();
-  const lifecycle = app.get(LifecycleService);
+
   const logger = await app.resolve(AutoLogService);
   logger.setContext(LIB_BOILERPLATE, { name: "Bootstrap" });
+
+  // * additional lifecycle events
+  app.enableShutdownHooks();
+
+  // * kick off the lifecycle
+  const lifecycle = app.get(LifecycleService);
   const explorer = await app.resolve(LogExplorerService);
+
+  logger.trace(`Pre loading log context`);
   explorer.load();
-  // onPreInit
-  preInit ??= [];
+
+  // * preInit
+  logger.trace(`preInit`);
   await eachSeries(preInit, async item => {
     await item(app, server, bootOptions);
   });
   await lifecycle.preInit(app, { options: bootOptions, server });
-  // ...init
+
+  // * init
   // onModuleCreate
   // onApplicationBootstrap
+  logger.trace(`init`);
   await app.init();
-  // onPostInit
-  postInit ??= [];
+
+  // * postInit
+  logger.trace(`postInit`);
   await eachSeries(postInit, async item => {
     await item(app, server, bootOptions);
   });
   await lifecycle.postInit(app, { options: bootOptions, server });
+
+  // ! done !
   return app;
 }

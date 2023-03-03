@@ -11,7 +11,6 @@ export * from "./keyboard-manager.service";
 export * from "./keymap.service";
 export * from "./prompt.service";
 export * from "./screen.service";
-export * from "./sync-logger.service";
 export * from "./table.service";
 export * from "./terminal-help.service";
 export * from "./text-rendering.service";

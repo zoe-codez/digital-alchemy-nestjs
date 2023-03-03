@@ -1,11 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig } from "@steggy/boilerplate";
 import { BackupService, HomeAssistantBackup } from "@steggy/home-assistant";
 import {
   ApplicationManagerService,
   MainMenuEntry,
   PromptService,
-  SyncLoggerService,
   TextRenderingService,
 } from "@steggy/tty";
 import { is } from "@steggy/utilities";
@@ -32,7 +31,7 @@ export class BackupControlsService {
   constructor(
     private readonly application: ApplicationManagerService,
     private readonly prompt: PromptService,
-    private readonly logger: SyncLoggerService,
+    private readonly logger: AutoLogService,
     private readonly text: TextRenderingService,
     private readonly backup: BackupService,
     @InjectConfig(DOWNLOAD_DIR)

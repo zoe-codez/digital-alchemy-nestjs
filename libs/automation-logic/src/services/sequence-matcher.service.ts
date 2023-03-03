@@ -5,7 +5,7 @@ import {
   ModuleScannerService,
 } from "@steggy/boilerplate";
 import { OnHassEvent } from "@steggy/home-assistant";
-import { is, PEAT, sleep } from "@steggy/utilities";
+import { is, sleep } from "@steggy/utilities";
 import { get } from "object-path";
 import { nextTick } from "process";
 
@@ -44,11 +44,12 @@ export class SequenceActivateService {
     this.scanner.bindMethodDecorator<SequenceWatchDTO>(
       SequenceWatcher,
       ({ context, exec, data }) => {
-        const smear = PEAT(data.match.length, "%s").join(", ");
         this.logger.info(
-          { context },
-          `[@SequenceWatcher]({%s}) states ${smear}`,
-          ...data.match,
+          { context, match: data.match },
+          is.empty(data.context)
+            ? `[@SequenceWatcher]`
+            : `[@SequenceWatcher]({%s})`,
+          data.context,
         );
         let watcher = this.WATCHED_EVENTS.get(data.event_type);
         if (!watcher) {
@@ -60,7 +61,10 @@ export class SequenceActivateService {
           callback: async () => {
             this.logger.trace(
               { context, match: data.match },
-              `[SequenceWatcher] trigger`,
+              is.empty(data.context)
+                ? `[@SequenceWatcher] trigger`
+                : `[@SequenceWatcher]({%s}) trigger`,
+              data.context,
             );
             await exec();
           },

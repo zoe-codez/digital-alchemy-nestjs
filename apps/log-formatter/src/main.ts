@@ -30,7 +30,6 @@ let print: (line: string) => void = line => BOOT_MESSAGES.push(line);
 rl.on("line", line => print(line));
 
 @QuickScript({
-  PERSISTENT: true,
   application: "log-formatter",
 })
 export class ConfigScanner {

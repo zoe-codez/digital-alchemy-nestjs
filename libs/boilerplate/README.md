@@ -55,7 +55,9 @@ export class MyApplication {}
 Bootstrap(MyApplication, {
   config: { ... },
   http: false,
-  prettyLog: true
+  logging:{
+    prettyLog: true
+  }
 })
 ```
 

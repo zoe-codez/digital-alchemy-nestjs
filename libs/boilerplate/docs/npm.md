@@ -42,7 +42,9 @@ export class ApplicationModule {}
 Bootstrap(ApplicationModule, {
   config: { ... },
   http: true,
-  prettyLog: true
+  logging: {
+    prettyLog: true
+  }
 })
 ```
 ## Configuration

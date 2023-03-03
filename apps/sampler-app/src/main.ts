@@ -26,8 +26,10 @@ import {
 @QuickScript({
   application: "sampler-app",
   bootstrap: {
-    config: {
-      application: { APPLICATION_OVERRIDE: faker.hacker.phrase() },
+    application: {
+      config: {
+        application: { APPLICATION_OVERRIDE: faker.hacker.phrase() },
+      },
     },
   },
   imports: [TTYModule],

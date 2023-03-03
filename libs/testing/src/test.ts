@@ -1,5 +1,5 @@
 import { MetadataScanner } from "@nestjs/core";
-import { QuickScriptOptions } from "@steggy/boilerplate";
+import { BootstrapOptions, QuickScriptOptions } from "@steggy/boilerplate";
 import { deepExtend, is } from "@steggy/utilities";
 import { createServer } from "http";
 
@@ -10,19 +10,24 @@ export class Test {
 
   public static createTestingModule(metadata: QuickScriptOptions) {
     metadata.bootstrap ??= {};
-    metadata.bootstrap.flags ??= [];
 
     return new TestingModuleBuilder(this.metadataScanner, {
       ...metadata,
-      bootstrap: deepExtend(
+      bootstrap: deepExtend<BootstrapOptions, BootstrapOptions>(
         {
-          config: {
-            libs: { boilerplate: { LOG_LEVEL: "silent" } },
+          application: {
+            config: {
+              libs: { boilerplate: { LOG_LEVEL: "silent" } },
+            },
+            skipConfigLoad: is.undefined(metadata.application),
           },
-          init: false,
-          nestNoopLogger: true,
-          prettyLog: true,
-          skipConfigLoad: is.undefined(metadata.application),
+          lifecycle: {
+            init: false,
+          },
+          logging: {
+            nestNoopLogger: true,
+            prettyLog: true,
+          },
         },
         metadata.bootstrap,
       ),

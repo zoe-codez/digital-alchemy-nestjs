@@ -87,6 +87,6 @@ export function ApplicationModule(
     Object.entries(metadata).forEach(([property, value]) =>
       Reflect.defineMetadata(property, value, target),
     );
-    return target;
+    return target as ClassConstructor<unknown>;
   };
 }

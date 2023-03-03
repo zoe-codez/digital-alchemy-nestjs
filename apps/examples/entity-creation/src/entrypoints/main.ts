@@ -7,11 +7,17 @@ import {
 import { EntityCreationModule } from "../modules/entity-creation.module";
 
 Bootstrap(EntityCreationModule, {
-  config: {
-    libs: {
-      [LIB_BOILERPLATE]: { [CACHE_PROVIDER]: "redis" },
+  application: {
+    config: {
+      libs: {
+        [LIB_BOILERPLATE]: { [CACHE_PROVIDER]: "redis" },
+      },
     },
   },
-  http: true,
-  prettyLog: true,
+  http: {
+    enabled: true,
+  },
+  logging: {
+    prettyLog: true,
+  },
 });

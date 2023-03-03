@@ -1,9 +1,9 @@
 import {
   AbstractConfig,
+  AutoLogService,
   ConfigDefinitionDTO,
   ConfigTypeDTO,
   InjectConfig,
-  iQuickScript,
   QuickScript,
   StringArrayConfig,
   StringConfig,
@@ -14,7 +14,6 @@ import {
   MainMenuEntry,
   PromptService,
   ScreenService,
-  SyncLoggerService,
   TTYModule,
 } from "@steggy/tty";
 import {
@@ -40,9 +39,9 @@ const NO_VALUE = Symbol();
   application: "config-builder",
   imports: [TTYModule],
 })
-export class ConfigScanner implements iQuickScript {
+export class ConfigScanner {
   constructor(
-    private readonly logger: SyncLoggerService,
+    private readonly logger: AutoLogService,
     @InjectConfig("DEFINITION_FILE", {
       default: "./config.json",
       description: "File path to file containing an application scanned config",
