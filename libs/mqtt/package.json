@@ -5,7 +5,7 @@
   },
   "name": "@steggy/mqtt",
   "license": "MIT",
-  "version": "23.9.17",
+  "version": "23.9.18",
   "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
