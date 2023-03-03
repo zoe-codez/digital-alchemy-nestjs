@@ -17,6 +17,7 @@ import {
 import {
   ENTITY_STATE,
   iCallService,
+  InjectCallProxy,
   InjectEntityProxy,
   TemplateButton,
 } from "@steggy/home-assistant";
@@ -57,6 +58,7 @@ import { Loft } from "./loft.room";
 export class Office {
   constructor(
     private readonly logger: AutoLogService,
+    @InjectCallProxy()
     private readonly call: iCallService,
     private readonly solar: SolarCalcService,
     public readonly scene: SceneRoomService<"office">,
