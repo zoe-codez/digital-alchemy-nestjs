@@ -27,6 +27,7 @@ import { exit } from "process";
 const IT_BROKE = 1;
 
 @QuickScript({
+  PERSISTENT: false,
   application: "hass-type-generate",
   imports: [HomeAssistantModule.forRoot()],
 })

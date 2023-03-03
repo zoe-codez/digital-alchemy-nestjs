@@ -1,6 +1,7 @@
 import { Controller, Injectable, Provider, Type } from "@nestjs/common";
 import { is } from "@steggy/utilities";
 import { ClassConstructor } from "class-transformer";
+import { exit } from "process";
 
 import { Bootstrap, BootstrapOptions } from "../includes";
 import { MODULE_METADATA } from "../types";
@@ -13,8 +14,13 @@ import {
  * Magic timeout makes things work. Don't know why process.nextTick() isn't sufficient
  */
 const WAIT_BOOTSTRAP = 50;
+const SUCCESS = 0;
 
 export type QuickScriptOptions = ApplicationModuleMetadata & {
+  /**
+   * Allow the application to keep running after `exec` finishes
+   */
+  PERSISTENT?: boolean;
   WAIT_TIME?: number;
   bootstrap?: BootstrapOptions;
   /**
@@ -29,10 +35,21 @@ export type QuickScriptOptions = ApplicationModuleMetadata & {
  * Use as an annotation for a single NestJS provider.
  * Will bootstrap a minimal TTY app around the provider, and will use the `exec` method as the entrypoint.
  *
- * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
+ * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file.
+ *
+ * ## Entrypoint
+ *
+ * If an `exec` entrypoint is provided on the annotated class, then it will be utilized as an "entrypoint".
+ * This entrypoint runs AFTER all the normal startup lifecycle events finish, and is entirely optional depending on the way you intend to build your application.
+ *
+ * If the `exec` entrypoint is provided, then `@QuickScript` will consider the `PERSISTENT` argument passed into the annotation options.
+ *
+ * - when set to `false`, the application will self-terminate when the logic for `exec` finishes.
+ * - when set to `true`, the application will be allowed to run as long as it wants
  */
 export function QuickScript({
   WAIT_TIME = WAIT_BOOTSTRAP,
+  PERSISTENT = false,
   bootstrap = {},
   controller,
   ...metadata
@@ -55,6 +72,9 @@ export function QuickScript({
         const provider = app.get(target);
         if (is.function(provider.exec)) {
           await provider.exec();
+          if (!PERSISTENT) {
+            exit(SUCCESS);
+          }
         }
       }, WAIT_TIME),
     );
