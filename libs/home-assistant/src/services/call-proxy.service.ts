@@ -5,6 +5,8 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { ALL_NEST_LIFECYCLE_EVENTS, AutoLogService } from "@steggy/boilerplate";
+import { INCREMENT, is, SECOND, sleep, START } from "@steggy/utilities";
+import { exit, nextTick } from "process";
 
 import { ALL_DOMAINS, HASSIO_WS_COMMAND, HassServiceDTO } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
@@ -23,6 +25,9 @@ const DEF_NOT_DOMAINS = new Set([
   "constructor",
   ...ALL_NEST_LIFECYCLE_EVENTS,
 ]);
+const FAILED_LOAD_DELAY = 5;
+const MAX_ATTEMPTS = 50;
+const FAILED = 1;
 
 /**
  * This class builds a proxy object, intended to pass through requests to the Home Assistant service api
@@ -32,7 +37,7 @@ const DEF_NOT_DOMAINS = new Set([
  *
  * ## Operation
  *
- * This class builds proxy objects to be the counterpart of `InjectCallProxy`, which assembles provider wrappers around these proxies.
+ * This class builds proxy objects to be the counterpart of `iCallService`, which assembles provider wrappers around these proxies.
  *
  * ### Service availability
  *
@@ -64,20 +69,12 @@ export class CallProxyService {
    *
    * This API matches the api at the time the this function is run, which may be different from any generated typescript definitions from the past.
    */
-  protected async onModuleInit() {
+  protected onModuleInit() {
     if (!this.manager.BUILD_PROXY) {
       this.logger.debug(`[Proxy API] skipping`);
       return;
     }
-    this.logger.info(`Fetching service list`);
-    services = await this.fetchApi.listServices();
-    domains = services.map(i => i.domain);
-    services.forEach(value => {
-      this.logger.info(`[%s] scanning`, value.domain);
-      Object.entries(value.services).forEach(([serviceName]) =>
-        this.logger.debug(` - {%s}`, serviceName),
-      );
-    });
+    nextTick(async () => await this.loadServiceList());
   }
 
   private getDomain(domain: ALL_DOMAINS) {
@@ -101,6 +98,34 @@ export class CallProxyService {
           await this.sendMessage(domain, key, parameters),
       ]),
     );
+  }
+
+  private async loadServiceList(recursion = START): Promise<void> {
+    this.logger.info(`Fetching service list`);
+    services = await this.fetchApi.listServices();
+    if (is.empty(services)) {
+      if (recursion > MAX_ATTEMPTS) {
+        this.logger.fatal(
+          `Failed to load service list from Home Assistant. Validate configuration`,
+        );
+        exit(FAILED);
+      }
+      this.logger.warn(
+        "Failed to retrieve {service} list. Retrying {%s}/[%s]",
+        recursion,
+        MAX_ATTEMPTS,
+      );
+      await sleep(FAILED_LOAD_DELAY * SECOND);
+      await this.loadServiceList(recursion + INCREMENT);
+      return;
+    }
+    domains = services.map(i => i.domain);
+    services.forEach(value => {
+      this.logger.info(`[%s] scanning`, value.domain);
+      Object.entries(value.services).forEach(([serviceName]) =>
+        this.logger.debug(` - {%s}`, serviceName),
+      );
+    });
   }
 
   /**
