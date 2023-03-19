@@ -53,6 +53,22 @@
           "fileReplacements": []
         }
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build automation-logic --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/automation-logic",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["nestjs"]

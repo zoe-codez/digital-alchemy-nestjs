@@ -68,6 +68,22 @@
         "jestConfig": "libs/boilerplate/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build boilerplate --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/boilerplate",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "implicitDependencies": ["!testing"],

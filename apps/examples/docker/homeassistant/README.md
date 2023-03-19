@@ -12,17 +12,16 @@ The reference install is a barely configured docker based Home Assistant install
 > commands are run from repository root
 
 | command | requires root | description | notes |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `yarn hass:compress` | `*` | compressess the reference install back into the tar file | install should not be running |
 | `yarn hass:decompress` |  | extract the reference install | install should not be running |
 | `yarn hass:reset` | `*` | tear down the containers, remove the data, extract from reference, start again | install should not be running |
 | `yarn hass:cleanup` | `*` | cleanup data from reference install |  install should not be running |
-| `yarn container:hass:(start/stop)` | depends on permissions | start / stop the docker container |
+| `yarn container:hass:{start|stop}` | depends on permissions | start / stop the docker container |
 
 ## Setup notes
 
 > username: steggy
-> 
 > password: nom nom
 
 - Some additional tweaks to the `configuration.yaml` may be required if you want a reverse proxy in the mix

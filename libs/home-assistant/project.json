@@ -61,6 +61,22 @@
           "fileReplacements": []
         }
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-assistant --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/home-assistant",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["nestjs"]

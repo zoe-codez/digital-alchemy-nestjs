@@ -77,6 +77,22 @@
           }
         ]
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build log-formatter --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/apps/log-formatter",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["terminal"]

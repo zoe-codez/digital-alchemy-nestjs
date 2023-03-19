@@ -52,6 +52,22 @@
           }
         ]
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build utilities --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/utilities",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["shared"]

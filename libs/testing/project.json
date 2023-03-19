@@ -52,6 +52,22 @@
           }
         ]
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build testing --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/testing",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["nestjs"]

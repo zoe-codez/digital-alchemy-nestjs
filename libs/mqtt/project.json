@@ -50,6 +50,22 @@
           }
         ]
       }
+    },
+    "link": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build mqtt --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn link --cwd dist/libs/mqtt",
+            "description": "Link it"
+          }
+        ]
+      }
     }
   },
   "tags": ["nestjs"]

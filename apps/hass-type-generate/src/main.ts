@@ -8,6 +8,7 @@ import {
   HomeAssistantModule,
   HomeAssistantModuleConfiguration,
   LIB_HOME_ASSISTANT,
+  PICK_ENTITY,
   PushCallService,
   SERIALIZE,
   VERIFICATION_FILE,
@@ -74,7 +75,9 @@ export class TypeGenerate {
         return;
       }
       const ENTITY_SETUP: Record<string, Record<string, GenericEntityDTO>> = {};
-      entities.forEach(entity => set(ENTITY_SETUP, entity.entity_id, entity));
+      entities.forEach(entity =>
+        set(ENTITY_SETUP, entity.entity_id as PICK_ENTITY, entity),
+      );
       const entitySetup = JSON.stringify(ENTITY_SETUP, undefined, "  ");
       writeFileSync(
         path,

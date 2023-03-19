@@ -14,6 +14,7 @@
     "nx-migrate": "nx migrate latest",
     "record": "terminalizer record -c ./terminalizer.yml -k",
     "play": "terminalizer play",
+    "link-all": "npx nx run-many --target=link --all",
     "hass:compress": "./tools/scripts/compress.sh",
     "hass:cleanup": "rm -rf ./apps/examples/docker/homeassistant/config",
     "hass:decompress": "./tools/scripts/decompress.sh",

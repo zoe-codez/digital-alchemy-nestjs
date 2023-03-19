@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig, OnEvent } from "@steggy/boilerplate";
 import {
+  GenericEntityDTO,
+  PICK_ENTITY,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PushEntityService,
   PushProxyService,
 } from "@steggy/home-assistant";
-import { EMPTY, MINUTE } from "@steggy/utilities";
+import { EMPTY, MINUTE, NONE } from "@steggy/utilities";
 import dayjs from "dayjs";
 
 import {
@@ -18,8 +20,25 @@ import {
 import { LOCATION_UPDATED } from "../types";
 import { SolarCalcService } from "./solar-calc.service";
 
+type ColorModes = "color_temp" | "xy" | "brightness";
+export type ColorLight = GenericEntityDTO<{
+  brightness: number;
+  color_mode: ColorModes;
+  color_temp: number;
+  color_temp_kelvin: number;
+  entity_id: PICK_ENTITY<"light">[];
+  hs_color: [h: number, s: number];
+  max_mireds: number;
+  min_mireds: number;
+  min_temp_kelvin: number;
+  rgb_color: [number, number, number];
+  supported_color_modes: ColorModes[];
+  supported_features: number;
+  xy_color: [x: number, y: number];
+}>;
 const MIN = 0;
 const MAX = 1;
+const MIRED_CONVERSION = 1_000_000;
 /**
  * This service is responsible for managing the current temperature for circadian lighting
  *
@@ -44,7 +63,23 @@ export class CircadianService<
     private readonly pushEntity: PushEntityService,
   ) {}
 
+  public get kelvin(): number {
+    return Number(this.circadianEntity.state);
+  }
+
+  public get mireds(): number {
+    return Math.floor(MIRED_CONVERSION / this.kelvin);
+  }
+
   public circadianEntity: PUSH_PROXY<SENSOR>;
+
+  public lightInRange(entity: ColorLight): boolean {
+    const min = Math.max(
+      this.minTemperature,
+      entity.attributes.min_temp_kelvin ?? NONE,
+    );
+    return false;
+  }
 
   protected async onApplicationBootstrap() {
     if (!this.circadianEnabled) {
