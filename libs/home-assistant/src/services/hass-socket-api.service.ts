@@ -1,15 +1,15 @@
 import {
-  forwardRef,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
-import {
   AutoLogService,
   InjectConfig,
   InjectLogger,
 } from "@digital-alchemy/boilerplate";
 import { SECOND, sleep, START } from "@digital-alchemy/utilities";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
 import WS from "ws";

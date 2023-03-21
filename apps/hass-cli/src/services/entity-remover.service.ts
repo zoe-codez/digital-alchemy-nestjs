@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import {
   ENTITY_STATE,
   EntityRegistryService,
@@ -11,6 +10,7 @@ import {
   ScreenService,
 } from "@digital-alchemy/tty";
 import { eachSeries, is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 const TITLE = "Entity Remover";

@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
+import { Injectable } from "@nestjs/common";
 import { connect, IClientOptions, MqttClient } from "mqtt";
 
 import { CLIENT_OPTIONS } from "../config";

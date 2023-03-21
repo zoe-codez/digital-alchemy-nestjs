@@ -1,4 +1,3 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import {
   AnnotationPassThrough,
   AutoLogService,
@@ -7,7 +6,10 @@ import {
   ModuleScannerService,
   OnEvent,
 } from "@digital-alchemy/boilerplate";
-import { HassFetchAPIService, SOCKET_READY } from "@digital-alchemy/home-assistant";
+import {
+  HassFetchAPIService,
+  SOCKET_READY,
+} from "@digital-alchemy/home-assistant";
 import {
   CronExpression,
   DOWN,
@@ -19,6 +21,7 @@ import {
   sleep,
   UP,
 } from "@digital-alchemy/utilities";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { CronTime } from "cron";
 import dayjs from "dayjs";
 import SolarCalc from "solar-calc";

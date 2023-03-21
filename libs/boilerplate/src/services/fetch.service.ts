@@ -1,4 +1,3 @@
-import { Injectable, Scope } from "@nestjs/common";
 import {
   FetchArguments,
   FetchParameterTypes,
@@ -7,6 +6,7 @@ import {
   is,
   ResultControlDTO,
 } from "@digital-alchemy/utilities";
+import { Injectable, Scope } from "@nestjs/common";
 import Bottleneck from "bottleneck";
 import { createWriteStream } from "fs";
 import fetch from "node-fetch";

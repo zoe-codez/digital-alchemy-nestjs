@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   DateEditorEditorOptions,
@@ -8,6 +7,7 @@ import {
   TTYDateTypes,
   TTYFuzzyTypes,
 } from "@digital-alchemy/tty";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 @Injectable()

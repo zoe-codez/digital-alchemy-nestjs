@@ -1,5 +1,5 @@
-import { MiddlewareConsumer, RequestMethod } from "@nestjs/common";
 import { LibraryModule } from "@digital-alchemy/boilerplate";
+import { MiddlewareConsumer, RequestMethod } from "@nestjs/common";
 
 import {
   ADMIN_KEY,

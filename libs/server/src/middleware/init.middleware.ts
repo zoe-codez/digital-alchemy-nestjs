@@ -1,5 +1,8 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { AutoLogService, InjectConfig, storage } from "@digital-alchemy/boilerplate";
+import {
+  AutoLogService,
+  InjectConfig,
+  storage,
+} from "@digital-alchemy/boilerplate";
 import {
   buildFilter,
   FilterDTO,
@@ -8,6 +11,7 @@ import {
   is,
   queryToControl,
 } from "@digital-alchemy/utilities";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction } from "express";
 import pino from "pino";
 

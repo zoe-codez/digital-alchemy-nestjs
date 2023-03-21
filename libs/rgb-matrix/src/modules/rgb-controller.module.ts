@@ -1,6 +1,10 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
 
-import { BorderPulseService, BorderSpinService, PulseLaserService } from "../animations";
+import {
+  BorderPulseService,
+  BorderSpinService,
+  PulseLaserService,
+} from "../animations";
 import { MATRIX_OPTIONS, PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
 import {
   DEFAULT_FONT,
@@ -11,7 +15,12 @@ import {
   PANEL_WIDTH,
 } from "../config";
 import { FONTS } from "../contracts";
-import { AnimationService, LineService, MatrixFetch, TextLayoutService } from "../providers";
+import {
+  AnimationService,
+  LineService,
+  MatrixFetch,
+  TextLayoutService,
+} from "../providers";
 
 const providers = [
   AnimationService,
@@ -27,7 +36,8 @@ const providers = [
   configuration: {
     [DEFAULT_FONT]: {
       default: "5x8" as FONTS,
-      description: "What font should text rendering use if the widget does not provide one?",
+      description:
+        "What font should text rendering use if the widget does not provide one?",
       type: "string",
     },
     [MATRIX_OPTIONS]: {

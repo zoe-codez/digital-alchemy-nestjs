@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
   TextRenderingService,
 } from "@digital-alchemy/tty";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ConfirmService {

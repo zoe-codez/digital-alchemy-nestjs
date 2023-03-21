@@ -1,7 +1,14 @@
 /* eslint-disable radar/no-identical-functions*/
+import {
+  deepExtend,
+  is,
+  LABEL,
+  PAIR,
+  SINGLE,
+  VALUE,
+} from "@digital-alchemy/utilities";
 import { Inject, Injectable, Optional } from "@nestjs/common";
 import { DiscoveryService } from "@nestjs/core";
-import { deepExtend, is, LABEL, PAIR, SINGLE, VALUE } from "@digital-alchemy/utilities";
 import { writeFileSync } from "fs";
 import { encode } from "ini";
 import minimist from "minimist";

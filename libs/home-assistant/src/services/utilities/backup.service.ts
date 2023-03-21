@@ -1,6 +1,6 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { HALF, is, SECOND, sleep } from "@digital-alchemy/utilities";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import {
   HASSIO_WS_COMMAND,

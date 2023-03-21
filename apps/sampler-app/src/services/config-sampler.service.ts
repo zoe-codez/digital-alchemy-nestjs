@@ -1,5 +1,3 @@
-import { faker } from "@faker-js/faker";
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
@@ -7,6 +5,8 @@ import {
   ScreenService,
 } from "@digital-alchemy/tty";
 import { DEFAULT_LIMIT } from "@digital-alchemy/utilities";
+import { faker } from "@faker-js/faker";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { exit } from "process";
 

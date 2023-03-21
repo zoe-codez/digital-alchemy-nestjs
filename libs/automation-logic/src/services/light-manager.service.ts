@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import {
   ENTITY_STATE,
@@ -8,6 +7,7 @@ import {
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
 import { is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import { SceneDefinition, SceneLightState, SceneLightStateOn } from "../types";
 import { CircadianService, ColorLight } from "./circadian.service";

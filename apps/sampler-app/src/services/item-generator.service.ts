@@ -1,7 +1,7 @@
-import { faker } from "@faker-js/faker";
-import { Injectable } from "@nestjs/common";
 import { MainMenuEntry } from "@digital-alchemy/tty";
 import { is, TitleCase } from "@digital-alchemy/utilities";
+import { faker } from "@faker-js/faker";
+import { Injectable } from "@nestjs/common";
 
 /**
  * Just a few items to make life interesting

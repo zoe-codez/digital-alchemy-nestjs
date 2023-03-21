@@ -1,5 +1,4 @@
 /* eslint-disable radar/no-duplicate-string */
-import { Injectable } from "@nestjs/common";
 import {
   LOCATION_UPDATED,
   refTimes,
@@ -19,6 +18,7 @@ import {
   TitleCase,
   UP,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 
 @Injectable()

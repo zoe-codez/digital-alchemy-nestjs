@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
@@ -9,6 +8,7 @@ import {
   StringEditorRenderOptions,
   TextRenderingService,
 } from "@digital-alchemy/tty";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class StringService {

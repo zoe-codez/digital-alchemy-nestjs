@@ -1,4 +1,3 @@
-import { forwardRef, Inject } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -13,6 +12,7 @@ import {
   START,
   UP,
 } from "@digital-alchemy/utilities";
+import { forwardRef, Inject } from "@nestjs/common";
 import chalk from "chalk";
 
 import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../contracts";

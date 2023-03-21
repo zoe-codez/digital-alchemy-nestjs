@@ -1,7 +1,11 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ACTIVE_APPLICATION, InjectConfig } from "@digital-alchemy/boilerplate";
-import { ADMIN_KEY, ADMIN_KEY_HEADER, LIB_SERVER } from "@digital-alchemy/server";
+import {
+  ADMIN_KEY,
+  ADMIN_KEY_HEADER,
+  LIB_SERVER,
+} from "@digital-alchemy/server";
 import { is } from "@digital-alchemy/utilities";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { TALK_BACK_BASE_URL } from "../../config";
 import { TemplateButtonCommandId } from "../../decorators";

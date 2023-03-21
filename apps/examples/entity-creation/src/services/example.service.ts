@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import {
   PushEntityConfigService,
   TemplateButton,
 } from "@digital-alchemy/home-assistant";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ExampleService {

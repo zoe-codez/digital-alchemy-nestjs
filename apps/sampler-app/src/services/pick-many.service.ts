@@ -1,5 +1,3 @@
-import { faker } from "@faker-js/faker";
-import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   MainMenuEntry,
@@ -8,6 +6,8 @@ import {
   TextRenderingService,
 } from "@digital-alchemy/tty";
 import { HALF, PEAT } from "@digital-alchemy/utilities";
+import { faker } from "@faker-js/faker";
+import { Injectable } from "@nestjs/common";
 
 const LIST_LENGTH = 10;
 

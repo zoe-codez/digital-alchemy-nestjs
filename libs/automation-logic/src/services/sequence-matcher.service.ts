@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import {
   AutoLogService,
   InjectConfig,
@@ -6,6 +5,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { OnHassEvent } from "@digital-alchemy/home-assistant";
 import { is, sleep } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import { get } from "object-path";
 import { nextTick } from "process";
 

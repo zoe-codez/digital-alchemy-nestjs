@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { ARRAY_OFFSET, NONE } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
-import { PANEL_COLUMNS, PANEL_HEIGHT, PANEL_TOTAL, PANEL_WIDTH } from "../config";
+import {
+  PANEL_COLUMNS,
+  PANEL_HEIGHT,
+  PANEL_TOTAL,
+  PANEL_WIDTH,
+} from "../config";
 import { LineWidgetDTO } from "../contracts";
 
 type LinePartial = Pick<LineWidgetDTO, "x" | "endX" | "y" | "endY">;
@@ -29,13 +34,21 @@ export class LineService {
   private readonly totalRows: number;
   private readonly totalWidth: number;
 
-  public bottomToTop(left: number, height: number, offset = NONE): LinePartial[] {
+  public bottomToTop(
+    left: number,
+    height: number,
+    offset = NONE,
+  ): LinePartial[] {
     const top = this.bottom - offset - height;
     const bottom = this.bottom - offset;
     return this.multiPanelVerticalLine(left, top, bottom);
   }
 
-  public topToBottom(left: number, height: number, offset = NONE): LinePartial[] {
+  public topToBottom(
+    left: number,
+    height: number,
+    offset = NONE,
+  ): LinePartial[] {
     const top = offset;
     const bottom = offset + height;
     return this.multiPanelVerticalLine(left, top, bottom);
@@ -50,7 +63,11 @@ export class LineService {
   /**
    * Stitch together a vertical line going across multiple panels in a grid
    */
-  private multiPanelVerticalLine(x: number, yTop: number, yBottom: number): LinePartial[] {
+  private multiPanelVerticalLine(
+    x: number,
+    yTop: number,
+    yBottom: number,
+  ): LinePartial[] {
     if (yTop > yBottom) {
       return this.multiPanelVerticalLine(x, yBottom, yTop);
     }

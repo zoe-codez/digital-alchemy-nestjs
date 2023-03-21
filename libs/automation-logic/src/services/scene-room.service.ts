@@ -1,6 +1,4 @@
 /* eslint-disable radar/cognitive-complexity */
-import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
-import { INQUIRER } from "@nestjs/core";
 import {
   AnnotationPassThrough,
   AutoLogService,
@@ -26,6 +24,8 @@ import {
   PERCENT,
   VALUE,
 } from "@digital-alchemy/utilities";
+import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
+import { INQUIRER } from "@nestjs/core";
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";

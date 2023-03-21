@@ -1,4 +1,3 @@
-import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
@@ -9,7 +8,15 @@ import {
   NumberConfig,
   StringConfig,
 } from "@digital-alchemy/boilerplate";
-import { DOWN, EMPTY, INCREMENT, is, TitleCase, UP } from "@digital-alchemy/utilities";
+import {
+  DOWN,
+  EMPTY,
+  INCREMENT,
+  is,
+  TitleCase,
+  UP,
+} from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { exit } from "process";
 

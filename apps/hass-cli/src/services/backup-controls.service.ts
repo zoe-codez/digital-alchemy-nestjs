@@ -1,6 +1,8 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
-import { BackupService, HomeAssistantBackup } from "@digital-alchemy/home-assistant";
+import {
+  BackupService,
+  HomeAssistantBackup,
+} from "@digital-alchemy/home-assistant";
 import {
   ApplicationManagerService,
   MainMenuEntry,
@@ -8,6 +10,7 @@ import {
   TextRenderingService,
 } from "@digital-alchemy/tty";
 import { is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { join } from "path";
 import { nextTick } from "process";

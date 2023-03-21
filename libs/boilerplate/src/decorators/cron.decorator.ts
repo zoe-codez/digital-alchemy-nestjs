@@ -1,4 +1,7 @@
-import { CronExpression, MethodDecoratorFactory } from "@digital-alchemy/utilities";
+import {
+  CronExpression,
+  MethodDecoratorFactory,
+} from "@digital-alchemy/utilities";
 
 export enum CronObject {
   second,

@@ -1,5 +1,4 @@
 /* eslint-disable radar/no-duplicate-string */
-import { faker } from "@faker-js/faker";
 import { QuickScript } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
@@ -7,6 +6,7 @@ import {
   PromptService,
   TTYModule,
 } from "@digital-alchemy/tty";
+import { faker } from "@faker-js/faker";
 import chalk from "chalk";
 
 import {

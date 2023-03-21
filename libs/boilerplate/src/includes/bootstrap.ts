@@ -4,13 +4,6 @@
  * */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
-  INestApplication,
-  INestApplicationContext,
-  ModuleMetadata,
-} from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
-import { ExpressAdapter } from "@nestjs/platform-express";
-import {
   AbstractConfig,
   AutoLogService,
   CONFIG_DEFAULTS,
@@ -22,6 +15,13 @@ import {
   UsePrettyLogger,
 } from "@digital-alchemy/boilerplate";
 import { eachSeries, is } from "@digital-alchemy/utilities";
+import {
+  INestApplication,
+  INestApplicationContext,
+  ModuleMetadata,
+} from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { ExpressAdapter } from "@nestjs/platform-express";
 import chalk from "chalk";
 import { ClassConstructor } from "class-transformer";
 import express, { Express } from "express";

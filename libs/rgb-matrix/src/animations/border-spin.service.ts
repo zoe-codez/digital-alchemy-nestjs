@@ -1,8 +1,19 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
-import { ARRAY_OFFSET, NONE, SINGLE, sleep, START } from "@digital-alchemy/utilities";
+import {
+  ARRAY_OFFSET,
+  NONE,
+  SINGLE,
+  sleep,
+  START,
+} from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
-import { PANEL_COLUMNS, PANEL_HEIGHT, PANEL_TOTAL, PANEL_WIDTH } from "../config";
+import {
+  PANEL_COLUMNS,
+  PANEL_HEIGHT,
+  PANEL_TOTAL,
+  PANEL_WIDTH,
+} from "../config";
 import {
   AnimatedBorderCallback,
   BorderSpinOptions,
@@ -65,7 +76,8 @@ export class BorderSpinService {
   }: BorderSpinOptions & { callback: AnimatedBorderCallback }) {
     let color = colorA;
     const bothSidesPadding = padding * BOTH_SIDES;
-    const totalHeight = this.panelHeight * (this.panelTotal / this.columns) - bothSidesPadding;
+    const totalHeight =
+      this.panelHeight * (this.panelTotal / this.columns) - bothSidesPadding;
     const totalWidth = this.panelWidth * this.columns - bothSidesPadding;
     const diff = totalWidth / totalHeight;
     // ! Extend
@@ -95,9 +107,29 @@ export class BorderSpinService {
     for (let time = START; time < totalHeight; time++) {
       callback([
         this.shrinkTopLeftRight({ brightness, color, diff, padding, time }),
-        this.shrinkBottomRightLeft({ brightness, color, diff, padding, time, totalHeight }),
-        ...this.shrinkLeftBottomUp({ brightness, color, padding, time, totalHeight }),
-        ...this.shrinkRightTopDown({ brightness, color, padding, time, totalHeight, totalWidth }),
+        this.shrinkBottomRightLeft({
+          brightness,
+          color,
+          diff,
+          padding,
+          time,
+          totalHeight,
+        }),
+        ...this.shrinkLeftBottomUp({
+          brightness,
+          color,
+          padding,
+          time,
+          totalHeight,
+        }),
+        ...this.shrinkRightTopDown({
+          brightness,
+          color,
+          padding,
+          time,
+          totalHeight,
+          totalWidth,
+        }),
       ]);
       await sleep(interval);
     }

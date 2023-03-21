@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
 import {
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
 } from "@digital-alchemy/boilerplate";
 import { eachSeries, is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import { nextTick } from "process";
 
 import { OnHassEvent, OnHassEventOptions } from "../../decorators";

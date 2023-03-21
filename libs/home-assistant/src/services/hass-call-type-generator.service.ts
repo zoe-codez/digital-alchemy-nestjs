@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is, TitleCase } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import { dump } from "js-yaml";
 import {
   addSyntheticLeadingComment,

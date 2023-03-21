@@ -1,5 +1,7 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService, ModuleScannerService } from "@digital-alchemy/boilerplate";
+import {
+  AutoLogService,
+  ModuleScannerService,
+} from "@digital-alchemy/boilerplate";
 import {
   eachSeries,
   EMPTY,
@@ -9,6 +11,7 @@ import {
   sleep,
   START,
 } from "@digital-alchemy/utilities";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 import { get, set } from "object-path";
 import { exit, nextTick } from "process";

@@ -1,5 +1,8 @@
+import {
+  AutoLogService,
+  ModuleScannerService,
+} from "@digital-alchemy/boilerplate";
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, ModuleScannerService } from "@digital-alchemy/boilerplate";
 
 import { SCENE_ROOM_OPTIONS } from "../types";
 

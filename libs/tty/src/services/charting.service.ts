@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { Injectable } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -9,6 +8,7 @@ import {
   PEAT,
   START,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 import { ansiMaxLength } from "../includes";

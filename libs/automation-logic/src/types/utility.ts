@@ -1,4 +1,8 @@
-import { ALL_DOMAINS, GetDomain, PICK_ENTITY } from "@digital-alchemy/home-assistant";
+import {
+  ALL_DOMAINS,
+  GetDomain,
+  PICK_ENTITY,
+} from "@digital-alchemy/home-assistant";
 import { Get } from "type-fest";
 
 import { iSceneRoomOptions } from "../decorators";

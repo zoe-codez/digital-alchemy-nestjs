@@ -1,7 +1,11 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { BorderSpinService, PulseLaserService } from "../animations";
-import { AnimatedBorderCallback, BorderSpinOptions, PulseLaserOptions } from "../contracts";
+import {
+  AnimatedBorderCallback,
+  BorderSpinOptions,
+  PulseLaserOptions,
+} from "../contracts";
 
 type callback<T> = T & { callback: AnimatedBorderCallback };
 

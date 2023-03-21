@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { FetchWith, is, SECOND } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import { BASE_URL, TOKEN } from "../config";
 import {

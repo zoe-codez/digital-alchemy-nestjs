@@ -1,11 +1,19 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { DOWN, EMPTY, UP } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
-import { PANEL_COLUMNS, PANEL_HEIGHT, PANEL_TOTAL, PANEL_WIDTH } from "../config";
+import {
+  PANEL_COLUMNS,
+  PANEL_HEIGHT,
+  PANEL_TOTAL,
+  PANEL_WIDTH,
+} from "../config";
 import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../contracts";
 
-export type TextLineLayout = Omit<TextWidgetDTO, "id" | "options" | "type" | "x" | "y" | "font"> & {
+export type TextLineLayout = Omit<
+  TextWidgetDTO,
+  "id" | "options" | "type" | "x" | "y" | "font"
+> & {
   /**
    * Will try to determine height based on font name if not provided (6x8)
    */
@@ -99,7 +107,13 @@ export class TextLayoutService {
           y: previous,
         });
         if (color) {
-          const { color: lineColor, x: lineX, yStart, yEnd, brightness: lineBrightness } = color;
+          const {
+            color: lineColor,
+            x: lineX,
+            yStart,
+            yEnd,
+            brightness: lineBrightness,
+          } = color;
           out.push({
             brightness: lineBrightness,
             color: lineColor,

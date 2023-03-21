@@ -1,9 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
 } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 
 import {
   BinarySensorTemplate,
