@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import {

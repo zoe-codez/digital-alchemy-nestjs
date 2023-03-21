@@ -116,7 +116,7 @@ export const UPDATE_TRIGGER = (
 
 UPDATE_TRIGGER.event = (
   entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
-) => `steggy_${entity.replace(".", "_")}_update`;
+) => `digital-alchemy_${entity.replace(".", "_")}_update`;
 
 export const TALK_BACK_ACTION = (webhook_id: string) => {
   return [
@@ -130,4 +130,4 @@ export const TALK_BACK_ACTION = (webhook_id: string) => {
 TALK_BACK_ACTION.event = (
   entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
   action: string,
-) => `steggy_${entity}_talk_back_${action}`;
+) => `digital-alchemy_${entity}_talk_back_${action}`;

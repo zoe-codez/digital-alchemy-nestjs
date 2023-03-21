@@ -2,13 +2,13 @@
   "author": {
     "name": "mp3three"
   },
-  "name": "@steggy/rgb-matrix",
+  "name": "@digital-alchemy/rgb-matrix",
   "displayName": "RGB Matrix",
   "license": "MIT",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/mp3three/digital-alchemy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mp3three/steggy.git"
+    "url": "git+https://github.com/mp3three/digital-alchemy.git"
   }
 }

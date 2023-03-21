@@ -1,4 +1,4 @@
-import { deepExtend, is, START } from "@steggy/utilities";
+import { deepExtend, is, START } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 

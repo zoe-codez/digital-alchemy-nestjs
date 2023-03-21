@@ -1,4 +1,4 @@
-import { is, START } from "@steggy/utilities";
+import { is, START } from "@digital-alchemy/utilities";
 import type { Get } from "type-fest";
 
 import { ENTITY_SETUP, iCallService, MODULE_SETUP } from "../dynamic";

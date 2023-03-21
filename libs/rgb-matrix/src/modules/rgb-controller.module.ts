@@ -1,4 +1,4 @@
-import { LibraryModule } from "@steggy/boilerplate";
+import { LibraryModule } from "@digital-alchemy/boilerplate";
 
 import { BorderPulseService, BorderSpinService, PulseLaserService } from "../animations";
 import { MATRIX_OPTIONS, PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";

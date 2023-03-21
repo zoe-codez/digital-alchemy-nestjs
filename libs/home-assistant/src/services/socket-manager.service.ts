@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import EventEmitter from "eventemitter3";
 
 import { HASSIO_WS_COMMAND, SOCKET_READY } from "../types";

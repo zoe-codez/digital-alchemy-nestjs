@@ -6,7 +6,7 @@ import {
   is,
   SINGLE,
   START,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { tKeyMap, TTYKeypressOptions } from "../contracts";

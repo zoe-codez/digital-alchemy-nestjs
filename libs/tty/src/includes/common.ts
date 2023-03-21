@@ -1,4 +1,4 @@
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 export function MergeHelp(

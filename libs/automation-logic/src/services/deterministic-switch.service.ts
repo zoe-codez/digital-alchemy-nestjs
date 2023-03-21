@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
+import { AutoLogService, ModuleScannerService } from "@digital-alchemy/boilerplate";
 import {
   EntityManagerService,
   HassSocketAPIService,
@@ -7,8 +7,8 @@ import {
   InjectCallProxy,
   OnEntityUpdate,
   PICK_ENTITY,
-} from "@steggy/home-assistant";
-import { CronExpression, is } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import { CronExpression, is } from "@digital-alchemy/utilities";
 import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 

@@ -5,11 +5,11 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "name": "@steggy/sampler-app",
+  "name": "@digital-alchemy/sampler-app",
   "version": "23.9.18",
   "author": {
     "name": "mp3three",
-    "url": "https://github.com/mp3three/steggy"
+    "url": "https://github.com/mp3three/digital-alchemy"
   },
   "engines": {
     "node": ">=16.0.0"

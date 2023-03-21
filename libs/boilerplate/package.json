@@ -1,12 +1,12 @@
 {
-  "name": "@steggy/boilerplate",
+  "name": "@digital-alchemy/boilerplate",
   "displayName": "Boilerplate",
   "license": "MIT",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/mp3three/digital-alchemy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mp3three/steggy.git"
+    "url": "git+https://github.com/mp3three/digital-alchemy.git"
   },
   "engines": {
     "node": ">=16.0.0"

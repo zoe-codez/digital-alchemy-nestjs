@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 
 @Injectable()
 export class NotificationService {

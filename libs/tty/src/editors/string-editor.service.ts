@@ -1,4 +1,4 @@
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -6,7 +6,7 @@ import {
   is,
   SINGLE,
   START,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { DEFAULT_PROMPT_WIDTH } from "../config";

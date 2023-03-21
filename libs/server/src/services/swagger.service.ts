@@ -4,7 +4,7 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 
 import { SWAGGER_PATH } from "../config";
 

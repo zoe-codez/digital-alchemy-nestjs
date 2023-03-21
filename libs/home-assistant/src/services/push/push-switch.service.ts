@@ -1,7 +1,7 @@
 /* eslint-disable spellcheck/spell-checker */
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { ACTIVE_APPLICATION, AutoLogService } from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import { nextTick } from "process";
 
 import { TemplateButtonCommandId } from "../../decorators";
@@ -99,7 +99,7 @@ export class PushSwitchService {
       friendly_name: config.name,
       icon_template: config.icon,
     } as SwitchTemplateYaml;
-    sensor.unique_id = "steggy_switch_" + is.hash(entity_id);
+    sensor.unique_id = "digital-alchemy_switch_" + is.hash(entity_id);
     sensor.availability_template = availability;
     this.attributes.set(entity_id, {
       // availability_template: availability,

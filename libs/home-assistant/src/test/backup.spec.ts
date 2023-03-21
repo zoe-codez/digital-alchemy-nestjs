@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { Test } from "@steggy/testing";
-import { DEFAULT_LIMIT, SECOND } from "@steggy/utilities";
+import { Test } from "@digital-alchemy/testing";
+import { DEFAULT_LIMIT, SECOND } from "@digital-alchemy/utilities";
 import { nextTick } from "process";
 import WS from "ws";
 

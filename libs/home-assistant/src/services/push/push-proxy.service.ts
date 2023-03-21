@@ -3,8 +3,8 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   CacheService,
-} from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import { mkdirSync, writeFileSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";

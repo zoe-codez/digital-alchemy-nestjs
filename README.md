@@ -1,18 +1,18 @@
-# 🦕 [@steggy](https://github.com/mp3three/steggy) monorepo
+# 🦕 [@digital-alchemy](https://github.com/mp3three/digital-alchemy) monorepo
 
-`@steggy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
+`@digital-alchemy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
 It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
 
 The primary focus of this library is non-web applications, such as terminal apps, home automation services, and other standalone microservices.
 
 ## Local Setup (try things out!)
 
-> `@steggy` targets node 16+
+> `@digital-alchemy` targets node 16+
 
 ```bash
 # Check out code
-git clone git@github.com:mp3three/steggy.git
-cd ./steggy
+git clone git@github.com:mp3three/digital-alchemy.git
+cd ./digital-alchemy
 # Install node modules
 yarn
 ```
@@ -23,7 +23,7 @@ Applications built as functionality demos, and utilities for consumption in othe
 
 ### [Config Builder](apps/config-builder)
 
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
+A script to manage file based configurations for applications based off `@digital-alchemy/boilerplate`.
 It can act as a "settings screen" for applications, outputting either environment variables, or to more persistent configuration files.
 
 > In repo example
@@ -39,7 +39,7 @@ DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
 
 ```bash
 # install config builder
-yarn add -D @steggy/config-builder
+yarn add -D @digital-alchemy/config-builder
 # output configuration to file
 node ./your_script.js --scan-config > ./config.json
 # launch script
@@ -71,7 +71,7 @@ BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx s
 ```
 
 Basic interactions with Home Assistant, in the form of a terminal app.
-Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
+Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@digital-alchemy/home-assistant`.
 
 | Commands | Backup |
 | --- | --- |
@@ -81,14 +81,14 @@ Exists as both a convenience/development tool, and a place for practical testing
 
 > Note: requires credentials for home assistant, best practice is to store in `~/.config/hass-type-generate`
 
-Companion application to `@steggy/home-assistant`. Intended to rewrite library type definitions to match a specific home assistant install.
+Companion application to `@digital-alchemy/home-assistant`. Intended to rewrite library type definitions to match a specific home assistant install.
 Has no function from within this repo, must be installed as a node_module in a separate repo to have an effect.
-`@steggy/home-assistant` will run this script as a post install hook to keep it's own definitions as up to date as possible.
+`@digital-alchemy/home-assistant` will run this script as a post install hook to keep it's own definitions as up to date as possible.
 It can also be run manually as needed.
 
 ```bash
 # install
-yarn add -D @steggy/hass-type-generate
+yarn add -D @digital-alchemy/hass-type-generate
 # execute
 npx hass-type-generate
 ```
@@ -102,7 +102,7 @@ Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), int
 
 ### [Automation Logic](libs/automation-logic)
 
-A set of tools for more cohesively bringing together `@steggy/home-assistant` with home automation logic.
+A set of tools for more cohesively bringing together `@digital-alchemy/home-assistant` with home automation logic.
 Build out rooms with scenes, managed circadian lighting, and more.
 
 ### [Boilerplate](libs/boilerplate)
@@ -129,7 +129,7 @@ This library is intended to work with [rpi-led-matrix](https://www.npmjs.com/pac
 
 ### [Server](libs/server)
 
-Enables web server functionality for [@steggy/boilerplate](libs/boilerplate).
+Enables web server functionality for [@digital-alchemy/boilerplate](libs/boilerplate).
 Provides generic middleware tools like `cors` and automatic request logging
 
 ### [TTY](libs/tty)

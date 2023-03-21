@@ -6,8 +6,8 @@ import {
   Cron,
   ModuleScannerService,
   OnEvent,
-} from "@steggy/boilerplate";
-import { HassFetchAPIService, SOCKET_READY } from "@steggy/home-assistant";
+} from "@digital-alchemy/boilerplate";
+import { HassFetchAPIService, SOCKET_READY } from "@digital-alchemy/home-assistant";
 import {
   CronExpression,
   DOWN,
@@ -18,7 +18,7 @@ import {
   SECOND,
   sleep,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import { CronTime } from "cron";
 import dayjs from "dayjs";
 import SolarCalc from "solar-calc";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, InjectConfig } from "@steggy/boilerplate";
-import { ARRAY_OFFSET, NONE } from "@steggy/utilities";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import { ARRAY_OFFSET, NONE } from "@digital-alchemy/utilities";
 
 import { PANEL_COLUMNS, PANEL_HEIGHT, PANEL_TOTAL, PANEL_WIDTH } from "../config";
 import { LineWidgetDTO } from "../contracts";

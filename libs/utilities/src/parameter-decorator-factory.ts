@@ -20,7 +20,7 @@ type ExpectedProviders<T = unknown> =
 /**
  * For generating configurable annotations that can be applied to methods
  *
- * These annotations can be scanned for using `ModuleScannerService.findAnnotatedMethods(metadataKey)` provided by `@steggy/boilerplate`
+ * These annotations can be scanned for using `ModuleScannerService.findAnnotatedMethods(metadataKey)` provided by `@digital-alchemy/boilerplate`
  */
 export function ParameterDecoratorFactory<
   OPTIONS,

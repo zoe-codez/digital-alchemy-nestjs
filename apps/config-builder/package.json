@@ -2,12 +2,12 @@
   "bin": {
     "config-builder": "main.js"
   },
-  "name": "@steggy/config-builder",
+  "name": "@digital-alchemy/config-builder",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Config Builder",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/mp3three/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
   }

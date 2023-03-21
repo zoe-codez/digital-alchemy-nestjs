@@ -6,7 +6,7 @@ import {
   AutoLogService,
   InjectConfig,
   InjectLogger,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import {
   domain,
   ENTITY_STATE,
@@ -16,7 +16,7 @@ import {
   InjectCallProxy,
   OnEntityUpdate,
   PICK_ENTITY,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import {
   each,
   eachSeries,
@@ -25,7 +25,7 @@ import {
   is,
   PERCENT,
   VALUE,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";

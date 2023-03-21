@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import {
   HASSIO_WS_COMMAND,
   HassNotificationDTO,
   HassSocketAPIService,
-} from "@steggy/home-assistant";
-import { ApplicationManagerService, PromptService } from "@steggy/tty";
-import { is } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import { ApplicationManagerService, PromptService } from "@digital-alchemy/tty";
+import { is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 type NotificationMenuResult = { notification: HassNotificationDTO };

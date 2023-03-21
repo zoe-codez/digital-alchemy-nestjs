@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
-import { DOWN, EMPTY, UP } from "@steggy/utilities";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
+import { DOWN, EMPTY, UP } from "@digital-alchemy/utilities";
 
 import { PANEL_COLUMNS, PANEL_HEIGHT, PANEL_TOTAL, PANEL_WIDTH } from "../config";
 import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../contracts";

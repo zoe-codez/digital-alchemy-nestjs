@@ -1,77 +1,21 @@
 {
-  "affected": {
-    "defaultBase": "origin/master"
-  },
-  "npmScope": "steggy",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",
       "options": {
         "cacheableOperations": [
-          "build",
+          "pipeline",
           "lint",
-          "test",
-          "e2e",
-          "build-vsix",
-          "scan-config",
-          "publish"
+          "test"
         ],
-        "accessToken": "ZWQ1ZWQyMTEtNjQwMi00MmEzLTgwZjMtYjQ4NTYyNzMxZGI4fHJlYWQtd3JpdGU=",
-        "canTrackAnalytics": false,
-        "showUsageWarnings": true,
-        "parallel": 5
+        "accessToken": "NDUyZDBmMWQtNWIyYi00YTJmLWFkNGItMzRjNzYxNGVmYmEwfHJlYWQtd3JpdGU="
       }
     }
   },
-  "workspaceLayout": {
-    "appsDir": "apps",
-    "libsDir": "libs"
+  "affected": {
+    "defaultBase": "origin/master"
   },
-  "generators": {
-    "@nrwl/react": {
-      "application": {
-        "style": "css",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "css"
-      },
-      "library": {
-        "style": "css",
-        "linter": "eslint"
-      }
-    }
-  },
-  "defaultProject": "config-builder",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "test": {
-      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
-    },
-    "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
-    }
-  },
-  "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": [
-      "default",
-      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-      "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/jest.config.[jt]s",
-      "!{projectRoot}/.eslintrc.json"
-    ],
-    "sharedGlobals": [
-      "{workspaceRoot}/nx.json",
-      "{workspaceRoot}/project.json",
-      "{workspaceRoot}/tsconfig.base.json",
-      "{workspaceRoot}/workspace.json",
-      "{workspaceRoot}/babel.config.json"
-    ]
-  }
+  "npmScope": "digital-alchemy",
+  "defaultBase": "main",
+  "defaultProject": "boilerplate"
 }

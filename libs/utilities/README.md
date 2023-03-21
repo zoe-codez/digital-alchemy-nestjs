@@ -1,4 +1,4 @@
-# @steggy/utilities
+# @digital-alchemy/utilities
 
 ## Description
 

@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { each, is } from "@steggy/utilities";
+import { each, is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { DirectCB, KeyDescriptor, KeyModifiers, tKeyMap } from "../contracts";

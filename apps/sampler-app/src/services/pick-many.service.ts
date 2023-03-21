@@ -6,8 +6,8 @@ import {
   PromptService,
   ScreenService,
   TextRenderingService,
-} from "@steggy/tty";
-import { HALF, PEAT } from "@steggy/utilities";
+} from "@digital-alchemy/tty";
+import { HALF, PEAT } from "@digital-alchemy/utilities";
 
 const LIST_LENGTH = 10;
 

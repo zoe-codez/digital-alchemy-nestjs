@@ -1,4 +1,4 @@
-import { is, LABEL, SINGLE, VALUE } from "@steggy/utilities";
+import { is, LABEL, SINGLE, VALUE } from "@digital-alchemy/utilities";
 
 import { PromptEntry } from "../services";
 import { MainMenuEntry } from "./keyboard";

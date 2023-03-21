@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { AutoLogService, InjectConfig, storage } from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig, storage } from "@digital-alchemy/boilerplate";
 import {
   buildFilter,
   FilterDTO,
@@ -7,7 +7,7 @@ import {
   HTTP_METHODS,
   is,
   queryToControl,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import { NextFunction } from "express";
 import pino from "pino";
 

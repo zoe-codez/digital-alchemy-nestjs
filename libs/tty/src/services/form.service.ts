@@ -6,7 +6,7 @@ import {
   LABEL,
   START,
   VALUE,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import equal from "deep-equal";
 import { get } from "object-path";

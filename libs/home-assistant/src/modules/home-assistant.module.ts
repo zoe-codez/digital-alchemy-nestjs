@@ -1,5 +1,5 @@
 import { DynamicModule, Provider } from "@nestjs/common";
-import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
+import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
 
 import {
   APPLICATION_IDENTIFIER,
@@ -140,7 +140,7 @@ import {
       type: "string",
     },
     [VERIFICATION_FILE]: {
-      default: "steggy_configuration",
+      default: "digital-alchemy_configuration",
       description:
         "Target file for storing app configurations within the package folder.",
       type: "string",

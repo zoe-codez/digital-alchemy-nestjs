@@ -1,4 +1,4 @@
-import { PICK_ENTITY } from "@steggy/home-assistant";
+import { PICK_ENTITY } from "@digital-alchemy/home-assistant";
 import { ConfigType } from "dayjs";
 
 import { ALL_ROOM_NAMES, ROOM_SCENES } from "./utility";

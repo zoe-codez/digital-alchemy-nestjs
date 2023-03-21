@@ -1,4 +1,4 @@
-# @steggy/tty
+# @digital-alchemy/tty
 
 ## Description
 

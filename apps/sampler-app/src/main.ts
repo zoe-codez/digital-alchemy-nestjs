@@ -1,12 +1,12 @@
 /* eslint-disable radar/no-duplicate-string */
 import { faker } from "@faker-js/faker";
-import { QuickScript } from "@steggy/boilerplate";
+import { QuickScript } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
   ErrorService,
   PromptService,
   TTYModule,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 import chalk from "chalk";
 
 import {
@@ -192,7 +192,7 @@ export class SamplerApp {
       right: [
         {
           entry: ["Configuration", "config"],
-          helpText: chalk`Demo of {green.dim @steggy} Injected configurations`,
+          helpText: chalk`Demo of {green.dim @digital-alchemy} Injected configurations`,
           type: "Configuration",
         },
       ],

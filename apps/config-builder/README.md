@@ -8,14 +8,14 @@ then write it in a location / format that the app can read from.
 
 ```bash
 # install
-yarn global install @steggy/config-builder
+yarn global install @digital-alchemy/config-builder
 # upgrade
-yarn global upgrade @steggy/config-builder
+yarn global upgrade @digital-alchemy/config-builder
 ```
 
 ## General Theory
 
-Through the `@InjectConfig` injection mechanism provided by `@steggy/boilerplate`, a list of possible configuration options can be assembled.
+Through the `@InjectConfig` injection mechanism provided by `@digital-alchemy/boilerplate`, a list of possible configuration options can be assembled.
 Libraries and applications declare all possible configurations for their local project at the module level, along with types/descriptions/etc.
 Once the application is bootstrapped, a module scanner searches through the application, looking for consumed configs (filter out declared, but unused configuration options).
 All of this metadata is combined, along with the application provided default values, then written as json to a file.

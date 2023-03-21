@@ -8,7 +8,7 @@ import {
   sleep,
   START,
   TitleCase,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { get, set } from "object-path";
 

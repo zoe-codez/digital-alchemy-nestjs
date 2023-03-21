@@ -1,6 +1,6 @@
 import { MetadataScanner } from "@nestjs/core";
-import { BootstrapOptions, QuickScriptOptions } from "@steggy/boilerplate";
-import { deepExtend, is } from "@steggy/utilities";
+import { BootstrapOptions, QuickScriptOptions } from "@digital-alchemy/boilerplate";
+import { deepExtend, is } from "@digital-alchemy/utilities";
 import { createServer } from "http";
 
 import { TestingModuleBuilder } from "./module-builder";

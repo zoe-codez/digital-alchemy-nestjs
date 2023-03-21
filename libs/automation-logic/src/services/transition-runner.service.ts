@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
-import { domain, PICK_ENTITY } from "@steggy/home-assistant";
-import { DEFAULT_LIMIT, each, is } from "@steggy/utilities";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { domain, PICK_ENTITY } from "@digital-alchemy/home-assistant";
+import { DEFAULT_LIMIT, each, is } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 
 import {

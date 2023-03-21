@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { FILTER_OPERATIONS } from "@steggy/utilities";
+import { FILTER_OPERATIONS } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { PromptService } from "./prompt.service";

@@ -8,8 +8,8 @@ import {
   InjectConfig,
   NumberConfig,
   StringConfig,
-} from "@steggy/boilerplate";
-import { DOWN, EMPTY, INCREMENT, is, TitleCase, UP } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { DOWN, EMPTY, INCREMENT, is, TitleCase, UP } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { exit } from "process";
 

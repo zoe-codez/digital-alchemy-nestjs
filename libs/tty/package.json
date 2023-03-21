@@ -1,9 +1,9 @@
 {
   "author": {
     "name": "mp3three",
-    "url": "https://github.com/mp3three/steggy"
+    "url": "https://github.com/mp3three/digital-alchemy"
   },
-  "name": "@steggy/tty",
+  "name": "@digital-alchemy/tty",
   "license": "MIT",
   "version": "23.9.18",
   "displayName": "TTY"

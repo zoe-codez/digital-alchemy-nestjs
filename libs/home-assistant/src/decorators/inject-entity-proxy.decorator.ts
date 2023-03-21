@@ -1,4 +1,4 @@
-import { ParameterDecoratorFactory } from "@steggy/utilities";
+import { ParameterDecoratorFactory } from "@digital-alchemy/utilities";
 import { v4 } from "uuid";
 
 import { EntityManagerService } from "../services";

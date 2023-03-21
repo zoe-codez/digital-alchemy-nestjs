@@ -1,4 +1,4 @@
-export type SteggyConfigTypes =
+export type DigitalAlchemyConfigTypes =
   | "string"
   | "boolean"
   | "internal"
@@ -31,7 +31,7 @@ export class BaseConfig {
    */
   public required?: boolean;
 
-  public type: SteggyConfigTypes;
+  public type: DigitalAlchemyConfigTypes;
 }
 
 type StringFlags = "password" | "url";

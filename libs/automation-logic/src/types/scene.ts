@@ -1,4 +1,4 @@
-import { GetDomain, PICK_ENTITY } from "@steggy/home-assistant";
+import { GetDomain, PICK_ENTITY } from "@digital-alchemy/home-assistant";
 
 type SceneAwareDomains = "switch" | "light";
 type RGB = [r: number, g: number, b: number];

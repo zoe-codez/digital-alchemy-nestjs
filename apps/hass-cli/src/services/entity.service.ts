@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CacheService } from "@steggy/boilerplate";
+import { CacheService } from "@digital-alchemy/boilerplate";
 import {
   ALL_DOMAINS,
   domain,
@@ -8,7 +8,7 @@ import {
   GenericEntityDTO,
   HassFetchAPIService,
   PICK_ENTITY,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import {
   ApplicationManagerService,
   IconService,
@@ -16,8 +16,8 @@ import {
   PromptService,
   ScreenService,
   TextRenderingService,
-} from "@steggy/tty";
-import { is, TitleCase } from "@steggy/utilities";
+} from "@digital-alchemy/tty";
+import { is, TitleCase } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 type EntityMenuResult = { entity: GenericEntityDTO };

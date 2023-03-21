@@ -2,12 +2,12 @@
   "bin": {
     "log-formatter": "main.js"
   },
-  "name": "@steggy/log-formatter",
+  "name": "@digital-alchemy/log-formatter",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Log Formatter",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/mp3three/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
   }

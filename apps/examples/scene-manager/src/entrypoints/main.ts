@@ -2,7 +2,7 @@ import {
   Bootstrap,
   CACHE_PROVIDER,
   LIB_BOILERPLATE,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 
 import { SceneManagerModule } from "../modules/scene-manager.module";
 

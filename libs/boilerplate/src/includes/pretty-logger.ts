@@ -2,7 +2,7 @@
 // import is required for proper dependency generation in package.json for builds
 import "pino-pretty";
 
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import pino from "pino";
 import PinoPretty from "pino-pretty";
@@ -235,7 +235,7 @@ export const PrettyNestLogger: Record<
       // Nothing actually useful for debugging
       message = prettyErrorMessage(context);
       // 🚩 I hereby stake my claim on this error message 🚩
-      context = `@steggy:BootErrorMessage`;
+      context = `@digital-alchemy:BootErrorMessage`;
     }
     logger.error(
       `${highlightContext(context, "bgRed")} ${

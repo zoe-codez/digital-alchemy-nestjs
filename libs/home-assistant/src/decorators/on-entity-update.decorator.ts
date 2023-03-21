@@ -1,4 +1,4 @@
-import { MethodDecoratorFactory } from "@steggy/utilities";
+import { MethodDecoratorFactory } from "@digital-alchemy/utilities";
 
 import { PICK_ENTITY } from "../types";
 

@@ -1,6 +1,6 @@
 /**
  * Something about bootstrapping completely breaks things with a normal reference.
- * Imports from @steggy/boilerplate are on purpose here
+ * Imports from @digital-alchemy/boilerplate are on purpose here
  * */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
@@ -20,8 +20,8 @@ import {
   NEST_NOOP_LOGGER,
   PrettyLoggerConfig,
   UsePrettyLogger,
-} from "@steggy/boilerplate";
-import { eachSeries, is } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { eachSeries, is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { ClassConstructor } from "class-transformer";
 import express, { Express } from "express";
@@ -53,7 +53,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
     cors?: boolean;
     /**
      * Attach express to the nestjs app.
-     * `ServerModule` from `@steggy/server` needs to be imported to actually listen for requests
+     * `ServerModule` from `@digital-alchemy/server` needs to be imported to actually listen for requests
      */
     enabled?: boolean;
   };
@@ -103,7 +103,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
      * Log with blocking operations (default: false).
      *
      * Logging library does async logging for performance reasons.
-     * This can cause logs to render in strange ways when used with `@steggy/tty`.
+     * This can cause logs to render in strange ways when used with `@digital-alchemy/tty`.
      * Forcing sync logs will resolve.
      *
      * Has a performance penalty for more traditional applications.

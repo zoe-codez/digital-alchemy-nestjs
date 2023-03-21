@@ -3,8 +3,8 @@ import {
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
-} from "@steggy/boilerplate";
-import { eachSeries, is } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { eachSeries, is } from "@digital-alchemy/utilities";
 import { nextTick } from "process";
 
 import { OnHassEvent, OnHassEventOptions } from "../../decorators";

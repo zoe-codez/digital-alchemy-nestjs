@@ -12,7 +12,7 @@ import {
   Bootstrap,
   NEST_NOOP_LOGGER,
   QuickScriptOptions,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import { ClassConstructor } from "class-transformer";
 
 import {

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, InjectConfig } from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   domain,
   ENTITY_STATE,
@@ -7,8 +7,8 @@ import {
   iCallService,
   InjectCallProxy,
   PICK_ENTITY,
-} from "@steggy/home-assistant";
-import { each, is, MINUTE } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import { each, is, MINUTE } from "@digital-alchemy/utilities";
 
 import { AGGRESSIVE_SCENES } from "../config";
 import { ALL_ROOM_NAMES, SceneDefinition, SceneSwitchState } from "../types";

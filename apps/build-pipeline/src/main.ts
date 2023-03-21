@@ -1,5 +1,5 @@
 /* eslint-disable radar/no-duplicate-string */
-import { QuickScript } from "@steggy/boilerplate";
+import { QuickScript } from "@digital-alchemy/boilerplate";
 import JSON from "comment-json";
 import dayjs from "dayjs";
 import { readFileSync, writeFileSync } from "fs";

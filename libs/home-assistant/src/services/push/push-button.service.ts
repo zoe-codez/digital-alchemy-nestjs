@@ -9,8 +9,8 @@ import {
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
-} from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import { get } from "object-path";
 
 import { TemplateButton, TemplateButtonCommandId } from "../../decorators";
@@ -93,7 +93,7 @@ export class PushButtonService {
       ],
     } as ButtonTemplate;
     const [, id] = entity_split(entity_id);
-    button.unique_id = "steggy_button_" + id;
+    button.unique_id = "digital-alchemy_button_" + id;
     return {
       button: [button],
     };

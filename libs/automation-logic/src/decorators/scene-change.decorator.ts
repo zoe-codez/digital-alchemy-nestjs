@@ -1,4 +1,4 @@
-import { MethodDecoratorFactory } from "@steggy/utilities";
+import { MethodDecoratorFactory } from "@digital-alchemy/utilities";
 
 import { ALL_ROOM_NAMES, ROOM_SCENES } from "../types";
 

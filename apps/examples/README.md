@@ -7,7 +7,7 @@ These examples are not published, but are runnable by cloning this repo and runn
 
 The dynamic typing system is not present within this repository for technical reasons.
 Code will be valid, but attempts to edit code and receive Typescript validation will not work.
-Results will be different when these libraries are installed as `node_modules`, and `@steggy/hass-type-generate` has been run.
+Results will be different when these libraries are installed as `node_modules`, and `@digital-alchemy/hass-type-generate` has been run.
 
 ## `Home Assistant` based
 

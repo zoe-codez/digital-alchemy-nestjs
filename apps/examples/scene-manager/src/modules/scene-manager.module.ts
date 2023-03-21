@@ -1,12 +1,12 @@
-import { AutomationLogicModule } from "@steggy/automation-logic";
-import { ApplicationModule } from "@steggy/boilerplate";
+import { AutomationLogicModule } from "@digital-alchemy/automation-logic";
+import { ApplicationModule } from "@digital-alchemy/boilerplate";
 import {
   HassSocketAPIService,
   HomeAssistantModule,
   PushEntityConfigService,
-} from "@steggy/home-assistant";
-import { MQTTModule } from "@steggy/mqtt";
-import { ServerModule } from "@steggy/server";
+} from "@digital-alchemy/home-assistant";
+import { MQTTModule } from "@digital-alchemy/mqtt";
+import { ServerModule } from "@digital-alchemy/server";
 
 import { Bedroom, Loft, Office } from "../rooms";
 

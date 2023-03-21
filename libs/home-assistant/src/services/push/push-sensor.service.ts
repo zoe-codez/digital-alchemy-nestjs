@@ -1,7 +1,7 @@
 /* eslint-disable spellcheck/spell-checker */
 import { Inject, Injectable } from "@nestjs/common";
-import { ACTIVE_APPLICATION, AutoLogService } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { ACTIVE_APPLICATION, AutoLogService } from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 
 import {
   entity_split,
@@ -64,7 +64,7 @@ export class PushSensorService {
       unit_of_measurement: config.unit_of_measurement,
     } as SensorTemplate;
     const [, id] = entity_split(entity_id);
-    sensor.unique_id = "steggy_sensor_" + id;
+    sensor.unique_id = "digital-alchemy_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
 
     sensor.attributes.managed_by = this.application;
