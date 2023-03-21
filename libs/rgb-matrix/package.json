@@ -1,14 +1,14 @@
 {
   "author": {
-    "name": "mp3three"
+    "name": "zoe-codez"
   },
   "name": "@digital-alchemy/rgb-matrix",
   "displayName": "RGB Matrix",
   "license": "MIT",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/digital-alchemy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mp3three/digital-alchemy.git"
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
   }
 }
