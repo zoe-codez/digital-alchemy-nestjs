@@ -16,11 +16,11 @@ import {
 } from "../../config";
 import {
   GenerateEntities,
-  HassSteggySerializeState,
+  HassDigitalAlchemySerializeState,
   SERIALIZE,
 } from "../../types";
 
-type ModuleConfigurations = Map<string, HassSteggySerializeState>;
+type ModuleConfigurations = Map<string, HassDigitalAlchemySerializeState>;
 
 @Injectable()
 export class PushCallService {
@@ -77,7 +77,10 @@ export class PushCallService {
         return;
       }
       const info = readFileSync(verificationPath, "utf8");
-      const data = SERIALIZE.unserialize(info, HassSteggySerializeState);
+      const data = SERIALIZE.unserialize(
+        info,
+        HassDigitalAlchemySerializeState,
+      );
       if (is.undefined(data)) {
         this.logger.error({}, `Malformed data dump`);
         return;

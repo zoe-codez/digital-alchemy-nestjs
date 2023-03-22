@@ -6,8 +6,8 @@ import {
 import {
   GenericEntityDTO,
   HassCallTypeGenerator,
+  HassDigitalAlchemySerializeState,
   HassFetchAPIService,
-  HassSteggySerializeState,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   HomeAssistantModule,
   HomeAssistantModuleConfiguration,
@@ -131,7 +131,7 @@ export class TypeGenerate {
       }
       const data = SERIALIZE.unserialize(
         readFileSync(join(base, this.verificationFile), "utf8"),
-        HassSteggySerializeState,
+        HassDigitalAlchemySerializeState,
       );
       if (!data) {
         this.logger.error(`Failed data casting`);
