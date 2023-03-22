@@ -1,4 +1,4 @@
-# @steggy/rgb-matrix
+# @digital-alchemy/rgb-matrix
 
 ## Description
 

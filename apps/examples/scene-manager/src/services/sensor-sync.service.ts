@@ -6,14 +6,19 @@ import {
   SolarCalcService,
   SolarEvent,
   SolarEvents,
-} from "@steggy/automation-logic";
-import { AutoLogService, Cron, OnEvent } from "@steggy/boilerplate";
+} from "@digital-alchemy/automation-logic";
+import { AutoLogService, Cron, OnEvent } from "@digital-alchemy/boilerplate";
 import {
   InjectPushEntity,
   PUSH_PROXY,
   SOCKET_READY,
-} from "@steggy/home-assistant";
-import { CronExpression, DOWN, TitleCase, UP } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import {
+  CronExpression,
+  DOWN,
+  TitleCase,
+  UP,
+} from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 
 @Injectable()

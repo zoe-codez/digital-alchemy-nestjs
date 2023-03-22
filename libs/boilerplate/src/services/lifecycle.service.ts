@@ -1,5 +1,5 @@
 import { INestApplication, Injectable } from "@nestjs/common";
-import { eachSeries } from "@steggy/utilities";
+import { eachSeries } from "@digital-alchemy/utilities";
 import { Express } from "express";
 
 import { BootstrapOptions } from "../includes";

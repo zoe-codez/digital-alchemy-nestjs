@@ -1,4 +1,8 @@
-import { AutoLogService, InjectConfig, QuickScript } from "@steggy/boilerplate";
+import {
+  AutoLogService,
+  InjectConfig,
+  QuickScript,
+} from "@digital-alchemy/boilerplate";
 import {
   GenericEntityDTO,
   HassCallTypeGenerator,
@@ -11,7 +15,7 @@ import {
   PushCallService,
   SERIALIZE,
   VERIFICATION_FILE,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import JSON from "comment-json";
 import {
   existsSync,

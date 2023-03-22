@@ -1,5 +1,5 @@
 import { Controller, Injectable, Provider, Type } from "@nestjs/common";
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import { ClassConstructor } from "class-transformer";
 import { exit } from "process";
 

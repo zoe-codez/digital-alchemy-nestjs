@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
   DEFAULT_PROMPT_WIDTH,
@@ -8,7 +8,7 @@ import {
   ScreenService,
   StringEditorRenderOptions,
   TextRenderingService,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 
 @Injectable()
 export class StringService {

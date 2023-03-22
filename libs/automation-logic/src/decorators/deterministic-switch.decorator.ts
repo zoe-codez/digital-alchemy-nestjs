@@ -1,9 +1,9 @@
-import { PICK_ENTITY } from "@steggy/home-assistant";
+import { PICK_ENTITY } from "@digital-alchemy/home-assistant";
 import {
   AttachMethodDecorator,
   CronExpression,
   PropertyDecoratorFactory,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 
 export interface DeterministicSwitchOptions {
   /**

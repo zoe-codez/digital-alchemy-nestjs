@@ -1,4 +1,4 @@
-# @steggy/mqtt
+# @digital-alchemy/mqtt
 
 ## Description
 

@@ -1,6 +1,6 @@
-import { ApplicationModule } from "@steggy/boilerplate";
-import { HomeAssistantModule } from "@steggy/home-assistant";
-import { ServerModule } from "@steggy/server";
+import { ApplicationModule } from "@digital-alchemy/boilerplate";
+import { HomeAssistantModule } from "@digital-alchemy/home-assistant";
+import { ServerModule } from "@digital-alchemy/server";
 
 import { ExampleService } from "../services";
 

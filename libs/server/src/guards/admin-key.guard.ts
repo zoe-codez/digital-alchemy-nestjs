@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { AutoLogService, InjectConfig } from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 
 import { ADMIN_KEY } from "../config";
 import { ADMIN_KEY_HEADER, APIResponse, ResponseFlags } from "../contracts";

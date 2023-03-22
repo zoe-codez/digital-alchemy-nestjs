@@ -1,8 +1,8 @@
 import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
-import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
-import { PICK_ENTITY } from "@steggy/home-assistant";
-import { MQTTModule } from "@steggy/mqtt";
+import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
+import { PICK_ENTITY } from "@digital-alchemy/home-assistant";
+import { MQTTModule } from "@digital-alchemy/mqtt";
 
 import {
   CIRCADIAN_ENABLED,

@@ -3,8 +3,8 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
-} from "@steggy/boilerplate";
-import { is, SECOND, TitleCase } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is, SECOND, TitleCase } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";

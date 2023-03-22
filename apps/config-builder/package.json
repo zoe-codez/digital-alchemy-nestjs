@@ -2,7 +2,7 @@
   "bin": {
     "config-builder": "main.js"
   },
-  "name": "@steggy/config-builder",
+  "name": "@digital-alchemy/config-builder",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Config Builder",

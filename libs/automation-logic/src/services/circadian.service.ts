@@ -1,12 +1,16 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, InjectConfig, OnEvent } from "@steggy/boilerplate";
+import {
+  AutoLogService,
+  InjectConfig,
+  OnEvent,
+} from "@digital-alchemy/boilerplate";
 import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PushEntityService,
   PushProxyService,
-} from "@steggy/home-assistant";
-import { EMPTY, MINUTE } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import { EMPTY, MINUTE } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 
 import {

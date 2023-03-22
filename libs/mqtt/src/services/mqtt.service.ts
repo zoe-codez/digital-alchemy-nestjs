@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, InjectLogger } from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+import { AutoLogService, InjectLogger } from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import {
   Client,
   IClientPublishOptions,

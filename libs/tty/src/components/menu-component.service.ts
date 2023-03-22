@@ -1,5 +1,5 @@
 import { forwardRef, Inject } from "@nestjs/common";
-import { CacheService } from "@steggy/boilerplate";
+import { CacheService } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -17,7 +17,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
 import { get } from "object-path";

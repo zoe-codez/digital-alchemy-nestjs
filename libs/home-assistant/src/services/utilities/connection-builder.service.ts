@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import WS from "ws";
 
 import { BASE_URL, WEBSOCKET_URL } from "../../config";

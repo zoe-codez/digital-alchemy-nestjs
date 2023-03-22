@@ -1,5 +1,5 @@
 import { DiscoveryModule } from "@nestjs/core";
-import { LibraryModule } from "@steggy/boilerplate";
+import { LibraryModule } from "@digital-alchemy/boilerplate";
 import { IClientOptions } from "mqtt";
 
 import { CLIENT_OPTIONS, LIB_MQTT } from "../config";

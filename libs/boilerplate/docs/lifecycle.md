@@ -1,6 +1,6 @@
 # Lifecycle events
 
-In order to accomplish some of the application flow features required by `@steggy`, additional lifecycle events are required.
+In order to accomplish some of the application flow features required by `@digital-alchemy`, additional lifecycle events are required.
 This are implemented before / after the existing NestJS lifecycle events.
 When possible, it is recommended to use the standard nest lifecycle events.
 

@@ -1,4 +1,4 @@
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 // Blatantly ripped off code from chalk-template package

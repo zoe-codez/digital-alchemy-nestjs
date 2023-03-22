@@ -5,7 +5,7 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "name": "@steggy/hass-type-generate",
+  "name": "@digital-alchemy/hass-type-generate",
   "version": "23.9.18",
   "author": {
     "name": "mp3three",

@@ -3,9 +3,9 @@ import {
   AutoLogService,
   InjectConfig,
   ModuleScannerService,
-} from "@steggy/boilerplate";
-import { OnHassEvent } from "@steggy/home-assistant";
-import { is, sleep } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { OnHassEvent } from "@digital-alchemy/home-assistant";
+import { is, sleep } from "@digital-alchemy/utilities";
 import { get } from "object-path";
 import { nextTick } from "process";
 

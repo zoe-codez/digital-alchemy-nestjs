@@ -8,14 +8,14 @@ import {
   StringArrayConfig,
   StringConfig,
   WorkspaceService,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
   MainMenuEntry,
   PromptService,
   ScreenService,
   TTYModule,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 import {
   deepExtend,
   FIRST,
@@ -23,7 +23,7 @@ import {
   SINGLE,
   START,
   TitleCase,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { encode } from "ini";

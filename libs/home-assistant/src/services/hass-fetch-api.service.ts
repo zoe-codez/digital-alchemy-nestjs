@@ -3,8 +3,8 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from "@steggy/boilerplate";
-import { FetchWith, is, SECOND } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { FetchWith, is, SECOND } from "@digital-alchemy/utilities";
 
 import { BASE_URL, TOKEN } from "../config";
 import {

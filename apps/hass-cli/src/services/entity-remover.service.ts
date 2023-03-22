@@ -4,13 +4,13 @@ import {
   EntityRegistryService,
   HassFetchAPIService,
   PICK_ENTITY,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
-} from "@steggy/tty";
-import { eachSeries, is } from "@steggy/utilities";
+} from "@digital-alchemy/tty";
+import { eachSeries, is } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 const TITLE = "Entity Remover";

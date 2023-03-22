@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ModuleScannerService } from "@steggy/boilerplate";
+import { ModuleScannerService } from "@digital-alchemy/boilerplate";
 
 import {
   COMPONENT_CONFIG,

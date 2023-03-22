@@ -3,7 +3,7 @@ import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 import chalk from "chalk";
 
 @Injectable()

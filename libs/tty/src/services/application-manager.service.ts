@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
-import { is, START } from "@steggy/utilities";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
+import { is, START } from "@digital-alchemy/utilities";
 import figlet, { Fonts } from "figlet";
 
 import {

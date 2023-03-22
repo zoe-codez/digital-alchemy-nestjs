@@ -2,7 +2,7 @@
   "bin": {
     "log-formatter": "main.js"
   },
-  "name": "@steggy/log-formatter",
+  "name": "@digital-alchemy/log-formatter",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Log Formatter",

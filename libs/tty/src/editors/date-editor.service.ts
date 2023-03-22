@@ -8,7 +8,7 @@ import {
   SINGLE,
   START,
   VALUE,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { parse, parseDate } from "chrono-node";
 import dayjs, { Dayjs } from "dayjs";

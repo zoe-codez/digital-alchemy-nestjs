@@ -3,8 +3,8 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
-} from "@steggy/boilerplate";
-import { deepExtend, is, SINGLE, sleep } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { deepExtend, is, SINGLE, sleep } from "@digital-alchemy/utilities";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
 

@@ -1,4 +1,4 @@
-import { Test } from "@steggy/testing";
+import { Test } from "@digital-alchemy/testing";
 import { argv, env } from "process";
 
 import {

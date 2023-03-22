@@ -3,7 +3,7 @@ import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";

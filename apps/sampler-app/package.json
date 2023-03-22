@@ -5,7 +5,7 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "name": "@steggy/sampler-app",
+  "name": "@digital-alchemy/sampler-app",
   "version": "23.9.18",
   "author": {
     "name": "mp3three",
