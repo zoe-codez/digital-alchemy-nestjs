@@ -21,8 +21,8 @@ The reference install is a barely configured docker based Home Assistant install
 
 ## Setup notes
 
-> username: steggy
-> 
+> username: digital-alchemy
+>
 > password: nom nom
 
 - Some additional tweaks to the `configuration.yaml` may be required if you want a reverse proxy in the mix

@@ -3,7 +3,7 @@
   "license": "MIT",
   "displayName": "Entity Creation",
   "version": "23.9.18",
-  "homepage": "https://github.com/zoe-codez/steggy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
   }

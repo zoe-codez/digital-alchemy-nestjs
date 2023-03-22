@@ -7,7 +7,7 @@
   "main": "main.js",
   "displayName": "Log Formatter",
   "version": "23.9.18",
-  "homepage": "https://github.com/zoe-codez/steggy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
   }

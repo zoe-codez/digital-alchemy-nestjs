@@ -1,8 +1,8 @@
-import { DynamicModule } from "@nestjs/common";
-import { DiscoveryModule } from "@nestjs/core";
 import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
 import { PICK_ENTITY } from "@digital-alchemy/home-assistant";
 import { MQTTModule } from "@digital-alchemy/mqtt";
+import { DynamicModule } from "@nestjs/common";
+import { DiscoveryModule } from "@nestjs/core";
 
 import {
   CIRCADIAN_ENABLED,
@@ -77,7 +77,7 @@ import {
       type: "number",
     },
     [MQTT_TOPIC_PREFIX]: {
-      default: "steggy",
+      default: "digital-alchemy",
       description: "Prefix to use in front of mqtt message topics",
       type: "string",
     },

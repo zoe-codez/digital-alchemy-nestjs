@@ -1,15 +1,15 @@
 {
   "author": {
     "name": "zoe-codez",
-    "url": "https://github.com/zoe-codez/steggy"
+    "url": "https://github.com/zoe-codez/digital-alchemy"
   },
   "name": "@digital-alchemy/utilities",
   "displayName": "Utilities",
   "license": "MIT",
   "version": "23.9.18",
-  "homepage": "https://github.com/zoe-codez/steggy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zoe-codez/steggy.git"
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
   }
 }

@@ -1,11 +1,11 @@
 {
-  "name": "steggy",
+  "name": "digital-alchemy",
   "publisher": "zoe-codez",
   "version": "23.9.18",
   "license": "MIT",
   "author": {
     "name": "zoe-codez",
-    "url": "https://github.com/zoe-codez/steggy"
+    "url": "https://github.com/zoe-codez/digital-alchemy"
   },
   "scripts": {
     "pipeline": "./tools/scripts/pipeline.sh",
