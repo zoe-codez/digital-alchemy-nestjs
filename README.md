@@ -1,4 +1,4 @@
-# 🦕 [@digital-alchemy](https://github.com/mp3three/steggy) monorepo
+# 🦕 [@digital-alchemy](https://github.com/zoe-codez/steggy) monorepo
 
 `@digital-alchemy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
 It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
@@ -11,7 +11,7 @@ The primary focus of this library is non-web applications, such as terminal apps
 
 ```bash
 # Check out code
-git clone git@github.com:mp3three/steggy.git
+git clone git@github.com:zoe-codez/steggy.git
 cd ./steggy
 # Install node modules
 yarn

@@ -8,8 +8,8 @@
   "name": "@digital-alchemy/hass-type-generate",
   "version": "23.9.18",
   "author": {
-    "name": "mp3three",
-    "url": "https://github.com/mp3three/steggy"
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/steggy"
   },
   "engines": {
     "node": ">=16.0.0"

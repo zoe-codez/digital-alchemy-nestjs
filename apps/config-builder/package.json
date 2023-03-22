@@ -7,7 +7,7 @@
   "main": "main.js",
   "displayName": "Config Builder",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/zoe-codez/steggy",
   "engines": {
     "node": ">=16.0.0"
   }

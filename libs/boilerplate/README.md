@@ -10,7 +10,7 @@ Boilerplate provides a batteries included bootstrapping workflow for NestJS appl
 | Link | Description |
 | --- | --- |
 | [Logger](./docs/logger.md) | API documentation for `AutoLogService` |
-| [Usage example](https://github.com/mp3three/quickscript) | Small terminal app in an external repo utilizing this boilerplate |
+| [Usage example](https://github.com/zoe-codez/quickscript) | Small terminal app in an external repo utilizing this boilerplate |
 | [Lifecycle events](./docs/lifecycle.md) | Startup lifecycle event flow for boilerplate & nestjs |
 
 ## Bootstrap
