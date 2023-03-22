@@ -1,6 +1,4 @@
 /* eslint-disable radar/cognitive-complexity */
-import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
-import { INQUIRER } from "@nestjs/core";
 import {
   AnnotationPassThrough,
   AutoLogService,
@@ -26,6 +24,8 @@ import {
   PERCENT,
   VALUE,
 } from "@digital-alchemy/utilities";
+import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
+import { INQUIRER } from "@nestjs/core";
 import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";
@@ -71,6 +71,10 @@ const ANY = "*";
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
+  public static loaded = new Map<
+    ALL_ROOM_NAMES,
+    SceneRoomService<ALL_ROOM_NAMES>
+  >();
   /**
    * pre-create rooms to ensure they are created at least once
    */
@@ -84,6 +88,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
           provide: v4(),
           useFactory(room: SceneRoomService) {
             room.load(i);
+            SceneRoomService.loaded.set(i, room);
             return room;
           },
         } as Provider;
@@ -114,8 +119,16 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
   public get current() {
     const entity = this.entityManager.byId(
       `sensor.${this.name}_current_scene`,
-    ) as GenericEntityDTO<string, { scene: string }>;
+    ) as GenericEntityDTO<{ scene: string }>;
     return (entity?.attributes?.scene || "unknown") as ROOM_SCENES<NAME>;
+  }
+
+  public get sceneDefinition() {
+    const current = this.current;
+    return {
+      configuration: this.configuration.scenes[current],
+      options: this.options.scenes[current],
+    };
   }
 
   public name: NAME;
@@ -288,6 +301,32 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
         this.options.scenes[sceneName].friendly_name,
       );
     });
+  }
+
+  /**
+   * Should circadian if:
+   *  - auto circadian is not disabled
+   *  - is a light, that is currently on
+   *  - the light was recently turned off (<5s)
+   *  -
+   */
+  public shouldCircadian(
+    entity_id: PICK_ENTITY<"light">,
+    target?: string,
+  ): boolean {
+    if (domain(entity_id) !== "light") {
+      return false;
+    }
+    if (!is.empty(target) && target !== "on") {
+      return false;
+    }
+    const currentScene = this.scenes.get(this.current) ?? {};
+    if (!currentScene[entity_id]) {
+      return true;
+    }
+    return Object.keys(currentScene[entity_id]).every(i =>
+      ["state", "brightness"].includes(i),
+    );
   }
 
   /**
@@ -572,31 +611,5 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     //   stop,
     // );
     // return interrupt ? undefined : to;
-  }
-
-  /**
-   * Should circadian if:
-   *  - auto circadian is not disabled
-   *  - is a light, that is currently on
-   *  - the light was recently turned off (<5s)
-   *  -
-   */
-  private shouldCircadian(
-    entity_id: PICK_ENTITY<"light">,
-    target?: string,
-  ): boolean {
-    if (domain(entity_id) !== "light") {
-      return false;
-    }
-    if (!is.empty(target) && target !== "on") {
-      return false;
-    }
-    const currentScene = this.scenes.get(this.current) ?? {};
-    if (!currentScene[entity_id]) {
-      return true;
-    }
-    return Object.keys(currentScene[entity_id]).every(i =>
-      ["state", "brightness"].includes(i),
-    );
   }
 }

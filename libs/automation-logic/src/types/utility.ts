@@ -1,4 +1,8 @@
-import { ALL_DOMAINS, PICK_ENTITY } from "@digital-alchemy/home-assistant";
+import {
+  ALL_DOMAINS,
+  GetDomain,
+  PICK_ENTITY,
+} from "@digital-alchemy/home-assistant";
 import { Get } from "type-fest";
 
 import { iSceneRoomOptions } from "../decorators";
@@ -29,7 +33,34 @@ export type iSceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> =
     [SCENE_ROOM_OPTIONS]: iSceneRoomOptions<NAME>;
   };
 
-type SceneDefinition = unknown;
+export type SceneSwitchState = { state: "on" | "off" };
+export type SceneLightStateOn = {
+  /**
+   * Light will probably restore previous value
+   */
+  brightness: number;
+  /**
+   * If not provided, light will attempt to use color temp if possible
+   */
+  rgb_color?: {
+    b: number;
+    g: number;
+    r: number;
+  };
+  state: "on";
+};
+export type SceneLightState = { state: "off" } | SceneLightStateOn;
+
+type MappedDomains = {
+  light: SceneLightState;
+  switch: SceneSwitchState;
+};
+
+export type SceneDefinition = {
+  [entity_id: PICK_ENTITY<keyof MappedDomains>]: MappedDomains[GetDomain<
+    typeof entity_id
+  >];
+};
 
 export type SceneList<SCENES extends string> = Record<
   SCENES,

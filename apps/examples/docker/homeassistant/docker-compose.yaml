@@ -1,7 +1,7 @@
 ---
 services:
   homeassistant:
-    container_name: steggy_examples_homeassistant
+    container_name: digital-alchemy_examples_homeassistant
     image: homeassistant/home-assistant:2023.2
     network_mode: "host"
     volumes:

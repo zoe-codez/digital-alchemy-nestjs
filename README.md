@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 # 🦕 [@digital-alchemy](https://github.com/zoe-codez/digital-alchemy) monorepo
 
 `@digital-alchemy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
 It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
+=======
 
-The primary focus of this library is non-web applications, such as terminal apps, home automation services, and other standalone microservices.
+<h1 align="center">💻 Digital Alchemy Monorepo 🔮</h1>
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
-## Local Setup (try things out!)
+## Description
 
+`@digital-alchemy` is a collections of projects built on top of the [NestJS](https://nestjs.com/) framework.
+The repository is a collection of general purpose libraries for building premium terminal applications, microservices, home automation logic, and more.
+
+<<<<<<< HEAD
 > `@digital-alchemy` targets node 16+
 
 ```bash
@@ -16,27 +23,48 @@ cd ./digital-alchemy
 # Install node modules
 yarn
 ```
+=======
+### Editor Features
 
-## Applications
+Editor interactions are a strong focus for consuming this project.
+All projects are built with Typescript from the ground up.
+Some projects feature [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) APIs that build custom types based on their capabilities.
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
-Applications built as functionality demos, and utilities for consumption in other repositories.
+## Public Packages
 
-### [Config Builder](apps/config-builder)
+### Applications
 
+| package | install | notes |
+| --- | --- | --- |
+| [@digital-alchemy/config-builder](apps/config-builder)  | [npm](https://www.npmjs.com/package/@digital-alchemy/config-builder) | Terminal app for managing config files related to a `@digital-alchemy` app |
+| [@digital-alchemy/hass-type-generate](apps/hass-type-generate) | [npm](https://www.npmjs.com/package/@digital-alchemy/hass-type-generate) | Companion app for `@digital-alchemy/home-assistant` |
+| [@digital-alchemy/log-formatter](apps/log-formatter)  | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | `\|` pipe friendly tool to reformat json logs to pretty logs |
+
+<<<<<<< HEAD
 A script to manage file based configurations for applications based off `@digital-alchemy/boilerplate`.
 It can act as a "settings screen" for applications, outputting either environment variables, or to more persistent configuration files.
+=======
+### Libraries
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
-> In repo example
+| package | install | notes |
+| --- | --- | --- |
+| [@digital-alchemy/automation-logic](libs/automation-logic) | [npm](https://www.npmjs.com/package/@digital-alchemy/automation-logic) | Extended tools for building home automation services |
+| [@digital-alchemy/boilerplate](libs/boilerplate) | [npm](https://www.npmjs.com/package/@digital-alchemy/boilerplate) | Bootstrapping, configuration, logging, and other basics |
+| [@digital-alchemy/home-assistant](libs/home-assistant) | [npm](https://www.npmjs.com/package/@digital-alchemy/home-assistant) | Websocket and rest api bindings for Home Assistant. Features dyn |
+| [@digital-alchemy/mqtt](libs/mqtt) | [npm](https://www.npmjs.com/package/@digital-alchemy/mqtt) | Basic MQTT bindings |
+| [@digital-alchemy/rgb-matrix](libs/rgb-matrix) | [npm](https://www.npmjs.com/package/@digital-alchemy/rgb-matrix) | Layout and rendering utilities for arduino rgb matrix displays |
+| [@digital-alchemy/server](libs/server) | [npm](https://www.npmjs.com/package/@digital-alchemy/server) | Http server support & basic utilities |
+| [@digital-alchemy/testing](libs/testing) | [npm](https://www.npmjs.com/package/@digital-alchemy/testing) | Testing utilities |
+| [@digital-alchemy/tty](libs/tty) | [npm](https://www.npmjs.com/package/@digital-alchemy/tty) | Prompts and rendering utilities for interactions inside of the terminal |
+| [@digital-alchemy/utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | Standard utilities and constants used across the project |
 
-```bash
-# generate example config
-npx nx scan-config sampler-app
-# run config-builder with config
-DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
-```
+## Example Terminal Apps
 
-> Standalone example
+Sometimes useful example code.
 
+<<<<<<< HEAD
 ```bash
 # install config builder
 yarn add -D @digital-alchemy/config-builder
@@ -51,6 +79,9 @@ npx config-builder --definition_file ./config.json
 | [<img src="./apps/config-builder/recordings/sampler_app.gif" height=400>](./apps/config-builder/recordings/sampler_app.gif) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
 
 ### [Sampler App](apps/sampler-app) (active development)
+=======
+### [Sampler App](apps/sampler-app)
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
 Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
 
@@ -59,28 +90,31 @@ Demo app for TTY library functionality. Get a quick feel for how things look and
 npx nx serve sampler-app
 ```
 
-| Table based object builder | Complex menu based interfaces |
-| --- | --- |
-|[<img src="./apps/sampler-app/recordings/object_builder.gif" height=400>](./apps/sampler-app/docs/options.png)|[<img src="./apps/sampler-app/docs/result.png" height=400>](./apps/sampler-app/docs/result.png)
+### [Hass CLI](apps/hass-cli)
 
-### [Hass CLI](apps/hass-cli) (active development)
+Basic interactions with Home Assistant, in the form of a terminal app.
+Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
 
 ```bash
 # run dev server with credentials passed in via environment variables
 BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx serve hass-cli
 ```
 
+<<<<<<< HEAD
 Basic interactions with Home Assistant, in the form of a terminal app.
 Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@digital-alchemy/home-assistant`.
+=======
+## Example Automation
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
-| Commands | Backup |
-| --- | --- |
-| [<img src="./apps/hass-cli/docs/example.png" height=400>](./apps/hass-cli/docs/example.png) | [<img src="./apps/hass-cli/docs/backup.png" height=400>](./apps/hass-cli/docs/backup.png) |
+This code is intended to interact with Home Assistant.
+A [dockerized reference install](apps/examples/docker/homeassistant) is included with this repository intended for use with these apps to prevent accidental changes to your normal install.
 
-### [Hass Type Generate](apps/hass-type-generate)
+### [Entity Creation](apps/examples/entity-creation)
 
-> Note: requires credentials for home assistant, best practice is to store in `~/.config/hass-type-generate`
+Minimal example app. Creates a few entities and not much else.
 
+<<<<<<< HEAD
 Companion application to `@digital-alchemy/home-assistant`. Intended to rewrite library type definitions to match a specific home assistant install.
 Has no function from within this repo, must be installed as a node_module in a separate repo to have an effect.
 `@digital-alchemy/home-assistant` will run this script as a post install hook to keep it's own definitions as up to date as possible.
@@ -92,14 +126,19 @@ yarn add -D @digital-alchemy/hass-type-generate
 # execute
 npx hass-type-generate
 ```
+=======
+### [Scene Manager](apps/examples/scene-manager)
 
-### [Log Formatter](apps/log-formatter)
+> requires external mqtt dependency and additional configuration to be actually functional
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
 
-Pipe JSON logs in via stdin, get pretty/readable logs out.
-Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), internal formatter instead.
+An example home automation app, which manages several rooms.
 
-## Libraries
+## Versioning notes
 
+> ⚠️ all packages are expected to be installed at the same version.
+
+<<<<<<< HEAD
 ### [Automation Logic](libs/automation-logic)
 
 A set of tools for more cohesively bringing together `@digital-alchemy/home-assistant` with home automation logic.
@@ -145,3 +184,6 @@ Utilities for creating terminal applications.
 Enables the `--help` switch, which will output available configuations that can be sent via command line switches.
 
 > Note: switches are accepted without TTY, this just adds a reporting mechanism
+=======
+Version format: year.week.build
+>>>>>>> cbfe62d9ca2f073674068267d1d093e2149d7378
