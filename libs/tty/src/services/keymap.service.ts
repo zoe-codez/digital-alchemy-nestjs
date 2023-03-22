@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { ARRAY_OFFSET, DOWN, is, UP } from "@steggy/utilities";
+import { ARRAY_OFFSET, DOWN, is, UP } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { HighlightCallbacks } from "../components";

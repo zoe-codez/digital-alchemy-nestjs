@@ -1,5 +1,5 @@
+import { is } from "@digital-alchemy/utilities";
 import { Controller, Injectable, Provider, Type } from "@nestjs/common";
-import { is } from "@steggy/utilities";
 import { ClassConstructor } from "class-transformer";
 import { exit } from "process";
 
@@ -63,7 +63,7 @@ export function QuickScript({
   bootstrap.logging ??= {};
   bootstrap.logging.nestNoopLogger ??= true;
   bootstrap.logging.prettyLog ??= true;
-  metadata.application ??= "steggy-quick-script";
+  metadata.application ??= "digital-alchemy-quick-script";
 
   // Corrective measures for loading metadata
   return function (target: Type) {

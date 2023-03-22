@@ -7,7 +7,7 @@ import {
   SINGLE,
   START,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { cwd, env, platform } from "process";
 

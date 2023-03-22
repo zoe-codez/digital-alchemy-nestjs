@@ -1,56 +1,46 @@
-# 🦕 [@steggy](https://github.com/mp3three/steggy) monorepo
 
-`@steggy` is a collections of libraries built on top of the [NestJS](https://nestjs.com/) framework.
-It features a quick bootstrapping interface, powerful configuration and helper services, flexible terminal utilities, and more!
+<h1 align="center">💻 Digital Alchemy Monorepo 🔮</h1>
 
-The primary focus of this library is non-web applications, such as terminal apps, home automation services, and other standalone microservices.
+## Description
 
-## Local Setup (try things out!)
+`@digital-alchemy` is a collections of projects built on top of the [NestJS](https://nestjs.com/) framework.
+The repository is a collection of general purpose libraries for building premium terminal applications, microservices, home automation logic, and more.
 
-> `@steggy` targets node 16+
+### Editor Features
 
-```bash
-# Check out code
-git clone git@github.com:mp3three/steggy.git
-cd ./steggy
-# Install node modules
-yarn
-```
+Editor interactions are a strong focus for consuming this project.
+All projects are built with Typescript from the ground up.
+Some projects feature [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) APIs that build custom types based on their capabilities.
 
-## Applications
+## Public Packages
 
-Applications built as functionality demos, and utilities for consumption in other repositories.
+### Applications
 
-### [Config Builder](apps/config-builder)
+| package | install | notes |
+| --- | --- | --- |
+| [@digital-alchemy/config-builder](apps/config-builder)  | [npm](https://www.npmjs.com/package/@digital-alchemy/config-builder) | Terminal app for managing config files related to a `@digital-alchemy` app |
+| [@digital-alchemy/hass-type-generate](apps/hass-type-generate) | [npm](https://www.npmjs.com/package/@digital-alchemy/hass-type-generate) | Companion app for `@digital-alchemy/home-assistant` |
+| [@digital-alchemy/log-formatter](apps/log-formatter)  | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | `\|` pipe friendly tool to reformat json logs to pretty logs |
 
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
-It can act as a "settings screen" for applications, outputting either environment variables, or to more persistent configuration files.
+### Libraries
 
-> In repo example
+| package | install | notes |
+| --- | --- | --- |
+| [@digital-alchemy/automation-logic](libs/automation-logic) | [npm](https://www.npmjs.com/package/@digital-alchemy/automation-logic) | Extended tools for building home automation services |
+| [@digital-alchemy/boilerplate](libs/boilerplate) | [npm](https://www.npmjs.com/package/@digital-alchemy/boilerplate) | Bootstrapping, configuration, logging, and other basics |
+| [@digital-alchemy/home-assistant](libs/home-assistant) | [npm](https://www.npmjs.com/package/@digital-alchemy/home-assistant) | Websocket and rest api bindings for Home Assistant. Features dyn |
+| [@digital-alchemy/mqtt](libs/mqtt) | [npm](https://www.npmjs.com/package/@digital-alchemy/mqtt) | Basic MQTT bindings |
+| [@digital-alchemy/rgb-matrix](libs/rgb-matrix) | [npm](https://www.npmjs.com/package/@digital-alchemy/rgb-matrix) | Layout and rendering utilities for arduino rgb matrix displays |
+| [@digital-alchemy/server](libs/server) | [npm](https://www.npmjs.com/package/@digital-alchemy/server) | Http server support & basic utilities |
+| [@digital-alchemy/testing](libs/testing) | [npm](https://www.npmjs.com/package/@digital-alchemy/testing) | Testing utilities |
+| [@digital-alchemy/tty](libs/tty) | [npm](https://www.npmjs.com/package/@digital-alchemy/tty) | Prompts and rendering utilities for interactions inside of the terminal |
+| [@digital-alchemy/utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | Standard utilities and constants used across the project |
 
-```bash
-# generate example config
-npx nx scan-config sampler-app
-# run config-builder with config
-DEFINITION_FILE=./dist/configs/sampler-app.json npx nx serve config-builder
-```
+## Example Terminal Apps
 
-> Standalone example
+Sometimes useful example code.
 
-```bash
-# install config builder
-yarn add -D @steggy/config-builder
-# output configuration to file
-node ./your_script.js --scan-config > ./config.json
-# launch script
-npx config-builder --definition_file ./config.json
-```
-
-| Edit variables | Audit setup |
-| --- | --- |
-| [<img src="./apps/config-builder/recordings/sampler_app.gif" height=400>](./apps/config-builder/recordings/sampler_app.gif) | [<img src="./apps/config-builder/docs/example2.png" height=400>](./apps/config-builder/docs/example2.png) |
-
-### [Sampler App](apps/sampler-app) (active development)
+### [Sampler App](apps/sampler-app)
 
 Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
 
@@ -59,89 +49,33 @@ Demo app for TTY library functionality. Get a quick feel for how things look and
 npx nx serve sampler-app
 ```
 
-| Table based object builder | Complex menu based interfaces |
-| --- | --- |
-|[<img src="./apps/sampler-app/recordings/object_builder.gif" height=400>](./apps/sampler-app/docs/options.png)|[<img src="./apps/sampler-app/docs/result.png" height=400>](./apps/sampler-app/docs/result.png)
+### [Hass CLI](apps/hass-cli)
 
-### [Hass CLI](apps/hass-cli) (active development)
+Basic interactions with Home Assistant, in the form of a terminal app.
+Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
 
 ```bash
 # run dev server with credentials passed in via environment variables
 BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx serve hass-cli
 ```
 
-Basic interactions with Home Assistant, in the form of a terminal app.
-Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
+## Example Automation
 
-| Commands | Backup |
-| --- | --- |
-| [<img src="./apps/hass-cli/docs/example.png" height=400>](./apps/hass-cli/docs/example.png) | [<img src="./apps/hass-cli/docs/backup.png" height=400>](./apps/hass-cli/docs/backup.png) |
+This code is intended to interact with Home Assistant.
+A [dockerized reference install](apps/examples/docker/homeassistant) is included with this repository intended for use with these apps to prevent accidental changes to your normal install.
 
-### [Hass Type Generate](apps/hass-type-generate)
+### [Entity Creation](apps/examples/entity-creation)
 
-> Note: requires credentials for home assistant, best practice is to store in `~/.config/hass-type-generate`
+Minimal example app. Creates a few entities and not much else.
 
-Companion application to `@steggy/home-assistant`. Intended to rewrite library type definitions to match a specific home assistant install.
-Has no function from within this repo, must be installed as a node_module in a separate repo to have an effect.
-`@steggy/home-assistant` will run this script as a post install hook to keep it's own definitions as up to date as possible.
-It can also be run manually as needed.
+### [Scene Manager](apps/examples/scene-manager)
 
-```bash
-# install
-yarn add -D @steggy/hass-type-generate
-# execute
-npx hass-type-generate
-```
+> requires external mqtt dependency and additional configuration to be actually functional
 
-### [Log Formatter](apps/log-formatter)
+An example home automation app, which manages several rooms.
 
-Pipe JSON logs in via stdin, get pretty/readable logs out.
-Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), internal formatter instead.
+## Versioning notes
 
-## Libraries
+> ⚠️ all packages are expected to be installed at the same version.
 
-### [Automation Logic](libs/automation-logic)
-
-A set of tools for more cohesively bringing together `@steggy/home-assistant` with home automation logic.
-Build out rooms with scenes, managed circadian lighting, and more.
-
-### [Boilerplate](libs/boilerplate)
-
-NestJS application bootstrapping functions, configuration, logging, and general purpose tools.
-
-### [Home Assistant](libs/home-assistant)
-
-Tools for interacting with Home Assistant. Contains wrappers for rest api, and websocket api.
-Has the ability to transform it's internal type definitions and code api to match a target home assistant install.
-
-### [MQTT](libs/mqtt)
-
-Simple MQTT bindings.
-
-### [RGB Matrix](libs/rgb-matrix)
-
-> Note: experimental code. Requires optimization and may experience API changes
-
-Portable type definitions and utilities related to performing layout and rendering with pixel matrixes.
-These libraries are intended to be consumed in both non-rendering environments (ex: server performing layout), and rendering environments (ex: pi receiving layout, and needing to display it).
-
-This library is intended to work with [rpi-led-matrix](https://www.npmjs.com/package/rpi-led-matrix), proving canned animations and tools for doing layout as a grid of panels, instead of just chains.
-
-### [Server](libs/server)
-
-Enables web server functionality for [@steggy/boilerplate](libs/boilerplate).
-Provides generic middleware tools like `cors` and automatic request logging
-
-### [TTY](libs/tty)
-
-Utilities for creating terminal applications.
-
-- Menus
-- Prompts
-- Keyboard management
-- Screen management
-- Cursor management
-
-Enables the `--help` switch, which will output available configuations that can be sent via command line switches.
-
-> Note: switches are accepted without TTY, this just adds a reporting mechanism
+Version format: year.week.build

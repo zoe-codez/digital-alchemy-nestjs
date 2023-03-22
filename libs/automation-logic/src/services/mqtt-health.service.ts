@@ -3,9 +3,9 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
-} from "@steggy/boilerplate";
-import { MqttService } from "@steggy/mqtt";
-import { SECOND } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { MqttService } from "@digital-alchemy/mqtt";
+import { SECOND } from "@digital-alchemy/utilities";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
 

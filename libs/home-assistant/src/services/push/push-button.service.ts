@@ -9,8 +9,8 @@ import {
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
-} from "@steggy/boilerplate";
-import { is } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import { get } from "object-path";
 
 import { TemplateButton, TemplateButtonCommandId } from "../../decorators";

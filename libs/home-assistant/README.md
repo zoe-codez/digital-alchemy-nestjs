@@ -1,4 +1,4 @@
-# @steggy/home-assistant
+# @digital-alchemy/home-assistant
 
 ## Description
 

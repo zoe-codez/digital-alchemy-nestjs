@@ -3,8 +3,8 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
-} from "@steggy/boilerplate";
-import { is, SECOND, TitleCase } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is, SECOND, TitleCase } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 import execa from "execa";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
@@ -17,7 +17,7 @@ import {
   VERIFICATION_FILE,
 } from "../../config";
 import {
-  HassSteggySerializeState,
+  HassDigitalAlchemySerializeState,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   InjectedPushConfig,
@@ -249,7 +249,7 @@ export class PushEntityConfigService {
     this.uptimeProxy.state = dayjs().diff(boot, "second");
   }
 
-  private serializeState(): HassSteggySerializeState {
+  private serializeState(): HassDigitalAlchemySerializeState {
     return {
       application: this.application,
       configuration: this.configuration,

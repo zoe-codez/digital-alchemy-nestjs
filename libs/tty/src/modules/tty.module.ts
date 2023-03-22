@@ -1,5 +1,5 @@
 import { DiscoveryModule } from "@nestjs/core";
-import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
+import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
 
 import {
   AcknowledgeComponentService,

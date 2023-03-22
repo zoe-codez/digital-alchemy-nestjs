@@ -1,5 +1,7 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
+import {
+  AutoLogService,
+  ModuleScannerService,
+} from "@digital-alchemy/boilerplate";
 import {
   eachSeries,
   EMPTY,
@@ -8,7 +10,8 @@ import {
   SECOND,
   sleep,
   START,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 import { get, set } from "object-path";
 import { exit, nextTick } from "process";
@@ -114,24 +117,20 @@ export class EntityManagerService {
       start_time: dayjs(payload.start_time).toISOString(),
       type: HASSIO_WS_COMMAND.history_during_period,
     });
+
     return Object.fromEntries(
-      Object.entries(result).map(
-        <ID extends PICK_ENTITY>([entity_id, states]: [
-          ID,
-          { a: object; lu: number; s: unknown }[],
-        ]) => {
-          return [
-            entity_id,
-            states.map(data => {
-              return {
-                attributes: data.a,
-                date: new Date(data.lu * TIME_OFFSET),
-                state: data.s,
-              } as EntityHistoryResult<ID>;
-            }),
-          ];
-        },
-      ),
+      Object.keys(result).map(entity_id => {
+        const key = entity_id;
+        const states = result[entity_id];
+        const value = states.map(data => {
+          return {
+            attributes: data.a,
+            date: new Date(data.lu * TIME_OFFSET),
+            state: data.s,
+          } as EntityHistoryResult;
+        });
+        return [key, value];
+      }),
     );
   }
 

@@ -1,5 +1,5 @@
-import { OnSceneChange, SceneRoom } from "@steggy/automation-logic";
-import { AutoLogService } from "@steggy/boilerplate";
+import { OnSceneChange, SceneRoom } from "@digital-alchemy/automation-logic";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 
 @SceneRoom({
   name: "loft",

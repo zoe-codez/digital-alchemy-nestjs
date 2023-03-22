@@ -1,5 +1,5 @@
 import { DynamicModule, ModuleMetadata, Provider } from "@nestjs/common";
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import { ClassConstructor } from "class-transformer";
 import EventEmitter from "eventemitter3";
 

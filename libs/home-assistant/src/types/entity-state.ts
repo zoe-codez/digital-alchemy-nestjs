@@ -12,13 +12,13 @@ export class ContextDTO {
 }
 
 export class GenericEntityDTO<
-  // Deliberately disabling type checks against this
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  STATE extends any = any,
-  ATTRIBUTES extends Record<never, unknown> = { friendly_name?: string },
+  ATTRIBUTES extends object = { friendly_name?: string },
+  STATE extends unknown = string,
 > {
   public attributes: ATTRIBUTES;
   public context: ContextDTO;
+  // ! DO NOT TIE THIS `PICK_ENTITY` BACK TO ALL_DOMAINS
+  // Causes circular references that cannot be ignored in this repo
   public entity_id: PICK_ENTITY;
   public last_changed: string;
   public last_updated: string;

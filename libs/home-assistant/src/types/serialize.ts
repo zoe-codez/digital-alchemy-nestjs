@@ -68,7 +68,7 @@ export class PluginConfig {
   public storage: [name: string, data: StorageWriteBack];
 }
 
-export class HassSteggySerializeState {
+export class HassDigitalAlchemySerializeState {
   @IsString()
   public application: string;
   @ValidateNested()

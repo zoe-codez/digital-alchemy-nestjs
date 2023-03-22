@@ -8,7 +8,7 @@ import {
   is,
   PEAT,
   START,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { ansiMaxLength } from "../includes";

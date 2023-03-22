@@ -1,11 +1,11 @@
 {
-  "name": "steggy",
-  "publisher": "mp3three",
+  "name": "digital-alchemy",
+  "publisher": "zoe-codez",
   "version": "23.9.18",
   "license": "MIT",
   "author": {
-    "name": "mp3three",
-    "url": "https://github.com/mp3three/steggy"
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
   },
   "scripts": {
     "pipeline": "./tools/scripts/pipeline.sh",

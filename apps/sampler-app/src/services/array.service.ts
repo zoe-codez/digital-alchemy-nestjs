@@ -5,7 +5,7 @@ import {
   PromptService,
   ScreenService,
   TextRenderingService,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 
 const LIST_LENGTH = 10;
 const GENERAS: string[] = [];

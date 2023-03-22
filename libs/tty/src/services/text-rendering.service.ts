@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -9,7 +9,7 @@ import {
   START,
   TitleCase,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
 

@@ -13,7 +13,7 @@ This information will be added as a context property to every log message.
 Usage example
 
 ```typescript
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -36,7 +36,7 @@ In the case of logs originating from an application provider, instead of a libra
 **Caveat**: Transient providers require an additional annotation in order for contexts to be properly attached.
 
 ```typescript
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { Injectable, Scope } from "@nestjs/common";
 
 @Injectable({ scope: Scope.Transient })

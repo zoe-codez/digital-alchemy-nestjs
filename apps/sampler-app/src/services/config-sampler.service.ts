@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
-} from "@steggy/tty";
-import { DEFAULT_LIMIT } from "@steggy/utilities";
+} from "@digital-alchemy/tty";
+import { DEFAULT_LIMIT } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { exit } from "process";
 
@@ -101,7 +101,7 @@ export class ConfigSampler {
         chalk``,
         chalk.blue.dim("=".repeat(LINE)),
         chalk``,
-        chalk` {green.dim @steggy/boilerplate} is capable of scanning applications, and producing`,
+        chalk` {green.dim @digital-alchemy/boilerplate} is capable of scanning applications, and producing`,
         `    a report of all available configuration items a script can accept.`,
         chalk`    {bold Configurations will be consumed from} {gray (in order of priority)}{bold :}`,
         chalk`     {yellow.bold - }{cyan command line switches}`,
@@ -111,11 +111,11 @@ export class ConfigSampler {
         chalk`     {yellow.bold - }{cyan config definition defaults}`,
         chalk``,
         chalk``,
-        chalk` {green.dim @steggy/tty}, when imported, makes available the {yellow.bold --help} switch.`,
+        chalk` {green.dim @digital-alchemy/tty}, when imported, makes available the {yellow.bold --help} switch.`,
         `    This switch produces a report on switches made available boilerplate.`,
         chalk``,
         chalk``,
-        chalk` {green.dim @steggy/config-builder} can accept this report, and guide users`,
+        chalk` {green.dim @digital-alchemy/config-builder} can accept this report, and guide users`,
         `    in creating valid environment variables / file based configurations. `,
         chalk``,
         chalk`{bgCyan.black sampler-app --scan-config > config.json; config-builder --definition_file ./config.json}`,

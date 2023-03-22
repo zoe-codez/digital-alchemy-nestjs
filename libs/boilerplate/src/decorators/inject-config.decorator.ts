@@ -1,5 +1,5 @@
 import { Inject, Provider } from "@nestjs/common";
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import { v4 as uuid } from "uuid";
 
 import { AutoConfigService } from "../services/auto-config.service";

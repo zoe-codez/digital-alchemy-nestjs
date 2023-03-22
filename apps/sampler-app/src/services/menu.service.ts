@@ -13,8 +13,8 @@ import {
   template,
   TextRenderingService,
   TTY,
-} from "@steggy/tty";
-import { is, PEAT, SECOND, SINGLE, sleep } from "@steggy/utilities";
+} from "@digital-alchemy/tty";
+import { is, PEAT, SECOND, SINGLE, sleep } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { ItemGeneratorService } from "./item-generator.service";

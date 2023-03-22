@@ -1,13 +1,13 @@
-import { LOG_LEVEL, QuickScript } from "@steggy/boilerplate";
+import { LOG_LEVEL, QuickScript } from "@digital-alchemy/boilerplate";
 import {
   HomeAssistantModule,
   SocketManagerService,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import {
   ApplicationManagerService,
   PromptService,
   TTYModule,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 import chalk from "chalk";
 import { homedir } from "os";
 import { join } from "path";

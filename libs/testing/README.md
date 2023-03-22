@@ -1,4 +1,4 @@
-# @steggy/testing
+# @digital-alchemy/testing
 
 ## Description
 

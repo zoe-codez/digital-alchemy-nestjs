@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { Test } from "@steggy/testing";
-import { DEFAULT_LIMIT } from "@steggy/utilities";
+import { Test } from "@digital-alchemy/testing";
+import { DEFAULT_LIMIT } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 
 import { BASE_URL, TOKEN } from "../config";

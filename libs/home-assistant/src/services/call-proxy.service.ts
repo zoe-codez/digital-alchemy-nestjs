@@ -4,8 +4,17 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import { ALL_NEST_LIFECYCLE_EVENTS, AutoLogService } from "@steggy/boilerplate";
-import { INCREMENT, is, SECOND, sleep, START } from "@steggy/utilities";
+import {
+  ALL_NEST_LIFECYCLE_EVENTS,
+  AutoLogService,
+} from "@digital-alchemy/boilerplate";
+import {
+  INCREMENT,
+  is,
+  SECOND,
+  sleep,
+  START,
+} from "@digital-alchemy/utilities";
 import { exit, nextTick } from "process";
 
 import { ALL_DOMAINS, HASSIO_WS_COMMAND, HassServiceDTO } from "../types";

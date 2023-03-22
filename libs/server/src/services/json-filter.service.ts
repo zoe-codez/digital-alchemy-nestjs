@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService } from "@steggy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import {
   DOWN,
   FILTER_OPERATIONS,
@@ -10,7 +10,7 @@ import {
   SAME,
   START,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import { parseDate } from "chrono-node";
 import { isNumberString } from "class-validator";
 import dayjs from "dayjs";

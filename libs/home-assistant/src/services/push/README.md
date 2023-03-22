@@ -94,8 +94,8 @@ If the setup requires a restart, this will remain false until the newest code is
 ### Scenes
 
 The only way I've found to integrate node based scene processing logic is to integrate though MQTT.
-A MQTT integration is outside the scope of `@steggy/home-assistant`.
-This functionality **IS** included within `@steggy/automation-logic`, which features MQTT as a hard dependency.
+A MQTT integration is outside the scope of `@digital-alchemy/home-assistant`.
+This functionality **IS** included within `@digital-alchemy/automation-logic`, which features MQTT as a hard dependency.
 
 ### MQTT entity autodiscovery
 

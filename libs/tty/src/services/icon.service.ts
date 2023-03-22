@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import chalk from "chalk";
 
 import { USE_FONTAWESOME_ICONS } from "../config";

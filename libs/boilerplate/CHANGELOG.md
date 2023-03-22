@@ -49,4 +49,4 @@
 ## 0.10.28
 
 - Boilerplate: `@QuickScript` can now take in bootstrap options to pass through.
-  - Enables `NestJS` & `@steggy/server` modules for microservice creation
+  - Enables `NestJS` & `@digital-alchemy/server` modules for microservice creation

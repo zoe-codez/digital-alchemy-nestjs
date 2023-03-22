@@ -1,4 +1,4 @@
-import { INVERT_VALUE, is, SINGLE, START } from "@steggy/utilities";
+import { INVERT_VALUE, is, SINGLE, START } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";

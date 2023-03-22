@@ -1,5 +1,5 @@
 import { DynamicModule, Provider } from "@nestjs/common";
-import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
+import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
 
 import {
   APPLICATION_IDENTIFIER,

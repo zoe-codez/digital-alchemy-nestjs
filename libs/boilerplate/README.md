@@ -1,4 +1,4 @@
-# @steggy/boilerplate
+# @digital-alchemy/boilerplate
 
 ## Description
 
@@ -10,7 +10,7 @@ Boilerplate provides a batteries included bootstrapping workflow for NestJS appl
 | Link | Description |
 | --- | --- |
 | [Logger](./docs/logger.md) | API documentation for `AutoLogService` |
-| [Usage example](https://github.com/mp3three/quickscript) | Small terminal app in an external repo utilizing this boilerplate |
+| [Usage example](https://github.com/zoe-codez/quickscript) | Small terminal app in an external repo utilizing this boilerplate |
 | [Lifecycle events](./docs/lifecycle.md) | Startup lifecycle event flow for boilerplate & nestjs |
 
 ## Bootstrap
@@ -25,7 +25,7 @@ A few files, all business logic and no specialized build needs.
 More complex applications should utilize the manual bootstrapping flow in order to get more customization.
 
 ```typescript
-import { QuickScript } from "@steggy/boilerplate";
+import { QuickScript } from "@digital-alchemy/boilerplate";
 
 @QuickScript()
 class ExampleScript {
@@ -41,7 +41,7 @@ The manual bootstrapping process requires the manual definition of a root applic
 `@ApplicationModule` should be used to annotate the root module.
 
 ```typescript
-import { ApplicationModule } from "@steggy/boilerplate";
+import { ApplicationModule } from "@digital-alchemy/boilerplate";
 
 @ApplicationModule({
   application: "my-application",
@@ -74,7 +74,7 @@ Larger applications, and libraries should place metadata definitions at the modu
 ### Inline definition
 
 ```typescript
-import { QuickScript } from "@steggy/boilerplate";
+import { QuickScript } from "@digital-alchemy/boilerplate";
 
 @QuickScript()
 class ExampleScript {
@@ -91,7 +91,7 @@ class ExampleScript {
 ### Module level definition
 
 ```typescript
-import { QuickScript } from "@steggy/boilerplate";
+import { QuickScript } from "@digital-alchemy/boilerplate";
 
 @QuickScript({
   configuration: {

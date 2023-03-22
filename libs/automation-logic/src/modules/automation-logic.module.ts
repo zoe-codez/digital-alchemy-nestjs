@@ -1,10 +1,11 @@
+import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
+import { PICK_ENTITY } from "@digital-alchemy/home-assistant";
+import { MQTTModule } from "@digital-alchemy/mqtt";
 import { DynamicModule } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
-import { LibraryModule, RegisterCache } from "@steggy/boilerplate";
-import { PICK_ENTITY } from "@steggy/home-assistant";
-import { MQTTModule } from "@steggy/mqtt";
 
 import {
+  AGGRESSIVE_SCENES,
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
@@ -18,8 +19,10 @@ import {
 } from "../config";
 import { ROOM_CONFIG_MAP } from "../decorators";
 import {
+  AggressiveScenesService,
   CircadianService,
   GradualDimService,
+  LightMangerService,
   MQTTHealth,
   ScannerService,
   SceneControllerService,
@@ -36,6 +39,12 @@ import {
 
 @LibraryModule({
   configuration: {
+    [AGGRESSIVE_SCENES]: {
+      default: true,
+      description:
+        "Verify continue to match their desired state as defined by the room's current scene",
+      type: "boolean",
+    },
     [CIRCADIAN_ENABLED]: {
       default: true,
       description:
@@ -77,7 +86,7 @@ import {
       type: "number",
     },
     [MQTT_TOPIC_PREFIX]: {
-      default: "steggy",
+      default: "digital-alchemy",
       description: "Prefix to use in front of mqtt message topics",
       type: "string",
     },
@@ -100,14 +109,16 @@ export class AutomationLogicModule {
       imports: [DiscoveryModule, RegisterCache(), MQTTModule],
       module: AutomationLogicModule,
       providers: [
+        AggressiveScenesService,
         CircadianService,
         GradualDimService,
+        LightMangerService,
         MQTTHealth,
+        ScannerService,
         SceneControllerService,
         SceneRoomService,
         SequenceActivateService,
         SolarCalcService,
-        ScannerService,
         StateEnforcerService,
         TransitionRunnerService,
         {

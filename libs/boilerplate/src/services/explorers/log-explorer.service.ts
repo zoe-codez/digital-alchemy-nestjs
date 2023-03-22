@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DiscoveryService } from "@nestjs/core";
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 
 import { LOG_LEVEL } from "../../config";
 import { mappedContexts } from "../../decorators";

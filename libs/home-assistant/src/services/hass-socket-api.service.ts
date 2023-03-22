@@ -8,8 +8,8 @@ import {
   AutoLogService,
   InjectConfig,
   InjectLogger,
-} from "@steggy/boilerplate";
-import { SECOND, sleep, START } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { SECOND, sleep, START } from "@digital-alchemy/utilities";
 import EventEmitter from "eventemitter3";
 import { exit } from "process";
 import WS from "ws";

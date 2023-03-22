@@ -5,7 +5,7 @@ import {
   InjectConfig,
   ModuleScannerService,
   ScannerBinding,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import {
   GET_ATTRIBUTE_TEMPLATE,
   iCallService,
@@ -17,9 +17,9 @@ import {
   PushEntityConfigService,
   PushEntityService,
   PushProxyService,
-} from "@steggy/home-assistant";
-import { MqttService } from "@steggy/mqtt";
-import { each, is, TitleCase } from "@steggy/utilities";
+} from "@digital-alchemy/home-assistant";
+import { MqttService } from "@digital-alchemy/mqtt";
+import { each, is, TitleCase } from "@digital-alchemy/utilities";
 import { mkdirSync, writeFileSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";

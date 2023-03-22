@@ -2,12 +2,12 @@
   "bin": {
     "hass-cli": "main.js"
   },
-  "name": "@steggy/hass-cli",
+  "name": "@digital-alchemy/hass-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Hass CLI",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
   }

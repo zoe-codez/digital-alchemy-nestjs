@@ -6,7 +6,7 @@ import {
   FIRST,
   is,
   ResultControlDTO,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import Bottleneck from "bottleneck";
 import { createWriteStream } from "fs";
 import fetch from "node-fetch";

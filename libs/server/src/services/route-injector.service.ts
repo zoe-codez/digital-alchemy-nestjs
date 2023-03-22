@@ -1,5 +1,5 @@
 import { Injectable, RequestMapping, RequestMethod } from "@nestjs/common";
-import { HTTP_METHODS } from "@steggy/utilities";
+import { HTTP_METHODS } from "@digital-alchemy/utilities";
 
 // Conflict between compiler and linter
 /* eslint-disable @typescript-eslint/ban-types */

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConfig } from "@steggy/boilerplate";
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   HALF,
@@ -7,7 +7,7 @@ import {
   SINGLE,
   START,
   TitleCase,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { get } from "object-path";
 

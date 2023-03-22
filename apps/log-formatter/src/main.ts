@@ -3,8 +3,8 @@ import {
   METHOD_COLORS,
   prettyFormatMessage,
   QuickScript,
-} from "@steggy/boilerplate";
-import { is, START } from "@steggy/utilities";
+} from "@digital-alchemy/boilerplate";
+import { is, START } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import dayjs from "dayjs";
 import { Level } from "pino";

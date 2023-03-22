@@ -7,20 +7,20 @@ import {
   SceneRoomService,
   SolarCalcService,
   SolarEvent,
-} from "@steggy/automation-logic";
+} from "@digital-alchemy/automation-logic";
 import {
   AutoLogService,
   Cron,
   CronExpression,
   OnEvent,
-} from "@steggy/boilerplate";
+} from "@digital-alchemy/boilerplate";
 import {
   ENTITY_STATE,
   iCallService,
   InjectCallProxy,
   InjectEntityProxy,
   TemplateButton,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import dayjs from "dayjs";
 
 import { Loft } from "./loft.room";

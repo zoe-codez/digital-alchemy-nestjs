@@ -1,15 +1,15 @@
 {
   "author": {
-    "name": "mp3three",
-    "url": "https://github.com/mp3three/steggy"
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@steggy/utilities",
+  "name": "@digital-alchemy/utilities",
   "displayName": "Utilities",
   "license": "MIT",
   "version": "23.9.18",
-  "homepage": "https://github.com/mp3three/steggy",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mp3three/steggy.git"
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
   }
 }

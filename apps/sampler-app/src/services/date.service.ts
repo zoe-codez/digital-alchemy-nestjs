@@ -7,7 +7,7 @@ import {
   TextRenderingService,
   TTYDateTypes,
   TTYFuzzyTypes,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 import chalk from "chalk";
 
 @Injectable()

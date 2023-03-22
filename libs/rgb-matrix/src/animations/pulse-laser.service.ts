@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, InjectConfig } from "@steggy/boilerplate";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -14,7 +14,7 @@ import {
   START,
   TWO_THIRDS,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 
 import { PANEL_COLUMNS, PANEL_WIDTH } from "../config";
 import {
@@ -95,7 +95,13 @@ export class PulseLaserService {
     // Step 4: pulse brightness
   }
 
-  private async step1({ callback, color, x, size, yStart }: Step1): Promise<void> {
+  private async step1({
+    callback,
+    color,
+    x,
+    size,
+    yStart,
+  }: Step1): Promise<void> {
     const line: LineWidgetDTO = {
       color,
       endX: x,
@@ -160,7 +166,13 @@ export class PulseLaserService {
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
-  private async step3({ callback, y, beam, row, brightness }: ExecOptions): Promise<void> {
+  private async step3({
+    callback,
+    y,
+    beam,
+    row,
+    brightness,
+  }: ExecOptions): Promise<void> {
     const x = row * this.totalWidth;
     const endX = x + this.totalWidth - ARRAY_OFFSET;
     const background = beam.map((color, index) => {
@@ -178,7 +190,8 @@ export class PulseLaserService {
     background[START].endX = endX;
     background[START].color = beam[START];
     background[beam.length - ARRAY_OFFSET].endX = endX;
-    background[beam.length - ARRAY_OFFSET].color = beam[beam.length - ARRAY_OFFSET];
+    background[beam.length - ARRAY_OFFSET].color =
+      beam[beam.length - ARRAY_OFFSET];
     let delay = INITIAL_FILLIN;
     await eachSeries(
       background
@@ -209,7 +222,9 @@ export class PulseLaserService {
         endX: i.x,
       };
     });
-    const merged = [...background, ...foreground] as Array<LineWidgetDTO | RectangleWidgetDTO>;
+    const merged = [...background, ...foreground] as Array<
+      LineWidgetDTO | RectangleWidgetDTO
+    >;
     callback(merged);
     const movingStart = Math.floor(this.totalWidth * TWO_THIRDS);
     const max = x + this.totalWidth;

@@ -1,4 +1,4 @@
-import { SequenceWatcher } from "@steggy/automation-logic";
+import { SequenceWatcher } from "@digital-alchemy/automation-logic";
 
 type PicoEvent = {
   action: "press" | "release";

@@ -1,9 +1,13 @@
-import { AutoLogService, InjectConfig, QuickScript } from "@steggy/boilerplate";
+import {
+  AutoLogService,
+  InjectConfig,
+  QuickScript,
+} from "@digital-alchemy/boilerplate";
 import {
   GenericEntityDTO,
   HassCallTypeGenerator,
+  HassDigitalAlchemySerializeState,
   HassFetchAPIService,
-  HassSteggySerializeState,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   HomeAssistantModule,
   HomeAssistantModuleConfiguration,
@@ -11,7 +15,7 @@ import {
   PushCallService,
   SERIALIZE,
   VERIFICATION_FILE,
-} from "@steggy/home-assistant";
+} from "@digital-alchemy/home-assistant";
 import JSON from "comment-json";
 import {
   existsSync,
@@ -127,7 +131,7 @@ export class TypeGenerate {
       }
       const data = SERIALIZE.unserialize(
         readFileSync(join(base, this.verificationFile), "utf8"),
-        HassSteggySerializeState,
+        HassDigitalAlchemySerializeState,
       );
       if (!data) {
         this.logger.error(`Failed data casting`);

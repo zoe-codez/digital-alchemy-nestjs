@@ -12,7 +12,7 @@ import {
   sleep,
   START,
   UP,
-} from "@steggy/utilities";
+} from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
 import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../contracts";

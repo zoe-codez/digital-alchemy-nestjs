@@ -1,5 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { AutoLogService, ModuleScannerService } from "@steggy/boilerplate";
+import {
+  AutoLogService,
+  ModuleScannerService,
+} from "@digital-alchemy/boilerplate";
 import EventEmitter from "eventemitter3";
 import { Client } from "mqtt";
 

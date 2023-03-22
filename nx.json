@@ -2,7 +2,7 @@
   "affected": {
     "defaultBase": "origin/master"
   },
-  "npmScope": "steggy",
+  "npmScope": "digital-alchemy",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",

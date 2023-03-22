@@ -1,13 +1,13 @@
-# @steggy/server
+# @digital-alchemy/server
 
 ## Description
 
-This library enables webserver functionality for apps based off of `@steggy`, binding configuration variables to Nest and automatically setting up common middleware.
+This library enables webserver functionality for apps based off of `@digital-alchemy`, binding configuration variables to Nest and automatically setting up common middleware.
 
 ### Dev note
 
 The general goals of this library will stick around in the future, but some parts of the code are tuned to my specific uses.
-Since web isn't a primary focus for `@steggy` right now, cleaning everything up hasn't been a high priority.
+Since web isn't a primary focus for `@digital-alchemy` right now, cleaning everything up hasn't been a high priority.
 These elements are opt-in (like the Nest auth guards), so they should not have an effect unless explicitly used.
 If you have opinions on what you'd like to see from this library, open an issue
 

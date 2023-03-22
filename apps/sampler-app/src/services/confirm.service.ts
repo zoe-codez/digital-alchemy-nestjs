@@ -4,7 +4,7 @@ import {
   PromptService,
   ScreenService,
   TextRenderingService,
-} from "@steggy/tty";
+} from "@digital-alchemy/tty";
 
 @Injectable()
 export class ConfirmService {

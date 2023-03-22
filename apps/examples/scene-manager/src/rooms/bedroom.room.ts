@@ -1,5 +1,5 @@
-import { SceneRoom, SceneRoomService } from "@steggy/automation-logic";
-import { AutoLogService } from "@steggy/boilerplate";
+import { SceneRoom, SceneRoomService } from "@digital-alchemy/automation-logic";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 
 import { LutronPicoSequenceMatcher, PicoIds } from "../includes";
 

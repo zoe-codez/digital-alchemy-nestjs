@@ -1,6 +1,6 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { INQUIRER } from "@nestjs/core";
-import { is } from "@steggy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import { AsyncLocalStorage } from "async_hooks";
 import pino from "pino";
 
