@@ -9,7 +9,7 @@ import {
 } from "@digital-alchemy/utilities";
 import Bottleneck from "bottleneck";
 import { createWriteStream } from "fs";
-import fetch from "node-fetch";
+import fetch, { RequestInit, Response, BodyInit } from "node-fetch";
 
 import { TransientLogger } from "../decorators/inject-logger.decorator";
 import { AutoLogService } from "./auto-log.service";
