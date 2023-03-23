@@ -1,4 +1,4 @@
-/* eslint-disable radar/no-identical-functions*/
+/* eslint-disable sonarjs/no-identical-functions*/
 import {
   deepExtend,
   is,
@@ -399,11 +399,8 @@ export class AutoConfigService {
             defaultValue = is.object(defaultValue)
               ? { ...defaultValue }
               : defaultValue;
-          set(
-            this.config,
-            `${isApplication ? "application" : `libs.${project}`}.${key}`,
-            defaultValue,
-          );
+          const prefix = isApplication ? "application" : `libs.${project}`;
+          set(this.config, `${prefix}.${key}`, defaultValue);
         }
       });
     });

@@ -18,9 +18,10 @@ export class ConnectionBuilderService {
 
   public getUrl() {
     const url = new URL(this.baseUrl);
+    const protocol = url.protocol === `http:` ? `ws:` : `wss:`;
     return (
       this.websocketUrl ||
-      `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
+      `${protocol}//${url.hostname}${
         url.port ? `:${url.port}` : ``
       }/api/websocket`
     );

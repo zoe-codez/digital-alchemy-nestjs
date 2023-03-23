@@ -12,7 +12,7 @@
     "import",
     "jsonc",
     "no-unsanitized",
-    "radar",
+    "sonarjs",
     "security",
     "simple-import-sort",
     "sort-keys-fix",
@@ -30,7 +30,7 @@
         "plugin:@nrwl/nx/typescript",
         "plugin:@typescript-eslint/recommended",
         "plugin:jsonc/recommended-with-jsonc",
-        "plugin:radar/recommended",
+        "plugin:sonarjs/recommended",
         "plugin:security/recommended",
         "plugin:unicorn/recommended",
         "plugin:prettier/recommended"
@@ -74,6 +74,7 @@
               "calc",
               "cancelled",
               "cbc",
+              "mireds",
               "changelog",
               "changeme",
               "charset",
@@ -249,6 +250,7 @@
               "typings",
               "un",
               "undelete",
+              "sonarjs",
               "unlisten",
               "unmount",
               "unmute",
@@ -268,6 +270,9 @@
               "webhook",
               "webhooks",
               "webpack",
+              "sem",
+              "ver",
+              "versioned",
               "wildcard",
               "workspace",
               "ws",
@@ -290,6 +295,7 @@
         "require-await": "off",
         "unicorn/no-null": "off",
         "unicorn/no-empty-file": "off",
+        "sonarjs/prefer-single-boolean-return": "off",
         "unicorn/no-array-callback-reference": "off",
         "unicorn/no-await-expression-member": "off",
         "unicorn/no-useless-undefined": "off",
@@ -362,7 +368,7 @@
             }
           }
         ],
-        "radar/prefer-immediate-return": "off",
+        "sonarjs/prefer-immediate-return": "off",
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
           {
@@ -482,7 +488,7 @@
       "rules": {
         "@typescript-eslint/unbound-method": "off",
         "@typescript-eslint/no-magic-numbers": "off",
-        "radar/no-duplicate-string": "off"
+        "sonarjs/no-duplicate-string": "off"
       }
     },
     {
@@ -491,7 +497,7 @@
       ],
       "rules": {
         // 🤕
-        "radar/no-duplicate-string": "off",
+        "sonarjs/no-duplicate-string": "off",
         // route order matters, not method name
         "@typescript-eslint/member-ordering": "off"
       }
@@ -502,7 +508,7 @@
       ],
       "rules": {
         // Incorrectly firing for exported maps and stuff
-        "radar/no-unused-collection": "off",
+        "sonarjs/no-unused-collection": "off",
         "@typescript-eslint/ban-types": "off"
       }
     },
@@ -519,7 +525,7 @@
         "*module.ts"
       ],
       "rules": {
-        "radar/no-duplicate-string": "off",
+        "sonarjs/no-duplicate-string": "off",
         "unicorn/no-useless-spread": "off"
       }
     }

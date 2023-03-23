@@ -7,9 +7,9 @@ export function MergeHelp(
 ) {
   if (!is.empty(helpText)) {
     message += chalk`\n \n {blue.dim ?} ${helpText
-      .split(`\n`)
+      .split("\n")
       .map(line => line.replace(new RegExp("^ -"), chalk.cyan("   -")))
-      .join(`\n`)}`;
+      .join("\n")}`;
   }
   return message;
 }

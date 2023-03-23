@@ -97,7 +97,7 @@ export class TextRenderingService {
    *
    * Takes into account helpText and category in addition to label
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public fuzzyMenuSort<T extends unknown = string>(
     searchText: string,
     data: MainMenuEntry<T>[],
@@ -247,7 +247,7 @@ export class TextRenderingService {
    *
    * Recursively handles objects and arrays.
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public type(item: unknown, nested = START): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);

@@ -186,7 +186,7 @@ export class HassCallTypeGenerator {
     return undefined;
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private fieldPropertySignature(
     parameterName: string,
     { selector, ...details }: ServiceListFieldDescription,

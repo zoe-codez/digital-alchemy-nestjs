@@ -40,7 +40,7 @@ export class GradualDimService {
 
   private ENTITY_LOCK = new Map<PICK_ENTITY<"light">, string>();
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async run({
     target,
     end,

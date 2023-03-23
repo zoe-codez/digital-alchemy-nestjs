@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
+/* eslint-disable @typescript-eslint/no-magic-numbers, sonarjs/no-duplicate-string */
 // import is required for proper dependency generation in package.json for builds
 import "pino-pretty";
 
@@ -150,7 +150,7 @@ const prettyErrorMessage = (message: string): string => {
       chalk.magenta`@Injectable()`,
       `${chalk.yellow("export class")} ${PROVIDER} ${left}`,
       chalk.gray`  ...`,
-      `  ${chalk.yellow("constructor")} ${chalk.blueBright(`(`)}`,
+      `  ${chalk.yellow("constructor")} ${chalk.blueBright("(")}`,
       ...coloredArguments.map(line => `    ${line},`),
       chalk.blueBright(` ) {}`),
       chalk.gray` ...`,
@@ -166,11 +166,11 @@ const prettyErrorMessage = (message: string): string => {
       chalk.blueBright(`})`),
       chalk.whiteBright` - Circular references`,
       chalk.gray` ...`,
-      `  ${chalk.yellow("constructor")} ${chalk.blueBright(`(`)}`,
+      `  ${chalk.yellow("constructor")} ${chalk.blueBright("(")}`,
       ...coloredArguments
         .map(item => {
           if (item === coloredName) {
-            return `${chalk.magenta(`@Inject`)}${chalk.blueBright(
+            return `${chalk.magenta("@Inject")}${chalk.blueBright(
               "(",
             )}${chalk.yellow("forwardRef")}${chalk.blueBright(
               "(()",
@@ -199,7 +199,7 @@ const prettyErrorMessage = (message: string): string => {
       chalk.gray`// Oops import 🤔`,
       `${chalk.yellow(
         `import type`,
-      )} ${left} ${coloredName} ${right} ${chalk.yellow(`from`)} ....`,
+      )} ${left} ${coloredName} ${right} ${chalk.yellow("from")} ....`,
       ``,
       ``,
       chalk.white.bold`Stack Trace`,
@@ -291,9 +291,8 @@ export const PrettyNestLogger: Record<
     PrettyNestLogger.debug(message, context);
   },
   warn: (message, context) => {
-    logger.warn(
-      `${highlightContext(`${NEST}:${context}`, "bgYellow.dim")} ${message}`,
-    );
+    const logContext = highlightContext(`${NEST}:${context}`, "bgYellow.dim");
+    logger.warn(`${logContext} ${message}`);
   },
 };
 

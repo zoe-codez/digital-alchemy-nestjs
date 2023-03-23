@@ -412,7 +412,7 @@ export class ObjectBuilderComponentService<
           position = "below-bar",
           immediateClear = false,
           // FIXME:
-          // eslint-disable-next-line radar/no-identical-functions
+          // eslint-disable-next-line sonarjs/no-identical-functions
         }) => {
           if (this.displayMessageTimeout) {
             this.displayMessageTimeout.kill("stop");

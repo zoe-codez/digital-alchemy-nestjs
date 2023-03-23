@@ -146,19 +146,21 @@ export class TerminalHelpService {
   }
 
   private stringSwitch(property: string, config: StringConfig): void {
-    const prefix = chalk`  {${
-      config.required ? "red.bold" : "white"
-    } --${property}} {gray [{bold string}}${
-      is.empty(config.default as string)
-        ? ""
-        : chalk`, {gray default}: {bold.blue ${config.default}}`
-    }${
-      is.empty(config.enum)
-        ? ""
-        : chalk`{gray , enum}: ${config.enum
-            .map(item => chalk.blue(item))
-            .join(chalk`{yellow.dim  | }`)}`
-    }{gray ]} `;
+    let enums = "";
+    if (is.empty(config.enum)) {
+      const enumList = config.enum
+        .map(item => chalk.blue(item))
+        .join(chalk("{yellow.dim  | }"));
+      enums = chalk`{gray , enum}: ${enumList}`;
+    }
+
+    const defaultValue = is.empty(config.default)
+      ? ""
+      : chalk`, {gray default}: {bold.blue ${config.default}}`;
+
+    const color = config.required ? "red.bold" : "white";
+
+    const prefix = chalk`  {${color} --${property}} {gray [{bold string}}${defaultValue}${enums}{gray ]} `;
     this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 }

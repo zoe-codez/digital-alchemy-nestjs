@@ -12,7 +12,7 @@ import {
 import { MqttSubscribeOptions } from "../contracts";
 import { InjectMQTT } from "../decorators";
 
-/* eslint-disable radar/no-identical-functions */
+/* eslint-disable sonarjs/no-identical-functions */
 
 export type MqttCallback<T = unknown> = (
   payload: T | T[],

@@ -1,4 +1,4 @@
-/* eslint-disable radar/no-duplicate-string */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { QuickScript } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,

@@ -766,7 +766,7 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Rendering for while not in find mode
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSelect(extraContent?: string) {
     let message = "";
 
@@ -858,7 +858,7 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Render a menu from a side
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSide(
     side: "left" | "right" = this.selectedType,
     header = this.opt.showHeaders,
@@ -1057,7 +1057,7 @@ export class MenuComponentService<VALUE = unknown | string>
     this.keyboard.setKeyMap(this, keymap);
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private async setValue(value: VALUE, restore: MenuRestore): Promise<void> {
     this.value = undefined;
 
@@ -1125,7 +1125,7 @@ export class MenuComponentService<VALUE = unknown | string>
    *  - Type sorting: priority set by highest level item inside type, then alphabetical
    *  - Items sorted within types, priority first, then ansi stripped label
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private side(
     side: "left" | "right" = this.selectedType,
     noRecurse = false,

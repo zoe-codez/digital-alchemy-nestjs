@@ -82,6 +82,7 @@ export class CircadianService<
       this.minTemperature,
       entity.attributes.min_temp_kelvin ?? NONE,
     );
+    min;
     return false;
   }
 

@@ -95,7 +95,8 @@ export class StateEnforcerService {
       return;
     }
     // * Notify and execute!
-    this.logger.debug(`${entity_id.map(i => `[${i}]`).join(", ")} {${action}}`);
+    const entities = entity_id.map(i => `[${i}]`).join(", ");
+    this.logger.debug(`${entities} {${action}}`);
     await this.call.switch[action]({ entity_id });
   }
 }

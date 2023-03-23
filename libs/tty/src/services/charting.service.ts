@@ -61,7 +61,7 @@ export class ChartingService {
    */
   // Too many variables to cleanly refactor smaller
   // You should see the original function though...
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async plot(
     series: number[][],
     {

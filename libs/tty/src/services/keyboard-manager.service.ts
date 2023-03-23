@@ -80,7 +80,7 @@ export class KeyboardManagerService {
     });
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private async keyPressHandler(descriptor: KeyDescriptor): Promise<void> {
     if (is.empty(this.activeKeymaps)) {
       return;

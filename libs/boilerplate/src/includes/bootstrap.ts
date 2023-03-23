@@ -2,7 +2,7 @@
  * Something about bootstrapping completely breaks things with a normal reference.
  * Imports from @digital-alchemy/boilerplate are on purpose here
  * */
-/* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
+/* eslint-disable @nrwl/nx/enforce-module-boundaries, sonarjs/no-identical-functions */
 import {
   AbstractConfig,
   AutoLogService,

@@ -511,7 +511,7 @@ export class DateEditorService
     return false;
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderChronoBox(): void {
     const placeholder =
       this.type === "range" ? DEFAULT_RANGE_PLACEHOLDER : DEFAULT_PLACEHOLDER;
@@ -602,7 +602,7 @@ export class DateEditorService
    * TODO: refactor these render sections methods into something more sane
    * This is super ugly
    */
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderRangeSections(): void {
     let message = chalk`  {green ? } ${
       this.opt.label ?? chalk.bold`Enter date range`
@@ -710,7 +710,7 @@ export class DateEditorService
     );
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSections(): void {
     let message = chalk`  {green ? } ${
       this.opt.label ?? (this.type === "time" ? "Enter time" : "Enter date")

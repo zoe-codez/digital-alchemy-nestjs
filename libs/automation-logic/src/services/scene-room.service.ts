@@ -1,4 +1,4 @@
-/* eslint-disable radar/cognitive-complexity */
+/* eslint-disable sonarjs/cognitive-complexity */
 import {
   AnnotationPassThrough,
   AutoLogService,
@@ -537,6 +537,9 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     from: ROOM_SCENES<NAME>,
     to: ROOM_SCENES<NAME>,
   ): Promise<ROOM_SCENES<NAME>> {
+    from;
+    to;
+
     return await undefined;
     // let transition = this.getTransition(from, to);
     // if (is.undefined(transition)) {

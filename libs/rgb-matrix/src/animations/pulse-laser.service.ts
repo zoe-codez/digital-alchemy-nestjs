@@ -165,7 +165,7 @@ export class PulseLaserService {
     }
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private async step3({
     callback,
     y,

@@ -99,7 +99,7 @@ export class ArrayBuilderService<VALUE extends object>
     options.valuesLabel ??= "Values";
   }
 
-  // eslint-disable-next-line radar/cognitive-complexity
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async render(): Promise<void> {
     // Complete = this widget must have `configure()` called prior to doing more rendering
     if (this.complete) {
