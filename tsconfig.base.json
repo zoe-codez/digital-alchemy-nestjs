@@ -14,7 +14,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": false,
-    "noStrictGenericChecks": true,
     "rootDir": ".",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
@@ -24,7 +23,7 @@
     "strictFunctionTypes": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "target": "ES2023",
+    "target": "ES2022",
     "paths": {
       "@digital-alchemy/automation-logic": [
         "libs/automation-logic/src/index.ts"

@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is, TitleCase } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import { dump } from "js-yaml";
 import {
   addSyntheticLeadingComment,
@@ -51,7 +51,6 @@ export class HassCallTypeGenerator {
       EmitHint.Unspecified,
       // Wrap all this into a top level `interface iCallService`
       factory.createTypeAliasDeclaration(
-        undefined,
         [factory.createModifier(SyntaxKind.ExportKeyword)],
         factory.createIdentifier("iCallService"),
         undefined,
@@ -77,7 +76,6 @@ export class HassCallTypeGenerator {
                         // f( service_data: { ...definition } )
                         //    Provide this        ^^^^^^
                         factory.createParameterDeclaration(
-                          undefined,
                           undefined,
                           undefined,
                           factory.createIdentifier("service_data"),

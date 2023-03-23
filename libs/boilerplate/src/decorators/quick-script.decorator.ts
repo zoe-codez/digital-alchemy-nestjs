@@ -93,7 +93,7 @@ export function QuickScript({
       return Controller(controller)(target);
     }
     return Injectable()(target);
-  };
+  } as ClassDecorator;
 }
 const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
   ApplicationModule(metadata)(class {}) as ClassConstructor<unknown>;

@@ -12,7 +12,7 @@ export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
 
 export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
   const library = metadata.library;
-  return (target: ClassConstructor<unknown>) => {
+  return ((target: ClassConstructor<unknown>) => {
     target[LOGGER_LIBRARY] = library;
     target[MODULE_METADATA] = metadata;
     metadata.providers ??= [];
@@ -26,5 +26,5 @@ export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
     Object.entries(metadata).forEach(([property, value]) =>
       Reflect.defineMetadata(property, value, target),
     );
-  };
+  }) as ClassDecorator;
 }

@@ -81,12 +81,12 @@ export function ApplicationModule(
     RegisterCache(),
     ...metadata.imports.map((item: DynamicModule) => FixForRoot(item)),
   ];
-  return (target: ClassConstructor<unknown>) => {
+  return ((target: ClassConstructor<unknown>) => {
     target[MODULE_METADATA] = metadata;
     target[LOGGER_LIBRARY] = metadata.application;
     Object.entries(metadata).forEach(([property, value]) =>
       Reflect.defineMetadata(property, value, target),
     );
     return target as ClassConstructor<unknown>;
-  };
+  }) as ClassDecorator;
 }

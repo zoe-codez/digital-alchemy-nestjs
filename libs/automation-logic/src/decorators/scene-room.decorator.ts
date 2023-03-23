@@ -56,7 +56,7 @@ export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
       return Controller(options.controller)(target);
     }
     return Injectable()(target);
-  };
+  } as ClassDecorator;
 }
 /**
  * name => provider
