@@ -65,7 +65,7 @@ export class PushBinarySensorService {
       state: GET_STATE_TEMPLATE,
     } as BinarySensorTemplate;
     const [, id] = entity_split(entity_id);
-    sensor.unique_id = "steggy_binary_sensor_" + id;
+    sensor.unique_id = "digital_alchemy_binary_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
     sensor.attributes.managed_by = this.application;
     return {

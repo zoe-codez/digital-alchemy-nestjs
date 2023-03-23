@@ -102,7 +102,7 @@ export class PushSwitchService {
       friendly_name: config.name,
       icon_template: config.icon,
     } as SwitchTemplateYaml;
-    sensor.unique_id = "steggy_switch_" + is.hash(entity_id);
+    sensor.unique_id = "digital_alchemy_switch_" + is.hash(entity_id);
     sensor.availability_template = availability;
     this.attributes.set(entity_id, {
       // availability_template: availability,

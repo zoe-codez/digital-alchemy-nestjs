@@ -140,7 +140,7 @@ import {
       type: "string",
     },
     [VERIFICATION_FILE]: {
-      default: "steggy_configuration",
+      default: "digital_alchemy_configuration",
       description:
         "Target file for storing app configurations within the package folder.",
       type: "string",

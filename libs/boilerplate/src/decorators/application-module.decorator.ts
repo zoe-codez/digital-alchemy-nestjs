@@ -17,7 +17,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   configuration?: Record<string, AnyConfig>;
   globals?: Provider[];
 }
-export const NO_APPLICATION = "steggy_no_app";
+export const NO_APPLICATION = "digital_alchemy_no_app";
 
 /**
  * Some modules will provide their dependencies via a `.forRoot()` command, instead of through the annotation directly

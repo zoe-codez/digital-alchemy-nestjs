@@ -67,7 +67,7 @@ export class PushSensorService {
       unit_of_measurement: config.unit_of_measurement,
     } as SensorTemplate;
     const [, id] = entity_split(entity_id);
-    sensor.unique_id = "steggy_sensor_" + id;
+    sensor.unique_id = "digital_alchemy_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
 
     sensor.attributes.managed_by = this.application;

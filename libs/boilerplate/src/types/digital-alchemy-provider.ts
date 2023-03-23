@@ -8,7 +8,7 @@ type NO_RESULT = void | Promise<void> | unknown | Promise<unknown>;
 /**
  * Helper interface for method discovery
  */
-export interface iSteggyProvider {
+export interface iDigitalAlchemyProvider {
   /**
    * ### NestJS lifecycle event
    *
@@ -39,7 +39,7 @@ export interface iSteggyProvider {
    */
   onModuleInit?: () => NO_RESULT;
   /**
-   * ### Steggy lifecycle event
+   * ### Lifecycle event
    *
    * Called after NestJS has finished it's initialization sequence.
    * In most cases, the NestJS lifecycle events (`onModuleInit` / `onApplicationBootstrap`) are more appropriate.
@@ -50,7 +50,7 @@ export interface iSteggyProvider {
     options?: BootstrapOptions,
   ) => NO_RESULT;
   /**
-   * ### Steggy lifecycle event
+   * ### Lifecycle event
    *
    * Called after all providers are created, but before NestJS starts it's initialization.
    * In most cases, the NestJS lifecycle events (`onModuleInit` / `onApplicationBootstrap`) are more appropriate.
@@ -63,7 +63,7 @@ export interface iSteggyProvider {
     options?: BootstrapOptions,
   ) => NO_RESULT;
   /**
-   * ### Steggy lifecycle event
+   * ### Lifecycle event
    *
    * Intended for situations where application flow needs to be changed, and an early exit is performed.
    * Called prior to `onPreInit`, as to not cause race conditions.

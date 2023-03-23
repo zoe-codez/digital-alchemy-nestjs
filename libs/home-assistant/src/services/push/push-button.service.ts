@@ -93,7 +93,7 @@ export class PushButtonService {
       ],
     } as ButtonTemplate;
     const [, id] = entity_split(entity_id);
-    button.unique_id = "steggy_button_" + id;
+    button.unique_id = "digital_alchemy_button_" + id;
     return {
       button: [button],
     };

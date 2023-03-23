@@ -12,7 +12,7 @@
 [libs.home-assistant]
 ; Added mapping to nginx (entity-creation.local => {ip}:{port above})
   TALK_BACK_BASE_URL=http://192.168.1.223:7004
-  HOME_ASSISTANT_PACKAGE_FOLDER=/steggy_home_assistant/packages
+  HOME_ASSISTANT_PACKAGE_FOLDER=/digital_alchemy_home_assistant/packages
 ; See `examples/docker/homeassistant` for reference install
   BASE_URL=http://192.168.1.223:9123
 ; Token is registered with reference install
@@ -21,7 +21,7 @@
 
 [application]
 ; Added symlink to system root
-  HOME_ASSISTANT_FOLDER=/steggy_home_assistant
+  HOME_ASSISTANT_FOLDER=/digital_alchemy_home_assistant
 
 ; [libs.mqtt.CLIENT_OPTIONS]
 ;   host=mqtt.local

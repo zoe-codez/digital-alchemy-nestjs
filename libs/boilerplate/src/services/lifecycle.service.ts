@@ -3,7 +3,7 @@ import { eachSeries } from "@digital-alchemy/utilities";
 import { Express } from "express";
 
 import { BootstrapOptions } from "../includes";
-import { iSteggyProvider } from "../types";
+import { iDigitalAlchemyProvider } from "../types";
 import { ModuleScannerService } from "./explorers/module-scanner.service";
 
 /**
@@ -17,12 +17,14 @@ export class LifecycleService {
     app: INestApplication,
     { server, options }: { options: BootstrapOptions; server?: Express },
   ): Promise<void> {
-    const instances: Partial<iSteggyProvider>[] = [];
-    this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
-      if (instance.onPostInit) {
-        instances.push(instance);
-      }
-    });
+    const instances: Partial<iDigitalAlchemyProvider>[] = [];
+    this.scanner
+      .applicationProviders<iDigitalAlchemyProvider>()
+      .forEach(instance => {
+        if (instance.onPostInit) {
+          instances.push(instance);
+        }
+      });
     await eachSeries(instances, async instance => {
       await instance.onPostInit(app, server, options);
     });
@@ -32,12 +34,14 @@ export class LifecycleService {
     app: INestApplication,
     { server, options }: { options: BootstrapOptions; server?: Express },
   ): Promise<void> {
-    const instances: Partial<iSteggyProvider>[] = [];
-    this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
-      if (instance.onPreInit || instance.onRewire) {
-        instances.push(instance);
-      }
-    });
+    const instances: Partial<iDigitalAlchemyProvider>[] = [];
+    this.scanner
+      .applicationProviders<iDigitalAlchemyProvider>()
+      .forEach(instance => {
+        if (instance.onPreInit || instance.onRewire) {
+          instances.push(instance);
+        }
+      });
     await eachSeries(instances, async instance => {
       if (instance.onRewire) {
         await instance.onRewire(app, options);
