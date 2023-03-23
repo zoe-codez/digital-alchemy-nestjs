@@ -3,7 +3,6 @@ import JSON from "comment-json";
 import dayjs from "dayjs";
 import execa from "execa";
 import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
 import { inc } from "semver";
 import { PackageJson } from "type-fest";
 
@@ -36,28 +35,17 @@ export class BuildPipelineService {
       "-path",
       "./node_modules",
     ]);
+
     // * Iterate over list, updating the package files in their base dirs
     projectFiles.stdout.split("\n").forEach(project => {
+      const packageFile = project.replace("project.json", "package.json");
       const content = JSON.parse(
-        readFileSync(project.replace("project.json", "package.json"), "utf8"),
-      );
-    });
-
-    const workspace = JSON.parse(
-      readFileSync("workspace.json", "utf8"),
-    ) as unknown as {
-      projects: Record<string, string>;
-    };
-    Object.values(workspace.projects).forEach(base => {
-      const packageJSON = JSON.parse(
-        readFileSync(join(base, root), "utf8"),
-      ) as unknown as {
-        version: string;
-      };
-      packageJSON.version = rootPackage.version;
+        readFileSync(packageFile, "utf8"),
+      ) as PackageJson;
+      content.version = rootPackage.version;
       writeFileSync(
-        join(base, root),
-        JSON.stringify(packageJSON, undefined, "  ") + `\n`,
+        packageFile,
+        JSON.stringify(content, undefined, "  ") + `\n`,
       );
     });
   }
