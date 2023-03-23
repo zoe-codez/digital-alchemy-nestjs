@@ -17,6 +17,15 @@
         "type": "node"
       },
       {
+        "name": "Attach Hass Type Generate",
+        "port": 33346,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
         "name": "Attach examples/Entity Creation",
         "port": 33344,
         "request": "attach",

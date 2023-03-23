@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "hass-type-generate:build",
         "inspect": "inspect",
-        "port": 33344
+        "port": 33346
       }
     },
     "build": {

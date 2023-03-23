@@ -16,6 +16,7 @@ import {
   SERIALIZE,
   VERIFICATION_FILE,
 } from "@digital-alchemy/home-assistant";
+import { sleep } from "@digital-alchemy/utilities";
 import JSON from "comment-json";
 import {
   existsSync,
@@ -103,6 +104,7 @@ export class TypeGenerate {
       this.findExtraTypes();
     } catch (error) {
       this.logger.fatal({ error });
+      await sleep(10);
       exit(IT_BROKE);
     }
   }
