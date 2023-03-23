@@ -34,9 +34,8 @@ export class TalkBackController {
   }
 
   @Get("/load-verification/:id")
-  public onVerifyServiceLoaded(
-    @Param("id") id: string,
-  ): typeof GENERIC_SUCCESS_RESPONSE {
+  public onVerifyServiceLoaded(): // @Param("id") id: string,
+  typeof GENERIC_SUCCESS_RESPONSE {
     return GENERIC_SUCCESS_RESPONSE;
   }
 }

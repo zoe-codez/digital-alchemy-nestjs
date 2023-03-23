@@ -12,7 +12,6 @@ import {
   HassSocketAPIService,
   SocketManagerService,
 } from "../services";
-import { CallProxyService } from "../services/call-proxy.service";
 import { ON_SOCKET_AUTH } from "../types";
 import { MockServerService, Next } from "./services";
 import { SLEEP_SHORT } from "./types";
@@ -24,11 +23,9 @@ describe("Socket Manager", () => {
   let builder: ConnectionBuilderService;
   let connection: WS;
   let entity: EntityManagerService;
-  // let event: EventEmitter;
   let manager: SocketManagerService;
   let mockServer: MockServerService;
   let next: Next;
-  let proxy: CallProxyService;
   let socket: WS;
   let socketApi: HassSocketAPIService;
 
@@ -57,11 +54,9 @@ describe("Socket Manager", () => {
     // local vars
     builder = app.get(ConnectionBuilderService);
     entity = app.get(EntityManagerService);
-    // event = app.get(EventEmitter);
     manager = app.get(SocketManagerService);
     mockServer = app.get(MockServerService);
     next = app.get(Next);
-    proxy = app.get(CallProxyService);
     socketApi = app.get(HassSocketAPIService);
 
     manager.BUILD_PROXY = false;
