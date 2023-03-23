@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
 import { AUTH_BYPASS } from "../config";
 import { APIResponse } from "../contracts";

@@ -1,4 +1,3 @@
-import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
@@ -6,6 +5,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { MqttService } from "@digital-alchemy/mqtt";
 import { SECOND } from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
 

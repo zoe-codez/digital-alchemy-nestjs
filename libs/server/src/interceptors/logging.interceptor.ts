@@ -1,11 +1,11 @@
+import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { is } from "@digital-alchemy/utilities";
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
 } from "@nestjs/common";
-import { AutoLogService } from "@digital-alchemy/boilerplate";
-import { is } from "@digital-alchemy/utilities";
 import { catchError, Observable, tap, throwError } from "rxjs";
 
 import { APIRequest, APIResponse } from "../contracts";

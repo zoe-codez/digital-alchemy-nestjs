@@ -1,6 +1,6 @@
+import { CompleteAnnotation, is } from "@digital-alchemy/utilities";
 import { Inject, Injectable, Type } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
-import { CompleteAnnotation, is } from "@digital-alchemy/utilities";
 import { Class } from "type-fest";
 import { isProxy } from "util/types";
 

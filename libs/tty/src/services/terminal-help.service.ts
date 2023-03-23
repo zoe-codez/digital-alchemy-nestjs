@@ -1,4 +1,3 @@
-import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AnyConfig,
@@ -17,6 +16,7 @@ import {
   TitleCase,
   UP,
 } from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { exit } from "process";
 

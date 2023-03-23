@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   BackupService,
@@ -11,6 +10,7 @@ import {
   TextRenderingService,
 } from "@digital-alchemy/tty";
 import { is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { join } from "path";
 import { nextTick } from "process";

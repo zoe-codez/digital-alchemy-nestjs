@@ -1,4 +1,10 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
+import {
+  ApplicationModule,
+  Bootstrap,
+  NEST_NOOP_LOGGER,
+  QuickScriptOptions,
+} from "@digital-alchemy/boilerplate";
 import { INestApplicationContext, Logger } from "@nestjs/common";
 import {
   ApplicationConfig,
@@ -7,12 +13,6 @@ import {
 } from "@nestjs/core";
 import { DependenciesScanner } from "@nestjs/core/scanner";
 import { TestingInstanceLoader } from "@nestjs/testing/testing-instance-loader";
-import {
-  ApplicationModule,
-  Bootstrap,
-  NEST_NOOP_LOGGER,
-  QuickScriptOptions,
-} from "@digital-alchemy/boilerplate";
 import { ClassConstructor } from "class-transformer";
 
 import {

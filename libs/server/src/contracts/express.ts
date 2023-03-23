@@ -1,6 +1,6 @@
-import { REQUEST } from "@nestjs/core";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { HTTP_METHODS, ResultControlDTO } from "@digital-alchemy/utilities";
+import { REQUEST } from "@nestjs/core";
 import { Request, Response } from "express";
 import pino from "pino";
 

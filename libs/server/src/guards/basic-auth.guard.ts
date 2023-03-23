@@ -1,6 +1,6 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
 import { BASIC_AUTH_PASSWORD, BASIC_AUTH_USERNAME } from "../config";
 import { APIResponse, AUTHORIZATION_HEADER } from "../contracts";

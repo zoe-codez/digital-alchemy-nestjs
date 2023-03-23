@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
@@ -8,6 +7,7 @@ import {
   START,
   TitleCase,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { get } from "object-path";
 

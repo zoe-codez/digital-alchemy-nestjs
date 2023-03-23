@@ -1,4 +1,3 @@
-import { Injectable, Scope } from "@nestjs/common";
 import {
   FetchArguments,
   FetchParameterTypes,
@@ -7,9 +6,10 @@ import {
   is,
   ResultControlDTO,
 } from "@digital-alchemy/utilities";
+import { Injectable, Scope } from "@nestjs/common";
 import Bottleneck from "bottleneck";
 import { createWriteStream } from "fs";
-import fetch, { RequestInit, Response, BodyInit } from "node-fetch";
+import fetch, { BodyInit, RequestInit, Response } from "node-fetch";
 
 import { TransientLogger } from "../decorators/inject-logger.decorator";
 import { AutoLogService } from "./auto-log.service";

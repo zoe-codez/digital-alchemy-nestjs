@@ -1,6 +1,4 @@
 /* eslint-disable radar/no-duplicate-string */
-import { faker } from "@faker-js/faker";
-import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   ColorsService,
@@ -15,6 +13,8 @@ import {
   TTY,
 } from "@digital-alchemy/tty";
 import { is, PEAT, SECOND, SINGLE, sleep } from "@digital-alchemy/utilities";
+import { faker } from "@faker-js/faker";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 import { ItemGeneratorService } from "./item-generator.service";

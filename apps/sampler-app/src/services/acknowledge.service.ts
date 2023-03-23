@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
 } from "@digital-alchemy/tty";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 @Injectable()

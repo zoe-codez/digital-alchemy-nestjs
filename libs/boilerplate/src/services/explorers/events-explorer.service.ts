@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
 import { is } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import EventEmitter from "eventemitter3";
 
 import { OnEvent, OnEventOptions } from "../../decorators/events.decorator";

@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { DOWN, EMPTY, UP } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import {
   PANEL_COLUMNS,

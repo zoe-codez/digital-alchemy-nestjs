@@ -1,7 +1,7 @@
 /* This file is full of ported code */
 /* eslint-disable @typescript-eslint/no-magic-numbers, unicorn/no-nested-ternary */
-import { Injectable } from "@nestjs/common";
 import { HALF } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import { PromptService } from "./prompt.service";
 

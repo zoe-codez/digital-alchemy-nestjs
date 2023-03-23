@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
@@ -7,6 +6,7 @@ import {
   sleep,
   START,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import {
   PANEL_COLUMNS,

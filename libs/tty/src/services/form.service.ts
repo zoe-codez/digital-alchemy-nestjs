@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   INCREMENT,
@@ -7,6 +6,7 @@ import {
   START,
   VALUE,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import equal from "deep-equal";
 import { get } from "object-path";

@@ -1,6 +1,6 @@
-import { Controller, Get, Param } from "@nestjs/common";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
+import { Controller, Get, Param } from "@nestjs/common";
 
 import { TalkBackService } from "../services";
 import { PICK_GENERATED_ENTITY } from "../types";

@@ -1,6 +1,6 @@
-import { Inject, Injectable } from "@nestjs/common";
 import { AutoLogService, CacheService } from "@digital-alchemy/boilerplate";
 import { is, TitleCase } from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 

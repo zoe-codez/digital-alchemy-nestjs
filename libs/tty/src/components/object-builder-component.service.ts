@@ -1,4 +1,3 @@
-import { forwardRef, Inject } from "@nestjs/common";
 import {
   ARRAY_OFFSET,
   deepCloneArray,
@@ -9,6 +8,7 @@ import {
   START,
   TitleCase,
 } from "@digital-alchemy/utilities";
+import { forwardRef, Inject } from "@nestjs/common";
 import chalk from "chalk";
 import { get, set } from "object-path";
 

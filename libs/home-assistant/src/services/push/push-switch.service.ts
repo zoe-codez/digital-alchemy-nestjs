@@ -1,10 +1,10 @@
 /* eslint-disable spellcheck/spell-checker */
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
 } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { nextTick } from "process";
 
 import { TemplateButtonCommandId } from "../../decorators";

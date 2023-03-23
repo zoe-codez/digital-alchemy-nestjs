@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { CacheService } from "@digital-alchemy/boilerplate";
 import {
   ALL_DOMAINS,
@@ -18,6 +17,7 @@ import {
   TextRenderingService,
 } from "@digital-alchemy/tty";
 import { is, TitleCase } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 type EntityMenuResult = { entity: GenericEntityDTO };

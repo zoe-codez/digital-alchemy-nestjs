@@ -1,10 +1,10 @@
-import { INestApplication, Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
   WorkspaceService,
 } from "@digital-alchemy/boilerplate";
+import { INestApplication, Inject, Injectable } from "@nestjs/common";
 
 import { SWAGGER_PATH } from "../config";
 

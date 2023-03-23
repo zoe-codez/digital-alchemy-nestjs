@@ -1,9 +1,9 @@
-import { INestApplication, Injectable, ValidationPipe } from "@nestjs/common";
 import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
+import { INestApplication, Injectable, ValidationPipe } from "@nestjs/common";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";

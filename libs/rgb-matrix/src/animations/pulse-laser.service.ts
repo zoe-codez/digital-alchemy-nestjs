@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
@@ -15,6 +14,7 @@ import {
   TWO_THIRDS,
   UP,
 } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import { PANEL_COLUMNS, PANEL_WIDTH } from "../config";
 import {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Injectable } from "@nestjs/common";
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { ARRAY_OFFSET, NONE } from "@digital-alchemy/utilities";
+import { Injectable } from "@nestjs/common";
 
 import {
   PANEL_COLUMNS,

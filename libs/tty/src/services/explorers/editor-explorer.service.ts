@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
 import { ModuleScannerService } from "@digital-alchemy/boilerplate";
+import { Injectable } from "@nestjs/common";
 
 import { EDITOR_CONFIG, EditorOptions, iBuilderEditor } from "../../decorators";
 

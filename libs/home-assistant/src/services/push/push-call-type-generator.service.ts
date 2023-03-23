@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { deepExtend, is, SINGLE, sleep } from "@digital-alchemy/utilities";
+import { Inject, Injectable } from "@nestjs/common";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
 

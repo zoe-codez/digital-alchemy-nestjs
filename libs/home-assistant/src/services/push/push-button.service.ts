@@ -1,16 +1,16 @@
 import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import {
   ACTIVE_APPLICATION,
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
 } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { get } from "object-path";
 
 import { TemplateButton, TemplateButtonCommandId } from "../../decorators";
