@@ -8,10 +8,12 @@ import {
 import { INestApplicationContext, Logger } from "@nestjs/common";
 import {
   ApplicationConfig,
+  GraphInspector,
   MetadataScanner,
   NestContainer,
 } from "@nestjs/core";
 import { DependenciesScanner } from "@nestjs/core/scanner";
+import { TestingInjector } from "@nestjs/testing/testing-injector";
 import { TestingInstanceLoader } from "@nestjs/testing/testing-instance-loader";
 import { ClassConstructor } from "class-transformer";
 
@@ -26,17 +28,26 @@ export class TestingModuleBuilder {
     metadataScanner: MetadataScanner,
     private readonly metadata: QuickScriptOptions,
   ) {
+    const graph = new GraphInspector(this.container);
     this.scanner = new DependenciesScanner(
       this.container,
       metadataScanner,
+      graph,
       this.applicationConfig,
     );
     this.module = this.createModule(metadata);
+    this.instanceLoader = new TestingInstanceLoader(
+      this.container,
+      new TestingInjector({
+        preview: false,
+      }),
+      graph,
+    );
   }
 
   private readonly applicationConfig = new ApplicationConfig();
   private readonly container = new NestContainer(this.applicationConfig);
-  private readonly instanceLoader = new TestingInstanceLoader(this.container);
+  private readonly instanceLoader: TestingInstanceLoader;
   private mocker?: MockFactory;
   private readonly module: ClassConstructor<unknown>;
   private readonly overloadsMap = new Map();
