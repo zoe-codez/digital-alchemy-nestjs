@@ -89,7 +89,7 @@ export class TypeGenerate {
           `// This file is generated, and is automatically updated as a npm post install step`,
           "// To rebuild, run `npx hass-type-generate`",
           ``,
-          `import { PICK_ENTITY } from "./contracts";`,
+          `import { PICK_ENTITY } from "./types";`,
           ``,
           `export const ENTITY_SETUP = ${entitySetup};`,
           `export const MODULE_SETUP = ${moduleSetup};`,
