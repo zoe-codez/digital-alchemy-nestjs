@@ -18,6 +18,7 @@ import {
   HEADER_FONT_PRIMARY,
   HEADER_FONT_SECONDARY,
   HELP,
+  TEXT_DEBUG_DEPTH,
   LIB_TTY,
   PAGE_SIZE,
   TABLE_RENDER_ROWS,
@@ -93,6 +94,11 @@ import {
     [PAGE_SIZE]: {
       default: 20,
       description: "Item quantity in menus / lists",
+      type: "number",
+    },
+    [TEXT_DEBUG_DEPTH]: {
+      default: 5,
+      description: "Util.inspect depth",
       type: "number",
     },
     [TABLE_RENDER_ROWS]: {

@@ -12,8 +12,9 @@ import {
 import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
+import { inspect } from "util";
 
-import { PAGE_SIZE } from "../config";
+import { PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
 import { MainMenuEntry, MenuEntry, TTY } from "../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
 
@@ -34,7 +35,10 @@ const [OPEN, CLOSE] = chalk.bgBlueBright.black("_").split("_");
 
 @Injectable()
 export class TextRenderingService {
-  constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {}
+  constructor(
+    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
+    @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
+  ) {}
 
   /**
    * Helper method for component rendering
@@ -89,6 +93,10 @@ export class TextRenderingService {
       out.unshift(...this.searchBox(search));
     }
     return out;
+  }
+
+  public debug(data: object): string {
+    return inspect(data, false, this.debugDepth, true);
   }
 
   /**
