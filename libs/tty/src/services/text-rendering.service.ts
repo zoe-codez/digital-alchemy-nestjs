@@ -24,6 +24,8 @@ const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
 const INDENT = "  ";
 const MAX_STRING_LENGTH = 300;
+const FIRST = 1;
+const LAST = -1;
 const NESTING_LEVELS = [
   chalk.cyan(" - "),
   chalk.magenta(" * "),
@@ -96,7 +98,15 @@ export class TextRenderingService {
   }
 
   public debug(data: object): string {
-    return inspect(data, false, this.debugDepth, true);
+    return (
+      inspect(data, false, this.debugDepth, true)
+        .split("\n")
+        // strip off outer curly braces
+        .slice(FIRST, LAST)
+        // un-indent single level
+        .map(i => (i.startsWith(INDENT) ? i.slice(INDENT.length) : i))
+        .join("\n")
+    );
   }
 
   /**
