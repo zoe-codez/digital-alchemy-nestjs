@@ -50,7 +50,7 @@ export class StringEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
     @InjectConfig(DEFAULT_PROMPT_WIDTH) private readonly defaultWidth: number,
   ) {}
 
@@ -198,7 +198,7 @@ export class StringEditorService
         ),
       ),
     );
-    const message = this.textRendering.pad(out.join(`\n`));
+    const message = this.text.pad(out.join(`\n`));
     this.screen.render(
       message,
       this.keymap.keymapHelp({

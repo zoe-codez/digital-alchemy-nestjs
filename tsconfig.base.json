@@ -1,6 +1,6 @@
 {
   "compileOnSave": false,
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts"],
   "compilerOptions": {
     "allowJs": false,
     "alwaysStrict": false,
@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "jsx": "react",
     "lib": ["ESNext"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -18,8 +17,8 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": false,
-    "strictBindCallApply": false,
+    "strict": true,
+    "strictBindCallApply": true,
     "strictFunctionTypes": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,

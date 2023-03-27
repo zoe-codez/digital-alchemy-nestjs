@@ -13,15 +13,16 @@ import {
   APPLICATION_PADDING_LEFT,
   APPLICATION_PADDING_TOP,
   DEFAULT_PROMPT_WIDTH,
+  FUZZY_HIGHLIGHT,
   HEADER_COLOR_PRIMARY,
   HEADER_COLOR_SECONDARY,
   HEADER_FONT_PRIMARY,
   HEADER_FONT_SECONDARY,
   HELP,
-  TEXT_DEBUG_DEPTH,
   LIB_TTY,
   PAGE_SIZE,
   TABLE_RENDER_ROWS,
+  TEXT_DEBUG_DEPTH,
   USE_FONTAWESOME_ICONS,
 } from "../config";
 import {
@@ -67,6 +68,11 @@ import {
       description: "Box width for prompts short text inputs",
       type: "number",
     },
+    [FUZZY_HIGHLIGHT]: {
+      default: "bgBlueBright.black",
+      description: "Chalk highlighting to apply to fuzzy search",
+      type: "string",
+    },
     [HEADER_COLOR_PRIMARY]: {
       default: "cyan",
       type: "string",
@@ -96,15 +102,15 @@ import {
       description: "Item quantity in menus / lists",
       type: "number",
     },
-    [TEXT_DEBUG_DEPTH]: {
-      default: 5,
-      description: "Util.inspect depth",
-      type: "number",
-    },
     [TABLE_RENDER_ROWS]: {
       default: 20,
       description:
         "Default quantity of rows to render in prompts like arrayBuilder",
+      type: "number",
+    },
+    [TEXT_DEBUG_DEPTH]: {
+      default: 5,
+      description: "Util.inspect depth",
       type: "number",
     },
     [USE_FONTAWESOME_ICONS]: {

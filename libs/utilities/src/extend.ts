@@ -1,10 +1,10 @@
 import { is } from "./is";
 
-function isSpecificValue(value) {
+function isSpecificValue(value: unknown) {
   return value instanceof Date || value instanceof RegExp;
 }
 
-function cloneSpecificValue(value) {
+function cloneSpecificValue(value: unknown) {
   if (value instanceof Date) {
     return new Date(value.getTime());
   }

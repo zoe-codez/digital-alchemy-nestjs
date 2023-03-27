@@ -24,7 +24,6 @@ import {
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { MergeHelp } from "../includes";
 import {
   FormService,
   KeyboardManagerService,
@@ -198,7 +197,7 @@ export class ObjectBuilderComponentService<
         ? this.displayMessage
         : this.helpNotes;
 
-    const message = MergeHelp(
+    const message = this.text.mergeHelp(
       this.text.pad(
         this.form.renderForm(
           {

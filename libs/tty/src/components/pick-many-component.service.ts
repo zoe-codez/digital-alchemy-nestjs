@@ -17,7 +17,7 @@ import chalk from "chalk";
 
 import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd, MergeHelp } from "../includes";
+import { ansiMaxLength, ansiPadEnd } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -80,7 +80,7 @@ export class PickManyComponentService<VALUE = unknown>
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
-    private readonly textRender: TextRenderingService,
+    private readonly text: TextRenderingService,
     private readonly screen: ScreenService,
     private readonly keyboard: KeyboardManagerService,
   ) {}
@@ -132,7 +132,7 @@ export class PickManyComponentService<VALUE = unknown>
       updateValue && this.selectedType === "source",
     );
     const search = this.mode === "find" ? this.searchText : undefined;
-    const message = this.textRender.assemble(current, source, {
+    const message = this.text.assemble(current, source, {
       left,
       right,
       search,
@@ -146,7 +146,7 @@ export class PickManyComponentService<VALUE = unknown>
     const list = this.side();
     const item = list.find(i => TTY.GV(i) === this.value);
     this.screen.render(
-      MergeHelp(message.join(`\n`), item),
+      this.text.mergeHelp(message.join(`\n`), item),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
     );
   }
@@ -390,7 +390,7 @@ export class PickManyComponentService<VALUE = unknown>
     data: MainMenuEntry<VALUE>[],
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
-    const highlighted = this.textRender.fuzzyMenuSort(this.searchText, data);
+    const highlighted = this.text.fuzzyMenuSort(this.searchText, data);
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
     }
@@ -465,10 +465,10 @@ export class PickManyComponentService<VALUE = unknown>
     range = false,
   ): MainMenuEntry<VALUE>[] {
     if (range) {
-      return this.textRender.selectRange(this.side(side, false), this.value);
+      return this.text.selectRange(this.side(side, false), this.value);
     }
     if (this.mode === "find") {
-      return this.textRender.fuzzyMenuSort<VALUE>(
+      return this.text.fuzzyMenuSort<VALUE>(
         this.searchText,
         this[side] as MainMenuEntry<VALUE>[],
       );

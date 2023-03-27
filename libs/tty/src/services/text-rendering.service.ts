@@ -15,9 +15,9 @@ import fuzzy from "fuzzysort";
 import { stdout } from "process";
 import { inspect } from "util";
 
-import { PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
+import { FUZZY_HIGHLIGHT, PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
 import { MainMenuEntry, MenuEntry, MenuHelpText, TTY } from "../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { ansiMaxLength, ansiPadEnd, template } from "../includes";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");
@@ -35,14 +35,21 @@ const NESTING_LEVELS = [
   chalk.yellow(" > "),
   chalk.red(" ~ "),
 ];
-const [OPEN, CLOSE] = chalk.bgBlueBright.black("_").split("_");
 
 @Injectable()
 export class TextRenderingService {
   constructor(
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
-  ) {}
+    @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
+  ) {
+    const [OPEN, CLOSE] = template(`{${highlightColor} _}`).split("_");
+    this.open = OPEN;
+    this.close = CLOSE;
+  }
+
+  private close: string;
+  private open: string;
 
   /**
    * Helper method for component rendering
@@ -166,20 +173,20 @@ export class TextRenderingService {
       .map(result => {
         const label = fuzzy.highlight(
           is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ""),
-          OPEN,
-          CLOSE,
+          this.open,
+          this.close,
         );
         const help = fuzzy.highlight(
           is.object(result[1])
             ? result[1]
             : fuzzy.single(this.helpFormat(result.obj.help), ""),
-          OPEN,
-          CLOSE,
+          this.open,
+          this.close,
         );
         const type = fuzzy.highlight(
           is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ""),
-          OPEN,
-          CLOSE,
+          this.open,
+          this.close,
         );
         const out = {
           entry: [
@@ -213,7 +220,10 @@ export class TextRenderingService {
       .go(searchText, formatted, { all: true, key: "label" })
       .map(result => {
         return {
-          entry: [fuzzy.highlight(result, OPEN, CLOSE), result.obj.value],
+          entry: [
+            fuzzy.highlight(result, this.open, this.close),
+            result.obj.value,
+          ],
           helpText: result.obj.help,
           type: result.obj.type,
         } as MainMenuEntry<T>;

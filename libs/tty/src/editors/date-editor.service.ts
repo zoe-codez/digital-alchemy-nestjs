@@ -99,7 +99,7 @@ export class DateEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
   ) {}
 
   private chronoText: string;
@@ -561,7 +561,7 @@ export class DateEditorService
         chalk` {cyan >} {bold.red Resolved value}\n{bgYellow.black CANNOT PARSE}`,
       );
     }
-    const message = this.textRendering.pad(out.join(`\n`));
+    const message = this.text.pad(out.join(`\n`));
     this.screen.render(
       message,
       (is.empty(this.error) ? "" : chalk`\n{red.bold ! }${this.error}\n`) +

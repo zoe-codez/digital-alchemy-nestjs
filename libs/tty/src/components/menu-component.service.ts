@@ -298,7 +298,7 @@ export class MenuComponentService<VALUE = unknown | string>
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
-    private readonly textRender: TextRenderingService,
+    private readonly text: TextRenderingService,
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
     private readonly cache: CacheService,
@@ -707,7 +707,7 @@ export class MenuComponentService<VALUE = unknown | string>
     data: MainMenuEntry<VALUE>[],
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
-    const highlighted = this.textRender.fuzzyMenuSort(this.searchText, data);
+    const highlighted = this.text.fuzzyMenuSort(this.searchText, data);
 
     if (updateValue) {
       this.value = is.empty(highlighted)
@@ -736,7 +736,7 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderFinal() {
     const item = this.selectedEntry();
-    let message = this.textRender.mergeHelp("", item);
+    let message = this.text.mergeHelp("", item);
     message += chalk` {cyan >} `;
     if (!is.empty(item?.icon)) {
       message += `${item.icon} `;
@@ -754,9 +754,9 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderFind(updateValue = false): void {
     const rendered = this.renderSide(undefined, false, updateValue);
-    const message = this.textRender.mergeHelp(
+    const message = this.text.mergeHelp(
       [
-        ...this.textRender.searchBox(this.searchText),
+        ...this.text.searchBox(this.searchText),
         ...rendered.map(({ entry }) => entry[LABEL]),
       ].join(`\n`),
       rendered.find(i => TTY.GV(i.entry) === this.value),
@@ -800,7 +800,7 @@ export class MenuComponentService<VALUE = unknown | string>
     // * Component body
     const out = is.empty(this.opt.left)
       ? this.renderSide("right").map(({ entry }) => entry[LABEL])
-      : this.textRender.assemble(
+      : this.text.assemble(
           this.renderSide("left").map(({ entry }) => entry[LABEL]),
           this.renderSide("right").map(({ entry }) => entry[LABEL]),
         );
@@ -815,7 +815,7 @@ export class MenuComponentService<VALUE = unknown | string>
     );
 
     // * Item help text
-    message = this.textRender.mergeHelp(message, selectedItem);
+    message = this.text.mergeHelp(message, selectedItem);
     const keymap = this.renderSelectKeymap(message);
 
     // * Final render
@@ -883,7 +883,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.mode === "find" && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
-    const temporary = this.textRender.selectRange(menu, this.value);
+    const temporary = this.text.selectRange(menu, this.value);
     menu = temporary.map(i =>
       menu.find(({ entry }) => TTY.GV(i) === TTY.GV(entry)),
     );

@@ -103,7 +103,11 @@ export function MethodDecoratorFactory<
     exec?: PassThroughCallback,
   ) {
     // * User is using this as an annotation
-    const attachAnnotation = function (target, key, descriptor) {
+    const attachAnnotation = function (
+      target: unknown,
+      key: string,
+      descriptor: PropertyDescriptor,
+    ) {
       const data: OPTIONS[] =
         Reflect.getMetadata(metadataKey, descriptor.value) ?? [];
       data.push(options);

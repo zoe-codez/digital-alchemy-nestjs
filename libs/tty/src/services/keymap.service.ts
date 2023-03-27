@@ -25,7 +25,7 @@ interface KeymapHelpOptions {
 @Injectable()
 export class KeymapService {
   constructor(
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboard: KeyboardManagerService,
     private readonly applicationManager: ApplicationManagerService,
@@ -69,7 +69,7 @@ export class KeymapService {
         "=".repeat(Math.max(maxLength, this.applicationManager.headerLength())),
       ),
       notes,
-      this.textRendering.pad(help),
+      this.text.pad(help),
     ].join(`\n`);
   }
 
