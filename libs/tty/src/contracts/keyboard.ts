@@ -5,12 +5,25 @@ export type KeyDescriptor = { key: Key; value?: string };
 export type MenuEntry<T extends unknown = string> =
   | [label: string, value: T]
   | [label_and_value: string];
+
+export type MenuHelpText = string | string[] | object;
+
 export interface MainMenuEntry<T = unknown> {
+  /**
+   * label and/or value
+   */
   entry: MenuEntry<T>;
   /**
    * Additional help text to display when this entry is selected
+   *
+   * - string format: pass through
+   * - string array: join together with newlines
+   * - object: debug formatting
    */
-  helpText?: string;
+  helpText?: MenuHelpText;
+  /**
+   * label prefix icon works with color, and any character or fontawesome icon
+   */
   icon?: string;
   /**
    * sort by priority (default = 0) > sort by label

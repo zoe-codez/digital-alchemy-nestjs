@@ -15,7 +15,7 @@ import fuzzy from "fuzzysort";
 import { inspect } from "util";
 
 import { PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
-import { MainMenuEntry, MenuEntry, TTY } from "../contracts";
+import { MainMenuEntry, MenuEntry, MenuHelpText, TTY } from "../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
 
 const MAX_SEARCH_SIZE = 50;
@@ -161,7 +161,9 @@ export class TextRenderingService {
           CLOSE,
         );
         const help = fuzzy.highlight(
-          is.object(result[1]) ? result[1] : fuzzy.single(result.obj.help, ""),
+          is.object(result[1])
+            ? result[1]
+            : fuzzy.single(this.helpFormat(result.obj.help), ""),
           OPEN,
           CLOSE,
         );
@@ -207,6 +209,16 @@ export class TextRenderingService {
           type: result.obj.type,
         } as MainMenuEntry<T>;
       });
+  }
+
+  public mergeHelp(
+    message: string,
+    { helpText = "" }: { helpText?: MenuHelpText } = {},
+  ) {
+    if (is.empty(helpText)) {
+      return message;
+    }
+    return message + chalk`\n \n {blue.dim ?} ${this.helpFormat(helpText)}`;
   }
 
   /**
@@ -328,5 +340,15 @@ export class TextRenderingService {
       );
     }
     return chalk.gray(JSON.stringify(item));
+  }
+
+  private helpFormat(helpText: MenuHelpText): string {
+    if (is.array(helpText)) {
+      helpText = helpText.join(`\n`);
+    }
+    if (is.object(helpText)) {
+      helpText = this.debug(helpText);
+    }
+    return helpText;
   }
 }

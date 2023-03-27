@@ -33,7 +33,7 @@ import {
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd, ansiStrip, MergeHelp } from "../includes";
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -43,6 +43,7 @@ import {
 } from "../services";
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
+type PrefixArray = [TTYKeypressOptions, string];
 
 export type HighlightCallbacks<VALUE = string> = {
   /**
@@ -730,9 +731,12 @@ export class MenuComponentService<VALUE = unknown | string>
     return item ? (item[VALUE] as AdvancedKeymap).entry : undefined;
   }
 
+  /**
+   * The final frame of a menu, informing what happened
+   */
   private renderFinal() {
     const item = this.selectedEntry();
-    let message = MergeHelp("", item);
+    let message = this.textRender.mergeHelp("", item);
     message += chalk` {cyan >} `;
     if (!is.empty(item?.icon)) {
       message += `${item.icon} `;
@@ -750,7 +754,7 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderFind(updateValue = false): void {
     const rendered = this.renderSide(undefined, false, updateValue);
-    const message = MergeHelp(
+    const message = this.textRender.mergeHelp(
       [
         ...this.textRender.searchBox(this.searchText),
         ...rendered.map(({ entry }) => entry[LABEL]),
@@ -764,18 +768,20 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   /**
-   * Rendering for while not in find mode
+   * Rendering for standard keyboard navigation
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
-  private renderSelect(extraContent?: string) {
+  private renderSelect() {
     let message = "";
 
+    // * Very top text, error / response text
     if (
       !is.empty(this.callbackOutput) &&
       this.callbackTimestamp.isAfter(dayjs().subtract(PAIR, "second"))
     ) {
       message += this.callbackOutput + `\n\n`;
     }
+
+    // * Header message
     if (!is.empty(this.opt.headerMessage)) {
       let headerMessage = this.opt.headerMessage;
       if (is.array(headerMessage)) {
@@ -790,6 +796,8 @@ export class MenuComponentService<VALUE = unknown | string>
       }
       message += headerMessage + `\n\n`;
     }
+
+    // * Component body
     const out = is.empty(this.opt.left)
       ? this.renderSide("right").map(({ entry }) => entry[LABEL])
       : this.textRender.assemble(
@@ -805,54 +813,59 @@ export class MenuComponentService<VALUE = unknown | string>
     const selectedItem = this.side().find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
-    message = MergeHelp(message, selectedItem);
-    this.screen.render(
+
+    // * Item help text
+    message = this.textRender.mergeHelp(message, selectedItem);
+    const keymap = this.renderSelectKeymap(message);
+
+    // * Final render
+    this.screen.render(message, keymap);
+  }
+
+  /**
+   *
+   */
+  private renderSelectKeymap(message: string) {
+    const prefix = Object.keys(this.opt.keyMap).map(key => {
+      let item = this.opt.keyMap[key];
+      let highlight: HighlightCallbacks;
+      const aliases: string[] = [];
+      // ? Advanced keymaps = highlighting support
+      if (isAdvanced(item as AdvancedKeymap)) {
+        const advanced = item as AdvancedKeymap;
+        highlight = is.string(advanced.highlight)
+          ? {
+              normal: chalk.green.dim,
+              valueMatch: chalk.green.bold,
+            }
+          : advanced.highlight;
+        item = advanced.entry;
+        if (!is.empty(advanced.alias)) {
+          aliases.push(...advanced.alias);
+        }
+      }
+      if (!is.array(item)) {
+        return undefined;
+      }
+      const [label] = item;
+      return [
+        {
+          description: label + "  ",
+          highlight,
+          key: [key, ...aliases],
+          matchValue: TTY.GV(item),
+        },
+        "",
+      ];
+    });
+    return this.keymap.keymapHelp({
+      current: this.value,
       message,
-      is.empty(extraContent)
-        ? this.keymap.keymapHelp({
-            current: this.value,
-            message,
-            notes: this.notes,
-            prefix: new Map(
-              Object.entries(this.opt.keyMap)
-                .map(function ([description, item]: [
-                  string,
-                  KeymapOptions<VALUE>,
-                ]): [TTYKeypressOptions, string] {
-                  let highlight: HighlightCallbacks;
-                  const aliases: string[] = [];
-                  if (isAdvanced(item as AdvancedKeymap)) {
-                    const advanced = item as AdvancedKeymap;
-                    highlight = is.string(advanced.highlight)
-                      ? {
-                          normal: chalk.green.dim,
-                          valueMatch: chalk.green.bold,
-                        }
-                      : advanced.highlight;
-                    item = advanced.entry;
-                    if (!is.empty(advanced.alias)) {
-                      aliases.push(...advanced.alias);
-                    }
-                  }
-                  if (!is.array(item)) {
-                    return undefined;
-                  }
-                  const [label] = item;
-                  return [
-                    {
-                      description: (label + "  ") as string,
-                      highlight,
-                      key: [description, ...aliases],
-                      matchValue: TTY.GV(item),
-                    },
-                    "",
-                  ];
-                })
-                .filter(item => !is.undefined(item)),
-            ),
-          })
-        : extraContent,
-    );
+      notes: this.notes,
+      prefix: new Map(
+        prefix.filter(item => !is.undefined(item)) as PrefixArray[],
+      ),
+    });
   }
 
   /**
