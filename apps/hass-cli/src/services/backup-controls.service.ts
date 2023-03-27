@@ -51,7 +51,7 @@ export class BackupControlsService {
           backing_up ? `yellow backing up` : `green idle`
         }}`,
         chalk`{bold Last Refresh:} {green ${new Date().toLocaleString()}}`,
-      ].join(`\n`),
+      ],
       keyMap: {
         c: backing_up
           ? {

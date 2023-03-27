@@ -58,7 +58,7 @@ export class EntityService {
         "Entity information is cached for this run of the script unless manually refreshed.",
         chalk`{bold Last refresh:} {green ${this.lastRefresh.toLocaleString()}}`,
         ``,
-      ].join(`\n`),
+      ],
       keyMap: {
         "[": [chalk`all domains {red off}`, "all_off"],
         "]": [chalk`all domains {green on}`, "all_on"],
@@ -77,7 +77,7 @@ export class EntityService {
               chalk`{bold Current State:} ${this.text.type(entity.state)}`,
               chalk`{bold Attributes:} `,
               this.text.type(entity.attributes),
-            ].join(`\n`),
+            ],
             type: TitleCase(domain(entity.entity_id as PICK_ENTITY)),
           } as MainMenuEntry<EntityMenuResult>;
         }),

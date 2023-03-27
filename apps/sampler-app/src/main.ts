@@ -105,7 +105,7 @@ export class SamplerApp {
           helpText: [
             "A canned error which indicates a not-implemented condition",
             "Can be used with any instance of the menu",
-          ].join(`\n`),
+          ],
           type: "Menu",
         },
         {
@@ -160,7 +160,7 @@ export class SamplerApp {
           helpText: [
             `Run code in the background, while still keeping the menu rendered.`,
             `Return response messages to console`,
-          ].join(`\n`),
+          ],
           type: "Menu",
         },
         {

@@ -190,7 +190,7 @@ export class MenuService {
         chalk` {yellow.bold ?} highlighted items have a {yellow 1} second delay on activation.`,
         chalk.gray`Messages persist {yellow.dim 2} seconds, then are cleared on next render.`,
         chalk.gray`Renders require user interaction.`,
-      ].join(`\n`),
+      ],
       keyMap: {
         a: [chalk.magenta.inverse("do a little dance"), "dance"],
         b: [chalk.magenta.inverse("paint some colors"), "colors"],

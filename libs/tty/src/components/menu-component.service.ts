@@ -152,7 +152,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
    *
    * If passed as array, each item is it's own line. Intended for object printing
    */
-  headerMessage?: string | [key: string, value: string][];
+  headerMessage?: string | string[] | [key: string, value: string][];
   /**
    * Extra padding to shift the header over by
    */
@@ -160,7 +160,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
   /**
    * Text that should appear the blue bar of the help text
    */
-  helpNotes?: string | ((selected: VALUE | string) => string);
+  helpNotes?: string | string[] | ((selected: VALUE | string) => string);
   /**
    * Disallow usage of fuzzy search
    */
@@ -323,6 +323,9 @@ export class MenuComponentService<VALUE = unknown | string>
     const { helpNotes } = this.opt;
     if (is.string(helpNotes)) {
       return helpNotes;
+    }
+    if (is.array(helpNotes)) {
+      return helpNotes.join(`\n`);
     }
     if (is.function(helpNotes)) {
       return helpNotes(this.value);
@@ -785,14 +788,22 @@ export class MenuComponentService<VALUE = unknown | string>
     if (!is.empty(this.opt.headerMessage)) {
       let headerMessage = this.opt.headerMessage;
       if (is.array(headerMessage)) {
-        const max =
-          ansiMaxLength(headerMessage.map(([label]) => label)) + INCREMENT;
-        headerMessage = headerMessage
-          .map(
-            ([label, value]) =>
-              chalk`{bold ${ansiPadEnd(label + ":", max)}} ${value}`,
-          )
-          .join(`\n`);
+        const stringArray = (headerMessage as string[]).every(i =>
+          is.string(i),
+        );
+        if (stringArray) {
+          headerMessage = headerMessage.join(`\n`);
+        } else {
+          const message = headerMessage as [key: string, value: string][];
+          const max =
+            ansiMaxLength(message.map(([label]) => label)) + INCREMENT;
+          headerMessage = message
+            .map(
+              ([label, value]) =>
+                chalk`{bold ${ansiPadEnd(label + ":", max)}} ${value}`,
+            )
+            .join(`\n`);
+        }
       }
       message += headerMessage + `\n\n`;
     }
