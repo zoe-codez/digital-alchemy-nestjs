@@ -12,6 +12,7 @@ import {
 import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
+import { stdout } from "process";
 import { inspect } from "util";
 
 import { PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
@@ -26,6 +27,7 @@ const INDENT = "  ";
 const MAX_STRING_LENGTH = 300;
 const FIRST = 1;
 const LAST = -1;
+const STRING_SHRINK = 50;
 const NESTING_LEVELS = [
   chalk.cyan(" - "),
   chalk.magenta(" * "),
@@ -98,8 +100,15 @@ export class TextRenderingService {
   }
 
   public debug(data: object): string {
+    const [width] = stdout.getWindowSize();
     return (
-      inspect(data, false, this.debugDepth, true)
+      inspect(data, {
+        colors: true,
+        compact: false,
+        depth: this.debugDepth,
+        maxStringLength: Math.min(width - STRING_SHRINK, STRING_SHRINK),
+        sorted: true,
+      })
         .split("\n")
         // strip off outer curly braces
         .slice(FIRST, LAST)
