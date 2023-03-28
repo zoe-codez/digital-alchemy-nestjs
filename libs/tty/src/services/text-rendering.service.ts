@@ -230,6 +230,16 @@ export class TextRenderingService {
       });
   }
 
+  public helpFormat(helpText: MenuHelpText): string {
+    if (is.array(helpText)) {
+      helpText = helpText.join(`\n`);
+    }
+    if (is.object(helpText)) {
+      helpText = chalk`{cyan.bold Reference Data}\n` + this.debug(helpText);
+    }
+    return helpText;
+  }
+
   public mergeHelp(
     message: string,
     { helpText = "" }: { helpText?: MenuHelpText } = {},
@@ -359,15 +369,5 @@ export class TextRenderingService {
       );
     }
     return chalk.gray(JSON.stringify(item));
-  }
-
-  private helpFormat(helpText: MenuHelpText): string {
-    if (is.array(helpText)) {
-      helpText = helpText.join(`\n`);
-    }
-    if (is.object(helpText)) {
-      helpText = chalk`{cyan.bold Reference Data}\n` + this.debug(helpText);
-    }
-    return helpText;
   }
 }

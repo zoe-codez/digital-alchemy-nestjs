@@ -35,6 +35,7 @@ import {
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
+  EnvironmentService,
   KeyboardManagerService,
   KeymapService,
   PromptEntry,
@@ -288,6 +289,43 @@ interface LastMenuResultInfo<VALUE = unknown> {
   type: "entry" | "keyboard";
 }
 
+type MenuProperties =
+  | "alert"
+  | "body"
+  | "columnHeaders"
+  | "header"
+  | "divider"
+  | "helpText"
+  | "keybindings"
+  | "notes";
+
+const CONSTRUCTION_ORDER: MenuProperties[] = [
+  "alert",
+  "header",
+  "columnHeaders",
+  "body",
+  "helpText",
+  "divider",
+  "notes",
+  "keybindings",
+];
+
+type ConstructionItem = {
+  height: number;
+  text: string;
+};
+
+type MenuConstruction = Partial<Record<MenuProperties, ConstructionItem>>;
+
+/**
+ * FIXME: This is currently a "best faith" attempt at row calculation.
+ * It ignores that text can roll over the side, and create an extra row, which would not be seen here
+ */
+const CONSTRUCTION_PROP = (text: string): ConstructionItem => ({
+  height: text.split(`\n`).length,
+  text,
+});
+
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions<VALUE>, VALUE>
@@ -301,6 +339,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly text: TextRenderingService,
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
+    private readonly environment: EnvironmentService,
     private readonly cache: CacheService,
   ) {}
 
@@ -319,6 +358,7 @@ export class MenuComponentService<VALUE = unknown | string>
   private selectedValue: VALUE;
   private sort: boolean;
   private value: VALUE;
+
   private get notes(): string {
     const { helpNotes } = this.opt;
     if (is.string(helpNotes)) {
@@ -337,14 +377,14 @@ export class MenuComponentService<VALUE = unknown | string>
     config: MenuComponentOptions<VALUE>,
     done: (type: VALUE) => void,
   ): Promise<void> {
-    // Reset from last run
+    // * Reset from last run
     MenuComponentService.LAST_RESULT = undefined;
     this.complete = false;
     this.final = false;
     this.selectedValue = undefined;
     this.opt = config;
 
-    // Set up defaults in the config
+    // * Set up defaults in the config
     this.opt.left ??= [];
     this.opt.item ??= "actions";
     this.opt.right ??= [];
@@ -365,7 +405,7 @@ export class MenuComponentService<VALUE = unknown | string>
       value,
     } = config;
 
-    // Set local properties based on config
+    // * Set local properties based on config
     this.headerPadding = headerPadding ?? DEFAULT_HEADER_PADDING;
     this.rightHeader = rightHeader || "Menu";
     this.leftHeader =
@@ -380,7 +420,7 @@ export class MenuComponentService<VALUE = unknown | string>
       (left.some(({ type }) => !is.empty(type)) ||
         right.some(({ type }) => !is.empty(type)));
 
-    // Finial init
+    // * Finial init
     await this.setValue(value, restore);
     this.detectSide();
     this.setKeymap();
@@ -693,6 +733,17 @@ export class MenuComponentService<VALUE = unknown | string>
     this.value = TTY.GV(list[FIRST].entry);
   }
 
+  private assembleMessage(construction: MenuConstruction): string {
+    let height = this.environment.height;
+    const assembleUntil = CONSTRUCTION_ORDER.findIndex(i => {
+      height -= construction[i].height;
+      return height <= NONE;
+    });
+    return CONSTRUCTION_ORDER.slice(START, assembleUntil)
+      .map(i => construction[i].text)
+      .join(`\n`);
+  }
+
   /**
    * Auto detect selectedType based on the current value
    */
@@ -756,7 +807,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
-    const rendered = this.renderSide(undefined, false, updateValue);
+    const rendered = this.renderSide(undefined, updateValue);
     const message = this.text.mergeHelp(
       [
         ...this.text.searchBox(this.searchText),
@@ -774,14 +825,14 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for standard keyboard navigation
    */
   private renderSelect() {
-    let message = "";
+    const construction = {} as MenuConstruction;
 
     // * Very top text, error / response text
     if (
       !is.empty(this.callbackOutput) &&
       this.callbackTimestamp.isAfter(dayjs().subtract(PAIR, "second"))
     ) {
-      message += this.callbackOutput + `\n\n`;
+      construction.alert = CONSTRUCTION_PROP(this.callbackOutput + `\n\n`);
     }
 
     // * Header message
@@ -805,7 +856,7 @@ export class MenuComponentService<VALUE = unknown | string>
             .join(`\n`);
         }
       }
-      message += headerMessage + `\n\n`;
+      construction.header = CONSTRUCTION_PROP(headerMessage + `\n\n`);
     }
 
     // * Component body
@@ -815,28 +866,33 @@ export class MenuComponentService<VALUE = unknown | string>
           this.renderSide("left").map(({ entry }) => entry[LABEL]),
           this.renderSide("right").map(({ entry }) => entry[LABEL]),
         );
-    if (this.opt.showHeaders) {
-      out[FIRST] = `\n  ${out[FIRST]}\n `;
-    } else {
-      message += `\n \n`;
-    }
-    message += out.map(i => `  ${i}`).join(`\n`);
+    construction.columnHeaders = CONSTRUCTION_PROP(
+      this.opt.showHeaders ? `\n  ${out[FIRST]}\n ` : `\n \n`,
+    );
+    construction.body = CONSTRUCTION_PROP(out.map(i => `  ${i}`).join(`\n`));
+
     const selectedItem = this.side().find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
 
     // * Item help text
-    message = this.text.mergeHelp(message, selectedItem);
-    const keymap = this.renderSelectKeymap(message);
+    if (!is.empty(selectedItem.helpText)) {
+      construction.helpText = CONSTRUCTION_PROP(
+        chalk`\n \n {blue.dim ?} ${this.text.helpFormat(
+          selectedItem.helpText,
+        )}`,
+      );
+    }
 
-    // * Final render
-    this.screen.render(message, keymap);
+    construction.keybindings = CONSTRUCTION_PROP(this.renderSelectKeymap());
+
+    this.assembleMessage(construction);
   }
 
   /**
    *
    */
-  private renderSelectKeymap(message: string) {
+  private renderSelectKeymap() {
     const prefix = Object.keys(this.opt.keyMap).map(key => {
       let item = this.opt.keyMap[key];
       let highlight: HighlightCallbacks;
@@ -871,8 +927,7 @@ export class MenuComponentService<VALUE = unknown | string>
     });
     return this.keymap.keymapHelp({
       current: this.value,
-      message,
-      notes: this.notes,
+      onlyHelp: true,
       prefix: new Map(
         prefix.filter(item => !is.undefined(item)) as PrefixArray[],
       ),
@@ -885,11 +940,10 @@ export class MenuComponentService<VALUE = unknown | string>
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSide(
     side: "left" | "right" = this.selectedType,
-    header = this.opt.showHeaders,
     updateValue = false,
   ): MainMenuEntry[] {
     // TODO: Track down offset issue that forces this entry to be required
-    const out: MainMenuEntry[] = [{ entry: [""] }];
+    const out: MainMenuEntry[] = [];
     let menu = this.side(side);
     if (this.mode === "find" && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
@@ -955,25 +1009,7 @@ export class MenuComponentService<VALUE = unknown | string>
         entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, TTY.GV(item.entry)],
       });
     });
-    const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
-    if (header) {
-      out[FIRST].entry[LABEL] =
-        side === "left"
-          ? chalk.bold.blue.dim(
-              `${this.leftHeader}${"".padEnd(
-                this.headerPadding,
-                " ",
-              )}`.padStart(max, " "),
-            )
-          : chalk.bold.blue.dim(
-              `${"".padEnd(this.headerPadding, " ")}${this.rightHeader}`.padEnd(
-                max,
-                " ",
-              ),
-            );
-    } else {
-      out.shift();
-    }
+
     return out;
   }
 
