@@ -249,7 +249,7 @@ export class MenuService {
           helpText: [
             chalk`Hide some of the unnecessary keyboard shortcuts ({gray home}/{gray end}/{gray pageUp}/{gray pageDown})`,
             "Shortcuts will still work, for aesthetic purposes",
-          ].join("\n"),
+          ],
           name: "Condensed",
           path: "condensed",
           type: "boolean",
@@ -264,7 +264,7 @@ export class MenuService {
           helpText: [
             "Prevent menu from printing warnings when a list is empty.",
             "Most useful when using menu as a keyboard shortcut only mode (no left/right entries).",
-          ].join("\n"),
+          ],
           name: "Key Only",
           path: "keyOnly",
           type: "boolean",

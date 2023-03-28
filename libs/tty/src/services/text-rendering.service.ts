@@ -366,7 +366,7 @@ export class TextRenderingService {
       helpText = helpText.join(`\n`);
     }
     if (is.object(helpText)) {
-      helpText = this.debug(helpText);
+      helpText = chalk`{cyan.bold Reference Data}\n` + this.debug(helpText);
     }
     return helpText;
   }
