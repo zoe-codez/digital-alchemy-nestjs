@@ -32,7 +32,7 @@ export class FormService<
   VALUE extends object = Record<string, unknown>,
   CANCEL extends unknown = never,
 > {
-  constructor(private readonly textRender: TextRenderingService) {}
+  constructor(private readonly text: TextRenderingService) {}
 
   private activeOptions: ObjectBuilderOptions<VALUE, CANCEL>;
   private selectedRow: number;
@@ -60,7 +60,7 @@ export class FormService<
       DOUBLE_PADDING +
       ansiMaxLength(
         ...elements.map(i => {
-          return this.textRender.type(this.getRenderValue(i));
+          return this.text.type(this.getRenderValue(i));
         }),
       );
     const columns = elements.map((i: TableBuilderElement<VALUE>, index) =>
@@ -149,7 +149,7 @@ export class FormService<
     original: VALUE,
   ): string {
     const raw = this.getRenderValue(i);
-    const v = this.textRender.type(raw).trim();
+    const v = this.text.type(raw).trim();
     const lines = v.split(`\n`).length;
     const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
       `\n`,

@@ -35,7 +35,7 @@ const BUFFER_SIZE = 3;
 @Injectable()
 export class TableService<VALUE extends object = Record<string, unknown>> {
   constructor(
-    private readonly textRender: TextRenderingService,
+    private readonly text: TextRenderingService,
     @InjectConfig(TABLE_RENDER_ROWS) private readonly pageSize: number,
   ) {}
 
@@ -112,9 +112,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
             ansiMaxLength(
               ...values.map(row => {
                 const value = get(row, item.path);
-                return item.format
-                  ? item.format(value)
-                  : this.textRender.type(value);
+                return item.format ? item.format(value) : this.text.type(value);
               }),
             ) +
             PADDING,
@@ -142,7 +140,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
             const value = get(i, String(element.path));
             const types = element.format
               ? element.format(value)
-              : this.textRender.type(value);
+              : this.text.type(value);
             const content =
               " ".repeat(PADDING) +
               (this.selectedRow === rowIndex && this.selectedCell === colIndex

@@ -33,8 +33,9 @@ import {
   TTYKeypressOptions,
 } from "../contracts";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd, ansiStrip, MergeHelp } from "../includes";
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
+  EnvironmentService,
   KeyboardManagerService,
   KeymapService,
   PromptEntry,
@@ -43,6 +44,7 @@ import {
 } from "../services";
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
+type PrefixArray = [TTYKeypressOptions, string];
 
 export type HighlightCallbacks<VALUE = string> = {
   /**
@@ -151,7 +153,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
    *
    * If passed as array, each item is it's own line. Intended for object printing
    */
-  headerMessage?: string | [key: string, value: string][];
+  headerMessage?: string | string[] | [key: string, value: string][];
   /**
    * Extra padding to shift the header over by
    */
@@ -159,7 +161,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
   /**
    * Text that should appear the blue bar of the help text
    */
-  helpNotes?: string | ((selected: VALUE | string) => string);
+  helpNotes?: string | string[] | ((selected: VALUE | string) => string);
   /**
    * Disallow usage of fuzzy search
    */
@@ -287,6 +289,56 @@ interface LastMenuResultInfo<VALUE = unknown> {
   type: "entry" | "keyboard";
 }
 
+type MenuProperties =
+  | "alert"
+  | "body"
+  | "columnHeaders"
+  | "header"
+  | "divider"
+  | "helpText"
+  | "keybindings"
+  | "notes";
+
+const CONSTRUCTION_ORDER: MenuProperties[] = [
+  "alert",
+  "header",
+  "columnHeaders",
+  "body",
+  "helpText",
+  "divider",
+  "notes",
+  "keybindings",
+];
+
+const PRIORITY_ORDER: MenuProperties[] = [
+  "body",
+  "columnHeaders",
+  "alert",
+  "helpText",
+  "header",
+  "divider",
+  "keybindings",
+  "notes",
+];
+
+type ConstructionItem = {
+  height: number;
+  text: string;
+  width: number;
+};
+
+type MenuConstruction = Partial<Record<MenuProperties, ConstructionItem>>;
+
+/**
+ * FIXME: This is currently a "best faith" attempt at row calculation.
+ * It ignores that text can roll over the side, and create an extra row, which would not be seen here
+ */
+const CONSTRUCTION_PROP = (text: string): ConstructionItem => ({
+  height: text.split(`\n`).length,
+  text,
+  width: ansiMaxLength(text),
+});
+
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions<VALUE>, VALUE>
@@ -297,9 +349,10 @@ export class MenuComponentService<VALUE = unknown | string>
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
-    private readonly textRender: TextRenderingService,
+    private readonly text: TextRenderingService,
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
+    private readonly environment: EnvironmentService,
     private readonly cache: CacheService,
   ) {}
 
@@ -318,10 +371,14 @@ export class MenuComponentService<VALUE = unknown | string>
   private selectedValue: VALUE;
   private sort: boolean;
   private value: VALUE;
+
   private get notes(): string {
     const { helpNotes } = this.opt;
     if (is.string(helpNotes)) {
       return helpNotes;
+    }
+    if (is.array(helpNotes)) {
+      return helpNotes.join(`\n`);
     }
     if (is.function(helpNotes)) {
       return helpNotes(this.value);
@@ -333,14 +390,14 @@ export class MenuComponentService<VALUE = unknown | string>
     config: MenuComponentOptions<VALUE>,
     done: (type: VALUE) => void,
   ): Promise<void> {
-    // Reset from last run
+    // * Reset from last run
     MenuComponentService.LAST_RESULT = undefined;
     this.complete = false;
     this.final = false;
     this.selectedValue = undefined;
     this.opt = config;
 
-    // Set up defaults in the config
+    // * Set up defaults in the config
     this.opt.left ??= [];
     this.opt.item ??= "actions";
     this.opt.right ??= [];
@@ -361,7 +418,7 @@ export class MenuComponentService<VALUE = unknown | string>
       value,
     } = config;
 
-    // Set local properties based on config
+    // * Set local properties based on config
     this.headerPadding = headerPadding ?? DEFAULT_HEADER_PADDING;
     this.rightHeader = rightHeader || "Menu";
     this.leftHeader =
@@ -376,7 +433,7 @@ export class MenuComponentService<VALUE = unknown | string>
       (left.some(({ type }) => !is.empty(type)) ||
         right.some(({ type }) => !is.empty(type)));
 
-    // Finial init
+    // * Finial init
     await this.setValue(value, restore);
     this.detectSide();
     this.setKeymap();
@@ -690,6 +747,37 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   /**
+   * Run through the available sections that are available for rendering
+   *
+   * These are considered in order of priority.
+   * If an item cannot be displayed, then it and all lower priority items will be skipped
+   *
+   * The goal is to maintain as much functionality as possible as the screen shrinks
+   */
+  private assembleMessage(construction: MenuConstruction): string {
+    let height = this.environment.height;
+    let caught = false;
+
+    const assemble = new Set(
+      PRIORITY_ORDER.filter(i => {
+        if (caught || is.undefined(construction[i])) {
+          return false;
+        }
+        height -= construction[i].height;
+        if (height <= NONE) {
+          caught = true;
+          return false;
+        }
+        return true;
+      }),
+    );
+    return CONSTRUCTION_ORDER.filter(i => assemble.has(i))
+      .map(i => construction[i]?.text)
+      .filter(i => is.string(i))
+      .join(`\n`);
+  }
+
+  /**
    * Auto detect selectedType based on the current value
    */
   private detectSide(): void {
@@ -706,7 +794,7 @@ export class MenuComponentService<VALUE = unknown | string>
     data: MainMenuEntry<VALUE>[],
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
-    const highlighted = this.textRender.fuzzyMenuSort(this.searchText, data);
+    const highlighted = this.text.fuzzyMenuSort(this.searchText, data);
 
     if (updateValue) {
       this.value = is.empty(highlighted)
@@ -730,9 +818,12 @@ export class MenuComponentService<VALUE = unknown | string>
     return item ? (item[VALUE] as AdvancedKeymap).entry : undefined;
   }
 
+  /**
+   * The final frame of a menu, informing what happened
+   */
   private renderFinal() {
     const item = this.selectedEntry();
-    let message = MergeHelp("", item);
+    let message = this.text.mergeHelp("", item);
     message += chalk` {cyan >} `;
     if (!is.empty(item?.icon)) {
       message += `${item.icon} `;
@@ -749,10 +840,10 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
-    const rendered = this.renderSide(undefined, false, updateValue);
-    const message = MergeHelp(
+    const rendered = this.renderSide(undefined, updateValue);
+    const message = this.text.mergeHelp(
       [
-        ...this.textRender.searchBox(this.searchText),
+        ...this.text.searchBox(this.searchText),
         ...rendered.map(({ entry }) => entry[LABEL]),
       ].join(`\n`),
       rendered.find(i => TTY.GV(i.entry) === this.value),
@@ -764,95 +855,128 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   /**
-   * Rendering for while not in find mode
+   * Rendering for standard keyboard navigation
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
-  private renderSelect(extraContent?: string) {
-    let message = "";
+  private renderSelect() {
+    const construction = {} as MenuConstruction;
 
+    // * Very top text, error / response text
     if (
       !is.empty(this.callbackOutput) &&
       this.callbackTimestamp.isAfter(dayjs().subtract(PAIR, "second"))
     ) {
-      message += this.callbackOutput + `\n\n`;
+      construction.alert = CONSTRUCTION_PROP(this.callbackOutput + `\n\n`);
     }
+
+    // * Header message
     if (!is.empty(this.opt.headerMessage)) {
       let headerMessage = this.opt.headerMessage;
       if (is.array(headerMessage)) {
-        const max =
-          ansiMaxLength(headerMessage.map(([label]) => label)) + INCREMENT;
-        headerMessage = headerMessage
-          .map(
-            ([label, value]) =>
-              chalk`{bold ${ansiPadEnd(label + ":", max)}} ${value}`,
-          )
-          .join(`\n`);
+        const stringArray = (headerMessage as string[]).every(i =>
+          is.string(i),
+        );
+        if (stringArray) {
+          headerMessage = headerMessage.join(`\n`);
+        } else {
+          const message = headerMessage as [key: string, value: string][];
+          const max =
+            ansiMaxLength(message.map(([label]) => label)) + INCREMENT;
+          headerMessage = message
+            .map(
+              ([label, value]) =>
+                chalk`{bold ${ansiPadEnd(label + ":", max)}} ${value}`,
+            )
+            .join(`\n`);
+        }
       }
-      message += headerMessage + `\n\n`;
+      construction.header = CONSTRUCTION_PROP(headerMessage + `\n\n`);
     }
+
+    // * Component body
     const out = is.empty(this.opt.left)
       ? this.renderSide("right").map(({ entry }) => entry[LABEL])
-      : this.textRender.assemble(
+      : this.text.assemble(
           this.renderSide("left").map(({ entry }) => entry[LABEL]),
           this.renderSide("right").map(({ entry }) => entry[LABEL]),
         );
-    if (this.opt.showHeaders) {
-      out[FIRST] = `\n  ${out[FIRST]}\n `;
-    } else {
-      message += `\n \n`;
-    }
-    message += out.map(i => `  ${i}`).join(`\n`);
+    construction.columnHeaders = CONSTRUCTION_PROP(
+      this.opt.showHeaders ? `\n  ${out[FIRST]}\n ` : `\n \n`,
+    );
+    construction.body = CONSTRUCTION_PROP(out.map(i => `  ${i}`).join(`\n`));
+
     const selectedItem = this.side().find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
-    message = MergeHelp(message, selectedItem);
-    this.screen.render(
-      message,
-      is.empty(extraContent)
-        ? this.keymap.keymapHelp({
-            current: this.value,
-            message,
-            notes: this.notes,
-            prefix: new Map(
-              Object.entries(this.opt.keyMap)
-                .map(function ([description, item]: [
-                  string,
-                  KeymapOptions<VALUE>,
-                ]): [TTYKeypressOptions, string] {
-                  let highlight: HighlightCallbacks;
-                  const aliases: string[] = [];
-                  if (isAdvanced(item as AdvancedKeymap)) {
-                    const advanced = item as AdvancedKeymap;
-                    highlight = is.string(advanced.highlight)
-                      ? {
-                          normal: chalk.green.dim,
-                          valueMatch: chalk.green.bold,
-                        }
-                      : advanced.highlight;
-                    item = advanced.entry;
-                    if (!is.empty(advanced.alias)) {
-                      aliases.push(...advanced.alias);
-                    }
-                  }
-                  if (!is.array(item)) {
-                    return undefined;
-                  }
-                  const [label] = item;
-                  return [
-                    {
-                      description: (label + "  ") as string,
-                      highlight,
-                      key: [description, ...aliases],
-                      matchValue: TTY.GV(item),
-                    },
-                    "",
-                  ];
-                })
-                .filter(item => !is.undefined(item)),
-            ),
-          })
-        : extraContent,
+
+    // * Item help text
+    if (!is.empty(selectedItem.helpText)) {
+      construction.helpText = CONSTRUCTION_PROP(
+        chalk`\n \n {blue.dim ?} ${this.text.helpFormat(
+          selectedItem.helpText,
+        )}`,
+      );
+    }
+
+    construction.keybindings = CONSTRUCTION_PROP(this.renderSelectKeymap());
+
+    const dividerWidth = this.environment.limitWidth(
+      ...Object.keys(construction).map(
+        // ? Single extra past the end for "padding"
+        key => construction[key].width + INCREMENT,
+      ),
     );
+
+    construction.divider = CONSTRUCTION_PROP(
+      chalk.blue.dim(`=`.repeat(dividerWidth)),
+    );
+
+    const message = this.assembleMessage(construction);
+    this.screen.render(message);
+  }
+
+  /**
+   *
+   */
+  private renderSelectKeymap() {
+    const prefix = Object.keys(this.opt.keyMap).map(key => {
+      let item = this.opt.keyMap[key];
+      let highlight: HighlightCallbacks;
+      const aliases: string[] = [];
+      // ? Advanced keymaps = highlighting support
+      if (isAdvanced(item as AdvancedKeymap)) {
+        const advanced = item as AdvancedKeymap;
+        highlight = is.string(advanced.highlight)
+          ? {
+              normal: chalk.green.dim,
+              valueMatch: chalk.green.bold,
+            }
+          : advanced.highlight;
+        item = advanced.entry;
+        if (!is.empty(advanced.alias)) {
+          aliases.push(...advanced.alias);
+        }
+      }
+      if (!is.array(item)) {
+        return undefined;
+      }
+      const [label] = item;
+      return [
+        {
+          description: label + "  ",
+          highlight,
+          key: [key, ...aliases],
+          matchValue: TTY.GV(item),
+        },
+        "",
+      ];
+    });
+    return this.keymap.keymapHelp({
+      current: this.value,
+      onlyHelp: true,
+      prefix: new Map(
+        prefix.filter(item => !is.undefined(item)) as PrefixArray[],
+      ),
+    });
   }
 
   /**
@@ -861,16 +985,15 @@ export class MenuComponentService<VALUE = unknown | string>
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSide(
     side: "left" | "right" = this.selectedType,
-    header = this.opt.showHeaders,
     updateValue = false,
   ): MainMenuEntry[] {
     // TODO: Track down offset issue that forces this entry to be required
-    const out: MainMenuEntry[] = [{ entry: [""] }];
+    const out: MainMenuEntry[] = [];
     let menu = this.side(side);
     if (this.mode === "find" && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
-    const temporary = this.textRender.selectRange(menu, this.value);
+    const temporary = this.text.selectRange(menu, this.value);
     menu = temporary.map(i =>
       menu.find(({ entry }) => TTY.GV(i) === TTY.GV(entry)),
     );
@@ -931,25 +1054,7 @@ export class MenuComponentService<VALUE = unknown | string>
         entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, TTY.GV(item.entry)],
       });
     });
-    const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
-    if (header) {
-      out[FIRST].entry[LABEL] =
-        side === "left"
-          ? chalk.bold.blue.dim(
-              `${this.leftHeader}${"".padEnd(
-                this.headerPadding,
-                " ",
-              )}`.padStart(max, " "),
-            )
-          : chalk.bold.blue.dim(
-              `${"".padEnd(this.headerPadding, " ")}${this.rightHeader}`.padEnd(
-                max,
-                " ",
-              ),
-            );
-    } else {
-      out.shift();
-    }
+
     return out;
   }
 

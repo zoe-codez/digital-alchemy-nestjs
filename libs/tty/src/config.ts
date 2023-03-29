@@ -8,6 +8,7 @@ export const HEADER_FONT_SECONDARY = "SECONDARY_HEADER_FONT";
 export const HELP = "HELP";
 export const LIB_TTY = "tty";
 export const PAGE_SIZE = "PAGE_SIZE";
+export const FUZZY_HIGHLIGHT = "FUZZY_HIGHLIGHT";
 export const TABLE_RENDER_ROWS = "TABLE_RENDER_ROWS";
 export const USE_FONTAWESOME_ICONS = "USE_FONTAWESOME_ICONS";
 export const TEXT_DEBUG_DEPTH = "TEXT_DEBUG_DEPTH";

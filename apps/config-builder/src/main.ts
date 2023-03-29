@@ -12,6 +12,7 @@ import {
 import {
   ApplicationManagerService,
   MainMenuEntry,
+  MenuHelpText,
   PromptService,
   ScreenService,
   TTYModule,
@@ -176,7 +177,7 @@ export class ConfigScanner {
     item: ConfigTypeDTO,
     currentValue: unknown,
   ): MainMenuEntry<ConfigTypeDTO> {
-    let helpText = item.metadata.description;
+    let helpText: MenuHelpText = item.metadata.description;
     const defaultValue = this.getDefaultValue(item);
     if (defaultValue) {
       const color =
@@ -192,7 +193,7 @@ export class ConfigScanner {
         chalk`{blue Default Value:} {${color} ${formatted}}`,
         // ...item
         chalk` {cyan.bold > }${helpText}`,
-      ].join(`\n`);
+      ];
     }
     const color = [defaultValue, undefined].includes(currentValue)
       ? "white"

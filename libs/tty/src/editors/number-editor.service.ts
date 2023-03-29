@@ -54,7 +54,7 @@ export class NumberEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
   ) {}
 
   private complete = false;
@@ -214,7 +214,7 @@ export class NumberEditorService
         ),
       ),
     );
-    const message = this.textRendering.pad(out.join(`\n`));
+    const message = this.text.pad(out.join(`\n`));
     this.screen.render(
       message,
       this.keymap.keymapHelp({

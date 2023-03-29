@@ -1,11 +1,13 @@
 import { ARRAY_OFFSET, DOWN, is, UP } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
+import { stdout } from "process";
 
 import { HighlightCallbacks } from "../components";
 import { tKeyMap } from "../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
 import { ApplicationManagerService } from "./application-manager.service";
+import { EnvironmentService } from "./environment.service";
 import { KeyboardManagerService } from "./keyboard-manager.service";
 import { TextRenderingService } from "./text-rendering.service";
 
@@ -16,6 +18,12 @@ type keyItem = {
 const LINE_PADDING = 2;
 interface KeymapHelpOptions {
   current?: unknown;
+  maxLength?: number;
+  /**
+   * use maxLength instead
+   *
+   * @deprecated
+   */
   message?: string;
   notes?: string;
   onlyHelp?: boolean;
@@ -25,15 +33,17 @@ interface KeymapHelpOptions {
 @Injectable()
 export class KeymapService {
   constructor(
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboard: KeyboardManagerService,
+    private readonly environment: EnvironmentService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   public keymapHelp({
     current,
     message = "",
+    maxLength,
     notes = " ",
     prefix = new Map(),
     onlyHelp = false,
@@ -47,29 +57,37 @@ export class KeymapService {
       b.map(i => i.label),
     );
     const help = [...a, ...b]
-      .map(
-        item =>
-          chalk`{blue.dim > }${ansiPadEnd(item.label, biggestLabel)}  ${
-            item.description
-          }`,
-      )
+      .map(({ label, description }) => {
+        const paddedLabel = ansiPadEnd(label, biggestLabel);
+        return chalk`{blue.dim > }${paddedLabel}  ${description}`;
+      })
       .join(`\n`);
     if (onlyHelp) {
       return help;
     }
-    const maxLength =
-      ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING;
+
+    // ? Just because content loops, doesn't mean we have to stoop to that level
+    maxLength = Math.min(
+      // * Use provided max length if available
+      maxLength ??
+        // * Calculate based on widest known point
+        Math.max(
+          ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING,
+          // Grab the header length for the bit of extra flair
+          this.applicationManager.headerLength(),
+        ),
+      this.environment.width,
+    );
+
     if (notes.charAt(notes.length - ARRAY_OFFSET) === "\n") {
       // A trailing newline doesn't render right if it doesn't also include something that actually render
       // Correct for forgetful dev, a blank space works fine
       notes = notes + " ";
     }
     return [
-      chalk.blue.dim(
-        "=".repeat(Math.max(maxLength, this.applicationManager.headerLength())),
-      ),
+      chalk.blue.dim("=".repeat(maxLength)),
       notes,
-      this.textRendering.pad(help),
+      this.text.pad(help),
     ].join(`\n`);
   }
 

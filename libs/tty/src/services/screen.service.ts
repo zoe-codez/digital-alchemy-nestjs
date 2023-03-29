@@ -172,7 +172,7 @@ export class ScreenService {
         `\n` +
         chalk.blue.dim(
           "=".repeat(
-            Math.max(
+            this.environment.limitWidth(
               ansiMaxLength(header, content ?? ""),
               this.applicationManager.headerLength(),
             ),

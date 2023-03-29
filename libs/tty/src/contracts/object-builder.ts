@@ -17,7 +17,7 @@ export type TableBuilderElement<
   /**
    * Help text will be displayed above the blue bar
    */
-  helpText?: string;
+  helpText?: string | string[];
   /**
    * return true to hide the property
    *

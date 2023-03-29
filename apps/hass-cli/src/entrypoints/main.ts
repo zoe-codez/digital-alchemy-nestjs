@@ -92,7 +92,7 @@ export class HassCLI {
           helpText: [
             `Batch remove entities from the Home Assistant entity registry`,
             "  " + chalk.bgRed.white.bold`!!DESTRUCTIVE!!`,
-          ].join(`\n`),
+          ],
         },
       ],
       value,
