@@ -13,6 +13,7 @@ export class EnvironmentService {
     const [, height] = stdout.getWindowSize();
     return height;
   }
+
   public get width(): number {
     const [width] = stdout.getWindowSize();
     return width;
@@ -34,5 +35,13 @@ export class EnvironmentService {
       ? Number(cols.stdout)
       : DEFAULT_WIDTH;
     return { height, width };
+  }
+
+  public limitWidth(...widths: number[]): number {
+    return Math.min(
+      //
+      this.width,
+      Math.max(...widths),
+    );
   }
 }

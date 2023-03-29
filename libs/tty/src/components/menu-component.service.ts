@@ -310,9 +310,21 @@ const CONSTRUCTION_ORDER: MenuProperties[] = [
   "keybindings",
 ];
 
+const PRIORITY_ORDER: MenuProperties[] = [
+  "body",
+  "columnHeaders",
+  "alert",
+  "helpText",
+  "header",
+  "divider",
+  "keybindings",
+  "notes",
+];
+
 type ConstructionItem = {
   height: number;
   text: string;
+  width: number;
 };
 
 type MenuConstruction = Partial<Record<MenuProperties, ConstructionItem>>;
@@ -324,6 +336,7 @@ type MenuConstruction = Partial<Record<MenuProperties, ConstructionItem>>;
 const CONSTRUCTION_PROP = (text: string): ConstructionItem => ({
   height: text.split(`\n`).length,
   text,
+  width: ansiMaxLength(text),
 });
 
 @Component({ type: "menu" })
@@ -733,14 +746,34 @@ export class MenuComponentService<VALUE = unknown | string>
     this.value = TTY.GV(list[FIRST].entry);
   }
 
+  /**
+   * Run through the available sections that are available for rendering
+   *
+   * These are considered in order of priority.
+   * If an item cannot be displayed, then it and all lower priority items will be skipped
+   *
+   * The goal is to maintain as much functionality as possible as the screen shrinks
+   */
   private assembleMessage(construction: MenuConstruction): string {
     let height = this.environment.height;
-    const assembleUntil = CONSTRUCTION_ORDER.findIndex(i => {
-      height -= construction[i].height;
-      return height <= NONE;
-    });
-    return CONSTRUCTION_ORDER.slice(START, assembleUntil)
-      .map(i => construction[i].text)
+    let caught = false;
+
+    const assemble = new Set(
+      PRIORITY_ORDER.filter(i => {
+        if (caught || is.undefined(construction[i])) {
+          return false;
+        }
+        height -= construction[i].height;
+        if (height <= NONE) {
+          caught = true;
+          return false;
+        }
+        return true;
+      }),
+    );
+    return CONSTRUCTION_ORDER.filter(i => assemble.has(i))
+      .map(i => construction[i]?.text)
+      .filter(i => is.string(i))
       .join(`\n`);
   }
 
@@ -886,7 +919,19 @@ export class MenuComponentService<VALUE = unknown | string>
 
     construction.keybindings = CONSTRUCTION_PROP(this.renderSelectKeymap());
 
-    this.assembleMessage(construction);
+    const dividerWidth = this.environment.limitWidth(
+      ...Object.keys(construction).map(
+        // ? Single extra past the end for "padding"
+        key => construction[key].width + INCREMENT,
+      ),
+    );
+
+    construction.divider = CONSTRUCTION_PROP(
+      chalk.blue.dim(`=`.repeat(dividerWidth)),
+    );
+
+    const message = this.assembleMessage(construction);
+    this.screen.render(message);
   }
 
   /**
