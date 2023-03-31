@@ -15,7 +15,6 @@ import {
 import { forwardRef, Inject } from "@nestjs/common";
 import chalk from "chalk";
 
-import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../contracts";
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
 import {
@@ -24,6 +23,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
+import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../types";
 
 const UNSORTABLE = new RegExp("[^A-Za-z0-9]", "g");
 

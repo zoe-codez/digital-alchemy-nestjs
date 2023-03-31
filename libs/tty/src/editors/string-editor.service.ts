@@ -10,7 +10,6 @@ import {
 import chalk from "chalk";
 
 import { DEFAULT_PROMPT_WIDTH } from "../config";
-import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
 import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
@@ -19,6 +18,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
+import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
 
 export interface StringEditorRenderOptions {
   current?: string;

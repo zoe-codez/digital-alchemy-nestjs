@@ -14,11 +14,11 @@ import {
 import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
+import { get } from "object-path";
 import { stdout } from "process";
 import { inspect } from "util";
 
 import { FUZZY_HIGHLIGHT, PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
-import { MainMenuEntry, MenuEntry, MenuHelpText, TTY } from "../contracts";
 import {
   ansiMaxLength,
   ansiPadEnd,
@@ -26,6 +26,15 @@ import {
   ELLIPSES,
   template,
 } from "../includes";
+import {
+  BaseSearchOptions,
+  MainMenuEntry,
+  MenuDeepSearch,
+  MenuEntry,
+  MenuHelpText,
+  MenuSearchOptions,
+  TTY,
+} from "../types";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");
@@ -34,6 +43,8 @@ const MIN_SIZE = 2;
 const INDENT = "  ";
 const MAX_STRING_LENGTH = 300;
 const FIRST = 1;
+const BAD_MATCH = -10_000;
+const BAD_VALUE = -1000;
 const LAST = -1;
 const STRING_SHRINK = 50;
 const NESTING_LEVELS = [
@@ -43,6 +54,17 @@ const NESTING_LEVELS = [
   chalk.yellow(" > "),
   chalk.red(" ~ "),
 ];
+
+// ? indexes match keys
+// Matching type is important
+// Next is label
+// Finally help
+const MATCH_SCORES = {
+  deep: 350,
+  help: 500,
+  label: 250,
+  type: 0,
+};
 
 const DEFAULT_PLACEHOLDER = "enter value";
 type EditableSearchBoxOptions = {
@@ -62,7 +84,7 @@ export class TextRenderingService {
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
   ) {
-    const [OPEN, CLOSE] = template(`{${highlightColor} _}`).split("_");
+    const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
     this.open = OPEN;
     this.close = CLOSE;
   }
@@ -154,32 +176,50 @@ export class TextRenderingService {
   public fuzzyMenuSort<T extends unknown = string>(
     searchText: string,
     data: MainMenuEntry<T>[],
+    options?: MenuSearchOptions<T>,
   ): MainMenuEntry<T>[] {
-    if (is.empty(searchText)) {
+    const searchEnabled = is.object(options)
+      ? (options as BaseSearchOptions).enabled !== false
+      : // false is the only allowed boolean
+        // undefined = default enabled
+        is.boolean(options);
+    if (!searchEnabled || is.empty(searchText)) {
       return data;
     }
-    const formatted = data.map(i => ({
-      help: i.helpText,
-      label: i.entry[LABEL],
-      type: i.type,
-      value: i,
-    }));
+    const objectOptions = (options ?? {}) as MenuSearchOptions<object>;
+    const deep = (objectOptions as MenuDeepSearch).deep;
+
+    const formatted = data.map(i => {
+      const value = TTY.GV(i.entry);
+      return {
+        deep: is.object(value) && !is.empty(deep) ? get(value, deep) : {},
+        help: i.helpText,
+        label: i.entry[LABEL],
+        type: i.type,
+        value: i,
+      };
+    });
+
+    const flags = (is.object(options) ? options : {}) as BaseSearchOptions;
+    flags.helpText ??= true;
+    flags.label ??= true;
+    flags.types ??= true;
+
+    const keys = Object.keys(flags).filter(i => flags[i]);
+    if (!is.empty(deep)) {
+      keys.push("deep");
+    }
 
     /* eslint-disable @typescript-eslint/no-magic-numbers */
     const results = fuzzy.go(searchText, formatted, {
-      keys: ["label", "help", "type"],
-      scoreFn(item) {
-        return Math.max(
-          // ? indexes match keys
-          // Matching type is important
-          // Next is label
-          // Finally help
-          item[2] ? item[2].score - 0 : -1000,
-          item[0] ? item[0].score - 250 : -1000,
-          item[1] ? item[1].score - 500 : -1000,
-        );
-      },
-      threshold: -10_000,
+      keys,
+      scoreFn: item =>
+        Math.max(
+          ...keys.map((key, index) =>
+            item[index] ? item[index].score - MATCH_SCORES[key] : BAD_VALUE,
+          ),
+        ),
+      threshold: BAD_MATCH,
     });
 
     return results

@@ -1,11 +1,9 @@
 import { ARRAY_OFFSET, DOWN, is, UP } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
-import { stdout } from "process";
 
-import { HighlightCallbacks } from "../components";
-import { tKeyMap } from "../contracts";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { HighlightCallbacks, tKeyMap } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { EnvironmentService } from "./environment.service";
 import { KeyboardManagerService } from "./keyboard-manager.service";

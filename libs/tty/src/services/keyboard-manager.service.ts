@@ -2,7 +2,7 @@ import { each, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
-import { DirectCB, KeyDescriptor, KeyModifiers, tKeyMap } from "../contracts";
+import { DirectCB, KeyDescriptor, KeyModifiers, tKeyMap } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
 

@@ -3,13 +3,13 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import { KeyMap, MainMenuCB } from "../components";
-import { MainMenuEntry, ObjectBuilderOptions, TTY } from "../contracts";
 import { Component, iComponent } from "../decorators";
 import {
   ApplicationManagerService,
   IconService,
   PromptService,
 } from "../services";
+import { MainMenuEntry, ObjectBuilderOptions, TTY } from "../types";
 type MagicHeader = string | [key: string, value: string];
 type TypeToggle = { type: string };
 

@@ -12,12 +12,12 @@ import chalk from "chalk";
 import { get } from "object-path";
 
 import { TABLE_RENDER_ROWS } from "../config";
+import { ansiMaxLength, ansiPadEnd } from "../includes";
 import {
   ObjectBuilderOptions,
   TABLE_PARTS,
   TableBuilderElement,
-} from "../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+} from "../types";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;
