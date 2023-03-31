@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import { CacheService } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
@@ -265,10 +266,6 @@ const DEFAULT_HEADER_PADDING = 4;
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, powerUser: true }, "onSearchKeyPress"],
-  [{ description: "next", key: "down" }, "navigateSearch"],
-  [{ description: "previous", key: "up" }, "navigateSearch"],
-  [{ description: "bottom", key: ["end", "pagedown"] }, "navigateSearch"],
-  [{ description: "top", key: ["home", "pageup"] }, "navigateSearch"],
   [{ description: "select entry", key: "enter" }, "onEnd"],
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
 ]);
@@ -339,6 +336,8 @@ const CONSTRUCTION_PROP = (text: string): ConstructionItem => ({
   width: ansiMaxLength(text),
 });
 
+type MenuModes = "find-navigate" | "select" | "find-input";
+
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions<VALUE>, VALUE>
@@ -363,9 +362,10 @@ export class MenuComponentService<VALUE = unknown | string>
   private final = false;
   private headerPadding: number;
   private leftHeader: string;
-  private mode: "find" | "select" = "select";
+  private mode: MenuModes = "select";
   private opt: MenuComponentOptions<VALUE>;
   private rightHeader: string;
+  private searchCursor: number;
   private searchText = "";
   private selectedType: "left" | "right" = "right";
   private selectedValue: VALUE;
@@ -392,6 +392,8 @@ export class MenuComponentService<VALUE = unknown | string>
   ): Promise<void> {
     // * Reset from last run
     MenuComponentService.LAST_RESULT = undefined;
+    this.searchText = "";
+    this.searchCursor = START;
     this.complete = false;
     this.final = false;
     this.selectedValue = undefined;
@@ -489,7 +491,7 @@ export class MenuComponentService<VALUE = unknown | string>
       this.onEnd();
       return false;
     }
-    const selectedItem = this.side().find(
+    const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
     const result = await (selectedItem
@@ -526,15 +528,18 @@ export class MenuComponentService<VALUE = unknown | string>
    * Move the cursor to the bottom of the list
    */
   protected bottom(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     this.value = TTY.GV(list[list.length - ARRAY_OFFSET].entry);
   }
 
   /**
    * Move the cursor around
+   *
+   * mode: "select"
    */
   protected navigateSearch(key: string): void {
-    const all = this.side();
+    // * Grab list of items from current side
+    const all = this.side(this.selectedType);
     let available = this.filterMenu(all);
     if (is.empty(available)) {
       available = all;
@@ -556,20 +561,22 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     if (index === START && key === "up") {
       this.value = TTY.GV(available[available.length - ARRAY_OFFSET].entry);
-    } else if (index === available.length - ARRAY_OFFSET && key === "down") {
-      this.value = TTY.GV(available[START].entry);
-    } else {
-      this.value = TTY.GV(
-        available[key === "up" ? index - INCREMENT : index + INCREMENT].entry,
-      );
+      return;
     }
+    if (index === available.length - ARRAY_OFFSET && key === "down") {
+      this.value = TTY.GV(available[START].entry);
+      return;
+    }
+    this.value = TTY.GV(
+      available[key === "up" ? index - INCREMENT : index + INCREMENT].entry,
+    );
   }
 
   /**
    * Move down 1 entry
    */
   protected next(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
       this.value = TTY.GV(list[FIRST].entry);
@@ -583,14 +590,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.value = TTY.GV(list[index + INCREMENT].entry);
   }
 
-  protected numberSelect(mixed: string): boolean {
-    const list = this.side();
-    const item = list[Number(is.empty(mixed) ? "1" : mixed) - ARRAY_OFFSET];
-    const entry = item?.entry;
-    this.value = entry ? TTY.GV(entry) : this.value;
-    return true;
-  }
-
   /**
    * Terminate the editor
    */
@@ -598,7 +597,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (!this.done) {
       return;
     }
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(
       entry => TTY.GV(entry) === this.selectedValue ?? this.value,
     );
@@ -633,10 +632,22 @@ export class MenuComponentService<VALUE = unknown | string>
    * on left key press - attempt to move to left menu
    */
   protected onLeft(): void {
-    const [right, left] = [this.side("right"), this.side("left")];
     if (is.empty(this.opt.left) || this.selectedType === "left") {
       return;
     }
+
+    let [right, left] = [this.side("right"), this.side("left")];
+    this.selectedType = "right";
+
+    if (this.mode !== "select") {
+      let availableRight = this.filterMenu(right);
+      let availableLeft = this.filterMenu(left);
+      availableRight = is.empty(availableRight) ? right : availableRight;
+      availableLeft = is.empty(availableLeft) ? left : availableLeft;
+      left = availableLeft;
+      right = availableRight;
+    }
+
     this.selectedType = "left";
     let current = right.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
@@ -655,11 +666,21 @@ export class MenuComponentService<VALUE = unknown | string>
    * On right key press - attempt to move editor to right side
    */
   protected onRight(): void {
-    if (this.selectedType === "right") {
+    if (is.empty(this.opt.right) || this.selectedType === "right") {
       return;
     }
-    const [right, left] = [this.side("right"), this.side("left")];
+    let [right, left] = [this.side("right"), this.side("left")];
     this.selectedType = "right";
+
+    if (this.mode !== "select") {
+      let availableRight = this.filterMenu(right);
+      let availableLeft = this.filterMenu(left);
+      availableRight = is.empty(availableRight) ? right : availableRight;
+      availableLeft = is.empty(availableLeft) ? left : availableLeft;
+      left = availableLeft;
+      right = availableRight;
+    }
+
     let current = left.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
@@ -673,25 +694,126 @@ export class MenuComponentService<VALUE = unknown | string>
         : TTY.GV(right[current].entry);
   }
 
+  protected onSearchFindInputKeyPress(key: string) {
+    const searchLength = this.searchText.length;
+    switch (key) {
+      case "left":
+        this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
+        this.render(true);
+        return;
+      case "right":
+        this.searchCursor = Math.min(
+          searchLength,
+          this.searchCursor + INCREMENT,
+        );
+        this.render(true);
+        return;
+      case "end":
+        this.searchCursor = searchLength;
+        this.render(true);
+        return;
+      case "home":
+        this.searchCursor = START;
+        this.render(true);
+        return;
+      case "pagedown":
+      case "down":
+        this.mode = "find-navigate";
+        this.render(true);
+        return;
+      case "backspace":
+        if (this.searchCursor === START) {
+          return;
+        }
+        this.searchText = [...this.searchText]
+          .filter((char, index) => index !== this.searchCursor - ARRAY_OFFSET)
+          .join("");
+        this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
+        this.render(true);
+        return;
+      case "delete":
+        // no need for cursor adjustments
+        this.searchText = [...this.searchText]
+          .filter((char, index) => index !== this.searchCursor)
+          .join("");
+        this.render(true);
+        return;
+      case "space":
+        key = " ";
+      // fall through
+      default:
+        if (key.length > SINGLE) {
+          return;
+        }
+        this.searchText = [
+          this.searchText.slice(START, this.searchCursor),
+          key,
+          this.searchText.slice(this.searchCursor),
+        ].join("");
+        this.searchCursor++;
+        this.render(true);
+    }
+  }
+
   /**
    * Key handler for widget while in search mode
    */
   protected onSearchKeyPress(key: string): boolean {
-    if (key === "backspace") {
-      this.searchText = this.searchText.slice(
-        START,
-        ARRAY_OFFSET * INVERT_VALUE,
-      );
+    // ? Everywhere actions
+    if (key === "escape") {
+      // * Clear search text
+      this.searchText = "";
+      this.searchCursor = START;
       this.render(true);
       return false;
     }
-    if (["up", "down", "home", "pageup", "end", "pagedown"].includes(key)) {
-      this.navigateSearch(key);
+    if (this.mode === "find-input") {
+      this.onSearchFindInputKeyPress(key);
+      return false;
     }
-    if (key === "space") {
-      this.searchText += " ";
+    const all = this.side(this.selectedType);
+    let available = this.filterMenu(all);
+    if (is.empty(available)) {
+      available = all;
+    }
+    const index = available.findIndex(
+      ({ entry }) => TTY.GV(entry) === this.value,
+    );
+    if (key === "pageup" && index == START) {
+      this.mode = "find-input";
       this.render(true);
       return false;
+    }
+    switch (key) {
+      case "backspace":
+        // * Back
+        this.searchText = this.searchText.slice(
+          START,
+          ARRAY_OFFSET * INVERT_VALUE,
+        );
+        this.render(true);
+        return false;
+      case "up":
+      case "down":
+      case "home":
+      case "pageup":
+      case "end":
+      case "pagedown":
+        this.navigateSearch(key);
+        return;
+      case "space":
+        this.searchText += " ";
+        this.render(true);
+        return false;
+      case "left":
+        this.selectedType = "left";
+
+        this.render(true);
+        return false;
+      case "right":
+        this.selectedType = "right";
+        this.render(true);
+        return false;
     }
     if (key.length > SINGLE) {
       // These don't currently render in the help
@@ -702,6 +824,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     this.searchText += key;
+    this.searchCursor = this.searchText.length;
     this.render(true);
     return false;
   }
@@ -710,7 +833,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Attempt to move up 1 item in the active list
    */
   protected previous(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
       this.value = TTY.GV(list[FIRST].entry);
@@ -728,12 +851,11 @@ export class MenuComponentService<VALUE = unknown | string>
    * Simple toggle function
    */
   protected toggleFind(): void {
-    this.mode = this.mode === "find" ? "select" : "find";
+    this.mode = this.mode === "select" ? "find-input" : "select";
     if (this.mode === "select") {
       this.detectSide();
       this.setKeymap();
     } else {
-      this.searchText = "";
       this.keyboard.setKeyMap(this, SEARCH_KEYMAP);
     }
   }
@@ -742,7 +864,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Move cursor to the top of the current list
    */
   protected top(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     this.value = TTY.GV(list[FIRST].entry);
   }
 
@@ -789,6 +911,13 @@ export class MenuComponentService<VALUE = unknown | string>
 
   /**
    * Search mode - limit results based on the search text
+   *
+   * If requested, update the value value of this.value so it super definitely has a valid value
+   * This can get lost if label and value were provided together
+   *
+   * ```json
+   * { entry: ["combined"] }
+   * ```
    */
   private filterMenu(
     data: MainMenuEntry<VALUE>[],
@@ -840,13 +969,39 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
-    const rendered = this.renderSide(undefined, updateValue);
+    // * Component body
+    const out = is.empty(this.opt.left)
+      ? this.renderSide("right", false, updateValue).map(
+          ({ entry }) => entry[LABEL],
+        )
+      : this.text.assemble(
+          this.renderSide("left", false, updateValue).map(
+            ({ entry }) => entry[LABEL],
+          ),
+          this.renderSide("right", false, updateValue).map(
+            ({ entry }) => entry[LABEL],
+          ),
+        );
+
+    let bgColor = "bgMagenta";
+    if (this.mode === "find-input") {
+      bgColor = is.empty(this.searchText) ? "bgBlue" : "bgCyan";
+    }
+
+    const search = this.text.searchBoxEditable({
+      bgColor,
+      cursor: this.mode === "find-input" ? this.searchCursor : undefined,
+      padding: SINGLE,
+      placeholder: "Type to filter",
+      value: this.searchText,
+      width: 100,
+    });
+
     const message = this.text.mergeHelp(
-      [
-        ...this.text.searchBox(this.searchText),
-        ...rendered.map(({ entry }) => entry[LABEL]),
-      ].join(`\n`),
-      rendered.find(i => TTY.GV(i.entry) === this.value),
+      [...search, " ", ...out].join(`\n`),
+      this.side(this.selectedType).find(
+        ({ entry }) => TTY.GV(entry) === this.value,
+      ),
     );
     this.screen.render(
       message,
@@ -899,12 +1054,13 @@ export class MenuComponentService<VALUE = unknown | string>
           this.renderSide("left").map(({ entry }) => entry[LABEL]),
           this.renderSide("right").map(({ entry }) => entry[LABEL]),
         );
+
     construction.columnHeaders = CONSTRUCTION_PROP(
-      this.opt.showHeaders ? `\n  ${out[FIRST]}\n ` : `\n \n`,
+      this.opt.showHeaders ? `\n  ${out.shift()}\n ` : `\n \n`,
     );
     construction.body = CONSTRUCTION_PROP(out.map(i => `  ${i}`).join(`\n`));
 
-    const selectedItem = this.side().find(
+    const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
 
@@ -985,12 +1141,97 @@ export class MenuComponentService<VALUE = unknown | string>
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSide(
     side: "left" | "right" = this.selectedType,
+    header = this.opt.showHeaders,
     updateValue = false,
   ): MainMenuEntry[] {
-    // TODO: Track down offset issue that forces this entry to be required
+    const { out, maxType, maxLabel, menu } = this.renderSideSetup(
+      side,
+      updateValue,
+    );
+
+    let last = "";
+    menu.forEach(item => {
+      // * Grouping label
+      let prefix = ansiPadEnd(item.type, maxType);
+      // ? Optionally, make it fancy
+      if (this.opt.titleTypes) {
+        prefix = TitleCase(prefix);
+      }
+      // ? If it is the same as the previous one (above), then render blank space
+      if (last === prefix) {
+        prefix = " ".repeat(maxType);
+      } else {
+        // ? Hand off from one type to another
+        // Insert a blank line in between
+        // Hope everything is sorted
+        if (last !== "" && this.mode === "select") {
+          out.push({ entry: [" "] });
+        }
+        last = prefix;
+        prefix = chalk(prefix);
+      }
+
+      // ? Where the cursor is
+      const highlight =
+        this.mode !== "find-input" && TTY.GV(item.entry) === this.value;
+      const padded = ansiPadEnd(
+        // ? If an icon exists, provide it and append a space
+        (is.empty(item.icon) ? "" : `${item.icon} `) + item.entry[LABEL],
+        maxLabel,
+      );
+
+      // ? When rendering the column with the cursor in it, add extra colors
+      if (this.selectedType === side) {
+        const color = highlight ? "bgCyanBright.black" : "white";
+        out.push({
+          ...item,
+          entry: [
+            // ? {grouping type in magenta} {item}
+            chalk` {magenta.bold ${prefix}} {${color}  ${padded}}`,
+            TTY.GV(item.entry),
+          ],
+        });
+        return;
+      }
+      // ? Alternate column in boring gray
+      out.push({
+        ...item,
+        entry: [
+          chalk` {gray.bold ${prefix}}  {gray ${padded}}`,
+          TTY.GV(item.entry),
+        ],
+      });
+    });
+
+    // ? This, annoyingly, is the easiest way to assemble headers
+    const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
+    if (header) {
+      out.unshift({
+        entry: [
+          chalk.bold.blue.dim(this.renderSideHeader(side, max)),
+          Symbol("header_object"),
+        ],
+      });
+    }
+
+    return out;
+  }
+
+  private renderSideHeader(side: "left" | "right", max: number): string {
+    const padding = " ".repeat(this.headerPadding);
+    if (side === "left") {
+      return `${this.leftHeader}${padding}`.padStart(max, " ");
+    }
+    return `${padding}${this.rightHeader}`.padEnd(max, " ");
+  }
+
+  private renderSideSetup(
+    side: "left" | "right" = this.selectedType,
+    updateValue = false,
+  ) {
     const out: MainMenuEntry[] = [];
     let menu = this.side(side);
-    if (this.mode === "find" && !is.empty(this.searchText)) {
+    if (this.mode !== "select") {
       menu = this.filterMenu(menu, updateValue);
     }
     const temporary = this.text.selectRange(menu, this.value);
@@ -999,7 +1240,6 @@ export class MenuComponentService<VALUE = unknown | string>
     );
 
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));
-    let last = "";
     const maxLabel =
       ansiMaxLength(
         ...menu.map(
@@ -1015,47 +1255,7 @@ export class MenuComponentService<VALUE = unknown | string>
         ],
       });
     }
-    menu.forEach(item => {
-      let prefix = ansiPadEnd(item.type, maxType);
-      if (this.opt.titleTypes) {
-        prefix = TitleCase(prefix);
-      }
-      if (last === prefix) {
-        prefix = chalk("".padEnd(maxType, " "));
-      } else {
-        if (last !== "" && this.mode !== "find") {
-          out.push({ entry: [" "] });
-        }
-        last = prefix;
-        prefix = chalk(prefix);
-      }
-      if (this.mode === "find") {
-        prefix = ``;
-      }
-      const inverse = TTY.GV(item.entry) === this.value;
-      const padded = ansiPadEnd(
-        (is.empty(item.icon) ? "" : `${item.icon} `) + item.entry[LABEL],
-        maxLabel,
-      );
-      if (this.selectedType === side) {
-        out.push({
-          ...item,
-          entry: [
-            chalk` {magenta.bold ${prefix}} {${
-              inverse ? "bgCyanBright.black" : "white"
-            }  ${padded}}`,
-            TTY.GV(item.entry),
-          ],
-        });
-        return;
-      }
-      out.push({
-        ...item,
-        entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, TTY.GV(item.entry)],
-      });
-    });
-
-    return out;
+    return { maxLabel, maxType, menu, out };
   }
 
   private searchItems(
@@ -1119,14 +1319,6 @@ export class MenuComponentService<VALUE = unknown | string>
             [{ key: "down" }, "next"],
             [{ description: "select entry", key: "enter" }, "onEnd"],
             [{ key: "up" }, "previous"],
-            [
-              {
-                description: "select item",
-                key: [..."0123456789"],
-                powerUser: true,
-              },
-              "numberSelect",
-            ],
           ] as tMenuItem[])),
 
       [
@@ -1231,13 +1423,7 @@ export class MenuComponentService<VALUE = unknown | string>
    *  - Items sorted within types, priority first, then ansi stripped label
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  private side(
-    side: "left" | "right" = this.selectedType,
-    noRecurse = false,
-  ): MainMenuEntry<VALUE>[] {
-    if (this.mode === "find" && !noRecurse) {
-      return [...this.side("right", true), ...this.side("left", true)];
-    }
+  private side(side: "left" | "right"): MainMenuEntry<VALUE>[] {
     let temp = this.opt[side].map(item => [
       item,
       ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),

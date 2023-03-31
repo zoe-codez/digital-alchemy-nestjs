@@ -3,8 +3,10 @@ import {
   ARRAY_OFFSET,
   DOWN,
   INCREMENT,
+  INVERT_VALUE,
   is,
   LABEL,
+  SINGLE,
   START,
   TitleCase,
   UP,
@@ -17,7 +19,13 @@ import { inspect } from "util";
 
 import { FUZZY_HIGHLIGHT, PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
 import { MainMenuEntry, MenuEntry, MenuHelpText, TTY } from "../contracts";
-import { ansiMaxLength, ansiPadEnd, template } from "../includes";
+import {
+  ansiMaxLength,
+  ansiPadEnd,
+  ansiStrip,
+  ELLIPSES,
+  template,
+} from "../includes";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");
@@ -35,6 +43,17 @@ const NESTING_LEVELS = [
   chalk.yellow(" > "),
   chalk.red(" ~ "),
 ];
+
+const DEFAULT_PLACEHOLDER = "enter value";
+type EditableSearchBoxOptions = {
+  bgColor: string;
+  cursor: number;
+  mask?: "hide" | "obfuscate";
+  padding: number;
+  placeholder?: string;
+  value: string;
+  width: number;
+};
 
 @Injectable()
 export class TextRenderingService {
@@ -276,6 +295,49 @@ export class TextRenderingService {
         )} `,
       ` `,
     ];
+  }
+
+  public searchBoxEditable({
+    value,
+    width,
+    bgColor,
+    padding,
+    mask,
+    cursor,
+    placeholder = DEFAULT_PLACEHOLDER,
+  }: EditableSearchBoxOptions) {
+    value ||= placeholder;
+
+    const maxLength = width - padding;
+    const out: string[] = [];
+    const stripped = ansiStrip(value);
+    let length = stripped.length;
+    if (length > maxLength - ELLIPSES.length) {
+      const update =
+        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
+      value = value.replace(stripped, update);
+      length = update.length;
+    }
+    if (value !== DEFAULT_PLACEHOLDER) {
+      if (mask === "hide") {
+        value = "";
+      } else {
+        if (mask === "obfuscate") {
+          value = "*".repeat(value.length);
+        }
+        if (is.number(cursor)) {
+          value = [
+            value.slice(START, cursor),
+            chalk.inverse(value[cursor] ?? " "),
+            value.slice(cursor + SINGLE),
+          ].join("");
+        }
+      }
+    }
+    const padded = " " + value + " ";
+
+    out.push(chalk[bgColor].black(ansiPadEnd(padded, maxLength + padding)));
+    return out;
   }
 
   /**
