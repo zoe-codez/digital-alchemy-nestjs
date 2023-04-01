@@ -475,17 +475,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
 
-    let [right, left] = [this.side("right"), this.side("left")];
-    this.selectedType = "right";
-
-    if (this.mode !== "select") {
-      let availableRight = this.filterMenu(right, "right");
-      let availableLeft = this.filterMenu(left, "left");
-      availableRight = is.empty(availableRight) ? right : availableRight;
-      availableLeft = is.empty(availableLeft) ? left : availableLeft;
-      left = availableLeft;
-      right = availableRight;
-    }
+    const [right, left] = this.filteredRangedSides();
 
     this.selectedType = "left";
     let current = right.findIndex(i => TTY.GV(i.entry) === this.value);
@@ -508,17 +498,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (is.empty(this.opt.right) || this.selectedType === "right") {
       return;
     }
-    let [right, left] = [this.side("right"), this.side("left")];
-    this.selectedType = "right";
-
-    if (this.mode !== "select") {
-      let availableRight = this.filterMenu(right, "right");
-      let availableLeft = this.filterMenu(left, "left");
-      availableRight = is.empty(availableRight) ? right : availableRight;
-      availableLeft = is.empty(availableLeft) ? left : availableLeft;
-      left = availableLeft;
-      right = availableRight;
-    }
+    const [right, left] = this.filteredRangedSides();
 
     let current = left.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
@@ -558,15 +538,14 @@ export class MenuComponentService<VALUE = unknown | string>
       case "pagedown":
       case "down":
         this.mode = "find-navigate";
-
+        // * Move the top available item for the correct expected column
         const all = this.side(this.selectedType);
         let available = this.filterMenu(all, this.selectedType);
         if (is.empty(available)) {
           available = all;
         }
         this.value = TTY.GV(available[START].entry);
-
-        this.render(true);
+        this.render(false);
         return;
       case "backspace":
         if (this.searchCursor === START) {
@@ -654,13 +633,12 @@ export class MenuComponentService<VALUE = unknown | string>
         this.render(true);
         return false;
       case "left":
-        this.selectedType = "left";
-
-        this.render(true);
+        this.onLeft();
+        this.render(false);
         return false;
       case "right":
-        this.selectedType = "right";
-        this.render(true);
+        this.onRight();
+        this.render(false);
         return false;
     }
     if (key.length > SINGLE) {
@@ -785,6 +763,24 @@ export class MenuComponentService<VALUE = unknown | string>
         : TTY.GV(highlighted[START].entry);
     }
     return highlighted;
+  }
+
+  private filteredRangedSides() {
+    let [right, left] = [this.side("right"), this.side("left")];
+    this.selectedType = "right";
+
+    if (this.mode !== "select") {
+      let availableRight = this.filterMenu(right, "right");
+      let availableLeft = this.filterMenu(left, "left");
+      availableRight = is.empty(availableRight) ? right : availableRight;
+      availableLeft = is.empty(availableLeft) ? left : availableLeft;
+      left = availableLeft;
+      right = availableRight;
+    }
+    return [
+      this.text.selectRange(right, this.value),
+      this.text.selectRange(left, this.value),
+    ];
   }
 
   private findKeyEntry(map: KeyMap<VALUE>, key: string) {
@@ -1021,7 +1017,10 @@ export class MenuComponentService<VALUE = unknown | string>
         // ? Hand off from one type to another
         // Insert a blank line in between
         // Hope everything is sorted
-        if (last !== "" && this.mode === "select") {
+        if (
+          last !== "" &&
+          (this.mode === "select" || is.empty(this.searchText))
+        ) {
           out.push({ entry: [" "] });
         }
         last = prefix;
