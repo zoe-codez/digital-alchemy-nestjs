@@ -605,7 +605,7 @@ export class MenuComponentService<VALUE = unknown | string>
     const index = available.findIndex(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
-    if (key === "pageup" && index == START) {
+    if (["pageup", "up"].includes(key) && index == START) {
       this.mode = "find-input";
       this.render(true);
       return false;
