@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { CacheService } from "@digital-alchemy/boilerplate";
+import { CacheService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -24,6 +24,16 @@ import dayjs from "dayjs";
 import { get } from "object-path";
 import { nextTick } from "process";
 
+import {
+  MENU_ENTRY_NORMAL,
+  MENU_ENTRY_OTHER,
+  MENU_ENTRY_SELECTED,
+  MENU_ENTRY_TYPE,
+  MENU_ENTRY_TYPE_OTHER,
+  MENU_SEARCHBOX_CONTENT,
+  MENU_SEARCHBOX_EMPTY,
+  MENU_SEARCHBOX_NORMAL,
+} from "../config";
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
@@ -35,7 +45,6 @@ import {
 } from "../services";
 import {
   AdvancedKeymap,
-  BaseSearchOptions,
   DirectCB,
   HighlightCallbacks,
   KeyMap,
@@ -147,6 +156,18 @@ export class MenuComponentService<VALUE = unknown | string>
   public static LAST_RESULT: LastMenuResultInfo<unknown>;
 
   constructor(
+    @InjectConfig(MENU_ENTRY_TYPE) private readonly colorType: string,
+    @InjectConfig(MENU_ENTRY_SELECTED) private readonly colorSelected: string,
+    @InjectConfig(MENU_ENTRY_OTHER) private readonly colorOther: string,
+    @InjectConfig(MENU_ENTRY_TYPE_OTHER)
+    private readonly colorTypeOther: string,
+    @InjectConfig(MENU_ENTRY_NORMAL) private readonly colorNormal: string,
+    @InjectConfig(MENU_SEARCHBOX_CONTENT)
+    private readonly colorSearchBoxContent: string,
+    @InjectConfig(MENU_SEARCHBOX_EMPTY)
+    private readonly colorSearchBoxEmpty: string,
+    @InjectConfig(MENU_SEARCHBOX_NORMAL)
+    private readonly colorSearchBoxNormal: string,
     private readonly cache: CacheService,
     private readonly environment: EnvironmentService,
     private readonly keyboard: KeyboardManagerService,
@@ -202,11 +223,7 @@ export class MenuComponentService<VALUE = unknown | string>
     this.selectedValue = undefined;
     this.opt = config;
 
-    this.searchEnabled = is.object(this.opt.search)
-      ? (this.opt.search as BaseSearchOptions).enabled !== false
-      : // false is the only allowed boolean
-        // undefined = default enabled
-        is.boolean(this.opt.search);
+    this.searchEnabled = TTY.searchEnabled(this.opt.search);
 
     // * Set up defaults in the config
     this.opt.left ??= [];
@@ -779,22 +796,26 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderFind(updateValue = false): void {
     // * Component body
-    const out = is.empty(this.opt.left)
-      ? this.renderSide("right", false, updateValue).map(
-          ({ entry }) => entry[LABEL],
-        )
-      : this.text.assemble(
-          this.renderSide("left", false, updateValue).map(
+    const sides = {
+      left: this.renderSide("left", false, updateValue),
+      right: this.renderSide("right", false, updateValue),
+    };
+    const out =
+      !is.empty(this.opt.left) && !is.empty(this.opt.right)
+        ? this.text.assemble(
+            Object.values(sides).map(i => i.map(x => x.entry[LABEL])) as [
+              string[],
+              string[],
+            ],
+          )
+        : this.renderSide("right", false, updateValue).map(
             ({ entry }) => entry[LABEL],
-          ),
-          this.renderSide("right", false, updateValue).map(
-            ({ entry }) => entry[LABEL],
-          ),
-        );
-
-    let bgColor = "bgMagenta";
+          );
+    let bgColor = this.colorSearchBoxNormal;
     if (this.mode === "find-input") {
-      bgColor = is.empty(this.searchText) ? "bgBlue" : "bgCyan";
+      bgColor = is.empty(this.searchText)
+        ? this.colorSearchBoxEmpty
+        : this.colorSearchBoxContent;
     }
 
     const search = this.text.searchBoxEditable({
@@ -805,12 +826,11 @@ export class MenuComponentService<VALUE = unknown | string>
       value: this.searchText,
       width: 100,
     });
+    const entries = this.selectedType === "left" ? sides.left : sides.right;
 
     const message = this.text.mergeHelp(
       [...search, " ", ...out].join(`\n`),
-      this.side(this.selectedType).find(
-        ({ entry }) => TTY.GV(entry) === this.value,
-      ),
+      entries.find(({ entry }) => TTY.GV(entry) === this.value),
     );
     this.screen.render(
       message,
@@ -856,12 +876,12 @@ export class MenuComponentService<VALUE = unknown | string>
       construction.header = CONSTRUCTION_PROP(headerMessage + `\n\n`);
     }
 
+    const sides = [this.renderSide("left"), this.renderSide("right")];
     // * Component body
     const out = is.empty(this.opt.left)
       ? this.renderSide("right").map(({ entry }) => entry[LABEL])
       : this.text.assemble(
-          this.renderSide("left").map(({ entry }) => entry[LABEL]),
-          this.renderSide("right").map(({ entry }) => entry[LABEL]),
+          sides.map(i => i.map(x => x.entry[LABEL])) as [string[], string[]],
         );
 
     construction.columnHeaders = CONSTRUCTION_PROP(
@@ -991,12 +1011,12 @@ export class MenuComponentService<VALUE = unknown | string>
 
       // ? When rendering the column with the cursor in it, add extra colors
       if (this.selectedType === side) {
-        const color = highlight ? "bgCyanBright.black" : "white";
+        const color = highlight ? this.colorSelected : this.colorNormal;
         out.push({
           ...item,
           entry: [
             // ? {grouping type in magenta} {item}
-            chalk` {magenta.bold ${prefix}} {${color}  ${padded}}`,
+            chalk` {${this.colorType} ${prefix}} {${color}  ${padded}}`,
             TTY.GV(item.entry),
           ],
         });
@@ -1006,7 +1026,7 @@ export class MenuComponentService<VALUE = unknown | string>
       out.push({
         ...item,
         entry: [
-          chalk` {gray.bold ${prefix}}  {gray ${padded}}`,
+          chalk` {${this.colorTypeOther} ${prefix}}  {${this.colorOther} ${padded}}`,
           TTY.GV(item.entry),
         ],
       });
@@ -1153,13 +1173,11 @@ export class MenuComponentService<VALUE = unknown | string>
       [{ description: "toggle find", key: "tab" }, "toggleFind"],
     ];
 
-    const keymap = new Map([
-      ...PARTIAL_LIST,
-      ...(is.empty(this.opt.left) || is.empty(this.opt.right)
-        ? []
-        : LEFT_RIGHT),
-      ...(!this.searchEnabled || this.opt.keyOnly ? [] : SEARCH),
-    ]);
+    const search_keymap = !this.searchEnabled || this.opt.keyOnly ? [] : SEARCH;
+    const left_right =
+      is.empty(this.opt.left) || is.empty(this.opt.right) ? [] : LEFT_RIGHT;
+
+    const keymap = new Map([...PARTIAL_LIST, ...left_right, ...search_keymap]);
     this.keyboard.setKeyMap(this, keymap);
   }
 

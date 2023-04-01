@@ -96,7 +96,7 @@ export type BaseSearchOptions = {
   /**
    * default: true
    */
-  types?: boolean;
+  type?: boolean;
 };
 
 export type MenuDeepSearch<SEARCH extends object = object> = {

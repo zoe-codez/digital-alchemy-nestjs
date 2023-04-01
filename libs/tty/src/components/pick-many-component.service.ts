@@ -132,7 +132,7 @@ export class PickManyComponentService<VALUE = unknown>
       updateValue && this.selectedType === "source",
     );
     const search = this.mode === "find" ? this.searchText : undefined;
-    const message = this.text.assemble(current, source, {
+    const message = this.text.assemble([current, source], {
       left,
       right,
       search,

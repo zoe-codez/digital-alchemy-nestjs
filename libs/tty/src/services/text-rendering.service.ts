@@ -6,6 +6,7 @@ import {
   INVERT_VALUE,
   is,
   LABEL,
+  NOT_FOUND,
   SINGLE,
   START,
   TitleCase,
@@ -30,7 +31,6 @@ import {
   BaseSearchOptions,
   MainMenuEntry,
   MenuDeepSearch,
-  MenuEntry,
   MenuHelpText,
   MenuSearchOptions,
   TTY,
@@ -61,10 +61,11 @@ const NESTING_LEVELS = [
 // Finally help
 const MATCH_SCORES = {
   deep: 350,
-  help: 500,
+  helpText: 500,
   label: 250,
   type: 0,
 };
+type MatchKeys = keyof typeof MATCH_SCORES;
 
 const DEFAULT_PLACEHOLDER = "enter value";
 type EditableSearchBoxOptions = {
@@ -77,6 +78,14 @@ type EditableSearchBoxOptions = {
   width: number;
 };
 
+type HighlightResult<T> = Fuzzysort.KeysResult<{
+  deep: object;
+  helpText: MenuHelpText;
+  label: string;
+  type: string;
+  value: MainMenuEntry<T>;
+}>;
+
 @Injectable()
 export class TextRenderingService {
   constructor(
@@ -84,7 +93,7 @@ export class TextRenderingService {
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
   ) {
-    const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
+    const [OPEN, CLOSE] = template(`{${highlightColor} _}`).split("_");
     this.open = OPEN;
     this.close = CLOSE;
   }
@@ -107,8 +116,7 @@ export class TextRenderingService {
    * Left side is considered the "secondary" column
    */
   public assemble(
-    leftEntries: string[],
-    rightEntries: string[],
+    [leftEntries, rightEntries]: [string[], string[]],
     {
       left,
       right,
@@ -172,7 +180,6 @@ export class TextRenderingService {
    *
    * Takes into account helpText and category in addition to label
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   public fuzzyMenuSort<T extends unknown = string>(
     searchText: string,
     data: MainMenuEntry<T>[],
@@ -182,7 +189,7 @@ export class TextRenderingService {
       ? (options as BaseSearchOptions).enabled !== false
       : // false is the only allowed boolean
         // undefined = default enabled
-        is.boolean(options);
+        !is.boolean(options);
     if (!searchEnabled || is.empty(searchText)) {
       return data;
     }
@@ -193,7 +200,7 @@ export class TextRenderingService {
       const value = TTY.GV(i.entry);
       return {
         deep: is.object(value) && !is.empty(deep) ? get(value, deep) : {},
-        help: i.helpText,
+        helpText: i.helpText,
         label: i.entry[LABEL],
         type: i.type,
         value: i,
@@ -203,14 +210,13 @@ export class TextRenderingService {
     const flags = (is.object(options) ? options : {}) as BaseSearchOptions;
     flags.helpText ??= true;
     flags.label ??= true;
-    flags.types ??= true;
+    flags.type ??= true;
 
-    const keys = Object.keys(flags).filter(i => flags[i]);
+    const keys = Object.keys(flags).filter(i => flags[i]) as MatchKeys[];
     if (!is.empty(deep)) {
       keys.push("deep");
     }
 
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
     const results = fuzzy.go(searchText, formatted, {
       keys,
       scoreFn: item =>
@@ -222,41 +228,19 @@ export class TextRenderingService {
       threshold: BAD_MATCH,
     });
 
+    // Bad results: those without anything to highlight
+    // These will have a score of -1000
+    // Not all -1000 score items have nothing to highlight though
     return results
-      .filter(([label, help, type]) => {
-        // Bad results: those without anything to highlight
-        // These will have a score of -1000
-        // Not all -1000 score items have nothing to highlight though
-        return !(label === null && help === null && type === null);
-      })
-      .map(result => {
-        const label = fuzzy.highlight(
-          is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ""),
-          this.open,
-          this.close,
-        );
-        const help = fuzzy.highlight(
-          is.object(result[1])
-            ? result[1]
-            : fuzzy.single(this.helpFormat(result.obj.help), ""),
-          this.open,
-          this.close,
-        );
-        const type = fuzzy.highlight(
-          is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ""),
-          this.open,
-          this.close,
-        );
-        const out = {
-          entry: [
-            label || result.obj.value.entry[LABEL],
-            TTY.GV(result.obj.value),
-          ] as MenuEntry<T>,
-          helpText: help || result.obj.value.helpText,
-          type: type || result.obj.value.type,
-        };
-        return out;
-      });
+      .filter(data => !data.every(i => i === null))
+      .map(result => ({
+        entry: [
+          this.fuzzyHighlight(keys, result, "label"),
+          TTY.GV(result.obj.value),
+        ],
+        helpText: this.fuzzyHighlight(keys, result, "helpText"),
+        type: this.fuzzyHighlight(keys, result, "type"),
+      }));
   }
 
   /**
@@ -454,22 +438,42 @@ export class TextRenderingService {
       const maxKey =
         Math.max(...Object.keys(item).map(i => TitleCase(i).length)) +
         INCREMENT;
+
+      const indent = INDENT.repeat(nested);
+      const nesting = NESTING_LEVELS[nested];
+      const title = key => TitleCase(key).padEnd(maxKey);
+      const type = key => this.type(item[key], nested + INCREMENT);
+
       return (
         (nested ? `\n` : "") +
         Object.keys(item)
           .sort((a, b) => (a > b ? UP : DOWN))
           .map(
-            key =>
-              chalk`${INDENT.repeat(nested)}{bold ${
-                NESTING_LEVELS[nested]
-              }${TitleCase(key).padEnd(maxKey)}} ${this.type(
-                item[key],
-                nested + INCREMENT,
-              )}`,
+            key => chalk`${indent}{bold ${nesting}${title(key)}} ${type(key)}`,
           )
           .join(`\n`)
       );
     }
     return chalk.gray(JSON.stringify(item));
+  }
+
+  private fuzzyHighlight<T>(
+    keys: MatchKeys[],
+    result: HighlightResult<T>,
+    type: MatchKeys,
+  ): string {
+    const index = keys.indexOf(type);
+    const defaultValue = result.obj[type] as string;
+    if (index === NOT_FOUND) {
+      return defaultValue;
+    }
+    const label = fuzzy.highlight(
+      is.object(result[index])
+        ? result[index]
+        : fuzzy.single(defaultValue as string, ""),
+      this.open,
+      this.close,
+    );
+    return label || defaultValue;
   }
 }
