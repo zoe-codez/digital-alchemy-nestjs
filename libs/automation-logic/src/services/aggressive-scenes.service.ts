@@ -32,10 +32,14 @@ export class AggressiveScenesService {
   }
 
   private async checkRooms() {
-    await each([...SceneRoomService.loaded.keys()], async room => {
-      this.logger.trace(``);
-      await this.validateRoomScene(room);
-    });
+    try {
+      await each([...SceneRoomService.loaded.keys()], async room => {
+        this.logger.trace(`[%s] check room`, room);
+        await this.validateRoomScene(room);
+      });
+    } catch (error) {
+      this.logger.error({ error });
+    }
   }
 
   private async manageSwitch(
@@ -72,6 +76,10 @@ export class AggressiveScenesService {
     const { configuration, options } = room.sceneDefinition;
     if (this.aggressive === false || options?.aggressive?.enabled === false) {
       // nothing to do
+      return;
+    }
+    if (!configuration) {
+      this.logger.warn({ room }, `[%s] cannot validate room scene`, roomName);
       return;
     }
     const definition = configuration[room.current] as SceneDefinition;
