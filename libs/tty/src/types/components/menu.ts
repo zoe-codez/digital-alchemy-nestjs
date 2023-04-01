@@ -83,6 +83,8 @@ export type MainMenuCB<VALUE = unknown> = (
 export type BaseSearchOptions = {
   /**
    * default: true
+   *
+   * overrides `left` & `right`
    */
   enabled?: boolean;
   /**
@@ -93,6 +95,14 @@ export type BaseSearchOptions = {
    * default: true
    */
   label?: boolean;
+  /**
+   * default: true
+   */
+  left?: boolean;
+  /**
+   * default: true
+   */
+  right?: boolean;
   /**
    * default: true
    */
@@ -111,9 +121,13 @@ export type MenuDeepSearch<SEARCH extends object = object> = {
  * pass false to disable search
  */
 export type MenuSearchOptions<SEARCH extends unknown = unknown> =
-  | false
-  | (BaseSearchOptions &
-      (SEARCH extends object ? MenuDeepSearch<SEARCH> : never));
+  BaseSearchOptions & {
+    /**
+     * Only applies when values are passed as objects.
+     * Fuzzy search will consider values
+     */
+    deep?: keyof SEARCH | (keyof SEARCH)[];
+  };
 
 export interface MenuComponentOptions<VALUE = unknown> {
   /**

@@ -45,6 +45,7 @@ import {
 } from "../services";
 import {
   AdvancedKeymap,
+  BaseSearchOptions,
   DirectCB,
   HighlightCallbacks,
   KeyMap,
@@ -190,6 +191,8 @@ export class MenuComponentService<VALUE = unknown | string>
   private rightHeader: string;
   private searchCursor: number;
   private searchEnabled: boolean;
+  private searchEnabledLeft: boolean;
+  private searchEnabledRight: boolean;
   private searchText = "";
   private selectedType: "left" | "right" = "right";
   private selectedValue: VALUE;
@@ -220,10 +223,20 @@ export class MenuComponentService<VALUE = unknown | string>
     this.searchCursor = START;
     this.complete = false;
     this.final = false;
+    this.searchEnabledLeft = false;
+    this.searchEnabledRight = false;
     this.selectedValue = undefined;
     this.opt = config;
 
     this.searchEnabled = TTY.searchEnabled(this.opt.search);
+    // * Expected to basically always be true
+    if (this.searchEnabled) {
+      const options = (config.search ?? {}) as BaseSearchOptions;
+      options.left ??= true;
+      options.right ??= true;
+      this.searchEnabledLeft = options.left;
+      this.searchEnabledRight = options.right;
+    }
 
     // * Set up defaults in the config
     this.opt.left ??= [];
@@ -366,7 +379,7 @@ export class MenuComponentService<VALUE = unknown | string>
   protected navigateSearch(key: string): void {
     // * Grab list of items from current side
     const all = this.side(this.selectedType);
-    let available = this.filterMenu(all);
+    let available = this.filterMenu(all, this.selectedType);
     if (is.empty(available)) {
       available = all;
     }
@@ -466,8 +479,8 @@ export class MenuComponentService<VALUE = unknown | string>
     this.selectedType = "right";
 
     if (this.mode !== "select") {
-      let availableRight = this.filterMenu(right);
-      let availableLeft = this.filterMenu(left);
+      let availableRight = this.filterMenu(right, "right");
+      let availableLeft = this.filterMenu(left, "left");
       availableRight = is.empty(availableRight) ? right : availableRight;
       availableLeft = is.empty(availableLeft) ? left : availableLeft;
       left = availableLeft;
@@ -499,8 +512,8 @@ export class MenuComponentService<VALUE = unknown | string>
     this.selectedType = "right";
 
     if (this.mode !== "select") {
-      let availableRight = this.filterMenu(right);
-      let availableLeft = this.filterMenu(left);
+      let availableRight = this.filterMenu(right, "right");
+      let availableLeft = this.filterMenu(left, "left");
       availableRight = is.empty(availableRight) ? right : availableRight;
       availableLeft = is.empty(availableLeft) ? left : availableLeft;
       left = availableLeft;
@@ -545,6 +558,14 @@ export class MenuComponentService<VALUE = unknown | string>
       case "pagedown":
       case "down":
         this.mode = "find-navigate";
+
+        const all = this.side(this.selectedType);
+        let available = this.filterMenu(all, this.selectedType);
+        if (is.empty(available)) {
+          available = all;
+        }
+        this.value = TTY.GV(available[START].entry);
+
         this.render(true);
         return;
       case "backspace":
@@ -598,7 +619,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return false;
     }
     const all = this.side(this.selectedType);
-    let available = this.filterMenu(all);
+    let available = this.filterMenu(all, this.selectedType);
     if (is.empty(available)) {
       available = all;
     }
@@ -617,6 +638,7 @@ export class MenuComponentService<VALUE = unknown | string>
           START,
           ARRAY_OFFSET * INVERT_VALUE,
         );
+        this.searchCursor = this.searchText.length;
         this.render(true);
         return false;
       case "up":
@@ -747,8 +769,14 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private filterMenu(
     data: MainMenuEntry<VALUE>[],
+    side: "left" | "right",
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
+    const enabled =
+      side === "left" ? this.searchEnabledLeft : this.searchEnabledRight;
+    if (!enabled) {
+      return data;
+    }
     const highlighted = this.text.fuzzyMenuSort(this.searchText, data);
 
     if (updateValue) {
@@ -1061,7 +1089,7 @@ export class MenuComponentService<VALUE = unknown | string>
     const out: MainMenuEntry[] = [];
     let menu = this.side(side);
     if (this.mode !== "select") {
-      menu = this.filterMenu(menu, updateValue);
+      menu = this.filterMenu(menu, side, updateValue);
     }
     const temporary = this.text.selectRange(menu, this.value);
     menu = temporary.map(i =>

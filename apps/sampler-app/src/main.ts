@@ -65,6 +65,7 @@ export class SamplerApp {
   ) {}
 
   public async exec(): Promise<void> {
+    //
     await this.menu.configurable();
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
@@ -197,7 +198,7 @@ export class SamplerApp {
         },
       ],
       rightHeader: "Configuration",
-      search: false,
+      search: { enabled: false },
     });
     switch (action) {
       case "acknowledge_default":

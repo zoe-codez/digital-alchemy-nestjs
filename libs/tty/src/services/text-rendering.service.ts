@@ -93,7 +93,7 @@ export class TextRenderingService {
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
   ) {
-    const [OPEN, CLOSE] = template(`{${highlightColor} _}`).split("_");
+    const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
     this.open = OPEN;
     this.close = CLOSE;
   }
@@ -330,9 +330,14 @@ export class TextRenderingService {
     cursor,
     placeholder = DEFAULT_PLACEHOLDER,
   }: EditableSearchBoxOptions) {
-    value ||= placeholder;
-
     const maxLength = width - padding;
+    if (!value) {
+      return [
+        chalk[bgColor].black(
+          ansiPadEnd(` ${placeholder} `, maxLength + padding),
+        ),
+      ];
+    }
     const out: string[] = [];
     const stripped = ansiStrip(value);
     let length = stripped.length;

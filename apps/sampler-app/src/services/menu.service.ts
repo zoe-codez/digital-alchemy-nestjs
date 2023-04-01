@@ -97,7 +97,7 @@ export class MenuService {
     optionsLeft: FakerSources.animal,
     optionsRight: FakerSources.filePath,
     rightHeader: "",
-    search: false,
+    search: { enabled: false },
     showHeaders: true,
   };
 
@@ -344,6 +344,9 @@ export class MenuService {
       headerMessage: message,
       left,
       right,
+      search: {
+        right: false,
+      },
     });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
@@ -408,7 +411,7 @@ export class MenuService {
         { entry: ["nothing special"] },
         { entry: [chalk.green("i'm green!"), "green"] },
       ],
-      search: false,
+      search: { enabled: false },
     });
     this.screen.printLine(result);
     await this.prompt.acknowledge();

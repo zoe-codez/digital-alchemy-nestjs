@@ -107,7 +107,7 @@ export class ConfigScanner {
     const action = await this.prompt.menu({
       keyMap: { escape: ["done"] },
       right: entries,
-      search: false,
+      search: { enabled: false },
       value: defaultValue,
     });
     switch (action) {

@@ -66,7 +66,7 @@ export class PromptService {
       condensed: true,
       headerMessage: chalk`  {green ?} ${message}`,
       right: [{ entry: ["true", true] }, { entry: ["false", false] }],
-      search: false,
+      search: { enabled: false },
       value: current,
     })) as boolean;
   }
