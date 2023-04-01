@@ -20,6 +20,14 @@ import {
   HEADER_FONT_SECONDARY,
   HELP,
   LIB_TTY,
+  MENU_ENTRY_NORMAL,
+  MENU_ENTRY_OTHER,
+  MENU_ENTRY_SELECTED,
+  MENU_ENTRY_TYPE,
+  MENU_ENTRY_TYPE_OTHER,
+  MENU_SEARCHBOX_CONTENT,
+  MENU_SEARCHBOX_EMPTY,
+  MENU_SEARCHBOX_NORMAL,
   PAGE_SIZE,
   TABLE_RENDER_ROWS,
   TEXT_DEBUG_DEPTH,
@@ -69,7 +77,7 @@ import {
       type: "number",
     },
     [FUZZY_HIGHLIGHT]: {
-      default: "bgBlueBright.black",
+      default: "red.bold.underline",
       description: "Chalk highlighting to apply to fuzzy search",
       type: "string",
     },
@@ -96,6 +104,38 @@ import {
       description:
         "Intended for consumption as cli switch (--help). Performs early abort and prints available cli switches to console",
       type: "boolean",
+    },
+    [MENU_ENTRY_NORMAL]: {
+      default: "white",
+      type: "string",
+    },
+    [MENU_ENTRY_OTHER]: {
+      default: "gray",
+      type: "string",
+    },
+    [MENU_ENTRY_SELECTED]: {
+      default: "bgBlueBright.black",
+      type: "string",
+    },
+    [MENU_ENTRY_TYPE]: {
+      default: "magenta.bold",
+      type: "string",
+    },
+    [MENU_ENTRY_TYPE_OTHER]: {
+      default: "gray.bold",
+      type: "string",
+    },
+    [MENU_SEARCHBOX_CONTENT]: {
+      default: "bgCyan",
+      type: "string",
+    },
+    [MENU_SEARCHBOX_EMPTY]: {
+      default: "bgBlue",
+      type: "string",
+    },
+    [MENU_SEARCHBOX_NORMAL]: {
+      default: "bgMagenta",
+      type: "string",
     },
     [PAGE_SIZE]: {
       default: 20,

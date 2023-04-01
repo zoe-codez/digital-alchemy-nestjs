@@ -3,8 +3,11 @@ import {
   ARRAY_OFFSET,
   DOWN,
   INCREMENT,
+  INVERT_VALUE,
   is,
   LABEL,
+  NOT_FOUND,
+  SINGLE,
   START,
   TitleCase,
   UP,
@@ -12,12 +15,26 @@ import {
 import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import fuzzy from "fuzzysort";
+import { get } from "object-path";
 import { stdout } from "process";
 import { inspect } from "util";
 
 import { FUZZY_HIGHLIGHT, PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
-import { MainMenuEntry, MenuEntry, MenuHelpText, TTY } from "../contracts";
-import { ansiMaxLength, ansiPadEnd, template } from "../includes";
+import {
+  ansiMaxLength,
+  ansiPadEnd,
+  ansiStrip,
+  ELLIPSES,
+  template,
+} from "../includes";
+import {
+  BaseSearchOptions,
+  MainMenuEntry,
+  MenuDeepSearch,
+  MenuHelpText,
+  MenuSearchOptions,
+  TTY,
+} from "../types";
 
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim("|");
@@ -26,6 +43,8 @@ const MIN_SIZE = 2;
 const INDENT = "  ";
 const MAX_STRING_LENGTH = 300;
 const FIRST = 1;
+const BAD_MATCH = -10_000;
+const BAD_VALUE = -1000;
 const LAST = -1;
 const STRING_SHRINK = 50;
 const NESTING_LEVELS = [
@@ -36,6 +55,37 @@ const NESTING_LEVELS = [
   chalk.red(" ~ "),
 ];
 
+// ? indexes match keys
+// Matching type is important
+// Next is label
+// Finally help
+const MATCH_SCORES = {
+  deep: 350,
+  helpText: 500,
+  label: 250,
+  type: 0,
+};
+type MatchKeys = keyof typeof MATCH_SCORES;
+
+const DEFAULT_PLACEHOLDER = "enter value";
+type EditableSearchBoxOptions = {
+  bgColor: string;
+  cursor: number;
+  mask?: "hide" | "obfuscate";
+  padding: number;
+  placeholder?: string;
+  value: string;
+  width: number;
+};
+
+type HighlightResult<T> = Fuzzysort.KeysResult<{
+  deep: object;
+  helpText: MenuHelpText;
+  label: string;
+  type: string;
+  value: MainMenuEntry<T>;
+}>;
+
 @Injectable()
 export class TextRenderingService {
   constructor(
@@ -43,7 +93,7 @@ export class TextRenderingService {
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
   ) {
-    const [OPEN, CLOSE] = template(`{${highlightColor} _}`).split("_");
+    const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
     this.open = OPEN;
     this.close = CLOSE;
   }
@@ -66,8 +116,7 @@ export class TextRenderingService {
    * Left side is considered the "secondary" column
    */
   public assemble(
-    leftEntries: string[],
-    rightEntries: string[],
+    [leftEntries, rightEntries]: [string[], string[]],
     {
       left,
       right,
@@ -131,73 +180,67 @@ export class TextRenderingService {
    *
    * Takes into account helpText and category in addition to label
    */
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   public fuzzyMenuSort<T extends unknown = string>(
     searchText: string,
     data: MainMenuEntry<T>[],
+    options?: MenuSearchOptions<T>,
   ): MainMenuEntry<T>[] {
-    if (is.empty(searchText)) {
+    const searchEnabled = is.object(options)
+      ? (options as BaseSearchOptions).enabled !== false
+      : // false is the only allowed boolean
+        // undefined = default enabled
+        !is.boolean(options);
+    if (!searchEnabled || is.empty(searchText)) {
       return data;
     }
-    const formatted = data.map(i => ({
-      help: i.helpText,
-      label: i.entry[LABEL],
-      type: i.type,
-      value: i,
-    }));
+    const objectOptions = (options ?? {}) as MenuSearchOptions<object>;
+    const deep = (objectOptions as MenuDeepSearch).deep;
 
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    const results = fuzzy.go(searchText, formatted, {
-      keys: ["label", "help", "type"],
-      scoreFn(item) {
-        return Math.max(
-          // ? indexes match keys
-          // Matching type is important
-          // Next is label
-          // Finally help
-          item[2] ? item[2].score - 0 : -1000,
-          item[0] ? item[0].score - 250 : -1000,
-          item[1] ? item[1].score - 500 : -1000,
-        );
-      },
-      threshold: -10_000,
+    const formatted = data.map(i => {
+      const value = TTY.GV(i.entry);
+      return {
+        deep: is.object(value) && !is.empty(deep) ? get(value, deep) : {},
+        helpText: i.helpText,
+        label: i.entry[LABEL],
+        type: i.type,
+        value: i,
+      };
     });
 
+    const flags = (is.object(options) ? options : {}) as BaseSearchOptions;
+    flags.helpText ??= true;
+    flags.label ??= true;
+    flags.type ??= true;
+
+    const keys = Object.keys(flags).filter(i => flags[i]) as MatchKeys[];
+    if (!is.empty(deep)) {
+      keys.push("deep");
+    }
+
+    const results = fuzzy.go(searchText, formatted, {
+      keys,
+      scoreFn: item =>
+        Math.max(
+          ...keys.map((key, index) =>
+            item[index] ? item[index].score - MATCH_SCORES[key] : BAD_VALUE,
+          ),
+        ),
+      threshold: BAD_MATCH,
+    });
+
+    // Bad results: those without anything to highlight
+    // These will have a score of -1000
+    // Not all -1000 score items have nothing to highlight though
     return results
-      .filter(([label, help, type]) => {
-        // Bad results: those without anything to highlight
-        // These will have a score of -1000
-        // Not all -1000 score items have nothing to highlight though
-        return !(label === null && help === null && type === null);
-      })
-      .map(result => {
-        const label = fuzzy.highlight(
-          is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ""),
-          this.open,
-          this.close,
-        );
-        const help = fuzzy.highlight(
-          is.object(result[1])
-            ? result[1]
-            : fuzzy.single(this.helpFormat(result.obj.help), ""),
-          this.open,
-          this.close,
-        );
-        const type = fuzzy.highlight(
-          is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ""),
-          this.open,
-          this.close,
-        );
-        const out = {
-          entry: [
-            label || result.obj.value.entry[LABEL],
-            TTY.GV(result.obj.value),
-          ] as MenuEntry<T>,
-          helpText: help || result.obj.value.helpText,
-          type: type || result.obj.value.type,
-        };
-        return out;
-      });
+      .filter(data => !data.every(i => i === null))
+      .map(result => ({
+        entry: [
+          this.fuzzyHighlight(keys, result, "label"),
+          TTY.GV(result.obj.value),
+        ],
+        helpText: this.fuzzyHighlight(keys, result, "helpText"),
+        type: this.fuzzyHighlight(keys, result, "type"),
+      }));
   }
 
   /**
@@ -278,6 +321,54 @@ export class TextRenderingService {
     ];
   }
 
+  public searchBoxEditable({
+    value,
+    width,
+    bgColor,
+    padding,
+    mask,
+    cursor,
+    placeholder = DEFAULT_PLACEHOLDER,
+  }: EditableSearchBoxOptions) {
+    const maxLength = width - padding;
+    if (!value) {
+      return [
+        chalk[bgColor].black(
+          ansiPadEnd(` ${placeholder} `, maxLength + padding),
+        ),
+      ];
+    }
+    const out: string[] = [];
+    const stripped = ansiStrip(value);
+    let length = stripped.length;
+    if (length > maxLength - ELLIPSES.length) {
+      const update =
+        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
+      value = value.replace(stripped, update);
+      length = update.length;
+    }
+    if (value !== DEFAULT_PLACEHOLDER) {
+      if (mask === "hide") {
+        value = "";
+      } else {
+        if (mask === "obfuscate") {
+          value = "*".repeat(value.length);
+        }
+        if (is.number(cursor)) {
+          value = [
+            value.slice(START, cursor),
+            chalk.inverse(value[cursor] ?? " "),
+            value.slice(cursor + SINGLE),
+          ].join("");
+        }
+      }
+    }
+    const padded = " " + value + " ";
+
+    out.push(chalk[bgColor].black(ansiPadEnd(padded, maxLength + padding)));
+    return out;
+  }
+
   /**
    * Take return a an array slice based on the position of a given value, and PAGE_SIZE.
    */
@@ -352,22 +443,42 @@ export class TextRenderingService {
       const maxKey =
         Math.max(...Object.keys(item).map(i => TitleCase(i).length)) +
         INCREMENT;
+
+      const indent = INDENT.repeat(nested);
+      const nesting = NESTING_LEVELS[nested];
+      const title = key => TitleCase(key).padEnd(maxKey);
+      const type = key => this.type(item[key], nested + INCREMENT);
+
       return (
         (nested ? `\n` : "") +
         Object.keys(item)
           .sort((a, b) => (a > b ? UP : DOWN))
           .map(
-            key =>
-              chalk`${INDENT.repeat(nested)}{bold ${
-                NESTING_LEVELS[nested]
-              }${TitleCase(key).padEnd(maxKey)}} ${this.type(
-                item[key],
-                nested + INCREMENT,
-              )}`,
+            key => chalk`${indent}{bold ${nesting}${title(key)}} ${type(key)}`,
           )
           .join(`\n`)
       );
     }
     return chalk.gray(JSON.stringify(item));
+  }
+
+  private fuzzyHighlight<T>(
+    keys: MatchKeys[],
+    result: HighlightResult<T>,
+    type: MatchKeys,
+  ): string {
+    const index = keys.indexOf(type);
+    const defaultValue = result.obj[type] as string;
+    if (index === NOT_FOUND) {
+      return defaultValue;
+    }
+    const label = fuzzy.highlight(
+      is.object(result[index])
+        ? result[index]
+        : fuzzy.single(defaultValue as string, ""),
+      this.open,
+      this.close,
+    );
+    return label || defaultValue;
   }
 }

@@ -11,13 +11,13 @@ import chalk from "chalk";
 import equal from "deep-equal";
 import { get } from "object-path";
 
+import { ansiMaxLength, ansiPadEnd } from "../includes";
 import {
   ObjectBuilderOptions,
   TABLE_PARTS,
   TableBuilderElement,
   TTY,
-} from "../contracts";
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+} from "../types";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;

@@ -12,6 +12,15 @@ import { forwardRef, Inject } from "@nestjs/common";
 import chalk from "chalk";
 import { get, set } from "object-path";
 
+import { Component, iComponent } from "../decorators";
+import {
+  FormService,
+  KeyboardManagerService,
+  KeymapService,
+  PromptService,
+  ScreenService,
+  TextRenderingService,
+} from "../services";
 import {
   BuilderCancelOptions,
   DirectCB,
@@ -22,16 +31,7 @@ import {
   tKeyMap,
   TTY,
   TTYKeypressOptions,
-} from "../contracts";
-import { Component, iComponent } from "../decorators";
-import {
-  FormService,
-  KeyboardManagerService,
-  KeymapService,
-  PromptService,
-  ScreenService,
-  TextRenderingService,
-} from "../services";
+} from "../types";
 
 type HelpText = {
   helpText: string;

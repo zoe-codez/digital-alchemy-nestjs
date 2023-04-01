@@ -3,12 +3,14 @@ import { is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
+import { ArrayBuilderOptions, ListBuilderOptions } from "../components";
 import {
-  ArrayBuilderOptions,
-  ListBuilderOptions,
+  DateEditorEditorOptions,
+  NumberEditorRenderOptions,
+  StringEditorRenderOptions,
+} from "../editors";
+import {
   MenuComponentOptions,
-} from "../components";
-import {
   ObjectBuilderOptions,
   PromptAcknowledgeOptions,
   PromptBooleanOptions,
@@ -16,12 +18,7 @@ import {
   PromptPasswordOptions,
   PromptPickOneOptions,
   PromptTimeOptions,
-} from "../contracts";
-import {
-  DateEditorEditorOptions,
-  NumberEditorRenderOptions,
-  StringEditorRenderOptions,
-} from "../editors";
+} from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -68,8 +65,8 @@ export class PromptService {
     return (await this.menu({
       condensed: true,
       headerMessage: chalk`  {green ?} ${message}`,
-      hideSearch: true,
       right: [{ entry: ["true", true] }, { entry: ["false", false] }],
+      search: { enabled: false },
       value: current,
     })) as boolean;
   }

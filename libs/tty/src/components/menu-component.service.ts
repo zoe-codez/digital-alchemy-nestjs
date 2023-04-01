@@ -1,4 +1,5 @@
-import { CacheService } from "@digital-alchemy/boilerplate";
+/* eslint-disable sonarjs/no-duplicate-string */
+import { CacheService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -24,74 +25,44 @@ import { get } from "object-path";
 import { nextTick } from "process";
 
 import {
-  DirectCB,
-  KeyModifiers,
-  MainMenuEntry,
-  MenuEntry,
-  tKeyMap,
-  TTY,
-  TTYKeypressOptions,
-} from "../contracts";
+  MENU_ENTRY_NORMAL,
+  MENU_ENTRY_OTHER,
+  MENU_ENTRY_SELECTED,
+  MENU_ENTRY_TYPE,
+  MENU_ENTRY_TYPE_OTHER,
+  MENU_SEARCHBOX_CONTENT,
+  MENU_SEARCHBOX_EMPTY,
+  MENU_SEARCHBOX_NORMAL,
+} from "../config";
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
   EnvironmentService,
   KeyboardManagerService,
   KeymapService,
-  PromptEntry,
   ScreenService,
   TextRenderingService,
 } from "../services";
+import {
+  AdvancedKeymap,
+  BaseSearchOptions,
+  DirectCB,
+  HighlightCallbacks,
+  KeyMap,
+  KeymapOptions,
+  KeyModifiers,
+  MainMenuEntry,
+  MenuComponentOptions,
+  MenuEntry,
+  MenuPosition,
+  MenuRestore,
+  tKeyMap,
+  TTY,
+  TTYKeypressOptions,
+} from "../types";
 
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 type PrefixArray = [TTYKeypressOptions, string];
-
-export type HighlightCallbacks<VALUE = string> = {
-  /**
-   * Provide alternate highlighting logic.
-   *
-   * ## return boolean
-   *
-   * if `true`: use valueMatch highlight
-   *
-   * if `false`: use normal highlight
-   *
-   * ```typescript
-   * {
-   *   highlightMatch: ({ numberProperty }) => numberProperty > 50,
-   *   normal: chalk.blue,
-   *   valueMatch: chalk.yellow
-   * }
-   * ```
-   *
-   * ## return function
-   *
-   * ignore normal highlighting, use provided instead
-   *
-   * >  equivalent to other example
-   *
-   * ```typescript
-   * {
-   *   highlightMatch: ({ numberProperty }) => numberProperty > 50? chalk.yellow : chalk.blue,
-   * }
-   * ```
-   */
-  highlightMatch?: (
-    value: VALUE,
-  ) => boolean | ((description: string) => string);
-  normal?: (description: string) => string;
-  valueMatch?: (description: string) => string;
-};
-
-export type AdvancedKeymap<VALUE = string> = {
-  alias?: string[];
-  entry: PromptEntry<VALUE>;
-  highlight?: "auto" | HighlightCallbacks<VALUE>;
-};
-
-export type KeymapOptions<VALUE = string> =
-  | PromptEntry<VALUE>
-  | AdvancedKeymap<VALUE>;
 
 function isAdvanced<VALUE = string>(
   options: KeymapOptions<VALUE>,
@@ -99,176 +70,14 @@ function isAdvanced<VALUE = string>(
   return is.object(options);
 }
 
-export type KeyMap<VALUE = string> = Record<string, KeymapOptions<VALUE>>;
-export type MenuPosition = ["left" | "right", number];
 type MenuRestoreCacheData<VALUE = unknown> = {
   position: MenuPosition;
   value: VALUE;
 };
-
-export type MenuRestore = {
-  id: string;
-} & (
-  | {
-      // position?: MenuPosition;
-      type: "position";
-    }
-  | {
-      /**
-       * When comparing objects, use the provided property to do comparisons instead of strictly comparing the entire object.
-       */
-      idProperty?: string | string[];
-      type: "value";
-    }
-);
-
-/**
- * - true to terminate menu
- * - false to silently block
- * - string to block w/ output
- */
-export type MainMenuCB<VALUE = unknown> = (
-  action: string,
-  /**
-   * The currently selected value. For consistency, this will ALWAYS contain a value
-   */
-  value: MenuEntry<VALUE>,
-) => (string | boolean) | Promise<string | boolean>;
-
-export interface MenuComponentOptions<VALUE = unknown> {
-  /**
-   * Remove the page up / page down keypress options
-   *
-   * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus.
-   * Implies `hideSearch`
-   */
-  condensed?: boolean;
-  /**
-   * Specific text to display when there are no entries in the right column.
-   * Best utilized when there is a dynamic quantity of rows
-   */
-  emptyMessage?: string;
-  /**
-   * Static text to stick at the top of the component.
-   *
-   * If passed as array, each item is it's own line. Intended for object printing
-   */
-  headerMessage?: string | string[] | [key: string, value: string][];
-  /**
-   * Extra padding to shift the header over by
-   */
-  headerPadding?: number;
-  /**
-   * Text that should appear the blue bar of the help text
-   */
-  helpNotes?: string | string[] | ((selected: VALUE | string) => string);
-  /**
-   * Disallow usage of fuzzy search
-   */
-  hideSearch?: boolean;
-  item?: string;
-  /**
-   * Entries to activate via keybindings instead of navigation
-   */
-  keyMap?: KeyMap<VALUE>;
-  /**
-   * When provided, all keymap commands will be passed through this first.
-   *
-   * - `return true` to exit out of menu, returning keypress value
-   * - `return string` to report back a status message to the user (for background operations), but not exit
-   * - `return false` to ignore keypress
-   *
-   * ## Example
-   *
-   * ```typescript
-   * {
-   *   // value is always provided in this callback
-   *   // even if the original menu item didn't explicitly define it
-   *   keyMapCallback: (action, [label, value]) => {
-   *     // don't get involved with other actions
-   *     // switch statements work great here too
-   *     if (action !== "delete") {
-   *       return true;
-   *     }
-   *     // validation logic
-   *     if (value.type !== "special") {
-   *       return "Can only use this action on special types";
-   *     }
-   *     // pass id reference to higher scoped variable
-   *     deleteId = value.id;
-   *     return true;
-   *   }
-   * }
-   * ```
-   */
-  keyMapCallback?: MainMenuCB;
-  /**
-   * Set to true if deliberately using the menu as a keyboard navigation tool only.
-   * Hides keyboard navigation help entries, and warning related to no entries provided
-   */
-  keyOnly?: boolean;
-  /**
-   * Entries to place in the left column.
-   * If only using one column, right / left doesn't matter
-   */
-  left?: MainMenuEntry<VALUE | string>[];
-  /**
-   * Header to be placed directly above the menu entries in the left column
-   */
-  leftHeader?: string;
-  /**
-   * Controls how the menu chooses the default selected value.
-   *
-   * If provided an ID, the menu will track the returned value, it's side, and sorted index.
-   *
-   * When another menu is spawned with the same ID, it can be asked to restore to the previous position, or attempt to track down the previously returned value and use that as the position.
-   *
-   * Note: strict matching is default, but
-   */
-  restore?: MenuRestore;
-  /**
-   * Entries to place in the right column.
-   * If only using one column, right / left doesn't matter
-   */
-  right?: MainMenuEntry<VALUE | string>[];
-  /**
-   * Header to be placed directly above the menu entries in the right column
-   */
-  rightHeader?: string;
-  /**
-   * Show menu entries without the column headers
-   */
-  showHeaders?: boolean;
-  /**
-   * Append the help text below menu
-   */
-  // showHelp?: boolean;
-  /**
-   * Automatically sort menu entries alphabetically by label
-   */
-  sort?: boolean;
-  /**
-   * Make menu entry group types prettier.
-   *
-   * Ex: "some-property" => "Some Property"
-   */
-  titleTypes?: boolean;
-  /**
-   * Default selected entry. Can be in either left or right list.
-   *
-   * Configure the `restore`
-   */
-  value?: VALUE;
-}
-
 const DEFAULT_HEADER_PADDING = 4;
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, powerUser: true }, "onSearchKeyPress"],
-  [{ description: "next", key: "down" }, "navigateSearch"],
-  [{ description: "previous", key: "up" }, "navigateSearch"],
-  [{ description: "bottom", key: ["end", "pagedown"] }, "navigateSearch"],
-  [{ description: "top", key: ["home", "pageup"] }, "navigateSearch"],
   [{ description: "select entry", key: "enter" }, "onEnd"],
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
 ]);
@@ -339,6 +148,8 @@ const CONSTRUCTION_PROP = (text: string): ConstructionItem => ({
   width: ansiMaxLength(text),
 });
 
+type MenuModes = "find-navigate" | "select" | "find-input";
+
 @Component({ type: "menu" })
 export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions<VALUE>, VALUE>
@@ -346,14 +157,26 @@ export class MenuComponentService<VALUE = unknown | string>
   public static LAST_RESULT: LastMenuResultInfo<unknown>;
 
   constructor(
+    @InjectConfig(MENU_ENTRY_TYPE) private readonly colorType: string,
+    @InjectConfig(MENU_ENTRY_SELECTED) private readonly colorSelected: string,
+    @InjectConfig(MENU_ENTRY_OTHER) private readonly colorOther: string,
+    @InjectConfig(MENU_ENTRY_TYPE_OTHER)
+    private readonly colorTypeOther: string,
+    @InjectConfig(MENU_ENTRY_NORMAL) private readonly colorNormal: string,
+    @InjectConfig(MENU_SEARCHBOX_CONTENT)
+    private readonly colorSearchBoxContent: string,
+    @InjectConfig(MENU_SEARCHBOX_EMPTY)
+    private readonly colorSearchBoxEmpty: string,
+    @InjectConfig(MENU_SEARCHBOX_NORMAL)
+    private readonly colorSearchBoxNormal: string,
+    private readonly cache: CacheService,
+    private readonly environment: EnvironmentService,
+    private readonly keyboard: KeyboardManagerService,
+    private readonly screen: ScreenService,
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly text: TextRenderingService,
-    private readonly keyboard: KeyboardManagerService,
-    private readonly screen: ScreenService,
-    private readonly environment: EnvironmentService,
-    private readonly cache: CacheService,
   ) {}
 
   private callbackOutput = "";
@@ -363,9 +186,13 @@ export class MenuComponentService<VALUE = unknown | string>
   private final = false;
   private headerPadding: number;
   private leftHeader: string;
-  private mode: "find" | "select" = "select";
+  private mode: MenuModes = "select";
   private opt: MenuComponentOptions<VALUE>;
   private rightHeader: string;
+  private searchCursor: number;
+  private searchEnabled: boolean;
+  private searchEnabledLeft: boolean;
+  private searchEnabledRight: boolean;
   private searchText = "";
   private selectedType: "left" | "right" = "right";
   private selectedValue: VALUE;
@@ -392,10 +219,24 @@ export class MenuComponentService<VALUE = unknown | string>
   ): Promise<void> {
     // * Reset from last run
     MenuComponentService.LAST_RESULT = undefined;
+    this.searchText = "";
+    this.searchCursor = START;
     this.complete = false;
     this.final = false;
+    this.searchEnabledLeft = false;
+    this.searchEnabledRight = false;
     this.selectedValue = undefined;
     this.opt = config;
+
+    this.searchEnabled = TTY.searchEnabled(this.opt.search);
+    // * Expected to basically always be true
+    if (this.searchEnabled) {
+      const options = (config.search ?? {}) as BaseSearchOptions;
+      options.left ??= true;
+      options.right ??= true;
+      this.searchEnabledLeft = options.left;
+      this.searchEnabledRight = options.right;
+    }
 
     // * Set up defaults in the config
     this.opt.left ??= [];
@@ -489,7 +330,7 @@ export class MenuComponentService<VALUE = unknown | string>
       this.onEnd();
       return false;
     }
-    const selectedItem = this.side().find(
+    const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
     const result = await (selectedItem
@@ -526,16 +367,19 @@ export class MenuComponentService<VALUE = unknown | string>
    * Move the cursor to the bottom of the list
    */
   protected bottom(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     this.value = TTY.GV(list[list.length - ARRAY_OFFSET].entry);
   }
 
   /**
    * Move the cursor around
+   *
+   * mode: "select"
    */
   protected navigateSearch(key: string): void {
-    const all = this.side();
-    let available = this.filterMenu(all);
+    // * Grab list of items from current side
+    const all = this.side(this.selectedType);
+    let available = this.filterMenu(all, this.selectedType);
     if (is.empty(available)) {
       available = all;
     }
@@ -556,20 +400,22 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     if (index === START && key === "up") {
       this.value = TTY.GV(available[available.length - ARRAY_OFFSET].entry);
-    } else if (index === available.length - ARRAY_OFFSET && key === "down") {
-      this.value = TTY.GV(available[START].entry);
-    } else {
-      this.value = TTY.GV(
-        available[key === "up" ? index - INCREMENT : index + INCREMENT].entry,
-      );
+      return;
     }
+    if (index === available.length - ARRAY_OFFSET && key === "down") {
+      this.value = TTY.GV(available[START].entry);
+      return;
+    }
+    this.value = TTY.GV(
+      available[key === "up" ? index - INCREMENT : index + INCREMENT].entry,
+    );
   }
 
   /**
    * Move down 1 entry
    */
   protected next(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
       this.value = TTY.GV(list[FIRST].entry);
@@ -583,14 +429,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.value = TTY.GV(list[index + INCREMENT].entry);
   }
 
-  protected numberSelect(mixed: string): boolean {
-    const list = this.side();
-    const item = list[Number(is.empty(mixed) ? "1" : mixed) - ARRAY_OFFSET];
-    const entry = item?.entry;
-    this.value = entry ? TTY.GV(entry) : this.value;
-    return true;
-  }
-
   /**
    * Terminate the editor
    */
@@ -598,7 +436,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (!this.done) {
       return;
     }
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(
       entry => TTY.GV(entry) === this.selectedValue ?? this.value,
     );
@@ -633,10 +471,12 @@ export class MenuComponentService<VALUE = unknown | string>
    * on left key press - attempt to move to left menu
    */
   protected onLeft(): void {
-    const [right, left] = [this.side("right"), this.side("left")];
     if (is.empty(this.opt.left) || this.selectedType === "left") {
       return;
     }
+
+    const [right, left] = this.filteredRangedSides();
+
     this.selectedType = "left";
     let current = right.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
@@ -655,11 +495,11 @@ export class MenuComponentService<VALUE = unknown | string>
    * On right key press - attempt to move editor to right side
    */
   protected onRight(): void {
-    if (this.selectedType === "right") {
+    if (is.empty(this.opt.right) || this.selectedType === "right") {
       return;
     }
-    const [right, left] = [this.side("right"), this.side("left")];
-    this.selectedType = "right";
+    const [right, left] = this.filteredRangedSides();
+
     let current = left.findIndex(i => TTY.GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
@@ -673,25 +513,133 @@ export class MenuComponentService<VALUE = unknown | string>
         : TTY.GV(right[current].entry);
   }
 
+  protected onSearchFindInputKeyPress(key: string) {
+    const searchLength = this.searchText.length;
+    switch (key) {
+      case "left":
+        this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
+        this.render(true);
+        return;
+      case "right":
+        this.searchCursor = Math.min(
+          searchLength,
+          this.searchCursor + INCREMENT,
+        );
+        this.render(true);
+        return;
+      case "end":
+        this.searchCursor = searchLength;
+        this.render(true);
+        return;
+      case "home":
+        this.searchCursor = START;
+        this.render(true);
+        return;
+      case "pagedown":
+      case "down":
+        this.mode = "find-navigate";
+        // * Move the top available item for the correct expected column
+        const all = this.side(this.selectedType);
+        let available = this.filterMenu(all, this.selectedType);
+        if (is.empty(available)) {
+          available = all;
+        }
+        this.value = TTY.GV(available[START].entry);
+        this.render(false);
+        return;
+      case "backspace":
+        if (this.searchCursor === START) {
+          return;
+        }
+        this.searchText = [...this.searchText]
+          .filter((char, index) => index !== this.searchCursor - ARRAY_OFFSET)
+          .join("");
+        this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
+        this.render(true);
+        return;
+      case "delete":
+        // no need for cursor adjustments
+        this.searchText = [...this.searchText]
+          .filter((char, index) => index !== this.searchCursor)
+          .join("");
+        this.render(true);
+        return;
+      case "space":
+        key = " ";
+      // fall through
+      default:
+        if (key.length > SINGLE) {
+          return;
+        }
+        this.searchText = [
+          this.searchText.slice(START, this.searchCursor),
+          key,
+          this.searchText.slice(this.searchCursor),
+        ].join("");
+        this.searchCursor++;
+        this.render(true);
+    }
+  }
+
   /**
    * Key handler for widget while in search mode
    */
   protected onSearchKeyPress(key: string): boolean {
-    if (key === "backspace") {
-      this.searchText = this.searchText.slice(
-        START,
-        ARRAY_OFFSET * INVERT_VALUE,
-      );
+    // ? Everywhere actions
+    if (key === "escape") {
+      // * Clear search text
+      this.searchText = "";
+      this.searchCursor = START;
       this.render(true);
       return false;
     }
-    if (["up", "down", "home", "pageup", "end", "pagedown"].includes(key)) {
-      this.navigateSearch(key);
+    if (this.mode === "find-input") {
+      this.onSearchFindInputKeyPress(key);
+      return false;
     }
-    if (key === "space") {
-      this.searchText += " ";
+    const all = this.side(this.selectedType);
+    let available = this.filterMenu(all, this.selectedType);
+    if (is.empty(available)) {
+      available = all;
+    }
+    const index = available.findIndex(
+      ({ entry }) => TTY.GV(entry) === this.value,
+    );
+    if (["pageup", "up"].includes(key) && index == START) {
+      this.mode = "find-input";
       this.render(true);
       return false;
+    }
+    switch (key) {
+      case "backspace":
+        // * Back
+        this.searchText = this.searchText.slice(
+          START,
+          ARRAY_OFFSET * INVERT_VALUE,
+        );
+        this.searchCursor = this.searchText.length;
+        this.render(true);
+        return false;
+      case "up":
+      case "down":
+      case "home":
+      case "pageup":
+      case "end":
+      case "pagedown":
+        this.navigateSearch(key);
+        return;
+      case "space":
+        this.searchText += " ";
+        this.render(true);
+        return false;
+      case "left":
+        this.onLeft();
+        this.render(false);
+        return false;
+      case "right":
+        this.onRight();
+        this.render(false);
+        return false;
     }
     if (key.length > SINGLE) {
       // These don't currently render in the help
@@ -702,6 +650,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     this.searchText += key;
+    this.searchCursor = this.searchText.length;
     this.render(true);
     return false;
   }
@@ -710,7 +659,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Attempt to move up 1 item in the active list
    */
   protected previous(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
       this.value = TTY.GV(list[FIRST].entry);
@@ -728,12 +677,11 @@ export class MenuComponentService<VALUE = unknown | string>
    * Simple toggle function
    */
   protected toggleFind(): void {
-    this.mode = this.mode === "find" ? "select" : "find";
+    this.mode = this.mode === "select" ? "find-input" : "select";
     if (this.mode === "select") {
       this.detectSide();
       this.setKeymap();
     } else {
-      this.searchText = "";
       this.keyboard.setKeyMap(this, SEARCH_KEYMAP);
     }
   }
@@ -742,7 +690,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Move cursor to the top of the current list
    */
   protected top(): void {
-    const list = this.side();
+    const list = this.side(this.selectedType);
     this.value = TTY.GV(list[FIRST].entry);
   }
 
@@ -789,11 +737,24 @@ export class MenuComponentService<VALUE = unknown | string>
 
   /**
    * Search mode - limit results based on the search text
+   *
+   * If requested, update the value value of this.value so it super definitely has a valid value
+   * This can get lost if label and value were provided together
+   *
+   * ```json
+   * { entry: ["combined"] }
+   * ```
    */
   private filterMenu(
     data: MainMenuEntry<VALUE>[],
+    side: "left" | "right",
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
+    const enabled =
+      side === "left" ? this.searchEnabledLeft : this.searchEnabledRight;
+    if (!enabled) {
+      return data;
+    }
     const highlighted = this.text.fuzzyMenuSort(this.searchText, data);
 
     if (updateValue) {
@@ -802,6 +763,24 @@ export class MenuComponentService<VALUE = unknown | string>
         : TTY.GV(highlighted[START].entry);
     }
     return highlighted;
+  }
+
+  private filteredRangedSides() {
+    let [right, left] = [this.side("right"), this.side("left")];
+    this.selectedType = "right";
+
+    if (this.mode !== "select") {
+      let availableRight = this.filterMenu(right, "right");
+      let availableLeft = this.filterMenu(left, "left");
+      availableRight = is.empty(availableRight) ? right : availableRight;
+      availableLeft = is.empty(availableLeft) ? left : availableLeft;
+      left = availableLeft;
+      right = availableRight;
+    }
+    return [
+      this.text.selectRange(right, this.value),
+      this.text.selectRange(left, this.value),
+    ];
   }
 
   private findKeyEntry(map: KeyMap<VALUE>, key: string) {
@@ -840,13 +819,42 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
-    const rendered = this.renderSide(undefined, updateValue);
+    // * Component body
+    const sides = {
+      left: this.renderSide("left", false, updateValue),
+      right: this.renderSide("right", false, updateValue),
+    };
+    const out =
+      !is.empty(this.opt.left) && !is.empty(this.opt.right)
+        ? this.text.assemble(
+            Object.values(sides).map(i => i.map(x => x.entry[LABEL])) as [
+              string[],
+              string[],
+            ],
+          )
+        : this.renderSide("right", false, updateValue).map(
+            ({ entry }) => entry[LABEL],
+          );
+    let bgColor = this.colorSearchBoxNormal;
+    if (this.mode === "find-input") {
+      bgColor = is.empty(this.searchText)
+        ? this.colorSearchBoxEmpty
+        : this.colorSearchBoxContent;
+    }
+
+    const search = this.text.searchBoxEditable({
+      bgColor,
+      cursor: this.mode === "find-input" ? this.searchCursor : undefined,
+      padding: SINGLE,
+      placeholder: "Type to filter",
+      value: this.searchText,
+      width: 100,
+    });
+    const entries = this.selectedType === "left" ? sides.left : sides.right;
+
     const message = this.text.mergeHelp(
-      [
-        ...this.text.searchBox(this.searchText),
-        ...rendered.map(({ entry }) => entry[LABEL]),
-      ].join(`\n`),
-      rendered.find(i => TTY.GV(i.entry) === this.value),
+      [...search, " ", ...out].join(`\n`),
+      entries.find(({ entry }) => TTY.GV(entry) === this.value),
     );
     this.screen.render(
       message,
@@ -892,19 +900,20 @@ export class MenuComponentService<VALUE = unknown | string>
       construction.header = CONSTRUCTION_PROP(headerMessage + `\n\n`);
     }
 
+    const sides = [this.renderSide("left"), this.renderSide("right")];
     // * Component body
     const out = is.empty(this.opt.left)
       ? this.renderSide("right").map(({ entry }) => entry[LABEL])
       : this.text.assemble(
-          this.renderSide("left").map(({ entry }) => entry[LABEL]),
-          this.renderSide("right").map(({ entry }) => entry[LABEL]),
+          sides.map(i => i.map(x => x.entry[LABEL])) as [string[], string[]],
         );
+
     construction.columnHeaders = CONSTRUCTION_PROP(
-      this.opt.showHeaders ? `\n  ${out[FIRST]}\n ` : `\n \n`,
+      this.opt.showHeaders ? `\n  ${out.shift()}\n ` : `\n \n`,
     );
     construction.body = CONSTRUCTION_PROP(out.map(i => `  ${i}`).join(`\n`));
 
-    const selectedItem = this.side().find(
+    const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
     );
 
@@ -985,13 +994,101 @@ export class MenuComponentService<VALUE = unknown | string>
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSide(
     side: "left" | "right" = this.selectedType,
+    header = this.opt.showHeaders,
     updateValue = false,
   ): MainMenuEntry[] {
-    // TODO: Track down offset issue that forces this entry to be required
+    const { out, maxType, maxLabel, menu } = this.renderSideSetup(
+      side,
+      updateValue,
+    );
+
+    let last = "";
+    menu.forEach(item => {
+      // * Grouping label
+      let prefix = ansiPadEnd(item.type, maxType);
+      // ? Optionally, make it fancy
+      if (this.opt.titleTypes) {
+        prefix = TitleCase(prefix);
+      }
+      // ? If it is the same as the previous one (above), then render blank space
+      if (last === prefix) {
+        prefix = " ".repeat(maxType);
+      } else {
+        // ? Hand off from one type to another
+        // Insert a blank line in between
+        // Hope everything is sorted
+        if (
+          last !== "" &&
+          (this.mode === "select" || is.empty(this.searchText))
+        ) {
+          out.push({ entry: [" "] });
+        }
+        last = prefix;
+        prefix = chalk(prefix);
+      }
+
+      // ? Where the cursor is
+      const highlight =
+        this.mode !== "find-input" && TTY.GV(item.entry) === this.value;
+      const padded = ansiPadEnd(
+        // ? If an icon exists, provide it and append a space
+        (is.empty(item.icon) ? "" : `${item.icon} `) + item.entry[LABEL],
+        maxLabel,
+      );
+
+      // ? When rendering the column with the cursor in it, add extra colors
+      if (this.selectedType === side) {
+        const color = highlight ? this.colorSelected : this.colorNormal;
+        out.push({
+          ...item,
+          entry: [
+            // ? {grouping type in magenta} {item}
+            chalk` {${this.colorType} ${prefix}} {${color}  ${padded}}`,
+            TTY.GV(item.entry),
+          ],
+        });
+        return;
+      }
+      // ? Alternate column in boring gray
+      out.push({
+        ...item,
+        entry: [
+          chalk` {${this.colorTypeOther} ${prefix}}  {${this.colorOther} ${padded}}`,
+          TTY.GV(item.entry),
+        ],
+      });
+    });
+
+    // ? This, annoyingly, is the easiest way to assemble headers
+    const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
+    if (header) {
+      out.unshift({
+        entry: [
+          chalk.bold.blue.dim(this.renderSideHeader(side, max)),
+          Symbol("header_object"),
+        ],
+      });
+    }
+
+    return out;
+  }
+
+  private renderSideHeader(side: "left" | "right", max: number): string {
+    const padding = " ".repeat(this.headerPadding);
+    if (side === "left") {
+      return `${this.leftHeader}${padding}`.padStart(max, " ");
+    }
+    return `${padding}${this.rightHeader}`.padEnd(max, " ");
+  }
+
+  private renderSideSetup(
+    side: "left" | "right" = this.selectedType,
+    updateValue = false,
+  ) {
     const out: MainMenuEntry[] = [];
     let menu = this.side(side);
-    if (this.mode === "find" && !is.empty(this.searchText)) {
-      menu = this.filterMenu(menu, updateValue);
+    if (this.mode !== "select") {
+      menu = this.filterMenu(menu, side, updateValue);
     }
     const temporary = this.text.selectRange(menu, this.value);
     menu = temporary.map(i =>
@@ -999,7 +1096,6 @@ export class MenuComponentService<VALUE = unknown | string>
     );
 
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));
-    let last = "";
     const maxLabel =
       ansiMaxLength(
         ...menu.map(
@@ -1015,47 +1111,7 @@ export class MenuComponentService<VALUE = unknown | string>
         ],
       });
     }
-    menu.forEach(item => {
-      let prefix = ansiPadEnd(item.type, maxType);
-      if (this.opt.titleTypes) {
-        prefix = TitleCase(prefix);
-      }
-      if (last === prefix) {
-        prefix = chalk("".padEnd(maxType, " "));
-      } else {
-        if (last !== "" && this.mode !== "find") {
-          out.push({ entry: [" "] });
-        }
-        last = prefix;
-        prefix = chalk(prefix);
-      }
-      if (this.mode === "find") {
-        prefix = ``;
-      }
-      const inverse = TTY.GV(item.entry) === this.value;
-      const padded = ansiPadEnd(
-        (is.empty(item.icon) ? "" : `${item.icon} `) + item.entry[LABEL],
-        maxLabel,
-      );
-      if (this.selectedType === side) {
-        out.push({
-          ...item,
-          entry: [
-            chalk` {magenta.bold ${prefix}} {${
-              inverse ? "bgCyanBright.black" : "white"
-            }  ${padded}}`,
-            TTY.GV(item.entry),
-          ],
-        });
-        return;
-      }
-      out.push({
-        ...item,
-        entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, TTY.GV(item.entry)],
-      });
-    });
-
-    return out;
+    return { maxLabel, maxType, menu, out };
   }
 
   private searchItems(
@@ -1119,14 +1175,6 @@ export class MenuComponentService<VALUE = unknown | string>
             [{ key: "down" }, "next"],
             [{ description: "select entry", key: "enter" }, "onEnd"],
             [{ key: "up" }, "previous"],
-            [
-              {
-                description: "select item",
-                key: [..."0123456789"],
-                powerUser: true,
-              },
-              "numberSelect",
-            ],
           ] as tMenuItem[])),
 
       [
@@ -1152,13 +1200,11 @@ export class MenuComponentService<VALUE = unknown | string>
       [{ description: "toggle find", key: "tab" }, "toggleFind"],
     ];
 
-    const keymap = new Map([
-      ...PARTIAL_LIST,
-      ...(is.empty(this.opt.left) || is.empty(this.opt.right)
-        ? []
-        : LEFT_RIGHT),
-      ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
-    ]);
+    const search_keymap = !this.searchEnabled || this.opt.keyOnly ? [] : SEARCH;
+    const left_right =
+      is.empty(this.opt.left) || is.empty(this.opt.right) ? [] : LEFT_RIGHT;
+
+    const keymap = new Map([...PARTIAL_LIST, ...left_right, ...search_keymap]);
     this.keyboard.setKeyMap(this, keymap);
   }
 
@@ -1231,13 +1277,7 @@ export class MenuComponentService<VALUE = unknown | string>
    *  - Items sorted within types, priority first, then ansi stripped label
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  private side(
-    side: "left" | "right" = this.selectedType,
-    noRecurse = false,
-  ): MainMenuEntry<VALUE>[] {
-    if (this.mode === "find" && !noRecurse) {
-      return [...this.side("right", true), ...this.side("left", true)];
-    }
+  private side(side: "left" | "right"): MainMenuEntry<VALUE>[] {
     let temp = this.opt[side].map(item => [
       item,
       ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),

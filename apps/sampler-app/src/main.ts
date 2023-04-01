@@ -68,7 +68,6 @@ export class SamplerApp {
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
       condensed: true,
-      hideSearch: true,
       keyMap: {
         c: {
           entry: ["config"],
@@ -197,6 +196,7 @@ export class SamplerApp {
         },
       ],
       rightHeader: "Configuration",
+      search: { enabled: false },
     });
     switch (action) {
       case "acknowledge_default":

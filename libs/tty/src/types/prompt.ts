@@ -1,6 +1,7 @@
 import { is, LABEL, SINGLE, VALUE } from "@digital-alchemy/utilities";
 
 import { PromptEntry } from "../services";
+import { BaseSearchOptions, MenuSearchOptions } from "./components";
 import { MainMenuEntry } from "./keyboard";
 
 export type PromptMenuItems<T extends unknown = string> = {
@@ -24,6 +25,13 @@ export const TTY = {
       ? (item[LABEL] as unknown as T)
       : (item[VALUE] as T);
   },
+
+  searchEnabled: (options: MenuSearchOptions) =>
+    is.object(options)
+      ? (options as BaseSearchOptions).enabled !== false
+      : // false is the only allowed boolean
+        // undefined = default enabled
+        !is.boolean(options),
 };
 
 export interface PromptAcknowledgeOptions {

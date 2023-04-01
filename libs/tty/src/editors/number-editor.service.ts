@@ -9,7 +9,6 @@ import {
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
-import { tKeyMap, TTYKeypressOptions } from "../contracts";
 import { Editor, iBuilderEditor } from "../decorators";
 import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
@@ -18,6 +17,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
+import { tKeyMap, TTYKeypressOptions } from "../types";
 
 export interface NumberEditorRenderOptions {
   current?: number;

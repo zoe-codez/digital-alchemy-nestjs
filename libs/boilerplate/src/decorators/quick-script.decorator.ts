@@ -71,9 +71,10 @@ export function QuickScript({
       setTimeout(async () => {
         const provider = app.get(target);
         if (is.function(provider.exec)) {
-          await provider.exec();
+          const exitCode = await provider.exec();
           if (!PERSISTENT) {
-            exit(SUCCESS);
+            await app.close();
+            exit(is.number(exitCode) ? exitCode : SUCCESS);
           }
         }
       }, WAIT_TIME),

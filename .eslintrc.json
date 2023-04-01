@@ -96,6 +96,7 @@
               "customizations",
               "datetime",
               "dayjs",
+              "fuzzysort",
               "debounce",
               "decipheriv",
               "decrement",
