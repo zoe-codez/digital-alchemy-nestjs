@@ -92,12 +92,12 @@ export class MenuService {
     condensed: false,
     generateCount: DEFAULT_GENERATE,
     headerMessage: faker.company.catchPhrase(),
-    hideSearch: false,
     keyOnly: false,
     leftHeader: "",
     optionsLeft: FakerSources.animal,
     optionsRight: FakerSources.filePath,
     rightHeader: "",
+    search: false,
     showHeaders: true,
   };
 
@@ -254,12 +254,12 @@ export class MenuService {
           path: "condensed",
           type: "boolean",
         },
-        {
-          helpText: "Remove the tab to toggle search option",
-          name: "Hide Search",
-          path: "hideSearch",
-          type: "boolean",
-        },
+        // {
+        //   helpText: "Remove the tab to toggle search option",
+        //   name: "Hide Search",
+        //   path: "hideSearch",
+        //   type: "boolean",
+        // },
         {
           helpText: [
             "Prevent menu from printing warnings when a list is empty.",
@@ -379,7 +379,6 @@ export class MenuService {
     this.application.setHeader("Pretty shortcuts");
     const result = await this.prompt.menu({
       condensed: true,
-      hideSearch: true,
       keyMap: {
         a: {
           entry: ["auto"],
@@ -409,6 +408,7 @@ export class MenuService {
         { entry: ["nothing special"] },
         { entry: [chalk.green("i'm green!"), "green"] },
       ],
+      search: false,
     });
     this.screen.printLine(result);
     await this.prompt.acknowledge();

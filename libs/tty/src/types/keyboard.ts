@@ -1,6 +1,7 @@
 import { Key } from "readline";
 
-import { HighlightCallbacks } from "../components";
+import { HighlightCallbacks } from "./components";
+
 export type KeyDescriptor = { key: Key; value?: string };
 export type MenuEntry<T extends unknown = string> =
   | [label: string, value: T]

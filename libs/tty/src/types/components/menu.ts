@@ -120,7 +120,7 @@ export interface MenuComponentOptions<VALUE = unknown> {
    * Remove the page up / page down keypress options
    *
    * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus.
-   * Implies `hideSearch`
+   * Implies `search` = false
    */
   condensed?: boolean;
   /**

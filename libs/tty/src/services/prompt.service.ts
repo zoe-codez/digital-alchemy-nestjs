@@ -65,8 +65,8 @@ export class PromptService {
     return (await this.menu({
       condensed: true,
       headerMessage: chalk`  {green ?} ${message}`,
-      hideSearch: true,
       right: [{ entry: ["true", true] }, { entry: ["false", false] }],
+      search: false,
       value: current,
     })) as boolean;
   }
