@@ -18,7 +18,6 @@ import {
   SensorConfig,
   StorageData,
   SwitchConfig,
-  UPDATE_TRIGGER,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
 
@@ -129,11 +128,13 @@ export class PushEntityService<
     } else {
       this.logger.trace({ context }, `no changes to flush`);
     }
-    // Emit to home assistant anyways?
-    await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), {
+    const update = {
       attributes: data.attributes,
       state: this.cast(data.state as string | number | boolean),
-    });
+    };
+    // Emit to home assistant anyways?
+    await this.fetch.updateEntity(sensor_id, update);
+    // await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
   }
 
   public async generate<
@@ -210,7 +211,7 @@ export class PushEntityService<
 
   private cast(value: string | number | boolean) {
     if (is.boolean(value)) {
-      return value ? "1" : "0";
+      return value ? "on" : "off";
     }
     if (is.undefined(value)) {
       return "";
