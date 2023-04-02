@@ -1,4 +1,8 @@
-import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import {
+  AutoLogService,
+  Cron,
+  InjectConfig,
+} from "@digital-alchemy/boilerplate";
 import {
   domain,
   ENTITY_STATE,
@@ -7,7 +11,7 @@ import {
   InjectCallProxy,
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
-import { each, is, MINUTE } from "@digital-alchemy/utilities";
+import { CronExpression, each, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { AGGRESSIVE_SCENES } from "../config";
@@ -27,11 +31,8 @@ export class AggressiveScenesService {
     private readonly lights: LightMangerService,
   ) {}
 
-  protected onApplicationBootstrap(): void {
-    setInterval(async () => await this.checkRooms(), MINUTE);
-  }
-
-  private async checkRooms() {
+  @Cron(CronExpression.EVERY_MINUTE)
+  protected async checkRooms() {
     try {
       await each([...SceneRoomService.loaded.keys()], async room => {
         this.logger.trace(`[%s] check room`, room);
@@ -79,7 +80,11 @@ export class AggressiveScenesService {
       return;
     }
     if (!configuration) {
-      this.logger.warn({ room }, `[%s] cannot validate room scene`, roomName);
+      this.logger.warn(
+        { configuration, options },
+        `[%s] cannot validate room scene`,
+        roomName,
+      );
       return;
     }
     const definition = configuration[room.current] as SceneDefinition;

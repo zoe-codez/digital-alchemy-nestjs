@@ -19,7 +19,12 @@ import { get } from "object-path";
 import { stdout } from "process";
 import { inspect } from "util";
 
-import { FUZZY_HIGHLIGHT, PAGE_SIZE, TEXT_DEBUG_DEPTH } from "../config";
+import {
+  FUZZY_HIGHLIGHT,
+  PAGE_SIZE,
+  TEXT_DEBUG_ARRAY_LENGTH,
+  TEXT_DEBUG_DEPTH,
+} from "../config";
 import {
   ansiMaxLength,
   ansiPadEnd,
@@ -91,6 +96,8 @@ export class TextRenderingService {
   constructor(
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(TEXT_DEBUG_DEPTH) private readonly debugDepth: number,
+    @InjectConfig(TEXT_DEBUG_ARRAY_LENGTH)
+    private readonly maxArrayLength: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
   ) {
     const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
@@ -162,6 +169,7 @@ export class TextRenderingService {
         colors: true,
         compact: false,
         depth: this.debugDepth,
+        maxArrayLength: this.maxArrayLength,
         maxStringLength: Math.min(width - STRING_SHRINK, STRING_SHRINK),
         sorted: true,
       })

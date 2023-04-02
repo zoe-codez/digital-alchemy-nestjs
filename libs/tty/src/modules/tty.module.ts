@@ -30,6 +30,7 @@ import {
   MENU_SEARCHBOX_NORMAL,
   PAGE_SIZE,
   TABLE_RENDER_ROWS,
+  TEXT_DEBUG_ARRAY_LENGTH,
   TEXT_DEBUG_DEPTH,
   USE_FONTAWESOME_ICONS,
 } from "../config";
@@ -148,9 +149,14 @@ import {
         "Default quantity of rows to render in prompts like arrayBuilder",
       type: "number",
     },
+    [TEXT_DEBUG_ARRAY_LENGTH]: {
+      default: 2,
+      description: "Util.inspect array length",
+      type: "number",
+    },
     [TEXT_DEBUG_DEPTH]: {
       default: 5,
-      description: "Util.inspect depth",
+      description: "Util.inspect object depth",
       type: "number",
     },
     [USE_FONTAWESOME_ICONS]: {

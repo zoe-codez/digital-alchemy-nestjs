@@ -11,7 +11,6 @@ import {
 import {
   ApplicationManagerService,
   IconService,
-  MainMenuEntry,
   PromptService,
   ScreenService,
   TextRenderingService,
@@ -70,17 +69,11 @@ export class EntityService {
           // Only allow entities not on the disallowed list
           entity => !domains.includes(domain(entity.entity_id as PICK_ENTITY)),
         )
-        .map(entity => {
-          return {
-            entry: [entity.entity_id, { entity }],
-            helpText: [
-              chalk`{bold Current State:} ${this.text.type(entity.state)}`,
-              chalk`{bold Attributes:} `,
-              this.text.type(entity.attributes),
-            ],
-            type: TitleCase(domain(entity.entity_id as PICK_ENTITY)),
-          } as MainMenuEntry<EntityMenuResult>;
-        }),
+        .map(entity => ({
+          entry: [entity.entity_id, { entity }],
+          helpText: entity,
+          type: TitleCase(domain(entity.entity_id as PICK_ENTITY)),
+        })),
       leftHeader: "Entity List",
       restore: {
         id: "HASS_CLI_INSPECT_ENTITY",
@@ -95,6 +88,7 @@ export class EntityService {
         type: "Domain Toggle",
       })),
       rightHeader: "Filter",
+      search: { right: false },
     });
 
     switch (action) {
