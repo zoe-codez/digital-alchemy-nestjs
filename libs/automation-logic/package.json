@@ -5,7 +5,7 @@
   "name": "@digital-alchemy/automation-logic",
   "displayName": "Automation Logic",
   "license": "MIT",
-  "version": "23.13.4",
+  "version": "23.14.0",
   "scripts": {
     "postinstall": "hass-type-generate || exit 0"
   },
