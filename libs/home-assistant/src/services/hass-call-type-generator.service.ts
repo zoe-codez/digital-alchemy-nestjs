@@ -196,16 +196,16 @@ export class HassCallTypeGenerator {
     let node: TypeNode;
     const { domain } = selector?.entity ?? {};
     // : boolean
-    if (!is.undefined(selector.boolean))
+    if (!is.undefined(selector?.boolean))
       node = factory.createKeywordTypeNode(SyntaxKind.BooleanKeyword);
     // : number
-    else if (!is.undefined(selector.number))
+    else if (!is.undefined(selector?.number))
       node = factory.createKeywordTypeNode(SyntaxKind.NumberKeyword);
     // : string
-    else if (!is.undefined(selector.text) || !is.undefined(selector.time))
+    else if (!is.undefined(selector?.text) || !is.undefined(selector?.time))
       node = factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
     // string | `domain.${keyof typeof ENTITY_SETUP.domain}`
-    else if (!is.undefined(selector.entity))
+    else if (!is.undefined(selector?.entity))
       node = is.empty(domain)
         ? factory.createKeywordTypeNode(SyntaxKind.StringKeyword)
         : factory.createUnionTypeNode([
@@ -234,9 +234,9 @@ export class HassCallTypeGenerator {
             ),
           ]);
     // : "option" | "option" | "option" | "option"
-    else if (!is.undefined(selector.select))
+    else if (!is.undefined(selector?.select))
       node = factory.createUnionTypeNode(
-        selector.select.options.map(
+        selector?.select.options.map(
           (i: string | Record<"label" | "value", string>) =>
             factory.createLiteralTypeNode(
               factory.createStringLiteral(is.string(i) ? i : i.value),
@@ -244,10 +244,10 @@ export class HassCallTypeGenerator {
         ),
       );
     // : Record<string, unknown> | (unknown[]);
-    else if (is.undefined(selector.object)) {
+    else if (is.undefined(selector?.object)) {
       node = factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
     }
-    // else if (!is.undefined(selector.))
+    // else if (!is.undefined(selector?.))
     // : unknown
     else {
       node = factory.createUnionTypeNode([
