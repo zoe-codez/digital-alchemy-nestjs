@@ -143,7 +143,7 @@ export class PushEntityConfigService {
   private async initOnline() {
     const initSwitches = this.configuration?.generate_entities?.switch ?? {};
     // * `binary_sensor.{app}_online`
-    const online_id = `binary_sensor.app_${this.application.replace(
+    const online_id = `binary_sensor.${this.application.replace(
       "-",
       "_",
     )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
@@ -163,7 +163,7 @@ export class PushEntityConfigService {
       delay_off: {
         seconds: 30,
       },
-      name: `App ${TitleCase(this.application)} Online`,
+      name: `${TitleCase(this.application)} Online`,
       track_history: true,
     });
     const proxy = await this.pushProxy.createPushProxy(online_id);
@@ -216,7 +216,7 @@ export class PushEntityConfigService {
   private async initialize() {
     await this.initOnline();
     // * `sensor.{app}_last_build`
-    const last_build_id = `sensor.app_${this.application.replace(
+    const last_build_id = `sensor.${this.application.replace(
       "-",
       "_",
     )}_last_build` as PICK_GENERATED_ENTITY<"sensor">;
@@ -227,7 +227,7 @@ export class PushEntityConfigService {
     this.lastBuildDate = await this.pushProxy.createPushProxy(last_build_id);
 
     // *  `sensor.{app}_uptime`
-    const uptime_id = `sensor.app_${this.application.replace(
+    const uptime_id = `sensor.${this.application.replace(
       "-",
       "_",
     )}_uptime` as PICK_GENERATED_ENTITY<"sensor">;

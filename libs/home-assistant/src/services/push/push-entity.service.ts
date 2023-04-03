@@ -128,8 +128,15 @@ export class PushEntityService<
     } else {
       this.logger.trace({ context }, `no changes to flush`);
     }
+    const friendly_name = get(
+      this.configuration.generate_entities,
+      sensor_id,
+    )?.name;
     const update = {
-      attributes: data.attributes,
+      attributes: {
+        ...data.attributes,
+        friendly_name,
+      },
       state: this.cast(data.state as string | number | boolean),
     };
     // Emit to home assistant anyways?

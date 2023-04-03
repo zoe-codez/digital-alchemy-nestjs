@@ -1,20 +1,20 @@
 
 [libs.boilerplate]
   CACHE_PROVIDER=redis
-  LOG_LEVEL=debug
+  LOG_LEVEL=trace
 ; Changed mapping to not conflict
   CACHE_PORT=7379
 
 [libs.server]
   ADMIN_KEY=super secret key
-  PORT=7004
+  PORT=8804
 
 [libs.home-assistant]
 ; Added mapping to nginx (entity-creation.local => {ip}:{port above})
-  TALK_BACK_BASE_URL=http://192.168.1.223:7004
+  TALK_BACK_BASE_URL=http://192.168.1.52:8804
   HOME_ASSISTANT_PACKAGE_FOLDER=/digital_alchemy_home_assistant/packages
 ; See `examples/docker/homeassistant` for reference install
-  BASE_URL=http://192.168.1.223:9123
+  BASE_URL=http://localhost:9123
 ; Token is registered with reference install
   TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzNTA2YTNkNDQzMDM0YjllYmM0ZTZiZmZhNDY3YTQyZSIsImlhdCI6MTY3NzQyOTE4NSwiZXhwIjoxOTkyNzg5MTg1fQ.MzcFq-O5VxaimPHmLCcr5mwvmfWdb5qAwbqnL3hus7U
   APPLICATION_IDENTIFIER=scene_manager
@@ -23,5 +23,5 @@
 ; Added symlink to system root
   HOME_ASSISTANT_FOLDER=/digital_alchemy_home_assistant
 
-; [libs.mqtt.CLIENT_OPTIONS]
-;   host=mqtt.local
+[libs.mqtt.CLIENT_OPTIONS]
+  host=mqtt.local

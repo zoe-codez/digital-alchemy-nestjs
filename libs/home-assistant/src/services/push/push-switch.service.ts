@@ -110,7 +110,7 @@ export class PushSwitchService {
       // icon_template: config.icon,
     });
     // switches must obey the availability of the service hosting them
-    const online_id = `binary_sensor.app_${this.application.replace(
+    const online_id = `binary_sensor.${this.application.replace(
       "-",
       "_",
     )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
