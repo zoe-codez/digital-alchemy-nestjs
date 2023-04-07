@@ -131,6 +131,12 @@ export type MenuSearchOptions<SEARCH extends unknown = unknown> =
 
 export interface MenuComponentOptions<VALUE = unknown> {
   /**
+   * Exit the menu with a given result on behalf of the user
+   *
+   * Timeouts, automatic data refreshes, etc
+   */
+  // abort?: (abort: (value: VALUE) => void) => void | Promise<void>;
+  /**
    * Remove the page up / page down keypress options
    *
    * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus.

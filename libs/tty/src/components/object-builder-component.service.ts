@@ -381,7 +381,7 @@ export class ObjectBuilderComponentService<
    */
   protected onDown(): boolean {
     if (this.selectedRow === this.visibleColumns.length - ARRAY_OFFSET) {
-      this.selectedRow = START;
+      this.onPageUp();
       return;
     }
     this.selectedRow++;
@@ -439,7 +439,7 @@ export class ObjectBuilderComponentService<
    * keyboard event
    */
   protected onPageDown(): void {
-    this.selectedRow = this.visibleColumns.length;
+    this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
   }
 
   /**
@@ -454,7 +454,7 @@ export class ObjectBuilderComponentService<
    */
   protected onUp(): boolean {
     if (this.selectedRow === START) {
-      this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
+      this.onPageDown();
       return;
     }
     this.selectedRow--;
