@@ -8,29 +8,21 @@
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/boilerplate",
-        "tsConfig": "libs/boilerplate/tsconfig.lib.json",
-        "packageJson": "libs/boilerplate/package.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "main": "libs/boilerplate/src/index.ts",
+        "outputPath": "dist/libs/boilerplate",
+        "packageJson": "libs/boilerplate/package.json",
+        "tsConfig": "libs/boilerplate/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
         "assets": [
-          "libs/boilerplate/package.json",
-          "libs/boilerplate/README.md"
+          "libs/boilerplate/*.md",
+          "libs/boilerplate/package.json"
         ]
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "peerDependencies",
-          "updateBuildableProjectDepsInPackageJson": true,
-          "fileReplacements": [
-            {
-              "replace": "libs/boilerplate/README.md",
-              "with": "libs/boilerplate/docs/npm.md"
-            }
-          ]
+          "fileReplacements": []
         }
       }
     },

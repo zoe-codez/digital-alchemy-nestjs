@@ -1,14 +1,23 @@
 {
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
   "bin": {
     "config-builder": "main.js"
   },
-  "name": "@digital-alchemy/config-builder",
+  "description": "Terminal based app for managing configurations related to Digital Alchemy applications",
+  "displayName": "Digital Alchemy - Config Builder",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "license": "MIT",
   "main": "main.js",
-  "displayName": "Config Builder",
-  "version": "23.14.3",
-  "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "name": "@digital-alchemy/config-builder",
   "engines": {
-    "node": ">=16.0.0"
-  }
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
+  },
+  "version": "23.14.3"
 }

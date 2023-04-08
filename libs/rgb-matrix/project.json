@@ -8,12 +8,12 @@
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/rgb-matrix",
-        "tsConfig": "libs/rgb-matrix/tsconfig.lib.json",
-        "packageJson": "libs/rgb-matrix/package.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "main": "libs/rgb-matrix/src/index.ts",
+        "outputPath": "dist/libs/rgb-matrix",
+        "packageJson": "libs/rgb-matrix/package.json",
+        "tsConfig": "libs/rgb-matrix/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
         "assets": [
           "libs/rgb-matrix/*.md",
           "libs/rgb-matrix/package.json"
@@ -22,7 +22,6 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
           "fileReplacements": []
         }
       }
