@@ -8,20 +8,20 @@
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/testing",
-        "tsConfig": "libs/testing/tsconfig.lib.json",
-        "packageJson": "libs/testing/package.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "main": "libs/testing/src/index.ts",
-        "assets": ["libs/testing/package.json"]
+        "outputPath": "dist/libs/testing",
+        "packageJson": "libs/testing/package.json",
+        "tsConfig": "libs/testing/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/testing/*.md",
+          "libs/testing/package.json"
+        ]
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "dependencies",
-          "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }
       }

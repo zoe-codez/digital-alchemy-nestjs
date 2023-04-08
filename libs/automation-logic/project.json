@@ -4,6 +4,28 @@
   "sourceRoot": "libs/automation-logic/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/automation-logic/src/index.ts",
+        "outputPath": "dist/libs/automation-logic",
+        "packageJson": "libs/automation-logic/package.json",
+        "tsConfig": "libs/automation-logic/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/automation-logic/*.md",
+          "libs/automation-logic/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "fileReplacements": []
+        }
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
@@ -29,29 +51,6 @@
             "description": "Publish it"
           }
         ]
-      }
-    },
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/automation-logic",
-        "tsConfig": "libs/automation-logic/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/automation-logic/package.json",
-        "main": "libs/automation-logic/src/index.ts",
-        "assets": [
-          "libs/automation-logic/*.md",
-          "libs/automation-logic/package.json"
-        ]
-      },
-      "configurations": {
-        "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "fileReplacements": []
-        }
       }
     }
   },

@@ -4,6 +4,28 @@
   "sourceRoot": "libs/home-assistant/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/home-assistant/src/index.ts",
+        "outputPath": "dist/libs/home-assistant",
+        "packageJson": "libs/home-assistant/package.json",
+        "tsConfig": "libs/home-assistant/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/home-assistant/*.md",
+          "libs/home-assistant/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "fileReplacements": []
+        }
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
@@ -37,29 +59,6 @@
       "options": {
         "jestConfig": "libs/home-assistant/jest.config.ts",
         "passWithNoTests": true
-      }
-    },
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/home-assistant",
-        "tsConfig": "libs/home-assistant/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/home-assistant/package.json",
-        "main": "libs/home-assistant/src/index.ts",
-        "assets": [
-          "libs/home-assistant/*.md",
-          "libs/home-assistant/package.json"
-        ]
-      },
-      "configurations": {
-        "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "fileReplacements": []
-        }
       }
     }
   },

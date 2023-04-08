@@ -8,18 +8,20 @@
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/mqtt",
-        "tsConfig": "libs/mqtt/tsconfig.lib.json",
-        "packageJson": "libs/mqtt/package.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "main": "libs/mqtt/src/index.ts",
-        "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]
+        "outputPath": "dist/libs/mqtt",
+        "packageJson": "libs/mqtt/package.json",
+        "tsConfig": "libs/mqtt/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/mqtt/*.md",
+          "libs/mqtt/package.json"
+        ]
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
           "fileReplacements": []
         }
       }

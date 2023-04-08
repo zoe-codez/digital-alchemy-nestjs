@@ -8,18 +8,20 @@
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/tty",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "tsConfig": "libs/tty/tsconfig.lib.json",
-        "packageJson": "libs/tty/package.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "main": "libs/tty/src/index.ts",
-        "assets": ["libs/tty/*.md", "libs/tty/package.json"]
+        "outputPath": "dist/libs/tty",
+        "packageJson": "libs/tty/package.json",
+        "tsConfig": "libs/tty/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/tty/*.md",
+          "libs/tty/package.json"
+        ]
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
           "fileReplacements": []
         }
       }
