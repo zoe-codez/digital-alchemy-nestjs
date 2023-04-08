@@ -106,6 +106,7 @@ export class ArrayBuilderService<VALUE extends object>
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   public async render(): Promise<void> {
+    this.application.reprintHeader();
     // Complete = this widget must have `configure()` called prior to doing more rendering
     if (this.complete) {
       return;

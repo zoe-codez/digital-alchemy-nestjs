@@ -37,6 +37,7 @@ import {
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
 import {
+  ApplicationManagerService,
   EnvironmentService,
   KeyboardManagerService,
   KeymapService,
@@ -172,6 +173,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly cache: CacheService,
     private readonly environment: EnvironmentService,
     private readonly keyboard: KeyboardManagerService,
+    private readonly application: ApplicationManagerService,
     private readonly screen: ScreenService,
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
@@ -284,6 +286,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Entrypoint for rendering logic
    */
   public render(updateValue = false): void {
+    this.application.reprintHeader();
     // Complete = this widget must have `configure()` called prior to doing more rendering
     if (this.complete) {
       return;

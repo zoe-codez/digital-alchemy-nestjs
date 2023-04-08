@@ -122,6 +122,7 @@ export class ApplicationManagerService {
    * Clear the screen, and re-render the previous header
    */
   public reprintHeader(): void {
+    this.screen.clear();
     const [a, b] = this.parts;
     this.setHeader(a, b);
   }

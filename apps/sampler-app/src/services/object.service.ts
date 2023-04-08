@@ -33,7 +33,7 @@ export class ObjectService {
       current: {
         another: 6,
         check: false,
-        column1: PEAT(100).join("|"),
+        column1: "susper extra long string " + PEAT(100).join("|"),
         column2: "",
         column3: "",
         extra: ["bar", "baz"],

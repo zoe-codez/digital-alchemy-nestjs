@@ -14,6 +14,7 @@ import { get, set } from "object-path";
 
 import { Component, iComponent } from "../decorators";
 import {
+  ApplicationManagerService,
   FormService,
   KeyboardManagerService,
   KeymapService,
@@ -81,6 +82,7 @@ export class ObjectBuilderComponentService<
     private readonly keyboard: KeyboardManagerService,
     @Inject(forwardRef(() => PromptService))
     private readonly prompt: PromptService,
+    private readonly application: ApplicationManagerService,
   ) {}
 
   /**
@@ -181,6 +183,7 @@ export class ObjectBuilderComponentService<
   }
 
   public render(): void {
+    this.application.reprintHeader();
     if (this.complete) {
       this.screen.render("", "");
       return;
