@@ -18,6 +18,7 @@ import chalk from "chalk";
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
 import {
+  ApplicationManagerService,
   KeyboardManagerService,
   KeymapService,
   ScreenService,
@@ -81,6 +82,7 @@ export class PickManyComponentService<VALUE = unknown>
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly text: TextRenderingService,
+    private readonly application: ApplicationManagerService,
     private readonly screen: ScreenService,
     private readonly keyboard: KeyboardManagerService,
   ) {}
@@ -118,6 +120,7 @@ export class PickManyComponentService<VALUE = unknown>
   }
 
   public render(updateValue = false): void {
+    this.application.reprintHeader();
     if (this.complete) {
       return;
     }

@@ -2,6 +2,7 @@ import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   DOWN,
+  EMPTY,
   INCREMENT,
   INVERT_VALUE,
   is,
@@ -406,7 +407,11 @@ export class TextRenderingService {
    * Recursively handles objects and arrays.
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  public type(item: unknown, nested = START): string {
+  public type(
+    item: unknown,
+    nested = START,
+    maxLength = MAX_STRING_LENGTH,
+  ): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
     }
@@ -423,10 +428,16 @@ export class TextRenderingService {
       if (is.empty(item)) {
         return chalk.gray(`empty string`);
       }
-      return chalk.blue(
-        item.slice(START, MAX_STRING_LENGTH) +
-          (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
-      );
+      let trimmed: string = item;
+      if (
+        is.number(maxLength) &&
+        maxLength > EMPTY &&
+        item.length > maxLength
+      ) {
+        trimmed = (trimmed.slice(START, maxLength - ELLIPSES.length) +
+          chalk.blueBright(ELLIPSES)) as string;
+      }
+      return chalk.blue(trimmed);
     }
     if (is.array(item)) {
       if (is.empty(item)) {

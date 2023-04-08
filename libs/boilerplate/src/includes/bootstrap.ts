@@ -1,19 +1,3 @@
-/**
- * Something about bootstrapping completely breaks things with a normal reference.
- * Imports from @digital-alchemy/boilerplate are on purpose here
- * */
-/* eslint-disable @nrwl/nx/enforce-module-boundaries, sonarjs/no-identical-functions */
-import {
-  AbstractConfig,
-  AutoLogService,
-  CONFIG_DEFAULTS,
-  LIB_BOILERPLATE,
-  LifecycleService,
-  LogExplorerService,
-  NEST_NOOP_LOGGER,
-  PrettyLoggerConfig,
-  UsePrettyLogger,
-} from "@digital-alchemy/boilerplate";
 import { eachSeries, is } from "@digital-alchemy/utilities";
 import {
   INestApplication,
@@ -26,6 +10,15 @@ import chalk from "chalk";
 import { ClassConstructor } from "class-transformer";
 import express, { Express } from "express";
 import { exit } from "process";
+import { LIB_BOILERPLATE } from "../config";
+import {
+  NEST_NOOP_LOGGER,
+  AutoLogService,
+  LifecycleService,
+  LogExplorerService,
+} from "../services";
+import { AbstractConfig, CONFIG_DEFAULTS } from "../types";
+import { PrettyLoggerConfig, UsePrettyLogger } from "./pretty-logger";
 
 export interface BootstrapOptions extends Pick<ModuleMetadata, "imports"> {
   /**

@@ -65,6 +65,7 @@ export const ansiMaxLength = (...items: (string[] | string)[]): number =>
       ),
     ),
   );
+
 const ESC = "\u001B[";
 const OSC = "\u001B]";
 const BEL = "\u0007";

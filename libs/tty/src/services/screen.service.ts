@@ -49,6 +49,7 @@ export class ScreenService {
 
   public clear(): void {
     this.height = EMPTY;
+    this.lastContent = undefined;
     this.rl.output.unmute();
     // Reset draw to top
     this.rl.output.write("\u001B[0f");

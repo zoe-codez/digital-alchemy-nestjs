@@ -4,6 +4,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "@digital-alchemy/tty";
+import { PEAT } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
@@ -32,7 +33,7 @@ export class ObjectService {
       current: {
         another: 6,
         check: false,
-        column1: "",
+        column1: "super extra long string " + PEAT(100).join("|"),
         column2: "",
         column3: "",
         extra: ["bar", "baz"],
