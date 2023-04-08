@@ -65,6 +65,7 @@ export class SamplerApp {
   ) {}
 
   public async exec(): Promise<void> {
+    await this.object.basicInteraction();
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
       condensed: true,

@@ -1,6 +1,7 @@
 import {
   ARRAY_OFFSET,
   INCREMENT,
+  INVERT_VALUE,
   is,
   LABEL,
   START,
@@ -11,18 +12,20 @@ import chalk from "chalk";
 import equal from "deep-equal";
 import { get } from "object-path";
 
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { ansiMaxLength, ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   ObjectBuilderOptions,
   TABLE_PARTS,
   TableBuilderElement,
   TTY,
 } from "../types";
+import { EnvironmentService } from "./environment.service";
 import { TextRenderingService } from "./text-rendering.service";
 
 const PADDING = 1;
 const DOUBLE_PADDING = 2;
 const TRIPLE_PADDING = 3;
+const PARTS_AND_PADDING = 7;
 
 // const NAME_CELL = (i: TableBuilderElement, max?: number) =>
 //   chalk`${" ".repeat(PADDING)}{bold.blue ${i.name.padEnd(max - PADDING, " ")}}`;
@@ -32,7 +35,10 @@ export class FormService<
   VALUE extends object = Record<string, unknown>,
   CANCEL extends unknown = never,
 > {
-  constructor(private readonly text: TextRenderingService) {}
+  constructor(
+    private readonly text: TextRenderingService,
+    private readonly environment: EnvironmentService,
+  ) {}
 
   private activeOptions: ObjectBuilderOptions<VALUE, CANCEL>;
   private selectedRow: number;
@@ -54,15 +60,22 @@ export class FormService<
     return [...header].join(`\n`);
   }
 
+  private ellipsis(value: string, maxLength: number): string {
+    const stripped = ansiStrip(value);
+    const length = ansiMaxLength(...stripped.split(`\n`));
+    const max = maxLength - ELLIPSES.length;
+    if (length > maxLength) {
+      const update = stripped.slice(START, max) + ELLIPSES;
+      value = value.replace(stripped, update);
+    }
+    return value;
+  }
+
   private formBody(maxLabel: number, original: VALUE): string[] {
     const elements = this.activeOptions.elements;
-    const maxValue =
-      DOUBLE_PADDING +
-      ansiMaxLength(
-        ...elements.map(i => {
-          return this.text.type(this.getRenderValue(i));
-        }),
-      );
+
+    // ? ensure the label properly fits on the screen
+    const maxValue = this.maxValueLength(maxLabel);
     const columns = elements.map((i: TableBuilderElement<VALUE>, index) =>
       this.renderValue({ i, index, maxLabel, maxValue }, original),
     );
@@ -123,6 +136,23 @@ export class FormService<
     return raw;
   }
 
+  private maxValueLength(maxLabel: number) {
+    return Math.min(
+      this.environment.width -
+        maxLabel -
+        PARTS_AND_PADDING -
+        // both sides padding
+        DOUBLE_PADDING -
+        DOUBLE_PADDING,
+      DOUBLE_PADDING +
+        ansiMaxLength(
+          ...this.activeOptions.elements.map(i => {
+            return this.text.type(this.getRenderValue(i));
+          }),
+        ),
+    );
+  }
+
   private nameCell(
     i: TableBuilderElement<VALUE>,
     color: "blue" | "green",
@@ -149,7 +179,7 @@ export class FormService<
     original: VALUE,
   ): string {
     const raw = this.getRenderValue(i);
-    const v = this.text.type(raw).trim();
+    const v = this.text.type(raw, undefined, maxValue - INCREMENT).trim();
     const lines = v.split(`\n`).length;
     const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
       `\n`,
@@ -167,7 +197,12 @@ export class FormService<
           TABLE_PARTS.left,
           ansiPadEnd(labelLine, maxLabel + TRIPLE_PADDING),
           TABLE_PARTS.middle,
-          ansiPadEnd(" " + values[labelIndex], maxValue),
+          " " +
+            this.ellipsis(
+              // ansiPadEnd("foobar", maxValue),
+              ansiPadEnd(values[labelIndex], maxValue - INCREMENT),
+              maxValue,
+            ),
           TABLE_PARTS.right,
         ].join("");
       })
