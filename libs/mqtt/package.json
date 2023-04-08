@@ -3,12 +3,14 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@digital-alchemy/mqtt",
-  "license": "MIT",
-  "version": "23.14.3",
+  "description": "MQTT bindings for Digital Alchemy",
+  "displayName": "Digital Alchemy - MQTT",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/mqtt",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
-  }
+  },
+  "version": "23.14.3"
 }

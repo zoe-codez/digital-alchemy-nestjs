@@ -55,34 +55,6 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "publish": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx figlet-cli -f Pagga Hass CLI",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build hass-cli --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/hass-cli/main.js -c -m --keep-classnames --module > dist/apps/hass-cli/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/hass-cli/main.js; cat dist/apps/hass-cli/minified.js >> dist/apps/hass-cli/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/hass-cli --non-interactive",
-            "description": "Publish it"
-          }
-        ]
-      }
-    },
     "scan-config": {
       "executor": "nx:run-commands",
       "options": {

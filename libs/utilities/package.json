@@ -3,13 +3,14 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@digital-alchemy/utilities",
-  "displayName": "Utilities",
-  "license": "MIT",
-  "version": "23.14.3",
+  "description": "Basic constants and utilities for use within Digital Alchemy",
+  "displayName": "Digital Alchemy - Utilities",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/utilities",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
-  }
+  },
+  "version": "23.14.3"
 }

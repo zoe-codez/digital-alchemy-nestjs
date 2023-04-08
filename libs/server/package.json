@@ -3,13 +3,14 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@digital-alchemy/server",
-  "license": "MIT",
-  "displayName": "Server",
-  "version": "23.14.3",
+  "description": "Module to enable http functionality within Digital Alchemy",
+  "displayName": "Digital Alchemy - Server",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/server",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
-  }
+  },
+  "version": "23.14.3"
 }

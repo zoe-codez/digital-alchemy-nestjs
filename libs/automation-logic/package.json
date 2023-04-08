@@ -1,13 +1,19 @@
 {
   "author": {
-    "name": "zoe-codez"
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@digital-alchemy/automation-logic",
-  "displayName": "Automation Logic",
+  "description": "Canned logic for use with Home Automation",
+  "displayName": "Digital Alchemy - Automation Logic",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "license": "MIT",
-  "version": "23.14.3",
+  "name": "@digital-alchemy/automation-logic",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
+  },
   "scripts": {
     "postinstall": "hass-type-generate || exit 0"
   },
-  "description": "HELLO WORLD"
+  "version": "23.14.3"
 }

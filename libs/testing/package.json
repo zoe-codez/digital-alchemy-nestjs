@@ -3,13 +3,14 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
-  "name": "@digital-alchemy/testing",
-  "displayName": "Testing",
-  "license": "MIT",
-  "version": "23.14.3",
+  "description": "Utilities for building unit tests with Digital Alchemy",
+  "displayName": "Digital Alchemy - Testing",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/testing",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
-  }
+  },
+  "version": "23.14.3"
 }
