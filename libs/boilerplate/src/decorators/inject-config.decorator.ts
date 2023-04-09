@@ -13,6 +13,15 @@ import {
 export const CONFIG_PROVIDERS = new Set<Provider>();
 export const MESSY_INJECTED_CONFIGS = new Map<string, AnyConfig>();
 
+/**
+ * Fixes some issues downstream to define it this way
+ */
+type PDecorator = (
+  target: object,
+  key: undefined | string | symbol,
+  index: number,
+) => void;
+
 export function InjectConfig(
   /**
    * Name of property to inject (ex: `BASE_URL`)
@@ -49,7 +58,7 @@ export function InjectConfig(
     > (there should be an `@` in front of that `InjectConfig`, but tsdoc hates that for me right now)
    */
   from?: string | AnyConfig,
-): ParameterDecorator {
+): PDecorator {
   return function (target, key, index) {
     if (is.object(from)) {
       MESSY_INJECTED_CONFIGS.set(path, from);
