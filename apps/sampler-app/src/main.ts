@@ -8,6 +8,7 @@ import {
 } from "@digital-alchemy/tty";
 import { faker } from "@faker-js/faker";
 import chalk from "chalk";
+import execa from "execa";
 
 import {
   AcknowledgeService,
@@ -65,6 +66,11 @@ export class SamplerApp {
   ) {}
 
   public async exec(): Promise<void> {
+    // await execa("nano", ["/home/cameron/.ssh/config"], {
+    //   detached: true,
+    //   stdio: "inherit",
+    // });
+    await this.string.basicInteraction();
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
       condensed: true,

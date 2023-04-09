@@ -20,7 +20,7 @@ import {
 } from "../services";
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
 
-export interface StringEditorRenderOptions {
+export type StringEditorRenderOptions = {
   current?: string;
   label?: string;
   mask?: "hide" | "obfuscate";
@@ -29,7 +29,7 @@ export interface StringEditorRenderOptions {
   placeholder?: string;
   // validate?: (value: string) => true | string;
   width?: number;
-}
+};
 
 const DEFAULT_PLACEHOLDER = "enter value";
 const INTERNAL_PADDING = " ";
