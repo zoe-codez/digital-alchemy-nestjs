@@ -71,6 +71,7 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
+    this.cursor = 25;
   }
 
   public render(): void {
@@ -160,6 +161,31 @@ export class StringEditorService
   }
 
   private renderBox(bgColor: string): void {
+    let value = is.empty(this.value)
+      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
+      : this.value;
+    if (value !== DEFAULT_PLACEHOLDER) {
+      if (this.config.mask === "hide") {
+        value = "";
+      } else if (this.config.mask === "obfuscate") {
+        value = "*".repeat(value.length);
+      }
+    }
+    const width = this.config.width - PADDING;
+    this.screen.render(
+      this.text
+        .searchBoxEditable({
+          bgColor,
+          cursor: this.cursor,
+          padding: PADDING,
+          value,
+          width,
+        })
+        .join("\n"),
+    );
+  }
+
+  private renderBox2(bgColor: string): void {
     let value = is.empty(this.value)
       ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
       : this.value;

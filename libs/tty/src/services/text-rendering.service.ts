@@ -4,13 +4,14 @@ import {
   DOWN,
   EMPTY,
   INCREMENT,
-  INVERT_VALUE,
   is,
   LABEL,
   NOT_FOUND,
+  ONE_THIRD,
   SINGLE,
   START,
   TitleCase,
+  TWO_THIRDS,
   UP,
 } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
@@ -26,13 +27,7 @@ import {
   TEXT_DEBUG_ARRAY_LENGTH,
   TEXT_DEBUG_DEPTH,
 } from "../config";
-import {
-  ansiMaxLength,
-  ansiPadEnd,
-  ansiStrip,
-  ELLIPSES,
-  template,
-} from "../includes";
+import { ansiMaxLength, ansiPadEnd, ELLIPSES, template } from "../includes";
 import {
   BaseSearchOptions,
   MainMenuEntry,
@@ -77,7 +72,6 @@ const DEFAULT_PLACEHOLDER = "enter value";
 type EditableSearchBoxOptions = {
   bgColor: string;
   cursor: number;
-  mask?: "hide" | "obfuscate";
   padding: number;
   placeholder?: string;
   value: string;
@@ -335,11 +329,11 @@ export class TextRenderingService {
     width,
     bgColor,
     padding,
-    mask,
     cursor,
     placeholder = DEFAULT_PLACEHOLDER,
-  }: EditableSearchBoxOptions) {
+  }: EditableSearchBoxOptions): string[] {
     const maxLength = width - padding;
+    // * If no value, return back empty box w/ placeholder
     if (!value) {
       return [
         chalk[bgColor].black(
@@ -348,33 +342,55 @@ export class TextRenderingService {
       ];
     }
     const out: string[] = [];
-    const stripped = ansiStrip(value);
-    let length = stripped.length;
-    if (length > maxLength - ELLIPSES.length) {
-      const update =
-        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
-      value = value.replace(stripped, update);
-      length = update.length;
-    }
-    if (value !== DEFAULT_PLACEHOLDER) {
-      if (mask === "hide") {
-        value = "";
-      } else {
-        if (mask === "obfuscate") {
-          value = "*".repeat(value.length);
-        }
-        if (is.number(cursor)) {
-          value = [
-            value.slice(START, cursor),
-            chalk.inverse(value[cursor] ?? " "),
-            value.slice(cursor + SINGLE),
-          ].join("");
-        }
-      }
-    }
-    const padded = " " + value + " ";
+    // const stripped = ansiStrip(value);
+    // let length = stripped.length;
+    // if (length > maxLength - ELLIPSES.length) {
+    //   const update =
+    //     ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
+    //   value = value.replace(stripped, update);
+    //   length = update.length;
+    // }
+    const [a, b, type] = this.sliceRange({
+      index: cursor,
+      maxLength: width,
+      text: value,
+    });
+    value = [...a]
+      .map((i, index) =>
+        index === b ? chalk[bgColor].black.inverse(i) : chalk[bgColor].black(i),
+      )
+      .join("");
 
-    out.push(chalk[bgColor].black(ansiPadEnd(padded, maxLength + padding)));
+    // * If using default placeholder, don't mess with it
+    // if (value !== DEFAULT_PLACEHOLDER) {
+    //   if (mask === "hide") {
+    //     value = "";
+    //   } else {
+    //     if (mask === "obfuscate") {
+    //       value = "*".repeat(value.length);
+    //     }
+    //     if (is.number(cursor)) {
+    //       value = [
+    //         value.slice(START, cursor),
+    //         chalk.inverse(value[cursor] ?? " "),
+    //         value.slice(cursor + SINGLE),
+    //       ].join("");
+    //     }
+    //   }
+    // }
+    const pad = chalk[bgColor](" ");
+
+    out.push(
+      ansiPadEnd([pad, value, pad].join(""), maxLength + padding),
+      this.debug({
+        b,
+        cursor,
+        maxLength,
+        padding,
+        type,
+        width,
+      }),
+    );
     return out;
   }
 
@@ -500,4 +516,95 @@ export class TextRenderingService {
     );
     return label || defaultValue;
   }
+
+  /**
+   * Take return a an array slice based on the position of a given value, and PAGE_SIZE.
+   *
+   * [text,cursor position]
+   */
+  private sliceRange({
+    text,
+    index,
+    maxLength,
+  }: SliceRange): [string, number, string] {
+    const difference = text.length - maxLength;
+    const dotLength = ELLIPSES.length;
+    if (text.length <= maxLength) {
+      // * short strings, return back whole string
+      return [text, index, "short entry"];
+    }
+
+    if (index === text.length) {
+      // * cursor at very end
+      return [
+        ELLIPSES + text.slice(text.length - maxLength + ARRAY_OFFSET) + " ",
+        maxLength + dotLength - ARRAY_OFFSET,
+        "at end",
+      ];
+    }
+
+    const inset = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
+    const offset = Math.max(index - inset + ARRAY_OFFSET);
+
+    // * start sliding at 2/3 of max length from end of string
+    const sliding = text.length - maxLength + inset;
+    // if (index >= sliding + dotLength + dotLength) {
+    //   // * cursor near end
+    //   // * cursor moves, text sticks
+    //   return [
+    //     ELLIPSES +
+    //       text.slice(Math.floor(text.length - maxLength + dotLength)) +
+    //       " ",
+    //     index - difference + dotLength,
+    //     "inside sliding 2",
+    //   ];
+    // }
+    if (index >= sliding) {
+      // * cursor near end
+      // * cursor moves, text sticks
+      let suffix = " ";
+      // if (index === sliding - 1 + 2) {
+      //   suffix = "..";
+      // }
+      let increase = START;
+      if (index === sliding - 1) {
+        suffix = "..";
+        increase++;
+      }
+      const sLength = suffix.trim().length;
+      return [
+        ELLIPSES +
+          text.slice(
+            Math.floor(text.length - maxLength) + ARRAY_OFFSET,
+            text.length - sLength + increase,
+          ) +
+          suffix,
+        index - difference + 2,
+        "inside sliding " + JSON.stringify({ index, sliding }),
+      ];
+    }
+
+    if (index < inset) {
+      // * inside sliding range
+      // * cursor sticks @ 1/3
+      // *
+      return [
+        text.slice(START, maxLength) + ELLIPSES,
+        index,
+        "start w/ sliding",
+      ];
+    }
+    const start = offset + 2;
+    const pre = start === START ? "" : ELLIPSES;
+    return [
+      pre + text.slice(start, start + maxLength - dotLength) + ELLIPSES,
+      start === START ? index : inset,
+      "sliding zone " + JSON.stringify({ offset, start }),
+    ];
+  }
 }
+type SliceRange = {
+  index: number;
+  maxLength: number;
+  text: string;
+};

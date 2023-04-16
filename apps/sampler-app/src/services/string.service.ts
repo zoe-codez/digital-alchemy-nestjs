@@ -24,8 +24,9 @@ export class StringService {
 
   public async basicInteraction(): Promise<void> {
     this.application.setHeader("String Value");
+    const fill = PEAT(10).join("");
     const result = await this.prompt.string({
-      current: PEAT(100).join("|"),
+      current: PEAT(5, fill).join("_"),
     });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
