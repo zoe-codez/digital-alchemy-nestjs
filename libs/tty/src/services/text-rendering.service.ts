@@ -6,6 +6,7 @@ import {
   INCREMENT,
   is,
   LABEL,
+  NONE,
   NOT_FOUND,
   ONE_THIRD,
   SINGLE,
@@ -332,24 +333,18 @@ export class TextRenderingService {
     cursor,
     placeholder = DEFAULT_PLACEHOLDER,
   }: EditableSearchBoxOptions): string[] {
+    const v = value;
     const maxLength = width - padding;
     // * If no value, return back empty box w/ placeholder
     if (!value) {
       return [
         chalk[bgColor].black(
-          ansiPadEnd(` ${placeholder} `, maxLength + padding),
+          ansiPadEnd(` ${placeholder} 123`, maxLength + padding),
         ),
       ];
     }
     const out: string[] = [];
-    // const stripped = ansiStrip(value);
-    // let length = stripped.length;
-    // if (length > maxLength - ELLIPSES.length) {
-    //   const update =
-    //     ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
-    //   value = value.replace(stripped, update);
-    //   length = update.length;
-    // }
+
     const [a, b, type] = this.sliceRange({
       index: cursor,
       maxLength: width,
@@ -361,23 +356,6 @@ export class TextRenderingService {
       )
       .join("");
 
-    // * If using default placeholder, don't mess with it
-    // if (value !== DEFAULT_PLACEHOLDER) {
-    //   if (mask === "hide") {
-    //     value = "";
-    //   } else {
-    //     if (mask === "obfuscate") {
-    //       value = "*".repeat(value.length);
-    //     }
-    //     if (is.number(cursor)) {
-    //       value = [
-    //         value.slice(START, cursor),
-    //         chalk.inverse(value[cursor] ?? " "),
-    //         value.slice(cursor + SINGLE),
-    //       ].join("");
-    //     }
-    //   }
-    // }
     const pad = chalk[bgColor](" ");
 
     out.push(
@@ -387,7 +365,9 @@ export class TextRenderingService {
         cursor,
         maxLength,
         padding,
+        placeholder,
         type,
+        value: v,
         width,
       }),
     );
@@ -526,12 +506,12 @@ export class TextRenderingService {
     text,
     index,
     maxLength,
-  }: SliceRange): [string, number, string] {
+  }: SliceRange): [slicedText: string, cursorPosition: number, debug: string] {
     const difference = text.length - maxLength;
     const dotLength = ELLIPSES.length;
     if (text.length <= maxLength) {
       // * short strings, return back whole string
-      return [text, index, "short entry"];
+      return [text.padEnd(maxLength, " "), index, "short entry"];
     }
 
     if (index === text.length) {
@@ -548,35 +528,33 @@ export class TextRenderingService {
 
     // * start sliding at 2/3 of max length from end of string
     const sliding = text.length - maxLength + inset;
-    // if (index >= sliding + dotLength + dotLength) {
-    //   // * cursor near end
-    //   // * cursor moves, text sticks
-    //   return [
-    //     ELLIPSES +
-    //       text.slice(Math.floor(text.length - maxLength + dotLength)) +
-    //       " ",
-    //     index - difference + dotLength,
-    //     "inside sliding 2",
-    //   ];
-    // }
-    if (index >= sliding) {
+
+    if (index >= sliding - 2) {
       // * cursor near end
       // * cursor moves, text sticks
-      let suffix = " ";
-      // if (index === sliding - 1 + 2) {
+      const repeat = sliding - index + 1;
+      const suffix = repeat > NONE ? ".".repeat(Math.min(repeat, 3)) : "";
+      // suffix += " ";
+      text += " ";
+      // if (index === sliding + 1) {
       //   suffix = "..";
       // }
-      let increase = START;
-      if (index === sliding - 1) {
-        suffix = "..";
-        increase++;
-      }
+      // const increase = 2;
+      // if (index === sliding - 2) {
+      //   suffix = "...";
+      //   // increase--;
+      // }
+      // if (index === sliding - 1) {
+      //   suffix = "..";
+      //   // increase--;
+      // }
       const sLength = suffix.trim().length;
       return [
         ELLIPSES +
           text.slice(
-            Math.floor(text.length - maxLength) + ARRAY_OFFSET,
-            text.length - sLength + increase,
+            //
+            text.length - maxLength,
+            text.length - sLength,
           ) +
           suffix,
         index - difference + 2,

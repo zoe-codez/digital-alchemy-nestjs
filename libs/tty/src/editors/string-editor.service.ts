@@ -41,6 +41,7 @@ const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ key: "escape" }, "clear"],
   [{ key: "f4" }, "cancel"],
 ]);
+const NO_CURSOR = -1;
 
 @Editor({ type: "string" })
 export class StringEditorService
@@ -71,7 +72,7 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
-    this.cursor = 25;
+    this.cursor = 24;
   }
 
   public render(): void {
@@ -82,7 +83,7 @@ export class StringEditorService
       return;
     }
     if (is.empty(this.value)) {
-      return this.renderBox("bgBlue");
+      return this.renderBox("bgBlue", NO_CURSOR);
     }
     return this.renderBox("bgWhite");
   }
@@ -160,7 +161,7 @@ export class StringEditorService
     this.cursor = this.config.current.length;
   }
 
-  private renderBox(bgColor: string): void {
+  private renderBox(bgColor: string, cursor = this.cursor): void {
     let value = is.empty(this.value)
       ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
       : this.value;
@@ -176,7 +177,7 @@ export class StringEditorService
       this.text
         .searchBoxEditable({
           bgColor,
-          cursor: this.cursor,
+          cursor,
           padding: PADDING,
           value,
           width,
