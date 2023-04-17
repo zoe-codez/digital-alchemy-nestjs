@@ -9,10 +9,8 @@ import {
   NONE,
   NOT_FOUND,
   ONE_THIRD,
-  SINGLE,
   START,
   TitleCase,
-  TWO_THIRDS,
   UP,
 } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
@@ -86,6 +84,7 @@ type HighlightResult<T> = Fuzzysort.KeysResult<{
   type: string;
   value: MainMenuEntry<T>;
 }>;
+const TEXT_CAP = " ";
 
 @Injectable()
 export class TextRenderingService {
@@ -333,44 +332,33 @@ export class TextRenderingService {
     cursor,
     placeholder = DEFAULT_PLACEHOLDER,
   }: EditableSearchBoxOptions): string[] {
-    const v = value;
     const maxLength = width - padding;
     // * If no value, return back empty box w/ placeholder
     if (!value) {
       return [
         chalk[bgColor].black(
-          ansiPadEnd(` ${placeholder} 123`, maxLength + padding),
+          ansiPadEnd(` ${placeholder} `, maxLength + padding),
         ),
       ];
     }
     const out: string[] = [];
 
-    const [a, b, type] = this.sliceRange({
+    const [slicedText, cursorIndex] = this.sliceRange({
       index: cursor,
       maxLength: width,
       text: value,
     });
-    value = [...a]
+    value = [...slicedText]
       .map((i, index) =>
-        index === b ? chalk[bgColor].black.inverse(i) : chalk[bgColor].black(i),
+        index === cursorIndex
+          ? chalk[bgColor].black.inverse(i)
+          : chalk[bgColor].black(i),
       )
       .join("");
 
     const pad = chalk[bgColor](" ");
 
-    out.push(
-      ansiPadEnd([pad, value, pad].join(""), maxLength + padding),
-      this.debug({
-        b,
-        cursor,
-        maxLength,
-        padding,
-        placeholder,
-        type,
-        value: v,
-        width,
-      }),
-    );
+    out.push(ansiPadEnd([pad, value, pad].join(""), maxLength + padding));
     return out;
   }
 
@@ -498,56 +486,75 @@ export class TextRenderingService {
   }
 
   /**
-   * Take return a an array slice based on the position of a given value, and PAGE_SIZE.
+   * # Rules
    *
-   * [text,cursor position]
+   * Render the box in such a way that newly inserted characters will insert left of the cursor
+   * In moving around long strings, the cursor should attempt to stay fixed at the 1/3 point (left side)
+   *
+   * ## Short strings
+   *
+   * - lte max length
+   *
+   * These haven't hit the max size, do not modify.
+   * Pad as needed to reach max length
+   *
+   * ## Long Strings
+   *
+   * An extra space is appended to the text in order to have a place for the cursor to render at when at the "end".
+   * This number is accounted for in the difference between the string length & character indexes
+   *
+   * ### Cursor at text end
+   *
+   * ~ render cursor in added blank space (if at end)
+   * ~ slice off excess text
+   * ~ prefix/append ellipsis
+   *
+   * ### No nearby text boundary
+   *
+   * ~ fix the cursor at left 1/3 line
+   * ~ prefix & append ellipsis
+   * ~ slice text to match max length
+   *
+   * ### Near boundary
+   *
+   * Maximum amount of text should be visible
+   *
+   * ~ (at end) Final 2 characters reveal together: one is the inserted blank space
+   * ~ Ellipsis incremenentally revleals
+   * ~ When all characters are visible, cursor starts moving towards text boundary
    */
   private sliceRange({
     text,
     index,
     maxLength,
-  }: SliceRange): [slicedText: string, cursorPosition: number, debug: string] {
+  }: SliceRange): [slicedText: string, cursorPosition: number] {
     const difference = text.length - maxLength;
     const dotLength = ELLIPSES.length;
+    // * Short strings
     if (text.length <= maxLength) {
-      // * short strings, return back whole string
-      return [text.padEnd(maxLength, " "), index, "short entry"];
+      return [text.padEnd(maxLength, " "), index];
     }
 
+    // * At end
     if (index === text.length) {
-      // * cursor at very end
       return [
-        ELLIPSES + text.slice(text.length - maxLength + ARRAY_OFFSET) + " ",
+        ELLIPSES +
+          text.slice(text.length - maxLength + ARRAY_OFFSET) +
+          TEXT_CAP,
         maxLength + dotLength - ARRAY_OFFSET,
-        "at end",
       ];
     }
 
-    const inset = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
-    const offset = Math.max(index - inset + ARRAY_OFFSET);
+    const insetLeft = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
+    const offset = Math.max(index - insetLeft + ARRAY_OFFSET);
+    const sliding = text.length - maxLength + insetLeft;
+    const modifiedLength = dotLength - TEXT_CAP.length;
 
-    // * start sliding at 2/3 of max length from end of string
-    const sliding = text.length - maxLength + inset;
-
-    if (index >= sliding - 2) {
-      // * cursor near end
-      // * cursor moves, text sticks
-      const repeat = sliding - index + 1;
-      const suffix = repeat > NONE ? ".".repeat(Math.min(repeat, 3)) : "";
-      // suffix += " ";
-      text += " ";
-      // if (index === sliding + 1) {
-      //   suffix = "..";
-      // }
-      // const increase = 2;
-      // if (index === sliding - 2) {
-      //   suffix = "...";
-      //   // increase--;
-      // }
-      // if (index === sliding - 1) {
-      //   suffix = "..";
-      //   // increase--;
-      // }
+    // * Approaching end
+    if (index >= sliding - modifiedLength) {
+      const repeat = sliding - index + ARRAY_OFFSET;
+      const suffix = repeat > NONE ? ".".repeat(repeat) : "";
+      text += TEXT_CAP;
       const sLength = suffix.trim().length;
       return [
         ELLIPSES +
@@ -557,27 +564,26 @@ export class TextRenderingService {
             text.length - sLength,
           ) +
           suffix,
-        index - difference + 2,
-        "inside sliding " + JSON.stringify({ index, sliding }),
+        index - difference + modifiedLength,
       ];
     }
 
-    if (index < inset) {
-      // * inside sliding range
-      // * cursor sticks @ 1/3
-      // *
-      return [
-        text.slice(START, maxLength) + ELLIPSES,
-        index,
-        "start w/ sliding",
-      ];
+    // * At start
+    // * Near start
+    if (index < insetLeft) {
+      return [text.slice(START, maxLength) + ELLIPSES, index];
     }
-    const start = offset + 2;
-    const pre = start === START ? "" : ELLIPSES;
+    // * Set up the text & cursor to respond naturally
+    // ? Desired start pattern: 0, 2, 4, 5, 6, 7, 8, 9....
+    //  Left side text will appear to jump a bit as ellipses grows
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    const pre = ".".repeat(offset === 1 ? 2 : 3);
+    const start = offset === 1 ? 2 : offset + 2;
+    /* eslint-enable @typescript-eslint/no-magic-numbers */
+    // * Middle area
     return [
-      pre + text.slice(start, start + maxLength - dotLength) + ELLIPSES,
-      start === START ? index : inset,
-      "sliding zone " + JSON.stringify({ offset, start }),
+      pre + text.slice(start, start + maxLength - pre.length) + ELLIPSES,
+      insetLeft,
     ];
   }
 }

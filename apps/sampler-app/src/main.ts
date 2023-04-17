@@ -66,11 +66,6 @@ export class SamplerApp {
   ) {}
 
   public async exec(): Promise<void> {
-    // await execa("nano", ["/home/cameron/.ssh/config"], {
-    //   detached: true,
-    //   stdio: "inherit",
-    // });
-    await this.string.basicInteraction();
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({
       condensed: true,

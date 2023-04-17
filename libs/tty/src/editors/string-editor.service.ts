@@ -72,7 +72,6 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
-    this.cursor = 24;
   }
 
   public render(): void {
@@ -172,58 +171,19 @@ export class StringEditorService
         value = "*".repeat(value.length);
       }
     }
-    const width = this.config.width - PADDING;
-    this.screen.render(
-      this.text
-        .searchBoxEditable({
-          bgColor,
-          cursor,
-          padding: PADDING,
-          value,
-          width,
-        })
-        .join("\n"),
-    );
-  }
-
-  private renderBox2(bgColor: string): void {
-    let value = is.empty(this.value)
-      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
-      : this.value;
-    const maxLength = this.config.width - PADDING;
     const out: string[] = [];
     if (this.config.label) {
       out.push(chalk`{green ? } ${this.config.label}`);
     }
-    const stripped = ansiStrip(value);
-    let length = stripped.length;
-    if (length > maxLength - ELLIPSES.length) {
-      const update =
-        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
-      value = value.replace(stripped, update);
-      length = update.length;
-    }
-    if (value !== DEFAULT_PLACEHOLDER) {
-      if (this.config.mask === "hide") {
-        value = "";
-      } else {
-        if (this.config.mask === "obfuscate") {
-          value = "*".repeat(value.length);
-        }
-        value = [
-          value.slice(START, this.cursor),
-          chalk.inverse(value[this.cursor] ?? " "),
-          value.slice(this.cursor + SINGLE),
-        ].join("");
-      }
-    }
+    const width = this.config.width - PADDING;
     out.push(
-      chalk[bgColor].black(
-        ansiPadEnd(
-          INTERNAL_PADDING + value + INTERNAL_PADDING,
-          maxLength + PADDING,
-        ),
-      ),
+      ...this.text.searchBoxEditable({
+        bgColor,
+        cursor,
+        padding: PADDING,
+        value,
+        width,
+      }),
     );
     const message = this.text.pad(out.join(`\n`));
     this.screen.render(
