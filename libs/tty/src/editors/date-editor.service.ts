@@ -5,6 +5,7 @@ import {
   INCREMENT,
   INVERT_VALUE,
   is,
+  ONE_THIRD,
   SINGLE,
   START,
   VALUE,
@@ -16,6 +17,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { Editor, iBuilderEditor } from "../decorators";
 import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
+  EnvironmentService,
   KeyboardManagerService,
   KeymapService,
   ScreenService,
@@ -99,6 +101,7 @@ export class DateEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
+    private readonly environment: EnvironmentService,
     private readonly text: TextRenderingService,
   ) {}
 
@@ -511,38 +514,27 @@ export class DateEditorService
     return false;
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderChronoBox(): void {
     const placeholder =
       this.type === "range" ? DEFAULT_RANGE_PLACEHOLDER : DEFAULT_PLACEHOLDER;
-    let value = is.empty(this.chronoText) ? placeholder : this.chronoText;
+    const value = is.empty(this.chronoText) ? placeholder : this.chronoText;
     const out: string[] = [];
     if (this.opt.label) {
       out.push(chalk`{green ? } ${this.opt.label}`);
     }
 
-    const stripped = ansiStrip(value);
-    let length = stripped.length;
-    if (length > PADDING - ELLIPSES.length) {
-      const update =
-        ELLIPSES + stripped.slice((PADDING - ELLIPSES.length) * INVERT_VALUE);
-      value = value.replace(stripped, update);
-      length = update.length;
-    }
     const [result] = parse(this.chronoText.trim() || placeholder);
 
-    if (value !== DEFAULT_PLACEHOLDER) {
-      value = [
-        value.slice(START, this.cursor),
-        chalk.inverse(value[this.cursor] ?? " "),
-        value.slice(this.cursor + SINGLE),
-      ].join("");
-    }
+    const width = this.environment.width;
     out.push(
       chalk` {cyan >} {bold Input value}`,
-      chalk[is.empty(this.chronoText) ? "bgBlue" : "bgWhite"].black(
-        ansiPadEnd(INTERNAL_PADDING + value + INTERNAL_PADDING, PADDING),
-      ),
+      ...this.text.searchBoxEditable({
+        bgColor: is.empty(this.chronoText) ? "bgBlue" : "bgWhite",
+        cursor: this.cursor,
+        padding: PADDING,
+        value,
+        width: Math.max(Math.min(40, width), width * ONE_THIRD),
+      }),
     );
     if (result) {
       const { start, end } = result;

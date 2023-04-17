@@ -2,7 +2,6 @@ import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
-  INVERT_VALUE,
   is,
   SINGLE,
   START,
@@ -11,7 +10,6 @@ import chalk from "chalk";
 
 import { DEFAULT_PROMPT_WIDTH } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -32,7 +30,6 @@ export type StringEditorRenderOptions = {
 };
 
 const DEFAULT_PLACEHOLDER = "enter value";
-const INTERNAL_PADDING = " ";
 const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
