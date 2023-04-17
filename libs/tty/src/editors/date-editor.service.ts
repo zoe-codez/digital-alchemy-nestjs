@@ -15,7 +15,6 @@ import { parse, parseDate } from "chrono-node";
 import dayjs, { Dayjs } from "dayjs";
 
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
   EnvironmentService,
   KeyboardManagerService,
@@ -80,7 +79,6 @@ const MONTH_MAX = new Map([
 ]);
 const DEFAULT_PLACEHOLDER = "tomorrow at noon";
 const DEFAULT_RANGE_PLACEHOLDER = "tomorrow at noon to next friday";
-const INTERNAL_PADDING = " ";
 const PADDING = 46; // 50-4
 
 type DATE_TYPES = "day" | "hour" | "minute" | "month" | "second" | "year";

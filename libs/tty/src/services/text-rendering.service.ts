@@ -22,6 +22,7 @@ import { inspect } from "util";
 
 import {
   FUZZY_HIGHLIGHT,
+  MENU_COLUMN_DIVIDER,
   PAGE_SIZE,
   TEXT_DEBUG_ARRAY_LENGTH,
   TEXT_DEBUG_DEPTH,
@@ -37,7 +38,6 @@ import {
 } from "../types";
 
 const MAX_SEARCH_SIZE = 50;
-const SEPARATOR = chalk.blue.dim("|");
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
 const INDENT = "  ";
@@ -47,6 +47,9 @@ const BAD_MATCH = -10_000;
 const BAD_VALUE = -1000;
 const LAST = -1;
 const STRING_SHRINK = 50;
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+const TEXT_DEBUG = chalk`\n{green.bold ${"=-".repeat(30)}}\n`;
+// const TEXT_DEBUG = "";
 const NESTING_LEVELS = [
   chalk.cyan(" - "),
   chalk.magenta(" * "),
@@ -94,9 +97,11 @@ export class TextRenderingService {
     @InjectConfig(TEXT_DEBUG_ARRAY_LENGTH)
     private readonly maxArrayLength: number,
     @InjectConfig(FUZZY_HIGHLIGHT) private readonly highlightColor: string,
+    @InjectConfig(MENU_COLUMN_DIVIDER) private readonly menuDivider: string,
   ) {
     const [OPEN, CLOSE] = template(`{${this.highlightColor} _}`).split("_");
     this.open = OPEN;
+    this.menuDivider = template(this.menuDivider);
     this.close = CLOSE;
   }
 
@@ -104,18 +109,13 @@ export class TextRenderingService {
   private open: string;
 
   /**
-   * Helper method for component rendering
+   * # Helper method for component rendering
    *
-   * Render:
-   *  - 2 vertical lists horizontally next to each other
-   *  - Place a dim blue line between them
-   *  - Prepend a search box (if appropriate)
+   * ## Render
    *
-   *
-   * ## Note
-   *
-   * Right size is considered "primary" / "preferred".
-   * Left side is considered the "secondary" column
+   * ~ 2 vertical lists horizontally next to each other
+   * ~ Place a dim blue line between them
+   * ~ Prepend a search box (if appropriate)
    */
   public assemble(
     [leftEntries, rightEntries]: [string[], string[]],
@@ -132,7 +132,7 @@ export class TextRenderingService {
     rightEntries.forEach((item, index) => {
       const current = ansiPadEnd(out[index] ?? "", maxA);
       item = ansiPadEnd(item, maxB);
-      out[index] = chalk`${current}${SEPARATOR}${item}`;
+      out[index] = chalk`${current}${this.menuDivider}${item}`;
     });
     if (leftEntries.length > rightEntries.length) {
       out.forEach(
@@ -140,15 +140,16 @@ export class TextRenderingService {
           (out[index] =
             index < rightEntries.length
               ? line
-              : ansiPadEnd(line, maxA) + SEPARATOR),
+              : ansiPadEnd(line, maxA) + this.menuDivider),
       );
     }
     if (!is.empty(left)) {
+      left = left.padStart(maxA - ARRAY_OFFSET, " ");
+      right = right.padEnd(maxB, " ");
       out.unshift(
-        chalk`{blue.bold ${left.padStart(
-          maxA - ARRAY_OFFSET,
-          " ",
-        )}} {blue.dim |}{blue.bold ${right.padEnd(maxB, " ")}}`,
+        chalk`{blue.bold ${left}} ${chalk(
+          this.menuDivider,
+        )}{blue.bold ${right}}`,
       );
     }
     if (is.string(search)) {
@@ -329,7 +330,7 @@ export class TextRenderingService {
     width,
     bgColor,
     padding,
-    cursor,
+    cursor: index,
     placeholder = DEFAULT_PLACEHOLDER,
   }: EditableSearchBoxOptions): string[] {
     const maxLength = width - padding;
@@ -343,22 +344,25 @@ export class TextRenderingService {
     }
     const out: string[] = [];
 
-    const [slicedText, cursorIndex] = this.sliceRange({
-      index: cursor,
+    const { text, cursor, debug } = this.sliceRange({
+      index: index,
       maxLength: width,
       text: value,
     });
-    value = [...slicedText]
+    value = [...text]
       .map((i, index) =>
-        index === cursorIndex
+        index === cursor
           ? chalk[bgColor].black.inverse(i)
           : chalk[bgColor].black(i),
       )
       .join("");
 
     const pad = chalk[bgColor](" ");
-
     out.push(ansiPadEnd([pad, value, pad].join(""), maxLength + padding));
+
+    if (!is.empty(TEXT_DEBUG)) {
+      out.push(TEXT_DEBUG, this.debug(debug), TEXT_DEBUG);
+    }
     return out;
   }
 
@@ -493,12 +497,18 @@ export class TextRenderingService {
    *
    * ## Short strings
    *
-   * - lte max length
+   * > lte max length
    *
    * These haven't hit the max size, do not modify.
    * Pad as needed to reach max length
    *
-   * ## Long Strings
+   * ## Medium strings
+   *
+   * > Text that is longer than maxLength, but never fully hits a boundary free area
+   *
+   * ## Long strings
+   *
+   * > Longer strings that can have the cursor freely moving without being near a text boundary
    *
    * An extra space is appended to the text in order to have a place for the cursor to render at when at the "end".
    * This number is accounted for in the difference between the string length & character indexes
@@ -527,28 +537,77 @@ export class TextRenderingService {
     text,
     index,
     maxLength,
-  }: SliceRange): [slicedText: string, cursorPosition: number] {
-    const difference = text.length - maxLength;
+  }: SliceRangeOptions): SliceTextResult {
+    const total = text.length;
+    const difference = total - maxLength;
     const dotLength = ELLIPSES.length;
     // * Short strings
-    if (text.length <= maxLength) {
-      return [text.padEnd(maxLength, " "), index];
+    if (total <= maxLength) {
+      text = text.padEnd(maxLength, " ");
+      return {
+        cursor: index,
+        debug: {
+          index,
+          maxLength,
+          reason: "short string",
+          total,
+        },
+        text,
+      };
+    }
+
+    if (total <= maxLength + dotLength + dotLength) {
+      text = ELLIPSES + text.slice(total - maxLength + ARRAY_OFFSET) + TEXT_CAP;
+      return {
+        cursor: maxLength + dotLength - ARRAY_OFFSET,
+        debug: {
+          index,
+          maxLength,
+          reason: "medium string",
+          start: total - maxLength + ARRAY_OFFSET,
+          total,
+        },
+        text,
+      };
     }
 
     // * At end
-    if (index === text.length) {
-      return [
-        ELLIPSES +
-          text.slice(text.length - maxLength + ARRAY_OFFSET) +
-          TEXT_CAP,
-        maxLength + dotLength - ARRAY_OFFSET,
-      ];
+    if (index === total) {
+      text = ELLIPSES + text.slice(total - maxLength + ARRAY_OFFSET) + TEXT_CAP;
+      return {
+        cursor: maxLength + dotLength - ARRAY_OFFSET,
+        debug: {
+          index,
+          maxLength,
+          reason: "at end",
+          start: total - maxLength + ARRAY_OFFSET,
+          total,
+        },
+        text,
+      };
     }
 
     const insetLeft = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
     const offset = Math.max(index - insetLeft + ARRAY_OFFSET);
-    const sliding = text.length - maxLength + insetLeft;
+    const sliding = total - maxLength + insetLeft;
     const modifiedLength = dotLength - TEXT_CAP.length;
+
+    // * At start
+    // * Near start
+    if (index < insetLeft) {
+      text = text.slice(START, maxLength) + ELLIPSES;
+      return {
+        cursor: index,
+        debug: {
+          index,
+          insetLeft,
+          maxLength,
+          reason: "at / near start",
+          total,
+        },
+        text,
+      };
+    }
 
     // * Approaching end
     if (index >= sliding - modifiedLength) {
@@ -556,22 +615,17 @@ export class TextRenderingService {
       const suffix = repeat > NONE ? ".".repeat(repeat) : "";
       text += TEXT_CAP;
       const sLength = suffix.trim().length;
-      return [
-        ELLIPSES +
-          text.slice(
-            //
-            text.length - maxLength,
-            text.length - sLength,
-          ) +
-          suffix,
-        index - difference + modifiedLength,
-      ];
-    }
-
-    // * At start
-    // * Near start
-    if (index < insetLeft) {
-      return [text.slice(START, maxLength) + ELLIPSES, index];
+      text = ELLIPSES + text.slice(total - maxLength, total - sLength) + suffix;
+      return {
+        cursor: index - difference + modifiedLength,
+        debug: {
+          index,
+          maxLength,
+          reason: "approaching end",
+          total,
+        },
+        text,
+      };
     }
     // * Set up the text & cursor to respond naturally
     // ? Desired start pattern: 0, 2, 4, 5, 6, 7, 8, 9....
@@ -581,14 +635,26 @@ export class TextRenderingService {
     const start = offset === 1 ? 2 : offset + 2;
     /* eslint-enable @typescript-eslint/no-magic-numbers */
     // * Middle area
-    return [
-      pre + text.slice(start, start + maxLength - pre.length) + ELLIPSES,
-      insetLeft,
-    ];
+    text = pre + text.slice(start, start + maxLength - pre.length) + ELLIPSES;
+    return {
+      cursor: insetLeft,
+      debug: {
+        index,
+        maxLength,
+        reason: "sliding middle",
+        total,
+      },
+      text,
+    };
   }
 }
-type SliceRange = {
+type SliceRangeOptions = {
   index: number;
   maxLength: number;
+  text: string;
+};
+type SliceTextResult = {
+  cursor: number;
+  debug: object;
   text: string;
 };

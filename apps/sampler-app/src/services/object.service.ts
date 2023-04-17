@@ -17,7 +17,7 @@ export class ObjectService {
     private readonly text: TextRenderingService,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("Object Builder");
     type ObjectResult = {
       another: number;

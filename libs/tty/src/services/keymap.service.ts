@@ -1,8 +1,10 @@
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { ARRAY_OFFSET, DOWN, is, UP } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
-import { ansiMaxLength, ansiPadEnd } from "../includes";
+import { HELP_DIVIDER, KEYMAP_TICK } from "../config";
+import { ansiMaxLength, ansiPadEnd, template } from "../includes";
 import { HighlightCallbacks, tKeyMap } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { EnvironmentService } from "./environment.service";
@@ -36,6 +38,10 @@ export class KeymapService {
     private readonly keyboard: KeyboardManagerService,
     private readonly environment: EnvironmentService,
     private readonly applicationManager: ApplicationManagerService,
+    @InjectConfig(HELP_DIVIDER)
+    private readonly helpDivider: string,
+    @InjectConfig(KEYMAP_TICK)
+    private readonly tickColor: string,
   ) {}
 
   public keymapHelp({
@@ -57,7 +63,7 @@ export class KeymapService {
     const help = [...a, ...b]
       .map(({ label, description }) => {
         const paddedLabel = ansiPadEnd(label, biggestLabel);
-        return chalk`{blue.dim > }${paddedLabel}  ${description}`;
+        return chalk`{${this.tickColor} > }${paddedLabel}  ${description}`;
       })
       .join(`\n`);
     if (onlyHelp) {
@@ -82,8 +88,9 @@ export class KeymapService {
       // Correct for forgetful dev, a blank space works fine
       notes = notes + " ";
     }
+    const line = "=".repeat(maxLength);
     return [
-      chalk.blue.dim("=".repeat(maxLength)),
+      template(`{${this.helpDivider} ${line}}`),
       notes,
       this.text.pad(help),
     ].join(`\n`);

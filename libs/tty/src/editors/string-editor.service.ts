@@ -8,7 +8,11 @@ import {
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
-import { DEFAULT_PROMPT_WIDTH } from "../config";
+import {
+  DEFAULT_PROMPT_WIDTH,
+  STRING_EDITOR_CONTENT,
+  STRING_EDITOR_EMPTY,
+} from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
 import {
   KeyboardManagerService,
@@ -50,6 +54,10 @@ export class StringEditorService
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,
     @InjectConfig(DEFAULT_PROMPT_WIDTH) private readonly defaultWidth: number,
+    @InjectConfig(STRING_EDITOR_EMPTY)
+    private readonly colorEmpty: string,
+    @InjectConfig(STRING_EDITOR_CONTENT)
+    private readonly colorContent: string,
   ) {}
 
   private complete = false;
@@ -69,6 +77,7 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
+    this.cursor = 14;
   }
 
   public render(): void {
@@ -79,9 +88,9 @@ export class StringEditorService
       return;
     }
     if (is.empty(this.value)) {
-      return this.renderBox("bgBlue", NO_CURSOR);
+      return this.renderBox(this.colorEmpty, NO_CURSOR);
     }
-    return this.renderBox("bgWhite");
+    return this.renderBox(this.colorContent);
   }
 
   protected cancel(): void {
@@ -90,7 +99,7 @@ export class StringEditorService
   }
 
   protected clear(): void {
-    this.value = ``;
+    this.value = "";
     this.cursor = START;
   }
 

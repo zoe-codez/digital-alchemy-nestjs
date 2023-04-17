@@ -36,7 +36,7 @@ export class PickManyService {
     });
   }
 
-  public async defaultOperation(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("List Builder");
     const result = await this.prompt.pickMany({
       source: [...this.source, ...this.source],

@@ -22,17 +22,17 @@ export class StringService {
     private readonly defaultWidth: number,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("String Value");
-    const fill = PEAT(10).join("");
+    const fill = PEAT(5).join("");
     const result = await this.prompt.string({
-      current: PEAT(5, fill).join("_"),
+      current: PEAT(8, fill).join("_"),
     });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }
 
-  public async fullyConfigurable(): Promise<void> {
+  public async configurable(): Promise<void> {
     this.application.setHeader("String", "Configure");
     const options = await this.prompt.objectBuilder<StringEditorRenderOptions>({
       current: {

@@ -289,6 +289,16 @@
         "italic": false
       },
       {
+        // Comment comment
+        "tag": ">",
+        "color": "#C25B78",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": true
+      },
+      {
         // Contextual explanation
         "tag": "?",
         "color": "#03C956",

@@ -1,3 +1,4 @@
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -9,9 +10,11 @@ import {
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
+import { STRING_EDITOR_CONTENT, STRING_EDITOR_EMPTY } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
 import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
 import {
+  EnvironmentService,
   KeyboardManagerService,
   KeymapService,
   ScreenService,
@@ -54,7 +57,12 @@ export class NumberEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
+    private readonly environment: EnvironmentService,
     private readonly text: TextRenderingService,
+    @InjectConfig(STRING_EDITOR_EMPTY)
+    private readonly colorEmpty: string,
+    @InjectConfig(STRING_EDITOR_CONTENT)
+    private readonly colorContent: string,
   ) {}
 
   private complete = false;
@@ -95,9 +103,9 @@ export class NumberEditorService
       return;
     }
     if (is.empty(this.value)) {
-      return this.renderBox("bgBlue");
+      return this.renderBox(this.colorEmpty);
     }
-    return this.renderBox("bgWhite");
+    return this.renderBox(this.colorContent);
   }
 
   protected cancel(): void {
