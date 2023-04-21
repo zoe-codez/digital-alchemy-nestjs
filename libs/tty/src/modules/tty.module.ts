@@ -32,6 +32,7 @@ import {
   MENU_SEARCHBOX_EMPTY,
   MENU_SEARCHBOX_NORMAL,
   PAGE_SIZE,
+  PROMPT_QUESTION,
   STRING_EDITOR_CONTENT,
   STRING_EDITOR_EMPTY,
   TABLE_RENDER_ROWS,
@@ -45,6 +46,7 @@ import {
   PasswordEditorService,
   StringEditorService,
 } from "../editors";
+import { FontAwesomeExtendedIcons, FontAwesomeIcons } from "../icons";
 import {
   ApplicationManagerService,
   ChartingService,
@@ -116,7 +118,7 @@ import {
       type: "string",
     },
     [KEYMAP_TICK]: {
-      default: "blue.dim",
+      default: `{blue.dim ${FontAwesomeIcons.caret_right} }`,
       type: "string",
     },
     [MENU_COLUMN_DIVIDER]: {
@@ -159,6 +161,10 @@ import {
       default: 20,
       description: "Item quantity in menus / lists",
       type: "number",
+    },
+    [PROMPT_QUESTION]: {
+      default: `{blue ${FontAwesomeIcons.question}}`,
+      type: "string",
     },
     [STRING_EDITOR_CONTENT]: {
       default: "bgWhite",

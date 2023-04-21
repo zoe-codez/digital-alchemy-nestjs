@@ -10,10 +10,12 @@ import chalk from "chalk";
 
 import {
   DEFAULT_PROMPT_WIDTH,
+  PROMPT_QUESTION,
   STRING_EDITOR_CONTENT,
   STRING_EDITOR_EMPTY,
 } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
+import { template } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -28,13 +30,13 @@ export type StringEditorRenderOptions = {
   mask?: "hide" | "obfuscate";
   // maxLength?: number;
   // minLength?: number;
+  padding?: number;
   placeholder?: string;
   // validate?: (value: string) => true | string;
   width?: number;
 };
 
 const DEFAULT_PLACEHOLDER = "enter value";
-const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
@@ -58,6 +60,8 @@ export class StringEditorService
     private readonly colorEmpty: string,
     @InjectConfig(STRING_EDITOR_CONTENT)
     private readonly colorContent: string,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   private complete = false;
@@ -77,13 +81,15 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
-    this.cursor = 14;
+    this.cursor = 17;
   }
 
   public render(): void {
     if (this.complete) {
       this.screen.render(
-        chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
+        template(
+          `${this.promptQuestion} {bold ${this.config.label}} {gray ${this.value}}`,
+        ),
       );
       return;
     }
@@ -167,9 +173,8 @@ export class StringEditorService
   }
 
   private renderBox(bgColor: string, cursor = this.cursor): void {
-    let value = is.empty(this.value)
-      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
-      : this.value;
+    const placeholder = this.config.placeholder ?? DEFAULT_PLACEHOLDER;
+    let value = is.empty(this.value) ? placeholder : this.value;
     if (value !== DEFAULT_PLACEHOLDER) {
       if (this.config.mask === "hide") {
         value = "";
@@ -179,16 +184,15 @@ export class StringEditorService
     }
     const out: string[] = [];
     if (this.config.label) {
-      out.push(chalk`{green ? } ${this.config.label}`);
+      out.push(template(`${this.promptQuestion} ${this.config.label}`));
     }
-    const width = this.config.width - PADDING;
     out.push(
       ...this.text.searchBoxEditable({
         bgColor,
         cursor,
-        padding: PADDING,
+        padding: this.config.padding,
         value,
-        width,
+        width: this.config.width,
       }),
     );
     const message = this.text.pad(out.join(`\n`));

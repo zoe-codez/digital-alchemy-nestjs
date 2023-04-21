@@ -8,23 +8,21 @@ This project details the construction of Pi Matrix compatible hardware, and prov
 >
 > Items marked as optional if they can be easily worked around with
 
-### Controller
-
-> Version 2 controller
+### Controller (v3)
 
 | Front | Side |
 | --- | --- |
 | [<img src="./docs/images/front.jpg" height="350px">](./docs/images/front.jpg) | [<img src="./docs/images/side.jpg" height="350px">](./docs/images/side.jpg) |
 
-> Table shows device as built
+> Shopping links intended for reference, price shop for your setup
 >
 > See see [here](https://github.com/hzeller/rpi-rgb-led-matrix) for hardware compatibility and configuration details
 
 | Name | Purchase Link | Required | Notes |
 | --- | --- | --- | --- |
-| Raspberry Pi 4 | n/a | Y | I was not able to get a 3B+ stable: [recording](./docs/images/pi_3b.gif) |
+| Raspberry Pi 4 | n/a | Y |  |
 | Cooling / case | [Amazon](https://www.amazon.com/dp/B07VD568FB) | N | This one is very solid, and is great for keeping things contained. Version 1 uses a different cooler (see magnetic mounting section) |
-| Speaker | [Amazon](https://www.amazon.com/gp/product/B075M7FHM1) | N | Used for audio alerts |
+| USB Speaker | [Amazon](https://www.amazon.com/gp/product/B075M7FHM1) | N | Used for audio alerts |
 | Ribbon Cable | [Amazon](https://www.amazon.com/dp/B07D991KMR) | N | For orgnization. Can use jumpers to go from device directly to 16 pin cable if desired |
 
 ### Matrix
@@ -46,8 +44,8 @@ This project details the construction of Pi Matrix compatible hardware, and prov
 | Extra ribbon cable | [Amazon](https://www.amazon.com/gp/product/B07PBGVCNL) | N | Extra cable needed for laying out matrix in grid |
 | Ribbon connectors | [Amazon](https://www.amazon.com/gp/product/B00E57QQVG) | N | Extra cable needed for laying out matrix in grid |
 | Slot cover | [Amazon](https://www.amazon.com/gp/product/B09KPZBTB9) | N | Aesthetics |
-| RGB matrix | [Adafruit](https://www.adafruit.com/product/2278) | Y | Anything compatible with [library](https://github.com/hzeller/rpi-rgb-led-matrix)
-| Matrix bonnet | [Adafruit](https://www.adafruit.com/product/3211) | N | Only purpose currently is to adapt from 40pin to 16pin. In smaller setups, it can be used to power the matrix |
+| RGB matrix | [Adafruit](https://www.adafruit.com/product/2278) | Y | Anything compatible with [hzeller/rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix)
+| Matrix bonnet | [Adafruit](https://www.adafruit.com/product/3211) | N | Can adapt from 40 pin cable to the 16 + additional uses |
 
 ### Odds and ends
 
@@ -58,6 +56,7 @@ This project details the construction of Pi Matrix compatible hardware, and prov
 - [SD card](https://www.amazon.com/dp/B08KSSX9PH)
 - Metallic sharpie (marking aluminum)
 - Hacksaw (cutting extruded aluminum)
+- Clear nail polish (coat any labels written with sharpie)
 
 ## Controller Construction
 
@@ -71,12 +70,9 @@ The matrix is made up of 2 layers: the aluminum frame, and the rgb matrix panel
 | --- | --- |
 | [<img src="./docs/images/prototype.jpg" height="350px">](./docs/images/prototype.jpg) | Completed prototype hardware |
 | [<img src="./docs/images/backside.jpg" height="350px">](./docs/images/backside.jpg) | Completed frame |
-| [<img src="./docs/images/prototype.jpg" height="350px">](./docs/images/prototype.jpg) | Completed prototype hardware |
 | [<img src="./docs/images/party_parrot.gif" height="350px">](./docs/images/party_parrot.gif) | It's alive! |
 
 ### Frame
-
-First step is to build the aluminum frame
 
 | Image | Description |
 | --- | --- |
@@ -84,11 +80,6 @@ First step is to build the aluminum frame
 | [<img src="./docs/images/construction.jpg" height="350px">](./docs/images/construction.jpg) | Keep aluminum oversized for dry fitting |
 
 ### Magnetic mounts
-
-> Dev Note: use of magnetic mounts is HIGHLY recommended for this build.
-> Added cost makes maintenance very easy.
->
-> A [rigid mounting mechanism](./docs/images/bad_idea.png) was attempted as a cheaper alternative, but it was a horrible idea in practice
 
 On the frame side, the mount is made from a T-nut, with a standoff threaded into it through a washer.
 A magnet is screwed into the top of the standoff.
@@ -106,10 +97,10 @@ Not all magnets are polarized the same, and it is important to not have both cou
 
 The controller can also be attached to the frame via a similar mechanism
 
-| Name | Purchase Link | Required | Notes |
+| Name | Purchase Link | Notes |
 | --- | --- | --- | --- |
-| Heat sink | [Amazon](https://www.amazon.com/gp/product/B07PCMTZHF) | Y | Removed fan, passive cooling is enough |
-| Power Cord | [Amazon](https://www.amazon.com/gp/product/B07V2CKPLG) | N | For a clean look |
+| Heat sink | [Amazon](https://www.amazon.com/gp/product/B07PCMTZHF) | Removed fan, passive cooling is enough |
+| Power Cord | [Amazon](https://www.amazon.com/gp/product/B07V2CKPLG) | For a clean look |
 
 | Image | Description |
 | --- | --- |

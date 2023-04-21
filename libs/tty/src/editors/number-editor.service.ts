@@ -10,9 +10,13 @@ import {
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
-import { STRING_EDITOR_CONTENT, STRING_EDITOR_EMPTY } from "../config";
+import {
+  PROMPT_QUESTION,
+  STRING_EDITOR_CONTENT,
+  STRING_EDITOR_EMPTY,
+} from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
+import { ansiPadEnd, ansiStrip, ELLIPSES, template } from "../includes";
 import {
   EnvironmentService,
   KeyboardManagerService,
@@ -63,6 +67,8 @@ export class NumberEditorService
     private readonly colorEmpty: string,
     @InjectConfig(STRING_EDITOR_CONTENT)
     private readonly colorContent: string,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   private complete = false;
@@ -96,9 +102,11 @@ export class NumberEditorService
   public render(): void {
     if (this.complete) {
       this.screen.render(
-        chalk`{green ? } {bold ${this.opt.label}} {gray ${Number(
-          this.value,
-        ).toLocaleString()}}`,
+        template(
+          `${this.promptQuestion} {bold ${this.opt.label}} {gray ${Number(
+            this.value,
+          ).toLocaleString()}}`,
+        ),
       );
       return;
     }
@@ -194,7 +202,7 @@ export class NumberEditorService
     const maxLength = this.opt.width - PADDING;
     const out: string[] = [];
     if (this.opt.label) {
-      out.push(chalk`{green ? } ${this.opt.label}`);
+      out.push(template(`${this.promptQuestion} ${this.opt.label}`));
     }
 
     const stripped = ansiStrip(value);

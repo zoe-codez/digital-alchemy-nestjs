@@ -63,7 +63,7 @@ export class KeymapService {
     const help = [...a, ...b]
       .map(({ label, description }) => {
         const paddedLabel = ansiPadEnd(label, biggestLabel);
-        return chalk`{${this.tickColor} > }${paddedLabel}  ${description}`;
+        return template(`${this.tickColor}${paddedLabel}  ${description}`);
       })
       .join(`\n`);
     if (onlyHelp) {

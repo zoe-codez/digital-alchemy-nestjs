@@ -9,6 +9,7 @@ import {
   NONE,
   NOT_FOUND,
   ONE_THIRD,
+  SINGLE,
   START,
   TitleCase,
   UP,
@@ -46,7 +47,7 @@ const FIRST = 1;
 const BAD_MATCH = -10_000;
 const BAD_VALUE = -1000;
 const LAST = -1;
-const STRING_SHRINK = 50;
+const STRING_SHRINK = 100;
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const TEXT_DEBUG = chalk`\n{green.bold ${"=-".repeat(30)}}\n`;
 // const TEXT_DEBUG = "";
@@ -74,7 +75,7 @@ const DEFAULT_PLACEHOLDER = "enter value";
 type EditableSearchBoxOptions = {
   bgColor: string;
   cursor: number;
-  padding: number;
+  padding?: number;
   placeholder?: string;
   value: string;
   width: number;
@@ -166,7 +167,7 @@ export class TextRenderingService {
         compact: false,
         depth: this.debugDepth,
         maxArrayLength: this.maxArrayLength,
-        maxStringLength: Math.min(width - STRING_SHRINK, STRING_SHRINK),
+        maxStringLength: Math.min(width, STRING_SHRINK),
         sorted: true,
       })
         .split("\n")
@@ -329,18 +330,13 @@ export class TextRenderingService {
     value,
     width,
     bgColor,
-    padding,
+    padding = SINGLE,
     cursor: index,
     placeholder = DEFAULT_PLACEHOLDER,
   }: EditableSearchBoxOptions): string[] {
-    const maxLength = width - padding;
     // * If no value, return back empty box w/ placeholder
     if (!value) {
-      return [
-        chalk[bgColor].black(
-          ansiPadEnd(` ${placeholder} `, maxLength + padding),
-        ),
-      ];
+      return [chalk[bgColor].black(ansiPadEnd(` ${placeholder} `, width))];
     }
     const out: string[] = [];
 
@@ -357,8 +353,8 @@ export class TextRenderingService {
       )
       .join("");
 
-    const pad = chalk[bgColor](" ");
-    out.push(ansiPadEnd([pad, value, pad].join(""), maxLength + padding));
+    const pad = chalk[bgColor](" ".repeat(padding));
+    out.push(ansiPadEnd([pad, value, pad].join(""), width));
 
     if (!is.empty(TEXT_DEBUG)) {
       out.push(TEXT_DEBUG, this.debug(debug), TEXT_DEBUG);
@@ -533,11 +529,14 @@ export class TextRenderingService {
    * ~ Ellipsis incremenentally revleals
    * ~ When all characters are visible, cursor starts moving towards text boundary
    */
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   private sliceRange({
     text,
     index,
     maxLength,
   }: SliceRangeOptions): SliceTextResult {
+    text += TEXT_CAP;
+    const startingText = text;
     const total = text.length;
     const difference = total - maxLength;
     const dotLength = ELLIPSES.length;
@@ -556,20 +555,84 @@ export class TextRenderingService {
       };
     }
 
+    const insetLeft = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
+    const offset = Math.max(index - insetLeft + ARRAY_OFFSET);
+    const sliding = total - maxLength + insetLeft;
+    const modifiedLength = dotLength - TEXT_CAP.length;
+
+    // ? Desired start pattern: 0, 2, 4, 5, 6, 7, 8, 9....
+    //  Left side text will appear to jump a bit as ellipses grows
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    const start = offset === 1 ? 2 : offset + 2;
+
+    // * Medium length strings
+    // maxLength > string length > 2x ellipsis + maxLength
     if (total <= maxLength + dotLength + dotLength) {
-      text = ELLIPSES + text.slice(total - maxLength + ARRAY_OFFSET) + TEXT_CAP;
+      if (index < insetLeft) {
+        const suffix = ".".repeat(Math.min(dotLength, total - maxLength));
+        text = text.slice(START, maxLength - suffix.length) + suffix;
+        return {
+          cursor: index,
+          debug: {
+            index,
+            insetLeft,
+            maxLength,
+            missing: text.slice(START, maxLength).length - total,
+            reason: "medium / near start",
+            textLength: text.length,
+            total,
+          },
+          text,
+        };
+      }
+      let start = index - insetLeft;
+      // ~ Text in fixed position
+      // ~ Right side revealed
+      // ~ Cursor moves
+      if (index >= sliding) {
+        start = total - maxLength + dotLength;
+
+        text = ELLIPSES + text.slice(start);
+        return {
+          cursor: index - difference,
+          debug: {
+            index,
+            maxLength,
+            reason: "medium / approaching end",
+            sliding,
+            start,
+            startingText,
+            total,
+          },
+          text,
+        };
+      }
+      const pre = ".".repeat(Math.min(offset, dotLength));
+      const offsetMap = new Map([
+        //
+        [2, 4],
+        [1, 3],
+      ]);
+
+      // ~ Cursor fixed
+      // ~ Sides MAY be revealed or sliced
+      // ~ Text moves
+      text = pre + text.slice(offsetMap.get(offset) || offset + 2);
       return {
-        cursor: maxLength + dotLength - ARRAY_OFFSET,
+        cursor: insetLeft,
         debug: {
           index,
+          insetLeft,
           maxLength,
+          offset,
           reason: "medium string",
-          start: total - maxLength + ARRAY_OFFSET,
+          start,
           total,
         },
         text,
       };
     }
+    const pre = ".".repeat(offset === 1 ? 2 : 3);
 
     // * At end
     if (index === total) {
@@ -586,11 +649,6 @@ export class TextRenderingService {
         text,
       };
     }
-
-    const insetLeft = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
-    const offset = Math.max(index - insetLeft + ARRAY_OFFSET);
-    const sliding = total - maxLength + insetLeft;
-    const modifiedLength = dotLength - TEXT_CAP.length;
 
     // * At start
     // * Near start
@@ -613,7 +671,6 @@ export class TextRenderingService {
     if (index >= sliding - modifiedLength) {
       const repeat = sliding - index + ARRAY_OFFSET;
       const suffix = repeat > NONE ? ".".repeat(repeat) : "";
-      text += TEXT_CAP;
       const sLength = suffix.trim().length;
       text = ELLIPSES + text.slice(total - maxLength, total - sLength) + suffix;
       return {
@@ -627,12 +684,6 @@ export class TextRenderingService {
         text,
       };
     }
-    // * Set up the text & cursor to respond naturally
-    // ? Desired start pattern: 0, 2, 4, 5, 6, 7, 8, 9....
-    //  Left side text will appear to jump a bit as ellipses grows
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    const pre = ".".repeat(offset === 1 ? 2 : 3);
-    const start = offset === 1 ? 2 : offset + 2;
     /* eslint-enable @typescript-eslint/no-magic-numbers */
     // * Middle area
     text = pre + text.slice(start, start + maxLength - pre.length) + ELLIPSES;

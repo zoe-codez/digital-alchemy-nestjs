@@ -3,6 +3,8 @@ import { QuickScript } from "@digital-alchemy/boilerplate";
 import {
   ApplicationManagerService,
   ErrorService,
+  FontAwesomeExtendedIcons,
+  FontAwesomeIcons,
   PromptService,
   TTYModule,
 } from "@digital-alchemy/tty";
@@ -65,6 +67,10 @@ export class SamplerApp {
   ) {}
 
   public async exec(): Promise<void> {
+    // Object.keys(FontAwesomeExtendedIcons).forEach(i =>
+    //   console.log(i, FontAwesomeExtendedIcons[i]),
+    // );
+    // await this.prompt.acknowledge();
     await this.string.basic();
     this.application.setHeader("TTY Demo", "Main Menu");
     const action = await this.prompt.menu({

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -14,7 +15,9 @@ import chalk from "chalk";
 import { parse, parseDate } from "chrono-node";
 import dayjs, { Dayjs } from "dayjs";
 
+import { PROMPT_QUESTION } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
+import { template } from "../includes";
 import {
   EnvironmentService,
   KeyboardManagerService,
@@ -101,6 +104,8 @@ export class DateEditorService
     private readonly screen: ScreenService,
     private readonly environment: EnvironmentService,
     private readonly text: TextRenderingService,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   private chronoText: string;
@@ -518,7 +523,7 @@ export class DateEditorService
     const value = is.empty(this.chronoText) ? placeholder : this.chronoText;
     const out: string[] = [];
     if (this.opt.label) {
-      out.push(chalk`{green ? } ${this.opt.label}`);
+      out.push(template(`${this.promptQuestion} ${this.opt.label}`));
     }
 
     const [result] = parse(this.chronoText.trim() || placeholder);
@@ -573,7 +578,7 @@ export class DateEditorService
       ].join(`\n`);
     } else {
       const label = this.opt.label || this.type === "time" ? "Time" : "Date";
-      message += chalk`{green ? } {bold ${label}: }`;
+      message += template(`${this.promptQuestion} {bold ${label}: }`);
       switch (this.type) {
         case "time":
           message += this.value.toDate().toLocaleTimeString();
@@ -594,9 +599,11 @@ export class DateEditorService
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderRangeSections(): void {
-    let message = chalk`  {green ? } ${
-      this.opt.label ?? chalk.bold`Enter date range`
-    }  \n{bold From:} `;
+    let message = template(
+      `  ${this.promptQuestion} ${
+        this.opt.label ?? chalk.bold`Enter date range`
+      }  \n{bold From:} `,
+    );
     // From
     if (["range", "date", "datetime"].includes(this.type)) {
       message +=
@@ -702,9 +709,11 @@ export class DateEditorService
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private renderSections(): void {
-    let message = chalk`  {green ? } ${
-      this.opt.label ?? (this.type === "time" ? "Enter time" : "Enter date")
-    }  `;
+    let message = template(
+      `  ${this.promptQuestion} ${
+        this.opt.label ?? (this.type === "time" ? "Enter time" : "Enter date")
+      }  `,
+    );
     if (["range", "date", "datetime"].includes(this.type)) {
       message +=
         this.edit === "year"
