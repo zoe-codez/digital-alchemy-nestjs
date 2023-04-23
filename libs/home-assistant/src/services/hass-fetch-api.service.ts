@@ -9,6 +9,8 @@ import { Injectable } from "@nestjs/common";
 import { BASE_URL, TOKEN } from "../config";
 import {
   ALL_DOMAINS,
+  CalendarEvent,
+  CalendarFetchOptions,
   CheckConfigResult,
   ENTITY_STATE,
   GenericEntityDTO,
@@ -41,6 +43,20 @@ export class HassFetchAPIService {
 
   public get valid() {
     return !is.empty(this.baseUrl) && !is.empty(this.bearer);
+  }
+
+  public async calendarSearch({
+    calendar,
+    start,
+    end,
+  }: CalendarFetchOptions): Promise<CalendarEvent[]> {
+    return await this.fetchService.fetch({
+      params: {
+        end: end.toISOString(),
+        start: start.toISOString(),
+      },
+      url: `/calendars/${calendar}`,
+    });
   }
 
   public async callService(
