@@ -4,7 +4,6 @@ export * from "./configuration";
 export * from "./constants";
 export * from "./entity-state";
 export * from "./module";
-export * from "./scripts";
 export * from "./serialize";
 export * from "./server-log";
 export * from "./service-list-item";

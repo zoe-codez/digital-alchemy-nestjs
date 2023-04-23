@@ -17,7 +17,13 @@ import {
 } from "@nestjs/common";
 import { exit, nextTick } from "process";
 
-import { ALL_DOMAINS, HASSIO_WS_COMMAND, HassServiceDTO } from "../types";
+import {
+  ALL_DOMAINS,
+  HASSIO_WS_COMMAND,
+  HassServiceDTO,
+  PICK_SERVICE,
+  PICK_SERVICE_PARAMETERS,
+} from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
 import { SocketManagerService } from "./socket-manager.service";
@@ -104,7 +110,7 @@ export class CallProxyService {
       Object.entries(domainItem.services).map(([key]) => [
         key,
         async (parameters: object) =>
-          await this.sendMessage(domain, key, parameters),
+          await this.sendMessage(`${domain}.${key}`, { ...parameters }),
       ]),
     );
   }
@@ -140,14 +146,14 @@ export class CallProxyService {
   /**
    * Prefer sending via socket, if available.
    */
-  private async sendMessage(
-    domain: ALL_DOMAINS,
-    service: string,
-    service_data: object,
+  private async sendMessage<SERVICE extends PICK_SERVICE>(
+    serviceName: SERVICE,
+    service_data: PICK_SERVICE_PARAMETERS<SERVICE>,
   ) {
     if (!this.socketApi.CONNECTION_ACTIVE) {
-      return await this.fetchApi.callService(domain, service, service_data);
+      return await this.fetchApi.callService(serviceName, service_data);
     }
+    const [domain, service] = serviceName.split(".");
     // User can just not await this call if they don't care about the "waitForChange"
     return await this.socketApi.sendMessage(
       {

@@ -26,5 +26,6 @@ export const iCallService = Symbol.for("iCallService");
 
 // ! Ominous note: this is not as unused as it appears 🪄
 // ! Do not touch
+// TODO: follow up - add a less ominous note, or resolve the previous issue
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const list: PICK_ENTITY<"sensor">[] = [];

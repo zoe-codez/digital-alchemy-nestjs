@@ -451,12 +451,13 @@
           "error",
           {
             "replacements": {
-              "temp": false,
-              "i": false,
-              "ref": false,
+              "docs": false,
               "e": false,
+              "i": false,
+              "params": false,
               "props": false,
-              "docs": false
+              "ref": false,
+              "temp": false
             }
           }
         ],

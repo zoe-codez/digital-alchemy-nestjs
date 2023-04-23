@@ -1,4 +1,4 @@
-import { is, START } from "@digital-alchemy/utilities";
+import { is } from "@digital-alchemy/utilities";
 import type { Get } from "type-fest";
 
 import { ENTITY_SETUP, iCallService, MODULE_SETUP } from "../dynamic";
@@ -36,9 +36,14 @@ export type PICK_SERVICE<
   [key in DOMAIN]: `${key}.${keyof iCallService[key] & string}`;
 }[DOMAIN];
 
-export type PICK_SERVICE_PARAMETERS<SERVICE extends PICK_SERVICE> = Parameters<
-  Get<iCallService, SERVICE>
->[typeof START];
+export type PICK_SERVICE_PARAMETERS<SERVICE extends PICK_SERVICE> = Get<
+  iCallService,
+  SERVICE
+> extends (
+  serviceParams: infer ServiceParams,
+) => unknown | void | Promise<void> | Promise<unknown>
+  ? ServiceParams
+  : never;
 
 export function entity_split(
   entity: { entity_id: PICK_ENTITY } | PICK_ENTITY,

@@ -3,13 +3,19 @@ import {
   FetchService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
-import { FetchWith, is, SECOND } from "@digital-alchemy/utilities";
+import {
+  DOWN,
+  FetchWith,
+  is,
+  NO_CHANGE,
+  SECOND,
+  UP,
+} from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
-  ALL_DOMAINS,
   CalendarEvent,
   CalendarFetchOptions,
   CheckConfigResult,
@@ -19,6 +25,8 @@ import {
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
+  PICK_SERVICE,
+  PICK_SERVICE_PARAMETERS,
   RawCalendarEvent,
 } from "../types";
 
@@ -47,18 +55,43 @@ export class HassFetchAPIService {
     return !is.empty(this.baseUrl) && !is.empty(this.bearer);
   }
 
+  /**
+   * Fetch events from calendars on home assistant
+   *
+   * If multiple calendars are provided, events are sorted together by date
+   */
   public async calendarSearch({
     calendar,
-    start,
+    start = dayjs(),
     end,
   }: CalendarFetchOptions): Promise<CalendarEvent[]> {
+    if (is.array(calendar)) {
+      const list = await Promise.all(
+        calendar.map(
+          async calendar => await this.calendarSearch({ calendar, end, start }),
+        ),
+      );
+      return list.flat().sort((a, b) => {
+        if (a.start.isSame(b.start)) {
+          return NO_CHANGE;
+        }
+        return a.start.isAfter(b.start) ? UP : DOWN;
+      });
+    }
+    const params = {
+      end: end.toISOString(),
+      start: start.toISOString(),
+    };
     const events = await this.fetch<RawCalendarEvent[]>({
-      params: {
-        end: end.toISOString(),
-        start: start.toISOString(),
-      },
+      params,
       url: `/api/calendars/${calendar}`,
     });
+    this.logger.debug(
+      { ...params },
+      `[%s] search found {%s} events`,
+      calendar,
+      events.length,
+    );
     return events.map(({ start, end, ...extra }) => ({
       ...extra,
       end: dayjs(end.dateTime),
@@ -66,13 +99,13 @@ export class HassFetchAPIService {
     }));
   }
 
-  public async callService(
-    domain: ALL_DOMAINS,
-    service: string,
-    data: object,
+  public async callService<SERVICE extends PICK_SERVICE>(
+    serviceName: SERVICE,
+    data: PICK_SERVICE_PARAMETERS<SERVICE>,
   ): Promise<ENTITY_STATE<PICK_ENTITY>[]> {
+    const [domain, service] = serviceName.split(".");
     return await this.fetch({
-      body: { ...data },
+      body: { ...(data as object) },
       method: "post",
       url: `/api/services/${domain}/${service}`,
     });
