@@ -48,9 +48,8 @@ const BAD_MATCH = -10_000;
 const BAD_VALUE = -1000;
 const LAST = -1;
 const STRING_SHRINK = 100;
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const TEXT_DEBUG = chalk`\n{green.bold ${"=-".repeat(30)}}\n`;
-// const TEXT_DEBUG = "";
+// const TEXT_DEBUG = chalk`\n{green.bold ${"=-".repeat(30)}}\n`;
+const TEXT_DEBUG = "";
 const NESTING_LEVELS = [
   chalk.cyan(" - "),
   chalk.magenta(" * "),
@@ -498,10 +497,6 @@ export class TextRenderingService {
    * These haven't hit the max size, do not modify.
    * Pad as needed to reach max length
    *
-   * ## Medium strings
-   *
-   * > Text that is longer than maxLength, but never fully hits a boundary free area
-   *
    * ## Long strings
    *
    * > Longer strings that can have the cursor freely moving without being near a text boundary
@@ -536,7 +531,6 @@ export class TextRenderingService {
     maxLength,
   }: SliceRangeOptions): SliceTextResult {
     text += TEXT_CAP;
-    const startingText = text;
     const total = text.length;
     const difference = total - maxLength;
     const dotLength = ELLIPSES.length;
@@ -557,7 +551,7 @@ export class TextRenderingService {
 
     const insetLeft = Math.max(Math.floor(maxLength * ONE_THIRD), dotLength);
     const offset = Math.max(index - insetLeft + ARRAY_OFFSET);
-    const sliding = total - maxLength + insetLeft;
+    const sliding = total - maxLength + insetLeft - dotLength;
     const modifiedLength = dotLength - TEXT_CAP.length;
 
     // ? Desired start pattern: 0, 2, 4, 5, 6, 7, 8, 9....
@@ -565,73 +559,6 @@ export class TextRenderingService {
     /* eslint-disable @typescript-eslint/no-magic-numbers */
     const start = offset === 1 ? 2 : offset + 2;
 
-    // * Medium length strings
-    // maxLength > string length > 2x ellipsis + maxLength
-    if (total <= maxLength + dotLength + dotLength) {
-      if (index < insetLeft) {
-        const suffix = ".".repeat(Math.min(dotLength, total - maxLength));
-        text = text.slice(START, maxLength - suffix.length) + suffix;
-        return {
-          cursor: index,
-          debug: {
-            index,
-            insetLeft,
-            maxLength,
-            missing: text.slice(START, maxLength).length - total,
-            reason: "medium / near start",
-            textLength: text.length,
-            total,
-          },
-          text,
-        };
-      }
-      let start = index - insetLeft;
-      // ~ Text in fixed position
-      // ~ Right side revealed
-      // ~ Cursor moves
-      if (index >= sliding) {
-        start = total - maxLength + dotLength;
-
-        text = ELLIPSES + text.slice(start);
-        return {
-          cursor: index - difference,
-          debug: {
-            index,
-            maxLength,
-            reason: "medium / approaching end",
-            sliding,
-            start,
-            startingText,
-            total,
-          },
-          text,
-        };
-      }
-      const pre = ".".repeat(Math.min(offset, dotLength));
-      const offsetMap = new Map([
-        //
-        [2, 4],
-        [1, 3],
-      ]);
-
-      // ~ Cursor fixed
-      // ~ Sides MAY be revealed or sliced
-      // ~ Text moves
-      text = pre + text.slice(offsetMap.get(offset) || offset + 2);
-      return {
-        cursor: insetLeft,
-        debug: {
-          index,
-          insetLeft,
-          maxLength,
-          offset,
-          reason: "medium string",
-          start,
-          total,
-        },
-        text,
-      };
-    }
     const pre = ".".repeat(offset === 1 ? 2 : 3);
 
     // * At end

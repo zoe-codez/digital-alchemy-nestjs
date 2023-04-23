@@ -6,7 +6,6 @@ import {
   SINGLE,
   START,
 } from "@digital-alchemy/utilities";
-import chalk from "chalk";
 
 import {
   DEFAULT_PROMPT_WIDTH,
@@ -81,7 +80,6 @@ export class StringEditorService
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
     this.cursor = this.value.length;
-    this.cursor = 17;
   }
 
   public render(): void {
