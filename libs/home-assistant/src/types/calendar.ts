@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 import { PICK_ENTITY } from "./utility";
 
 export type CalendarFetchOptions = {
@@ -6,7 +8,7 @@ export type CalendarFetchOptions = {
   start: Date;
 };
 
-export type CalendarEvent = {
+export type RawCalendarEvent = {
   description?: string;
   end: { dateTime: string };
   location?: string;
@@ -15,4 +17,9 @@ export type CalendarEvent = {
   start: { dateTime: string };
   summary: string;
   uid?: string;
+};
+
+export type CalendarEvent = Omit<RawCalendarEvent, "end" | "start"> & {
+  end: Dayjs;
+  start: Dayjs;
 };

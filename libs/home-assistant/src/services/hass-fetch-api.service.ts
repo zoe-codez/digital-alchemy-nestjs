@@ -5,6 +5,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { FetchWith, is, SECOND } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
+import dayjs from "dayjs";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
@@ -18,6 +19,7 @@ import {
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
+  RawCalendarEvent,
 } from "../types";
 
 type SendBody<
@@ -50,13 +52,18 @@ export class HassFetchAPIService {
     start,
     end,
   }: CalendarFetchOptions): Promise<CalendarEvent[]> {
-    return await this.fetchService.fetch({
+    const events = await this.fetchService.fetch<RawCalendarEvent[]>({
       params: {
         end: end.toISOString(),
         start: start.toISOString(),
       },
-      url: `/calendars/${calendar}`,
+      url: `/api/calendars/${calendar}`,
     });
+    return events.map(({ start, end, ...extra }) => ({
+      ...extra,
+      end: dayjs(end.dateTime),
+      start: dayjs(start.dateTime),
+    }));
   }
 
   public async callService(
