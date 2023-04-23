@@ -183,8 +183,8 @@ export class StringEditorService
   }
 
   protected reset(): void {
-    this.value = this.config.current;
-    this.cursor = this.config.current.length;
+    this.value = this.config.current ?? "";
+    this.cursor = this.value.length;
   }
 
   private renderBox(bgColor: string, cursor = this.cursor): void {
