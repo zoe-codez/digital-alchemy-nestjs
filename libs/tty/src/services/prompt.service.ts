@@ -4,7 +4,6 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { edit } from "external-editor";
 
-import { ArrayBuilderOptions, ListBuilderOptions } from "../components";
 import { PROMPT_QUESTION } from "../config";
 import {
   DateEditorEditorOptions,
@@ -13,7 +12,9 @@ import {
 } from "../editors";
 import { ansiEscapes, template } from "../includes";
 import {
+  ArrayBuilderOptions,
   ExternalEditorOptions,
+  ListBuilderOptions,
   MenuComponentOptions,
   ObjectBuilderOptions,
   PromptAcknowledgeOptions,
@@ -25,10 +26,6 @@ import {
 } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
-export type PROMPT_WITH_SHORT = { name: string; short: string };
-export type PromptEntry<VALUE extends unknown = string> =
-  | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
-  | [label: string];
 
 @Injectable()
 export class PromptService {

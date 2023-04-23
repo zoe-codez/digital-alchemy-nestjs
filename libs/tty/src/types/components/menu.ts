@@ -1,5 +1,5 @@
-import { PromptEntry } from "../../services";
 import { MainMenuEntry, MenuEntry } from "../keyboard";
+import { PromptEntry } from "../prompt";
 
 export type HighlightCallbacks<VALUE = string> = {
   /**

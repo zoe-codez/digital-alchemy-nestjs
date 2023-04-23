@@ -25,6 +25,7 @@ import {
   TextRenderingService,
 } from "../services";
 import {
+  ListBuilderOptions,
   MainMenuEntry,
   TTY,
   TTYComponentKeymap,
@@ -32,12 +33,6 @@ import {
 } from "../types";
 
 const UNSORTABLE = new RegExp("[^A-Za-z0-9]", "g");
-
-export interface ListBuilderOptions<T = unknown> {
-  current?: MainMenuEntry<T | string>[];
-  items?: string;
-  source: MainMenuEntry<T | string>[];
-}
 
 const KEYMAP_FIND: TTYComponentKeymap = new Map<TTYKeypressOptions, string>([
   [{ key: "backspace", powerUser: true }, "searchBack"],
