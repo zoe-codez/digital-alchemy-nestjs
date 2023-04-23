@@ -183,6 +183,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly text: TextRenderingService,
   ) {}
 
+  public value: VALUE;
   private callbackOutput = "";
   private callbackTimestamp = dayjs();
   private complete = false;
@@ -201,7 +202,6 @@ export class MenuComponentService<VALUE = unknown | string>
   private selectedType: "left" | "right" = "right";
   private selectedValue: VALUE;
   private sort: boolean;
-  private value: VALUE;
 
   private get notes(): string {
     const { helpNotes } = this.opt;
@@ -282,6 +282,44 @@ export class MenuComponentService<VALUE = unknown | string>
     await this.setValue(value, restore);
     this.detectSide();
     this.setKeymap();
+  }
+
+  /**
+   * Terminate the editor
+   */
+  public onEnd(): boolean {
+    if (!this.done) {
+      return;
+    }
+    const list = this.side(this.selectedType);
+    const index = list.findIndex(
+      entry => TTY.GV(entry) === this.selectedValue ?? this.value,
+    );
+    this.final = true;
+    this.mode = "select";
+    this.callbackOutput = "";
+    this.done(this.value);
+    MenuComponentService.LAST_RESULT ??= {
+      returned: this.value,
+      selected_entry: undefined,
+      type: "entry",
+    };
+    MenuComponentService.LAST_RESULT.selected_entry = {
+      entry: list[index],
+      index,
+      side: this.selectedType,
+    };
+    this.render();
+    this.done = undefined;
+    if (this.opt.restore) {
+      nextTick(async () => {
+        await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
+          position: [this.selectedType, index],
+          value: TTY.GV(list[index]) ?? this.value,
+        } as MenuRestoreCacheData<VALUE>);
+      });
+    }
+    return false;
   }
 
   /**
@@ -432,44 +470,6 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     this.value = TTY.GV(list[index + INCREMENT].entry);
-  }
-
-  /**
-   * Terminate the editor
-   */
-  protected onEnd(): boolean {
-    if (!this.done) {
-      return;
-    }
-    const list = this.side(this.selectedType);
-    const index = list.findIndex(
-      entry => TTY.GV(entry) === this.selectedValue ?? this.value,
-    );
-    this.final = true;
-    this.mode = "select";
-    this.callbackOutput = "";
-    this.done(this.value);
-    MenuComponentService.LAST_RESULT ??= {
-      returned: this.value,
-      selected_entry: undefined,
-      type: "entry",
-    };
-    MenuComponentService.LAST_RESULT.selected_entry = {
-      entry: list[index],
-      index,
-      side: this.selectedType,
-    };
-    this.render();
-    this.done = undefined;
-    if (this.opt.restore) {
-      nextTick(async () => {
-        await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
-          position: [this.selectedType, index],
-          value: TTY.GV(list[index]) ?? this.value,
-        } as MenuRestoreCacheData<VALUE>);
-      });
-    }
-    return false;
   }
 
   /**
@@ -949,9 +949,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.screen.render(message);
   }
 
-  /**
-   *
-   */
   private renderSelectKeymap() {
     const prefix = Object.keys(this.opt.keyMap).map(key => {
       let item = this.opt.keyMap[key];
@@ -978,10 +975,12 @@ export class MenuComponentService<VALUE = unknown | string>
       return [
         {
           description: label + "  ",
-          highlight,
+          highlight: {
+            highlightMatch: value => TTY.GV(item) === value,
+            ...highlight,
+          },
           key: [key, ...aliases],
-          matchValue: TTY.GV(item),
-        },
+        } as TTYKeypressOptions,
         "",
       ];
     });
@@ -1071,7 +1070,7 @@ export class MenuComponentService<VALUE = unknown | string>
       out.unshift({
         entry: [
           chalk.bold.blue.dim(this.renderSideHeader(side, max)),
-          Symbol("header_object"),
+          Symbol.for("header_object"),
         ],
       });
     }

@@ -119,21 +119,18 @@ export class KeyboardManagerService {
     // Otherwise, use all the catchall callbacks
     const list = is.empty(direct) ? catchAll : direct;
     // Do not re-render if no listeners are present at all
-    let render = !is.empty(list);
-    await each(is.empty(direct) ? catchAll : direct, async ([target, key]) => {
-      const result = await (is.string(key) ? target[key].bind(target) : key)(
-        mixed,
-        modifiers,
-      );
+    // const render = !is.empty(list);
+    await each(list, async ([target, key]) => {
+      await (is.string(key) ? target[key].bind(target) : key)(mixed, modifiers);
 
-      if (result === false) {
-        // This logic needs to be improved
-        // If any single one of these returns false, then a render is stopped
-        render = false;
-      }
+      // if (result === false) {
+      //   // This logic needs to be improved
+      //   // If any single one of these returns false, then a render is stopped
+      //   render = false;
+      // }
+      // if (render && this.applicationManager.activeApplication === application) {
+      //   this.applicationManager.render();
+      // }
     });
-    if (render && this.applicationManager.activeApplication === application) {
-      this.applicationManager.render();
-    }
   }
 }

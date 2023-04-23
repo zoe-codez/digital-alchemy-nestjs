@@ -133,7 +133,7 @@ export class KeymapService {
             normal = chalk.green,
             highlightMatch,
           } = config.highlight as HighlightCallbacks<VALUE>;
-          let matched = config.matchValue === current;
+          let matched = false;
           if (highlightMatch) {
             const result = highlightMatch(current);
             if (is.function(result)) {

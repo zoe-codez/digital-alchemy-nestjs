@@ -104,6 +104,17 @@ export class ArrayBuilderService<VALUE extends object>
     options.valuesLabel ??= "Values";
   }
 
+  public onEnd(): boolean {
+    if (!this.done) {
+      return;
+    }
+    this.final = true;
+    this.done(this.rows);
+    this.render();
+    this.done = undefined;
+    return false;
+  }
+
   // eslint-disable-next-line sonarjs/cognitive-complexity
   public async render(): Promise<void> {
     this.application.reprintHeader();
@@ -319,16 +330,5 @@ export class ArrayBuilderService<VALUE extends object>
       sanitize,
       validate,
     });
-  }
-
-  private onEnd(): boolean {
-    if (!this.done) {
-      return;
-    }
-    this.final = true;
-    this.done(this.rows);
-    this.render();
-    this.done = undefined;
-    return false;
   }
 }

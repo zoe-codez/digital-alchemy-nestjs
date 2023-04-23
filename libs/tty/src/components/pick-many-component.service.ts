@@ -86,9 +86,10 @@ export class PickManyComponentService<VALUE = unknown>
     private readonly screen: ScreenService,
     private readonly keyboard: KeyboardManagerService,
   ) {}
+
+  public value: VALUE;
   private complete = false;
   private current: MainMenuEntry<VALUE | string>[];
-
   private done: (type: VALUE[]) => void;
   private final = false;
   private mode: "find" | "select" = "select";
@@ -97,7 +98,6 @@ export class PickManyComponentService<VALUE = unknown>
   private searchText = "";
   private selectedType: "current" | "source" = "source";
   private source: MainMenuEntry<VALUE | string>[];
-  private value: VALUE;
 
   public configure(
     options: ListBuilderOptions<VALUE>,
@@ -117,6 +117,14 @@ export class PickManyComponentService<VALUE = unknown>
     this.value ??= TTY.GV(items[START]) as VALUE;
     this.detectSide();
     this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
+  }
+
+  public async onEnd(): Promise<void> {
+    this.mode = "select";
+    this.final = true;
+    this.render();
+    await sleep();
+    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
   }
 
   public render(updateValue = false): void {
@@ -258,14 +266,6 @@ export class PickManyComponentService<VALUE = unknown>
           ARRAY_OFFSET
       ];
     this.value = is.object(item) ? TTY.GV(item) : this.value;
-  }
-
-  protected async onEnd(): Promise<void> {
-    this.mode = "select";
-    this.final = true;
-    this.render();
-    await sleep();
-    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
   }
 
   protected onLeft(): void {

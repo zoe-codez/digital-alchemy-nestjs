@@ -86,6 +86,10 @@ export class ObjectBuilderComponentService<
   ) {}
 
   /**
+   * The current working value
+   */
+  public value: VALUE;
+  /**
    * Stop processing actions, render a static message
    */
   private complete = false;
@@ -113,10 +117,6 @@ export class ObjectBuilderComponentService<
    * Selected row relative to visible elements
    */
   private selectedRow = START;
-  /**
-   * The current working value
-   */
-  private value: VALUE;
 
   private get dirtyProperties(): (keyof VALUE)[] {
     const original = this.opt.current ?? {};
@@ -180,6 +180,54 @@ export class ObjectBuilderComponentService<
     this.columns.forEach(column => this.setDefault(column));
 
     this.setKeymap();
+  }
+
+  /**
+   * keyboard event
+   */
+  public async onEnd(): Promise<void> {
+    const { validate, current } = this.opt;
+    if (is.function(validate)) {
+      const result = await validate({
+        confirm: async (label = "Are you done?") => {
+          let value: boolean;
+          await this.screen.footerWrap(async () => {
+            value = await this.prompt.confirm({ label });
+          });
+          this.render();
+          return value;
+        },
+        current: this.value,
+        dirtyProperties: this.dirtyProperties,
+        original: current,
+        sendMessage: async ({
+          message,
+          timeout = DEFAULT_MESSAGE_TIMEOUT,
+          position = "below-bar",
+          immediateClear = false,
+          // TODO This shouldn't be a thing
+          // eslint-disable-next-line sonarjs/no-identical-functions
+        }) => {
+          if (this.displayMessageTimeout) {
+            this.displayMessageTimeout.kill("stop");
+          }
+          this.displayMessagePosition = position;
+          this.displayMessage = message;
+          this.render();
+          this.displayMessageTimeout = sleep(timeout * SECOND);
+          await this.displayMessageTimeout;
+          this.displayMessage = undefined;
+          this.displayMessageTimeout = undefined;
+          if (immediateClear) {
+            this.render();
+          }
+        },
+      });
+      if (!result) {
+        return;
+      }
+    }
+    this.end(NORMAL_EXIT);
   }
 
   public render(): void {
@@ -388,54 +436,6 @@ export class ObjectBuilderComponentService<
       return;
     }
     this.selectedRow++;
-  }
-
-  /**
-   * keyboard event
-   */
-  protected async onEnd(): Promise<void> {
-    const { validate, current } = this.opt;
-    if (is.function(validate)) {
-      const result = await validate({
-        confirm: async (label = "Are you done?") => {
-          let value: boolean;
-          await this.screen.footerWrap(async () => {
-            value = await this.prompt.confirm({ label });
-          });
-          this.render();
-          return value;
-        },
-        current: this.value,
-        dirtyProperties: this.dirtyProperties,
-        original: current,
-        sendMessage: async ({
-          message,
-          timeout = DEFAULT_MESSAGE_TIMEOUT,
-          position = "below-bar",
-          immediateClear = false,
-          // FIXME:
-          // eslint-disable-next-line sonarjs/no-identical-functions
-        }) => {
-          if (this.displayMessageTimeout) {
-            this.displayMessageTimeout.kill("stop");
-          }
-          this.displayMessagePosition = position;
-          this.displayMessage = message;
-          this.render();
-          this.displayMessageTimeout = sleep(timeout * SECOND);
-          await this.displayMessageTimeout;
-          this.displayMessage = undefined;
-          this.displayMessageTimeout = undefined;
-          if (immediateClear) {
-            this.render();
-          }
-        },
-      });
-      if (!result) {
-        return;
-      }
-    }
-    this.end(NORMAL_EXIT);
   }
 
   /**

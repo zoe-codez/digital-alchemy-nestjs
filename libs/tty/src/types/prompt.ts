@@ -81,5 +81,18 @@ export type ExternalEditorOptions = {
    * A prefix for the file name.
    */
   prefix?: string;
+  /**
+   * Value to edit
+   */
   text?: string;
+  /**
+   * Trim the final output
+   *
+   * > Default: `true`
+   */
+  trim?: boolean;
+};
+
+export type CancelActivate<VALUE> = Promise<VALUE> & {
+  cancel: (value: VALUE) => void;
 };

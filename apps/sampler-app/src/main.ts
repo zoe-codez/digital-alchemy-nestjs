@@ -6,6 +6,7 @@ import {
   PromptService,
   TTYModule,
 } from "@digital-alchemy/tty";
+import { SECOND } from "@digital-alchemy/utilities";
 import { faker } from "@faker-js/faker";
 import chalk from "chalk";
 
@@ -24,6 +25,7 @@ import {
 } from "./services";
 
 @QuickScript({
+  PERSISTENT: true,
   application: "sampler-app",
   bootstrap: {
     application: {
@@ -66,6 +68,19 @@ export class SamplerApp {
 
   public async exec(): Promise<void> {
     this.application.setHeader("TTY Demo", "Main Menu");
+    const a = this.prompt.menu({
+      headerMessage: "Test",
+      left: [],
+      right: [{ entry: ["a", "b"] }],
+    });
+    setTimeout(() => {
+      a.cancel("cancelled");
+    }, SECOND * 3);
+    const r = await a;
+    console.log({ r });
+    await this.prompt.acknowledge();
+    this.application.setHeader("TTY Demo", "Main Menu");
+
     const action = await this.prompt.menu({
       condensed: true,
       keyMap: {

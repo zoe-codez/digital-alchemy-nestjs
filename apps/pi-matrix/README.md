@@ -98,7 +98,7 @@ Not all magnets are polarized the same, and it is important to not have both cou
 The controller can also be attached to the frame via a similar mechanism
 
 | Name | Purchase Link | Notes |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | Heat sink | [Amazon](https://www.amazon.com/gp/product/B07PCMTZHF) | Removed fan, passive cooling is enough |
 | Power Cord | [Amazon](https://www.amazon.com/gp/product/B07V2CKPLG) | For a clean look |
 

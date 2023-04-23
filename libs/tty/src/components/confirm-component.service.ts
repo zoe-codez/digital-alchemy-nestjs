@@ -34,6 +34,10 @@ export class ConfirmComponentService implements iComponent {
     );
   }
 
+  public onEnd(): void {
+    this.complete = true;
+  }
+
   public render(): void {
     if (this.complete) {
       return;

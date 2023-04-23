@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-export const EDITOR_CONFIG = Symbol("editor");
+export const EDITOR_CONFIG = Symbol.for("editor");
 
 export interface EditorOptions {
   /**

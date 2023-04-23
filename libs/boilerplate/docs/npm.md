@@ -31,7 +31,7 @@ The manual bootstrapping process requires the manual definition of a root applic
 import { ApplicationModule } from "@digital-alchemy/boilerplate";
 
 @ApplicationModule({
-  application: Symbol("my-application"),
+  application: Symbol.for("my-application"),
   controllers: [...],
   imports: [...],
   providers: [...]

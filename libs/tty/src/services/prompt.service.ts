@@ -138,27 +138,37 @@ export class PromptService {
     return { from: new Date(from), to: new Date(to) };
   }
 
-  public external({ text, ...options }: ExternalEditorOptions): string {
+  public external({
+    text,
+    trim = true,
+    ...options
+  }: ExternalEditorOptions): string {
     this.screen.rl.output.unmute();
     this.screen.printLine(ansiEscapes.cursorShow);
     const out = edit(text, { ...options });
     this.screen.printLine(ansiEscapes.cursorHide);
     this.screen.rl.output.mute();
-    return out;
+    if (!trim) {
+      return out;
+    }
+    return out.trim();
   }
 
   /**
    * Menus, keyboard shortcuts, and general purpose tool
+   *
+   * Use the `.cancel` method attached to the promise to close the menu without user interaction
    */
-  public async menu<VALUE extends unknown = string>(
+  // ! Leave method not async
+  // Not passing through the promise will lose the `.cancel`, which is desired here
+  public menu<VALUE extends unknown = string>(
     options: MenuComponentOptions<VALUE | string>,
-  ): Promise<VALUE | string> {
+  ) {
     options.keyMap ??= {};
-    const result = await this.applicationManager.activateComponent<
+    return this.applicationManager.activateComponent<
       MenuComponentOptions<VALUE | string>,
       VALUE
     >("menu", options);
-    return result;
   }
 
   /**

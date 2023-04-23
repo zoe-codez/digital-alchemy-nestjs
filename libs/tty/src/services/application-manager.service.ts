@@ -13,6 +13,7 @@ import {
 } from "../config";
 import { iBuilderEditor, iComponent } from "../decorators";
 import { ansiMaxLength, template } from "../includes";
+import { CancelActivate } from "../types";
 import { ComponentExplorerService, EditorExplorerService } from "./explorers";
 import { KeyboardManagerService } from "./keyboard-manager.service";
 import { ScreenService } from "./screen.service";
@@ -51,33 +52,45 @@ export class ApplicationManagerService {
   /**
    * Start an component instance, and set it as the primary active bit
    */
-  public async activateComponent<CONFIG, VALUE>(
+  public activateComponent<CONFIG, VALUE>(
     name: string,
     configuration: CONFIG = {} as CONFIG,
-  ): Promise<VALUE> {
-    const oldApplication = this.activeApplication;
-    const oldEditor = this.activeEditor;
-    this.activeApplication = undefined;
-    this.activeEditor = undefined;
-    const out = await this.keyboard.wrap<VALUE>(
-      async () =>
-        await new Promise<VALUE>(async done => {
-          const component = this.componentExplorer.findServiceByType<
-            CONFIG,
-            VALUE
-          >(name);
-          // There needs to be more type work around this
-          // It's a disaster
-          await component.configure(configuration, value => {
-            done(value as VALUE);
-          });
-          this.activeApplication = component;
-          component.render();
-        }),
-    );
-    this.activeApplication = oldApplication;
-    this.activeEditor = oldEditor;
-    return out;
+  ): CancelActivate<VALUE> {
+    const promise = new Promise(async () => {
+      const oldApplication = this.activeApplication;
+      const oldEditor = this.activeEditor;
+      this.activeApplication = undefined;
+      this.activeEditor = undefined;
+      const out = await this.keyboard.wrap<VALUE>(
+        async () =>
+          await new Promise<VALUE>(async done => {
+            const component = this.componentExplorer.findServiceByType<
+              CONFIG,
+              VALUE
+            >(name);
+            // There needs to be more type work around this
+            // It's a disaster
+            await component.configure(configuration, value =>
+              done(value as VALUE),
+            );
+            this.activeApplication = component;
+            component.render();
+
+            promise.cancel = (value: VALUE) => {
+              if (done) {
+                done(value);
+                done = () => {
+                  // noop
+                };
+              }
+            };
+          }),
+      );
+      this.activeApplication = oldApplication;
+      this.activeEditor = oldEditor;
+      return out;
+    }) as CancelActivate<VALUE>;
+    return promise;
   }
 
   /**

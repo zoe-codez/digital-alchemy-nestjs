@@ -17,9 +17,9 @@ export interface MainMenuEntry<T = unknown> {
   /**
    * Additional help text to display when this entry is selected
    *
-   * - string format: pass through
-   * - string array: join together with newlines
-   * - object: debug formatting
+   * ~ string format: pass through
+   * ~ string array: join together with newlines
+   * ~ object: debug formatting
    */
   helpText?: MenuHelpText;
   /**
@@ -50,7 +50,9 @@ export type TTYKeypressOptions = {
   description?: string;
   highlight?: HighlightCallbacks;
   key?: string | string[];
-  matchValue?: unknown;
+  /**
+   * ctrl / alt / shift
+   */
   modifiers?: Partial<KeyModifiers>;
   /**
    * Leave it to the user to find this, don't document on UI
