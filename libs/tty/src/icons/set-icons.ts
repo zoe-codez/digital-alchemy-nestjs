@@ -1,4 +1,4 @@
-export enum SetiIcons {
+export enum SetIcons {
   "bower" = "\uE61A",
   "cjsx" = "\uE61B",
   "coffee" = "\uE61B",

@@ -210,6 +210,7 @@ import {
     EnvironmentService,
     ErrorService,
     IconService,
+    KeyboardManagerService,
     KeymapService,
     PromptService,
     ScreenService,
