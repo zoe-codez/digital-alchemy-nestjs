@@ -77,7 +77,7 @@ export class StateEnforcerService {
     entity_id: PICK_ENTITY<"switch">[],
     context: string,
   ): Promise<void> {
-    // ! Bail out if no action can be taken
+    // ? Bail out if no action can be taken
     if (!this.socket.CONNECTION_ACTIVE) {
       this.logger.warn(
         { context },

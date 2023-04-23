@@ -2,16 +2,19 @@ import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ARRAY_OFFSET,
   EMPTY,
-  INVERT_VALUE,
   is,
   SINGLE,
   START,
 } from "@digital-alchemy/utilities";
-import chalk from "chalk";
 
-import { DEFAULT_PROMPT_WIDTH } from "../config";
+import {
+  DEFAULT_PROMPT_WIDTH,
+  PROMPT_QUESTION,
+  STRING_EDITOR_CONTENT,
+  STRING_EDITOR_EMPTY,
+} from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
-import { ansiPadEnd, ansiStrip, ELLIPSES } from "../includes";
+import { template } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
@@ -20,20 +23,19 @@ import {
 } from "../services";
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
 
-export interface StringEditorRenderOptions {
+export type StringEditorRenderOptions = {
   current?: string;
   label?: string;
   mask?: "hide" | "obfuscate";
   // maxLength?: number;
   // minLength?: number;
+  padding?: number;
   placeholder?: string;
   // validate?: (value: string) => true | string;
   width?: number;
-}
+};
 
 const DEFAULT_PLACEHOLDER = "enter value";
-const INTERNAL_PADDING = " ";
-const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
@@ -41,6 +43,7 @@ const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ key: "escape" }, "clear"],
   [{ key: "f4" }, "cancel"],
 ]);
+const NO_CURSOR = -1;
 
 @Editor({ type: "string" })
 export class StringEditorService
@@ -52,6 +55,12 @@ export class StringEditorService
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,
     @InjectConfig(DEFAULT_PROMPT_WIDTH) private readonly defaultWidth: number,
+    @InjectConfig(STRING_EDITOR_EMPTY)
+    private readonly colorEmpty: string,
+    @InjectConfig(STRING_EDITOR_CONTENT)
+    private readonly colorContent: string,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   private complete = false;
@@ -76,14 +85,16 @@ export class StringEditorService
   public render(): void {
     if (this.complete) {
       this.screen.render(
-        chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
+        template(
+          `${this.promptQuestion} {bold ${this.config.label}} {gray ${this.value}}`,
+        ),
       );
       return;
     }
     if (is.empty(this.value)) {
-      return this.renderBox("bgBlue");
+      return this.renderBox(this.colorEmpty, NO_CURSOR);
     }
-    return this.renderBox("bgWhite");
+    return this.renderBox(this.colorContent);
   }
 
   protected cancel(): void {
@@ -92,7 +103,7 @@ export class StringEditorService
   }
 
   protected clear(): void {
-    this.value = ``;
+    this.value = "";
     this.cursor = START;
   }
 
@@ -159,44 +170,28 @@ export class StringEditorService
     this.cursor = this.config.current.length;
   }
 
-  private renderBox(bgColor: string): void {
-    let value = is.empty(this.value)
-      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
-      : this.value;
-    const maxLength = this.config.width - PADDING;
-    const out: string[] = [];
-    if (this.config.label) {
-      out.push(chalk`{green ? } ${this.config.label}`);
-    }
-    const stripped = ansiStrip(value);
-    let length = stripped.length;
-    if (length > maxLength - ELLIPSES.length) {
-      const update =
-        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
-      value = value.replace(stripped, update);
-      length = update.length;
-    }
+  private renderBox(bgColor: string, cursor = this.cursor): void {
+    const placeholder = this.config.placeholder ?? DEFAULT_PLACEHOLDER;
+    let value = is.empty(this.value) ? placeholder : this.value;
     if (value !== DEFAULT_PLACEHOLDER) {
       if (this.config.mask === "hide") {
         value = "";
-      } else {
-        if (this.config.mask === "obfuscate") {
-          value = "*".repeat(value.length);
-        }
-        value = [
-          value.slice(START, this.cursor),
-          chalk.inverse(value[this.cursor] ?? " "),
-          value.slice(this.cursor + SINGLE),
-        ].join("");
+      } else if (this.config.mask === "obfuscate") {
+        value = "*".repeat(value.length);
       }
     }
+    const out: string[] = [];
+    if (this.config.label) {
+      out.push(template(`${this.promptQuestion} ${this.config.label}`));
+    }
     out.push(
-      chalk[bgColor].black(
-        ansiPadEnd(
-          INTERNAL_PADDING + value + INTERNAL_PADDING,
-          maxLength + PADDING,
-        ),
-      ),
+      ...this.text.searchBoxEditable({
+        bgColor,
+        cursor,
+        padding: this.config.padding,
+        value,
+        width: this.config.width,
+      }),
     );
     const message = this.text.pad(out.join(`\n`));
     this.screen.render(

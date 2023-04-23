@@ -14,7 +14,7 @@ export class AcknowledgeService {
     private readonly screen: ScreenService,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("Default Acknowledge");
     this.screen.printLine(
       chalk`\n {bold.blue ?} Below is the acknowledge prompt. \nIt does not require any particular interaction, any valid keyboard event works.\n \n `,
@@ -22,7 +22,7 @@ export class AcknowledgeService {
     await this.prompt.acknowledge();
   }
 
-  public async customMessage(): Promise<void> {
+  public async configurable(): Promise<void> {
     this.application.setHeader("Custom Acknowledge");
     const label = await this.prompt.string({ label: "Acknowledge message" });
     this.screen.printLine(`\n \n `);

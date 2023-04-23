@@ -2,6 +2,7 @@
 export const EVEN = 2;
 export const PAIR = 2;
 export const HALF = 0.5;
+export const ONE_THIRD = 1 / 3;
 export const TWO_THIRDS = 2 / 3;
 /**
  * Good for a surprising number of situations

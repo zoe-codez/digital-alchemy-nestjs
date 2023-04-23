@@ -25,6 +25,7 @@ import { get } from "object-path";
 import { nextTick } from "process";
 
 import {
+  HELP_DIVIDER,
   MENU_ENTRY_NORMAL,
   MENU_ENTRY_OTHER,
   MENU_ENTRY_SELECTED,
@@ -35,7 +36,7 @@ import {
   MENU_SEARCHBOX_NORMAL,
 } from "../config";
 import { Component, iComponent } from "../decorators";
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from "../includes";
+import { ansiMaxLength, ansiPadEnd, ansiStrip, template } from "../includes";
 import {
   ApplicationManagerService,
   EnvironmentService,
@@ -158,6 +159,7 @@ export class MenuComponentService<VALUE = unknown | string>
   public static LAST_RESULT: LastMenuResultInfo<unknown>;
 
   constructor(
+    @InjectConfig(HELP_DIVIDER) private readonly helpDivider: string,
     @InjectConfig(MENU_ENTRY_TYPE) private readonly colorType: string,
     @InjectConfig(MENU_ENTRY_SELECTED) private readonly colorSelected: string,
     @InjectConfig(MENU_ENTRY_OTHER) private readonly colorOther: string,
@@ -938,8 +940,9 @@ export class MenuComponentService<VALUE = unknown | string>
       ),
     );
 
+    const line = `=`.repeat(dividerWidth);
     construction.divider = CONSTRUCTION_PROP(
-      chalk.blue.dim(`=`.repeat(dividerWidth)),
+      template(`{${this.helpDivider} ${line}}`),
     );
 
     const message = this.assembleMessage(construction);

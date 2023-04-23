@@ -19,7 +19,10 @@ import {
   HEADER_FONT_PRIMARY,
   HEADER_FONT_SECONDARY,
   HELP,
+  HELP_DIVIDER,
+  KEYMAP_TICK,
   LIB_TTY,
+  MENU_COLUMN_DIVIDER,
   MENU_ENTRY_NORMAL,
   MENU_ENTRY_OTHER,
   MENU_ENTRY_SELECTED,
@@ -29,6 +32,9 @@ import {
   MENU_SEARCHBOX_EMPTY,
   MENU_SEARCHBOX_NORMAL,
   PAGE_SIZE,
+  PROMPT_QUESTION,
+  STRING_EDITOR_CONTENT,
+  STRING_EDITOR_EMPTY,
   TABLE_RENDER_ROWS,
   TEXT_DEBUG_ARRAY_LENGTH,
   TEXT_DEBUG_DEPTH,
@@ -40,6 +46,7 @@ import {
   PasswordEditorService,
   StringEditorService,
 } from "../editors";
+import { FontAwesomeExtendedIcons, FontAwesomeIcons } from "../icons";
 import {
   ApplicationManagerService,
   ChartingService,
@@ -106,6 +113,18 @@ import {
         "Intended for consumption as cli switch (--help). Performs early abort and prints available cli switches to console",
       type: "boolean",
     },
+    [HELP_DIVIDER]: {
+      default: "blue.dim",
+      type: "string",
+    },
+    [KEYMAP_TICK]: {
+      default: `{blue.dim ${FontAwesomeIcons.caret_right} }`,
+      type: "string",
+    },
+    [MENU_COLUMN_DIVIDER]: {
+      default: "{blue.dim |}",
+      type: "string",
+    },
     [MENU_ENTRY_NORMAL]: {
       default: "white",
       type: "string",
@@ -142,6 +161,18 @@ import {
       default: 20,
       description: "Item quantity in menus / lists",
       type: "number",
+    },
+    [PROMPT_QUESTION]: {
+      default: `{blue ${FontAwesomeIcons.question}}`,
+      type: "string",
+    },
+    [STRING_EDITOR_CONTENT]: {
+      default: "bgWhite",
+      type: "string",
+    },
+    [STRING_EDITOR_EMPTY]: {
+      default: "bgBlue",
+      type: "string",
     },
     [TABLE_RENDER_ROWS]: {
       default: 20,

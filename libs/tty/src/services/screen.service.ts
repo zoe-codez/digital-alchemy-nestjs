@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   EMPTY,
   INCREMENT,
@@ -9,14 +10,14 @@ import {
   VALUE,
 } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import chalk from "chalk";
 import execa from "execa";
 import { ReadStream } from "fs";
 import MuteStream from "mute-stream";
 import { stdin, stdout } from "process";
 import { createInterface, Interface } from "readline";
 
-import { ansiEscapes, ansiMaxLength } from "../includes";
+import { HELP_DIVIDER } from "../config";
+import { ansiEscapes, ansiMaxLength, template } from "../includes";
 import { ApplicationManagerService } from "./application-manager.service";
 import { EnvironmentService } from "./environment.service";
 import { KeyboardManagerService } from "./keyboard-manager.service";
@@ -35,6 +36,8 @@ export class ScreenService {
     private readonly keyboard: KeyboardManagerService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
+    @InjectConfig(HELP_DIVIDER)
+    private readonly helpDivider: string,
   ) {}
 
   public rl = createInterface({
@@ -168,18 +171,14 @@ export class ScreenService {
     let stickyContent = "";
     if (this.sticky) {
       const header = this.sticky[START];
+      const line = "=".repeat(
+        this.environment.limitWidth(
+          ansiMaxLength(header, content ?? ""),
+          this.applicationManager.headerLength(),
+        ),
+      );
       stickyContent =
-        header +
-        `\n` +
-        chalk.blue.dim(
-          "=".repeat(
-            this.environment.limitWidth(
-              ansiMaxLength(header, content ?? ""),
-              this.applicationManager.headerLength(),
-            ),
-          ),
-        ) +
-        `\n`;
+        header + `\n` + template(`{${this.helpDivider} ${line}}`) + `\n`;
     }
 
     if (is.empty(content)) {

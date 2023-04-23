@@ -199,23 +199,12 @@ export class SamplerApp {
       search: { enabled: false },
     });
     switch (action) {
-      case "acknowledge_default":
-        await this.acknowledge.basicInteraction();
+      // * Menu
+      case "position_restore":
+        await this.menu.positionalRestore();
         break;
-      case "acknowledge_custom":
-        await this.acknowledge.customMessage();
-        break;
-      case "array_basic":
-        await this.array.basicInteraction();
-        break;
-      case "boolean":
-        await this.boolean.basicInteraction();
-        break;
-      case "date_basic":
-        await this.date.basic();
-        break;
-      case "date_configurable":
-        await this.date.configurable();
+      case "value_restore":
+        await this.menu.valueRestore();
         break;
       case "menu_configurable":
         await this.menu.configurable();
@@ -226,34 +215,55 @@ export class SamplerApp {
       case "menu_async":
         await this.menu.async();
         break;
+      // * Acknowledge
+      case "acknowledge_default":
+        await this.acknowledge.basic();
+        break;
+      case "acknowledge_custom":
+        await this.acknowledge.configurable();
+        break;
+      // * Array
+      case "array_basic":
+        await this.array.basic();
+        break;
+      // * Boolean
+      case "boolean":
+        await this.boolean.basic();
+        break;
+      // * Date
+      case "date_basic":
+        await this.date.basic();
+        break;
+      case "date_configurable":
+        await this.date.configurable();
+        break;
+      // * Object Builder
       case "object_builder_basic":
-        await this.object.basicInteraction();
+        await this.object.basic();
         break;
-      case "pick_many_basic":
-        await this.pickMany.defaultOperation();
-        break;
+      // * Confirm
       case "confirm_basic":
-        await this.confirm.basicInteraction();
+        await this.confirm.basic();
+        break;
+      // * Pick Many
+      case "pick_many_basic":
+        await this.pickMany.basic();
         break;
       case "pick_many_selected":
         await this.pickMany.someSelected();
         break;
+      // * String
+      case "string_basic":
+        await this.string.basic();
+        break;
+      case "string_configurable":
+        await this.string.configurable();
+        break;
+      // * Misc
       case "done":
         return;
       case "config":
         await this.configSampler.exec();
-        break;
-      case "string_basic":
-        await this.string.basicInteraction();
-        break;
-      case "string_configurable":
-        await this.string.fullyConfigurable();
-        break;
-      case "position_restore":
-        await this.menu.positionalRestore();
-        break;
-      case "value_restore":
-        await this.menu.valueRestore();
         break;
       default:
         await this.error.menuError();

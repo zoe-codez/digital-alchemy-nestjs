@@ -25,7 +25,7 @@ export class ArrayService {
     private readonly text: TextRenderingService,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("TTY Sampler");
     await this.prompt.arrayBuilder<{
       foo: string;

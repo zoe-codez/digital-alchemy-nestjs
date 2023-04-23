@@ -8,6 +8,7 @@ import {
   StringEditorRenderOptions,
   TextRenderingService,
 } from "@digital-alchemy/tty";
+import { PEAT } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -21,14 +22,18 @@ export class StringService {
     private readonly defaultWidth: number,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("String Value");
-    const result = await this.prompt.string();
+    const fill = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const result = await this.prompt.string({
+      current: PEAT(2, fill).join("__"),
+      width: 50,
+    });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }
 
-  public async fullyConfigurable(): Promise<void> {
+  public async configurable(): Promise<void> {
     this.application.setHeader("String", "Configure");
     const options = await this.prompt.objectBuilder<StringEditorRenderOptions>({
       current: {

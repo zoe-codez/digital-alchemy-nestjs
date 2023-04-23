@@ -1,14 +1,16 @@
-import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
 import { ArrayBuilderOptions, ListBuilderOptions } from "../components";
+import { PROMPT_QUESTION } from "../config";
 import {
   DateEditorEditorOptions,
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
 } from "../editors";
+import { template } from "../includes";
 import {
   MenuComponentOptions,
   ObjectBuilderOptions,
@@ -32,6 +34,8 @@ export class PromptService {
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   /**
@@ -64,7 +68,7 @@ export class PromptService {
   }: PromptBooleanOptions): Promise<boolean> {
     return (await this.menu({
       condensed: true,
-      headerMessage: chalk`  {green ?} ${message}`,
+      headerMessage: template(`  ${this.promptQuestion} ${message}`),
       right: [{ entry: ["true", true] }, { entry: ["false", false] }],
       search: { enabled: false },
       value: current,
@@ -227,7 +231,7 @@ export class PromptService {
     options: StringEditorRenderOptions = {},
   ): Promise<string> {
     return await this.applicationManager.activateEditor("string", {
-      label: `String value`,
+      label: chalk.bold`String value`,
       ...options,
     } as StringEditorRenderOptions);
   }

@@ -1,7 +1,10 @@
+import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { INVERT_VALUE, is, SINGLE, START } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
+import { PROMPT_QUESTION } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
+import { template } from "../includes";
 import { KeyboardManagerService, ScreenService } from "../services";
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
 
@@ -27,6 +30,8 @@ export class PasswordEditorService
   constructor(
     private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
+    @InjectConfig(PROMPT_QUESTION)
+    private readonly promptQuestion: string,
   ) {}
 
   private complete = false;
@@ -48,7 +53,9 @@ export class PasswordEditorService
   public render(): void {
     if (this.complete) {
       this.screen.render(
-        chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
+        template(
+          `${this.promptQuestion} {bold ${this.config.label}} {gray ${this.value}}`,
+        ),
       );
       return;
     }

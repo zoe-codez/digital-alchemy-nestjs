@@ -15,7 +15,7 @@ export class ConfirmService {
     private readonly text: TextRenderingService,
   ) {}
 
-  public async basicInteraction(): Promise<void> {
+  public async basic(): Promise<void> {
     this.application.setHeader("Boolean");
     const result = await this.prompt.boolean({
       label: "Pineapple is acceptable on pizza?",
