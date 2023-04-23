@@ -46,7 +46,7 @@ import {
   PasswordEditorService,
   StringEditorService,
 } from "../editors";
-import { FontAwesomeExtendedIcons, FontAwesomeIcons } from "../icons";
+import { FontAwesomeIcons } from "../icons";
 import {
   ApplicationManagerService,
   ChartingService,

@@ -63,3 +63,23 @@ export interface PromptTimeOptions {
   current?: Date;
   label?: string;
 }
+
+export type ExternalEditorOptions = {
+  /**
+   * Which path to store the file
+   */
+  dir?: string;
+  /**
+   * Which mode to create the file with. e.g. 644
+   */
+  mode?: number;
+  /**
+   * A postfix for the file name. Useful if you want to provide an extension
+   */
+  postfix?: string;
+  /**
+   * A prefix for the file name.
+   */
+  prefix?: string;
+  text?: string;
+};

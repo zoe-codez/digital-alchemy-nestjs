@@ -2,6 +2,7 @@ import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
+import { edit } from "external-editor";
 
 import { ArrayBuilderOptions, ListBuilderOptions } from "../components";
 import { PROMPT_QUESTION } from "../config";
@@ -10,8 +11,9 @@ import {
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
 } from "../editors";
-import { template } from "../includes";
+import { ansiEscapes, template } from "../includes";
 import {
+  ExternalEditorOptions,
   MenuComponentOptions,
   ObjectBuilderOptions,
   PromptAcknowledgeOptions,
@@ -22,7 +24,7 @@ import {
   PromptTimeOptions,
 } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
-
+import { ScreenService } from "./screen.service";
 export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<VALUE extends unknown = string> =
   | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
@@ -36,6 +38,7 @@ export class PromptService {
     private readonly applicationManager: ApplicationManagerService,
     @InjectConfig(PROMPT_QUESTION)
     private readonly promptQuestion: string,
+    private readonly screen: ScreenService,
   ) {}
 
   /**
@@ -133,6 +136,15 @@ export class PromptService {
       ...options,
     });
     return { from: new Date(from), to: new Date(to) };
+  }
+
+  public external({ text, ...options }: ExternalEditorOptions): string {
+    this.screen.rl.output.unmute();
+    this.screen.printLine(ansiEscapes.cursorShow);
+    const out = edit(text, { ...options });
+    this.screen.printLine(ansiEscapes.cursorHide);
+    this.screen.rl.output.mute();
+    return out;
   }
 
   /**

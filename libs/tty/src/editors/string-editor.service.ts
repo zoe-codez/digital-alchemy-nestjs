@@ -6,6 +6,7 @@ import {
   SINGLE,
   START,
 } from "@digital-alchemy/utilities";
+import chalk from "chalk";
 
 import {
   DEFAULT_PROMPT_WIDTH,
@@ -18,6 +19,7 @@ import { template } from "../includes";
 import {
   KeyboardManagerService,
   KeymapService,
+  PromptService,
   ScreenService,
   TextRenderingService,
 } from "../services";
@@ -39,9 +41,10 @@ const DEFAULT_PLACEHOLDER = "enter value";
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
-  [{ key: "f3" }, "reset"],
-  [{ key: "escape" }, "clear"],
-  [{ key: "f4" }, "cancel"],
+  [{ key: "r", modifiers: { ctrl: true } }, "reset"],
+  [{ key: "f4" }, "clear"],
+  [{ key: "f5" }, "external"],
+  [{ key: "escape" }, "cancel"],
 ]);
 const NO_CURSOR = -1;
 
@@ -53,6 +56,7 @@ export class StringEditorService
     private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
     private readonly screen: ScreenService,
+    private readonly prompt: PromptService,
     private readonly text: TextRenderingService,
     @InjectConfig(DEFAULT_PROMPT_WIDTH) private readonly defaultWidth: number,
     @InjectConfig(STRING_EDITOR_EMPTY)
@@ -67,6 +71,7 @@ export class StringEditorService
   private config: StringEditorRenderOptions;
   private cursor: number;
   private done: (type: string) => void;
+  private initial: boolean;
   private value: string;
 
   public configure(
@@ -76,6 +81,7 @@ export class StringEditorService
     config.width ??= this.defaultWidth;
     this.config = config;
     this.complete = false;
+    this.initial = true;
     this.value = this.config.current ?? "";
     this.done = done;
     this.keyboard.setKeyMap(this, KEYMAP);
@@ -83,11 +89,17 @@ export class StringEditorService
   }
 
   public render(): void {
+    if (this.initial) {
+      this.initial = false;
+      if (this.value.includes(`\n`)) {
+        this.external();
+        return;
+      }
+    }
     if (this.complete) {
       this.screen.render(
-        template(
-          `${this.promptQuestion} {bold ${this.config.label}} {gray ${this.value}}`,
-        ),
+        template(`${this.promptQuestion} {bold ${this.config.label}}\n`) +
+          chalk.gray(this.value),
       );
       return;
     }
@@ -105,6 +117,11 @@ export class StringEditorService
   protected clear(): void {
     this.value = "";
     this.cursor = START;
+  }
+
+  protected external() {
+    this.value = this.prompt.external({ text: this.value });
+    return this.onEnd();
   }
 
   protected onEnd() {

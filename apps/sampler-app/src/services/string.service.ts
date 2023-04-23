@@ -8,7 +8,6 @@ import {
   StringEditorRenderOptions,
   TextRenderingService,
 } from "@digital-alchemy/tty";
-import { PEAT } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -24,12 +23,7 @@ export class StringService {
 
   public async basic(): Promise<void> {
     this.application.setHeader("String Value");
-    const fill = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const result = await this.prompt.string({
-      current: PEAT(2, fill).join("__"),
-      width: 50,
-    });
-    this.screen.printLine(this.text.type(result));
+    await this.prompt.string();
     await this.prompt.acknowledge();
   }
 
