@@ -52,7 +52,7 @@ export class HassFetchAPIService {
     start,
     end,
   }: CalendarFetchOptions): Promise<CalendarEvent[]> {
-    const events = await this.fetchService.fetch<RawCalendarEvent[]>({
+    const events = await this.fetch<RawCalendarEvent[]>({
       params: {
         end: end.toISOString(),
         start: start.toISOString(),

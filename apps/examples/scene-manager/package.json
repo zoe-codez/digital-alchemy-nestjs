@@ -2,7 +2,7 @@
   "name": "@digital-alchemy/scene-manager",
   "license": "MIT",
   "displayName": "Entity Creation",
-  "version": "23.16.2",
+  "version": "23.16.3",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
