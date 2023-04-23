@@ -5,17 +5,17 @@ import chalk from "chalk";
 import { USE_FONTAWESOME_ICONS } from "../config";
 import { FontAwesomeIcons } from "../icons";
 
-export enum TTYIcons {
+export enum TTYReplacementIcons {
   toggle_on = "toggle_on",
   toggle_off = "toggle_off",
 }
-const IconMap = new Map<TTYIcons, string[]>([
+const IconMap = new Map<TTYReplacementIcons, string[]>([
   [
-    TTYIcons.toggle_on,
+    TTYReplacementIcons.toggle_on,
     [FontAwesomeIcons.toggle_on, "*"].map(i => chalk.green(i)),
   ],
   [
-    TTYIcons.toggle_off,
+    TTYReplacementIcons.toggle_off,
     [FontAwesomeIcons.toggle_off, "*"].map(i => chalk.red(i)),
   ],
 ]);
@@ -26,8 +26,8 @@ export class IconService {
     @InjectConfig(USE_FONTAWESOME_ICONS) private readonly useIcons: boolean,
   ) {}
 
-  public getIcon(name: `${TTYIcons}`): string {
-    const [icon, normal] = IconMap.get(name as TTYIcons);
+  public getIcon(name: `${TTYReplacementIcons}`): string {
+    const [icon, normal] = IconMap.get(name as TTYReplacementIcons);
     return this.useIcons ? icon : normal;
   }
 }

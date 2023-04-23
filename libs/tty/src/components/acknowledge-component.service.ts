@@ -4,8 +4,9 @@ import chalk from "chalk";
 import { DEFAULT_ACKNOWLEDGE_MESSAGE } from "../config";
 import { Component, ComponentDoneCallback, iComponent } from "../decorators";
 import { KeyboardManagerService, ScreenService } from "../services";
+import { TTYComponentKeymap } from "../types";
 
-const KEYMAP = new Map([[{}, "onEnd"]]);
+const KEYMAP = new Map([[{}, "onEnd"]]) as TTYComponentKeymap;
 
 @Component({ type: "acknowledge" })
 export class AcknowledgeComponentService implements iComponent {
@@ -27,7 +28,7 @@ export class AcknowledgeComponentService implements iComponent {
     this.isDone = false;
     this.done = callback;
     this.label = config.label;
-    this.keyboard.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeymap(this, KEYMAP);
   }
 
   public onEnd() {

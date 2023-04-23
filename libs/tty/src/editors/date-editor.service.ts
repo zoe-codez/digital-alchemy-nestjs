@@ -25,7 +25,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
-import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
+import { KeyModifiers, TTYComponentKeymap, TTYKeypressOptions } from "../types";
 
 export enum TTYDateTypes {
   datetime = "datetime",
@@ -277,19 +277,19 @@ export class DateEditorService
     if (this.fuzzy && is.empty(this.chronoText)) {
       this.error = chalk.red`Enter a value`;
       this.render();
-      return false;
+      return;
     }
     if (this.fuzzy) {
       const [result] = parse(this.chronoText);
       if (!result) {
         this.error = chalk.red`Invalid expression`;
         this.render();
-        return false;
+        return;
       }
       if (result.end) {
         this.error = chalk.red`Expression cannot result in a date range`;
         this.render();
-        return false;
+        return;
       }
     }
     this.value = dayjs(
@@ -307,7 +307,6 @@ export class DateEditorService
     this.complete = true;
     this.render();
     this.done(this.value.toISOString());
-    return false;
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
@@ -791,7 +790,10 @@ export class DateEditorService
   }
 
   private setKeymap() {
-    const FUZZY_KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
+    const FUZZY_KEYMAP: TTYComponentKeymap = new Map<
+      TTYKeypressOptions,
+      string
+    >([
       [{ catchAll: true, powerUser: true }, "onKeyPress"],
       [{ description: "done", key: "enter" }, "onEnd"],
       [{ description: "clear", key: "escape" }, "reset"],
@@ -804,7 +806,10 @@ export class DateEditorService
           ]
         : []),
     ]);
-    const NORMAL_KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
+    const NORMAL_KEYMAP: TTYComponentKeymap = new Map<
+      TTYKeypressOptions,
+      string
+    >([
       [{ description: "done", key: "enter" }, "onEnd"],
       [{ key: "escape" }, "reset"],
       [{ description: "down", key: "down" }, "onDown"],
@@ -838,7 +843,7 @@ export class DateEditorService
       [{ key: "pagedown", powerUser: true }, "setMin"],
     ]);
 
-    this.keyboard.setKeyMap(this, this.fuzzy ? FUZZY_KEYMAP : NORMAL_KEYMAP);
+    this.keyboard.setKeymap(this, this.fuzzy ? FUZZY_KEYMAP : NORMAL_KEYMAP);
   }
 
   private updateMonth(): void {

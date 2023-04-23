@@ -24,7 +24,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
-import { tKeyMap, TTYKeypressOptions } from "../types";
+import { TTYComponentKeymap, TTYKeypressOptions } from "../types";
 
 export interface NumberEditorRenderOptions {
   current?: number;
@@ -43,7 +43,7 @@ export interface NumberEditorRenderOptions {
 const PADDING = 4;
 const DEFAULT_PLACEHOLDER = "enter value";
 const INTERNAL_PADDING = " ";
-const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
+const KEYMAP: TTYComponentKeymap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
   [{ key: "escape" }, "clear"],
@@ -96,7 +96,7 @@ export class NumberEditorService
     this.reset();
     this.done = done;
     this.cursor = this.value.length;
-    this.keyboard.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeymap(this, KEYMAP);
   }
 
   public render(): void {
@@ -137,7 +137,6 @@ export class NumberEditorService
     this.complete = true;
     this.render();
     this.done(Number(this.value));
-    return false;
   }
 
   protected onKeyPress(key: string): void {

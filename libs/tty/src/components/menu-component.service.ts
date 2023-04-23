@@ -58,8 +58,8 @@ import {
   MenuEntry,
   MenuPosition,
   MenuRestore,
-  tKeyMap,
   TTY,
+  TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
 
@@ -78,7 +78,7 @@ type MenuRestoreCacheData<VALUE = unknown> = {
 };
 const DEFAULT_HEADER_PADDING = 4;
 
-const SEARCH_KEYMAP: tKeyMap = new Map([
+const SEARCH_KEYMAP: TTYComponentKeymap = new Map([
   [{ catchAll: true, powerUser: true }, "onSearchKeyPress"],
   [{ description: "select entry", key: "enter" }, "onEnd"],
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
@@ -287,7 +287,7 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Terminate the editor
    */
-  public onEnd(): boolean {
+  public onEnd() {
     if (!this.done) {
       return;
     }
@@ -319,7 +319,6 @@ export class MenuComponentService<VALUE = unknown | string>
         } as MenuRestoreCacheData<VALUE>);
       });
     }
-    return false;
   }
 
   /**
@@ -351,11 +350,11 @@ export class MenuComponentService<VALUE = unknown | string>
   protected async activateKeyMap(
     mixed: string,
     modifiers: KeyModifiers,
-  ): Promise<boolean> {
+  ): Promise<void> {
     const { keyMap, keyMapCallback: callback } = this.opt;
     const entry = this.findKeyEntry(keyMap, mixed);
     if (!entry) {
-      return false;
+      return;
     }
     if (is.undefined(callback)) {
       this.selectedValue = this.value;
@@ -371,7 +370,7 @@ export class MenuComponentService<VALUE = unknown | string>
         type: "keyboard",
       };
       this.onEnd();
-      return false;
+      return;
     }
     const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
@@ -402,7 +401,6 @@ export class MenuComponentService<VALUE = unknown | string>
         type: "keyboard",
       };
       this.onEnd();
-      return false;
     }
   }
 
@@ -589,18 +587,18 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Key handler for widget while in search mode
    */
-  protected onSearchKeyPress(key: string): boolean {
+  protected onSearchKeyPress(key: string): void {
     // ? Everywhere actions
     if (key === "escape") {
       // * Clear search text
       this.searchText = "";
       this.searchCursor = START;
       this.render(true);
-      return false;
+      return;
     }
     if (this.mode === "find-input") {
       this.onSearchFindInputKeyPress(key);
-      return false;
+      return;
     }
     const all = this.side(this.selectedType);
     let available = this.filterMenu(all, this.selectedType);
@@ -613,7 +611,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (["pageup", "up"].includes(key) && index == START) {
       this.mode = "find-input";
       this.render(true);
-      return false;
+      return;
     }
     switch (key) {
       case "backspace":
@@ -624,7 +622,7 @@ export class MenuComponentService<VALUE = unknown | string>
         );
         this.searchCursor = this.searchText.length;
         this.render(true);
-        return false;
+        return;
       case "up":
       case "down":
       case "home":
@@ -636,15 +634,15 @@ export class MenuComponentService<VALUE = unknown | string>
       case "space":
         this.searchText += " ";
         this.render(true);
-        return false;
+        return;
       case "left":
         this.onLeft();
         this.render(false);
-        return false;
+        return;
       case "right":
         this.onRight();
         this.render(false);
-        return false;
+        return;
     }
     if (key.length > SINGLE) {
       // These don't currently render in the help
@@ -657,7 +655,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.searchText += key;
     this.searchCursor = this.searchText.length;
     this.render(true);
-    return false;
   }
 
   /**
@@ -687,7 +684,7 @@ export class MenuComponentService<VALUE = unknown | string>
       this.detectSide();
       this.setKeymap();
     } else {
-      this.keyboard.setKeyMap(this, SEARCH_KEYMAP);
+      this.keyboard.setKeymap(this, SEARCH_KEYMAP);
     }
   }
 
@@ -1210,7 +1207,7 @@ export class MenuComponentService<VALUE = unknown | string>
       is.empty(this.opt.left) || is.empty(this.opt.right) ? [] : LEFT_RIGHT;
 
     const keymap = new Map([...PARTIAL_LIST, ...left_right, ...search_keymap]);
-    this.keyboard.setKeyMap(this, keymap);
+    this.keyboard.setKeymap(this, keymap);
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity

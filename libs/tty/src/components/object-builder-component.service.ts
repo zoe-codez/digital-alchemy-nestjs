@@ -29,8 +29,8 @@ import {
   ObjectBuilderMessagePositions,
   ObjectBuilderOptions,
   TableBuilderElement,
-  tKeyMap,
   TTY,
+  TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
 
@@ -38,7 +38,7 @@ type HelpText = {
   helpText: string;
 };
 
-const FORM_KEYMAP: tKeyMap = new Map([
+const FORM_KEYMAP: TTYComponentKeymap = new Map([
   // While there is no editor
   [{ description: "done", key: "x", modifiers: { ctrl: true } }, "onEnd"],
   [{ description: "cursor up", key: "up" }, "onUp"],
@@ -61,7 +61,7 @@ const FORM_KEYMAP: tKeyMap = new Map([
     "resetField",
   ],
 ] as [TTYKeypressOptions, string | DirectCB][]);
-const CANCELLABLE: tKeyMap = new Map([
+const CANCELLABLE: TTYComponentKeymap = new Map([
   [{ description: "cancel", key: "escape" }, "cancel"],
 ]);
 const HELP_ERASE_SIZE = 3;
@@ -554,11 +554,11 @@ export class ObjectBuilderComponentService<
    * Build up a keymap to match the current conditions
    */
   private setKeymap(): void {
-    const maps: tKeyMap[] = [];
+    const maps: TTYComponentKeymap[] = [];
     maps.push(FORM_KEYMAP);
     if (!is.undefined(this.opt.cancel)) {
       maps.push(CANCELLABLE);
     }
-    this.keyboard.setKeyMap(this, ...maps);
+    this.keyboard.setKeymap(this, ...maps);
   }
 }
