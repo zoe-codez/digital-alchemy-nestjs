@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Log Formatter",
-  "version": "23.17.0",
+  "version": "23.17.1",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
