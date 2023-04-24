@@ -58,8 +58,8 @@ import {
   MenuEntry,
   MenuPosition,
   MenuRestore,
-  tKeyMap,
   TTY,
+  TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
 
@@ -78,7 +78,7 @@ type MenuRestoreCacheData<VALUE = unknown> = {
 };
 const DEFAULT_HEADER_PADDING = 4;
 
-const SEARCH_KEYMAP: tKeyMap = new Map([
+const SEARCH_KEYMAP: TTYComponentKeymap = new Map([
   [{ catchAll: true, powerUser: true }, "onSearchKeyPress"],
   [{ description: "select entry", key: "enter" }, "onEnd"],
   [{ description: "toggle find", key: "tab" }, "toggleFind"],
@@ -183,6 +183,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly text: TextRenderingService,
   ) {}
 
+  public value: VALUE;
   private callbackOutput = "";
   private callbackTimestamp = dayjs();
   private complete = false;
@@ -201,7 +202,6 @@ export class MenuComponentService<VALUE = unknown | string>
   private selectedType: "left" | "right" = "right";
   private selectedValue: VALUE;
   private sort: boolean;
-  private value: VALUE;
 
   private get notes(): string {
     const { helpNotes } = this.opt;
@@ -285,6 +285,43 @@ export class MenuComponentService<VALUE = unknown | string>
   }
 
   /**
+   * Terminate the editor
+   */
+  public onEnd() {
+    if (!this.done) {
+      return;
+    }
+    const list = this.side(this.selectedType);
+    const index = list.findIndex(
+      entry => TTY.GV(entry) === this.selectedValue ?? this.value,
+    );
+    this.final = true;
+    this.mode = "select";
+    this.callbackOutput = "";
+    this.done(this.value);
+    MenuComponentService.LAST_RESULT ??= {
+      returned: this.value,
+      selected_entry: undefined,
+      type: "entry",
+    };
+    MenuComponentService.LAST_RESULT.selected_entry = {
+      entry: list[index],
+      index,
+      side: this.selectedType,
+    };
+    this.render();
+    this.done = undefined;
+    if (this.opt.restore) {
+      nextTick(async () => {
+        await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
+          position: [this.selectedType, index],
+          value: TTY.GV(list[index]) ?? this.value,
+        } as MenuRestoreCacheData<VALUE>);
+      });
+    }
+  }
+
+  /**
    * Entrypoint for rendering logic
    */
   public render(updateValue = false): void {
@@ -313,11 +350,11 @@ export class MenuComponentService<VALUE = unknown | string>
   protected async activateKeyMap(
     mixed: string,
     modifiers: KeyModifiers,
-  ): Promise<boolean> {
+  ): Promise<void> {
     const { keyMap, keyMapCallback: callback } = this.opt;
     const entry = this.findKeyEntry(keyMap, mixed);
     if (!entry) {
-      return false;
+      return;
     }
     if (is.undefined(callback)) {
       this.selectedValue = this.value;
@@ -333,7 +370,7 @@ export class MenuComponentService<VALUE = unknown | string>
         type: "keyboard",
       };
       this.onEnd();
-      return false;
+      return;
     }
     const selectedItem = this.side(this.selectedType).find(
       ({ entry }) => TTY.GV(entry) === this.value,
@@ -364,7 +401,6 @@ export class MenuComponentService<VALUE = unknown | string>
         type: "keyboard",
       };
       this.onEnd();
-      return false;
     }
   }
 
@@ -432,44 +468,6 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     this.value = TTY.GV(list[index + INCREMENT].entry);
-  }
-
-  /**
-   * Terminate the editor
-   */
-  protected onEnd(): boolean {
-    if (!this.done) {
-      return;
-    }
-    const list = this.side(this.selectedType);
-    const index = list.findIndex(
-      entry => TTY.GV(entry) === this.selectedValue ?? this.value,
-    );
-    this.final = true;
-    this.mode = "select";
-    this.callbackOutput = "";
-    this.done(this.value);
-    MenuComponentService.LAST_RESULT ??= {
-      returned: this.value,
-      selected_entry: undefined,
-      type: "entry",
-    };
-    MenuComponentService.LAST_RESULT.selected_entry = {
-      entry: list[index],
-      index,
-      side: this.selectedType,
-    };
-    this.render();
-    this.done = undefined;
-    if (this.opt.restore) {
-      nextTick(async () => {
-        await this.cache.set(CACHE_KEY_RESTORE(this.opt.restore.id), {
-          position: [this.selectedType, index],
-          value: TTY.GV(list[index]) ?? this.value,
-        } as MenuRestoreCacheData<VALUE>);
-      });
-    }
-    return false;
   }
 
   /**
@@ -589,18 +587,18 @@ export class MenuComponentService<VALUE = unknown | string>
   /**
    * Key handler for widget while in search mode
    */
-  protected onSearchKeyPress(key: string): boolean {
+  protected onSearchKeyPress(key: string): void {
     // ? Everywhere actions
     if (key === "escape") {
       // * Clear search text
       this.searchText = "";
       this.searchCursor = START;
       this.render(true);
-      return false;
+      return;
     }
     if (this.mode === "find-input") {
       this.onSearchFindInputKeyPress(key);
-      return false;
+      return;
     }
     const all = this.side(this.selectedType);
     let available = this.filterMenu(all, this.selectedType);
@@ -613,7 +611,7 @@ export class MenuComponentService<VALUE = unknown | string>
     if (["pageup", "up"].includes(key) && index == START) {
       this.mode = "find-input";
       this.render(true);
-      return false;
+      return;
     }
     switch (key) {
       case "backspace":
@@ -624,7 +622,7 @@ export class MenuComponentService<VALUE = unknown | string>
         );
         this.searchCursor = this.searchText.length;
         this.render(true);
-        return false;
+        return;
       case "up":
       case "down":
       case "home":
@@ -636,15 +634,15 @@ export class MenuComponentService<VALUE = unknown | string>
       case "space":
         this.searchText += " ";
         this.render(true);
-        return false;
+        return;
       case "left":
         this.onLeft();
         this.render(false);
-        return false;
+        return;
       case "right":
         this.onRight();
         this.render(false);
-        return false;
+        return;
     }
     if (key.length > SINGLE) {
       // These don't currently render in the help
@@ -657,7 +655,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.searchText += key;
     this.searchCursor = this.searchText.length;
     this.render(true);
-    return false;
   }
 
   /**
@@ -687,7 +684,7 @@ export class MenuComponentService<VALUE = unknown | string>
       this.detectSide();
       this.setKeymap();
     } else {
-      this.keyboard.setKeyMap(this, SEARCH_KEYMAP);
+      this.keyboard.setKeymap(this, SEARCH_KEYMAP);
     }
   }
 
@@ -949,9 +946,6 @@ export class MenuComponentService<VALUE = unknown | string>
     this.screen.render(message);
   }
 
-  /**
-   *
-   */
   private renderSelectKeymap() {
     const prefix = Object.keys(this.opt.keyMap).map(key => {
       let item = this.opt.keyMap[key];
@@ -978,10 +972,12 @@ export class MenuComponentService<VALUE = unknown | string>
       return [
         {
           description: label + "  ",
-          highlight,
+          highlight: {
+            highlightMatch: value => TTY.GV(item) === value,
+            ...highlight,
+          },
           key: [key, ...aliases],
-          matchValue: TTY.GV(item),
-        },
+        } as TTYKeypressOptions,
         "",
       ];
     });
@@ -1071,7 +1067,7 @@ export class MenuComponentService<VALUE = unknown | string>
       out.unshift({
         entry: [
           chalk.bold.blue.dim(this.renderSideHeader(side, max)),
-          Symbol("header_object"),
+          Symbol.for("header_object"),
         ],
       });
     }
@@ -1211,7 +1207,7 @@ export class MenuComponentService<VALUE = unknown | string>
       is.empty(this.opt.left) || is.empty(this.opt.right) ? [] : LEFT_RIGHT;
 
     const keymap = new Map([...PARTIAL_LIST, ...left_right, ...search_keymap]);
-    this.keyboard.setKeyMap(this, keymap);
+    this.keyboard.setKeymap(this, keymap);
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity

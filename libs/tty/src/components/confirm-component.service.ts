@@ -24,14 +24,21 @@ export class ConfirmComponentService implements iComponent {
     this.done = callback;
     this.label = config.label;
     this.initialState = config.current;
-    this.keyboard.setKeyMap(
+    this.keyboard.setKeymap(
       this,
       new Map([
-        [{ key: "y" }, "accept"],
-        [{ key: "n" }, "deny"],
-        [{ description: "default answer", key: "enter" }, "selectDefault"],
+        [{ key: "y", render: false }, "accept"],
+        [{ key: "n", render: false }, "deny"],
+        [
+          { description: "default answer", key: "enter", render: false },
+          "selectDefault",
+        ],
       ]),
     );
+  }
+
+  public onEnd(): void {
+    this.complete = true;
   }
 
   public render(): void {

@@ -12,6 +12,7 @@ import {
 import {
   APPLICATION_PADDING_LEFT,
   APPLICATION_PADDING_TOP,
+  DEFAULT_ACKNOWLEDGE_MESSAGE,
   DEFAULT_PROMPT_WIDTH,
   FUZZY_HIGHLIGHT,
   HEADER_COLOR_PRIMARY,
@@ -78,6 +79,10 @@ import {
       default: 1,
       description: "Automatic offsets for header. POC / deprecated",
       type: "number",
+    },
+    [DEFAULT_ACKNOWLEDGE_MESSAGE]: {
+      default: "Any key to continue",
+      type: "string",
     },
     [DEFAULT_PROMPT_WIDTH]: {
       default: 50,
@@ -205,6 +210,7 @@ import {
     EnvironmentService,
     ErrorService,
     IconService,
+    KeyboardManagerService,
     KeymapService,
     PromptService,
     ScreenService,

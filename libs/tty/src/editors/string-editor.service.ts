@@ -23,7 +23,7 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
-import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
+import { KeyModifiers, TTYComponentKeymap, TTYKeypressOptions } from "../types";
 
 export type StringEditorRenderOptions = {
   current?: string;
@@ -38,7 +38,7 @@ export type StringEditorRenderOptions = {
 };
 
 const DEFAULT_PLACEHOLDER = "enter value";
-const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
+const KEYMAP: TTYComponentKeymap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
   [{ key: "r", modifiers: { ctrl: true } }, "reset"],
@@ -84,7 +84,7 @@ export class StringEditorService
     this.initial = true;
     this.value = this.config.current ?? "";
     this.done = done;
-    this.keyboard.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeymap(this, KEYMAP);
     this.cursor = this.value.length;
   }
 
@@ -128,7 +128,6 @@ export class StringEditorService
     this.complete = true;
     this.render();
     this.done(this.value);
-    return false;
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {

@@ -2,7 +2,12 @@ import { each, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 
-import { DirectCB, KeyDescriptor, KeyModifiers, tKeyMap } from "../types";
+import {
+  DirectCB,
+  KeyDescriptor,
+  KeyModifiers,
+  TTYComponentKeymap,
+} from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
 
@@ -13,11 +18,11 @@ export class KeyboardManagerService {
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}
-  private activeKeymaps: Map<unknown, tKeyMap> = new Map();
+  private activeKeymaps: Map<unknown, TTYComponentKeymap> = new Map();
 
   public focus<T>(
     target: unknown,
-    map: tKeyMap,
+    map: TTYComponentKeymap,
     value: Promise<T>,
   ): Promise<T> {
     return new Promise(async done => {
@@ -29,23 +34,23 @@ export class KeyboardManagerService {
     });
   }
 
-  public getCombinedKeyMap(): tKeyMap {
-    const map: tKeyMap = new Map();
+  public getCombinedKeyMap(): TTYComponentKeymap {
+    const map: TTYComponentKeymap = new Map();
     this.activeKeymaps.forEach(sub => sub.forEach((a, b) => map.set(b, a)));
     return map;
   }
-  public load(item: Map<unknown, tKeyMap>): void {
+  public load(item: Map<unknown, TTYComponentKeymap>): void {
     this.activeKeymaps = item;
   }
 
-  public save(): Map<unknown, tKeyMap> {
+  public save(): Map<unknown, TTYComponentKeymap> {
     const current = this.activeKeymaps;
     this.activeKeymaps = new Map();
     return current;
   }
 
-  public setKeyMap(target: unknown, ...mapList: tKeyMap[]): void {
-    const result: tKeyMap = new Map();
+  public setKeymap(target: unknown, ...mapList: TTYComponentKeymap[]): void {
+    const result: TTYComponentKeymap = new Map();
     mapList.forEach(keMap =>
       keMap.forEach((callback, options) => {
         result.set(options, callback);
@@ -85,7 +90,6 @@ export class KeyboardManagerService {
     if (is.empty(this.activeKeymaps)) {
       return;
     }
-    const application = this.applicationManager.activeApplication;
     const { key } = descriptor;
     const { ctrl, meta, shift, name, sequence } = key ?? {};
     let mixed = name ?? sequence ?? "enter";
@@ -119,21 +123,9 @@ export class KeyboardManagerService {
     // Otherwise, use all the catchall callbacks
     const list = is.empty(direct) ? catchAll : direct;
     // Do not re-render if no listeners are present at all
-    let render = !is.empty(list);
-    await each(is.empty(direct) ? catchAll : direct, async ([target, key]) => {
-      const result = await (is.string(key) ? target[key].bind(target) : key)(
-        mixed,
-        modifiers,
-      );
-
-      if (result === false) {
-        // This logic needs to be improved
-        // If any single one of these returns false, then a render is stopped
-        render = false;
-      }
+    // const render = !is.empty(list);
+    await each(list, async ([target, key]) => {
+      await (is.string(key) ? target[key].bind(target) : key)(mixed, modifiers);
     });
-    if (render && this.applicationManager.activeApplication === application) {
-      this.applicationManager.render();
-    }
   }
 }

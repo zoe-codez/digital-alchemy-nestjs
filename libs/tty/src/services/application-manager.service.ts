@@ -68,9 +68,9 @@ export class ApplicationManagerService {
           >(name);
           // There needs to be more type work around this
           // It's a disaster
-          await component.configure(configuration, value => {
-            done(value as VALUE);
-          });
+          await component.configure(configuration, value =>
+            done(value as VALUE),
+          );
           this.activeApplication = component;
           component.render();
         }),

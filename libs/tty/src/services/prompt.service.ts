@@ -4,7 +4,6 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import chalk from "chalk";
 import { edit } from "external-editor";
 
-import { ArrayBuilderOptions, ListBuilderOptions } from "../components";
 import { PROMPT_QUESTION } from "../config";
 import {
   DateEditorEditorOptions,
@@ -13,7 +12,9 @@ import {
 } from "../editors";
 import { ansiEscapes, template } from "../includes";
 import {
+  ArrayBuilderOptions,
   ExternalEditorOptions,
+  ListBuilderOptions,
   MenuComponentOptions,
   ObjectBuilderOptions,
   PromptAcknowledgeOptions,
@@ -25,10 +26,6 @@ import {
 } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { ScreenService } from "./screen.service";
-export type PROMPT_WITH_SHORT = { name: string; short: string };
-export type PromptEntry<VALUE extends unknown = string> =
-  | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
-  | [label: string];
 
 @Injectable()
 export class PromptService {
@@ -138,27 +135,34 @@ export class PromptService {
     return { from: new Date(from), to: new Date(to) };
   }
 
-  public external({ text, ...options }: ExternalEditorOptions): string {
+  public external({
+    text,
+    trim = true,
+    ...options
+  }: ExternalEditorOptions): string {
     this.screen.rl.output.unmute();
     this.screen.printLine(ansiEscapes.cursorShow);
     const out = edit(text, { ...options });
     this.screen.printLine(ansiEscapes.cursorHide);
     this.screen.rl.output.mute();
-    return out;
+    if (!trim) {
+      return out;
+    }
+    return out.trim();
   }
 
   /**
    * Menus, keyboard shortcuts, and general purpose tool
+   *
+   * Use the `.cancel` method attached to the promise to close the menu without user interaction
    */
   public async menu<VALUE extends unknown = string>(
     options: MenuComponentOptions<VALUE | string>,
   ): Promise<VALUE | string> {
-    options.keyMap ??= {};
-    const result = await this.applicationManager.activateComponent<
-      MenuComponentOptions<VALUE | string>,
-      VALUE
-    >("menu", options);
-    return result;
+    return await this.applicationManager.activateComponent("menu", {
+      keyMap: {},
+      ...options,
+    });
   }
 
   /**

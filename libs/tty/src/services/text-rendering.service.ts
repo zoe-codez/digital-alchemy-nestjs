@@ -31,6 +31,7 @@ import {
 import { ansiMaxLength, ansiPadEnd, ELLIPSES, template } from "../includes";
 import {
   BaseSearchOptions,
+  EditableSearchBoxOptions,
   MainMenuEntry,
   MenuDeepSearch,
   MenuHelpText,
@@ -71,14 +72,6 @@ const MATCH_SCORES = {
 type MatchKeys = keyof typeof MATCH_SCORES;
 
 const DEFAULT_PLACEHOLDER = "enter value";
-type EditableSearchBoxOptions = {
-  bgColor: string;
-  cursor: number;
-  padding?: number;
-  placeholder?: string;
-  value: string;
-  width: number;
-};
 
 type HighlightResult<T> = Fuzzysort.KeysResult<{
   deep: object;

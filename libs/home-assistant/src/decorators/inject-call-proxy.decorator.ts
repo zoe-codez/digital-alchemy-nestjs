@@ -1,6 +1,6 @@
 import { Inject } from "@nestjs/common";
 
-export const CALL_PROXY = Symbol("CALL_PROXY");
+export const CALL_PROXY = Symbol.for("CALL_PROXY");
 
 /**
  * Use with `iCallService`

@@ -1,6 +1,5 @@
 import { is, LABEL, SINGLE, VALUE } from "@digital-alchemy/utilities";
 
-import { PromptEntry } from "../services";
 import { BaseSearchOptions, MenuSearchOptions } from "./components";
 import { MainMenuEntry } from "./keyboard";
 
@@ -81,5 +80,27 @@ export type ExternalEditorOptions = {
    * A prefix for the file name.
    */
   prefix?: string;
+  /**
+   * Value to edit
+   */
   text?: string;
+  /**
+   * Trim the final output
+   *
+   * > Default: `true`
+   */
+  trim?: boolean;
+};
+
+export type PROMPT_WITH_SHORT = { name: string; short: string };
+export type PromptEntry<VALUE extends unknown = string> =
+  | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
+  | [label: string];
+export type EditableSearchBoxOptions = {
+  bgColor: string;
+  cursor: number;
+  padding?: number;
+  placeholder?: string;
+  value: string;
+  width: number;
 };

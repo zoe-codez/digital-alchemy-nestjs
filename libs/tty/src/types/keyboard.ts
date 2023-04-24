@@ -17,9 +17,9 @@ export interface MainMenuEntry<T = unknown> {
   /**
    * Additional help text to display when this entry is selected
    *
-   * - string format: pass through
-   * - string array: join together with newlines
-   * - object: debug formatting
+   * ~ string format: pass through
+   * ~ string array: join together with newlines
+   * ~ object: debug formatting
    */
   helpText?: MenuHelpText;
   /**
@@ -35,7 +35,7 @@ export interface MainMenuEntry<T = unknown> {
    */
   type?: string;
 }
-export type tKeyMap = Map<TTYKeypressOptions, string | DirectCB>;
+export type TTYComponentKeymap = Map<TTYKeypressOptions, string | DirectCB>;
 
 export type KeyModifiers = Record<"ctrl" | "shift" | "meta", boolean>;
 
@@ -45,12 +45,23 @@ export type DirectCB = (
 ) => void | boolean | Promise<void | boolean>;
 
 export type TTYKeypressOptions = {
-  active?: () => boolean;
+  /**
+   * If no other shortcuts apply, run this
+   */
   catchAll?: boolean;
+  /**
+   * Label to render next to the keys.
+   * Defaults to name of method being called
+   */
   description?: string;
+  /**
+   * Controls for changing the color based on selected item
+   */
   highlight?: HighlightCallbacks;
   key?: string | string[];
-  matchValue?: unknown;
+  /**
+   * ctrl / alt / shift
+   */
   modifiers?: Partial<KeyModifiers>;
   /**
    * Leave it to the user to find this, don't document on UI

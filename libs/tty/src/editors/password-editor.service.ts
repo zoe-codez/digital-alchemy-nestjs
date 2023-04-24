@@ -1,12 +1,11 @@
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { INVERT_VALUE, is, SINGLE, START } from "@digital-alchemy/utilities";
-import chalk from "chalk";
 
 import { PROMPT_QUESTION } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
 import { template } from "../includes";
 import { KeyboardManagerService, ScreenService } from "../services";
-import { KeyModifiers, tKeyMap, TTYKeypressOptions } from "../types";
+import { KeyModifiers, TTYComponentKeymap, TTYKeypressOptions } from "../types";
 
 export interface PasswordEditorRenderOptions {
   current: string;
@@ -15,7 +14,7 @@ export interface PasswordEditorRenderOptions {
   width?: number;
 }
 
-const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
+const KEYMAP: TTYComponentKeymap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, powerUser: true }, "onKeyPress"],
   [{ description: "done", key: "enter" }, "onEnd"],
   [{ key: "escape" }, "reset"],
@@ -47,7 +46,7 @@ export class PasswordEditorService
     this.complete = false;
     this.value = this.config.current ?? "";
     this.done = done;
-    this.keyboard.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeymap(this, KEYMAP);
   }
 
   public render(): void {
@@ -78,7 +77,6 @@ export class PasswordEditorService
     this.complete = true;
     this.render();
     this.done(this.value);
-    return false;
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {

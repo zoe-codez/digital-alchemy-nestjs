@@ -8,4 +8,4 @@ export const CACHE_TTL = "CACHE_TTL";
 export const CACHE_PREFIX = "CACHE_PREFIX";
 
 export const LIB_BOILERPLATE = "boilerplate";
-export const FORCE_APP_PATH = Symbol("FORCE_APP_PATH");
+export const FORCE_APP_PATH = Symbol.for("FORCE_APP_PATH");

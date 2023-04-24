@@ -29,8 +29,8 @@ import {
   ObjectBuilderMessagePositions,
   ObjectBuilderOptions,
   TableBuilderElement,
-  tKeyMap,
   TTY,
+  TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
 
@@ -38,7 +38,7 @@ type HelpText = {
   helpText: string;
 };
 
-const FORM_KEYMAP: tKeyMap = new Map([
+const FORM_KEYMAP: TTYComponentKeymap = new Map([
   // While there is no editor
   [{ description: "done", key: "x", modifiers: { ctrl: true } }, "onEnd"],
   [{ description: "cursor up", key: "up" }, "onUp"],
@@ -61,7 +61,7 @@ const FORM_KEYMAP: tKeyMap = new Map([
     "resetField",
   ],
 ] as [TTYKeypressOptions, string | DirectCB][]);
-const CANCELLABLE: tKeyMap = new Map([
+const CANCELLABLE: TTYComponentKeymap = new Map([
   [{ description: "cancel", key: "escape" }, "cancel"],
 ]);
 const HELP_ERASE_SIZE = 3;
@@ -85,6 +85,10 @@ export class ObjectBuilderComponentService<
     private readonly application: ApplicationManagerService,
   ) {}
 
+  /**
+   * The current working value
+   */
+  public value: VALUE;
   /**
    * Stop processing actions, render a static message
    */
@@ -113,10 +117,6 @@ export class ObjectBuilderComponentService<
    * Selected row relative to visible elements
    */
   private selectedRow = START;
-  /**
-   * The current working value
-   */
-  private value: VALUE;
 
   private get dirtyProperties(): (keyof VALUE)[] {
     const original = this.opt.current ?? {};
@@ -180,6 +180,54 @@ export class ObjectBuilderComponentService<
     this.columns.forEach(column => this.setDefault(column));
 
     this.setKeymap();
+  }
+
+  /**
+   * keyboard event
+   */
+  public async onEnd(): Promise<void> {
+    const { validate, current } = this.opt;
+    if (is.function(validate)) {
+      const result = await validate({
+        confirm: async (label = "Are you done?") => {
+          let value: boolean;
+          await this.screen.footerWrap(async () => {
+            value = await this.prompt.confirm({ label });
+          });
+          this.render();
+          return value;
+        },
+        current: this.value,
+        dirtyProperties: this.dirtyProperties,
+        original: current,
+        sendMessage: async ({
+          message,
+          timeout = DEFAULT_MESSAGE_TIMEOUT,
+          position = "below-bar",
+          immediateClear = false,
+          // TODO This shouldn't be a thing
+          // eslint-disable-next-line sonarjs/no-identical-functions
+        }) => {
+          if (this.displayMessageTimeout) {
+            this.displayMessageTimeout.kill("stop");
+          }
+          this.displayMessagePosition = position;
+          this.displayMessage = message;
+          this.render();
+          this.displayMessageTimeout = sleep(timeout * SECOND);
+          await this.displayMessageTimeout;
+          this.displayMessage = undefined;
+          this.displayMessageTimeout = undefined;
+          if (immediateClear) {
+            this.render();
+          }
+        },
+      });
+      if (!result) {
+        return;
+      }
+    }
+    this.end(NORMAL_EXIT);
   }
 
   public render(): void {
@@ -393,54 +441,6 @@ export class ObjectBuilderComponentService<
   /**
    * keyboard event
    */
-  protected async onEnd(): Promise<void> {
-    const { validate, current } = this.opt;
-    if (is.function(validate)) {
-      const result = await validate({
-        confirm: async (label = "Are you done?") => {
-          let value: boolean;
-          await this.screen.footerWrap(async () => {
-            value = await this.prompt.confirm({ label });
-          });
-          this.render();
-          return value;
-        },
-        current: this.value,
-        dirtyProperties: this.dirtyProperties,
-        original: current,
-        sendMessage: async ({
-          message,
-          timeout = DEFAULT_MESSAGE_TIMEOUT,
-          position = "below-bar",
-          immediateClear = false,
-          // FIXME:
-          // eslint-disable-next-line sonarjs/no-identical-functions
-        }) => {
-          if (this.displayMessageTimeout) {
-            this.displayMessageTimeout.kill("stop");
-          }
-          this.displayMessagePosition = position;
-          this.displayMessage = message;
-          this.render();
-          this.displayMessageTimeout = sleep(timeout * SECOND);
-          await this.displayMessageTimeout;
-          this.displayMessage = undefined;
-          this.displayMessageTimeout = undefined;
-          if (immediateClear) {
-            this.render();
-          }
-        },
-      });
-      if (!result) {
-        return;
-      }
-    }
-    this.end(NORMAL_EXIT);
-  }
-
-  /**
-   * keyboard event
-   */
   protected onPageDown(): void {
     this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
   }
@@ -554,11 +554,11 @@ export class ObjectBuilderComponentService<
    * Build up a keymap to match the current conditions
    */
   private setKeymap(): void {
-    const maps: tKeyMap[] = [];
+    const maps: TTYComponentKeymap[] = [];
     maps.push(FORM_KEYMAP);
     if (!is.undefined(this.opt.cancel)) {
       maps.push(CANCELLABLE);
     }
-    this.keyboard.setKeyMap(this, ...maps);
+    this.keyboard.setKeymap(this, ...maps);
   }
 }

@@ -24,17 +24,17 @@ import {
   ScreenService,
   TextRenderingService,
 } from "../services";
-import { MainMenuEntry, tKeyMap, TTY, TTYKeypressOptions } from "../types";
+import {
+  ListBuilderOptions,
+  MainMenuEntry,
+  TTY,
+  TTYComponentKeymap,
+  TTYKeypressOptions,
+} from "../types";
 
 const UNSORTABLE = new RegExp("[^A-Za-z0-9]", "g");
 
-export interface ListBuilderOptions<T = unknown> {
-  current?: MainMenuEntry<T | string>[];
-  items?: string;
-  source: MainMenuEntry<T | string>[];
-}
-
-const KEYMAP_FIND: tKeyMap = new Map<TTYKeypressOptions, string>([
+const KEYMAP_FIND: TTYComponentKeymap = new Map<TTYKeypressOptions, string>([
   [{ key: "backspace", powerUser: true }, "searchBack"],
   [{ description: "toggle selected", key: ["`", "f4"] }, "toggle"],
   [{ description: "current", key: "left" }, "onLeft"],
@@ -49,7 +49,7 @@ const KEYMAP_FIND: tKeyMap = new Map<TTYKeypressOptions, string>([
     "navigateSearch",
   ],
 ]);
-const KEYMAP_NORMAL: tKeyMap = new Map([
+const KEYMAP_NORMAL: TTYComponentKeymap = new Map([
   [{ key: "i" }, "invert"],
   [{ description: "select all", key: ["[", "a"] }, "selectAll"],
   [{ description: "select none", key: ["]", "n"] }, "selectNone"],
@@ -86,9 +86,10 @@ export class PickManyComponentService<VALUE = unknown>
     private readonly screen: ScreenService,
     private readonly keyboard: KeyboardManagerService,
   ) {}
+
+  public value: VALUE;
   private complete = false;
   private current: MainMenuEntry<VALUE | string>[];
-
   private done: (type: VALUE[]) => void;
   private final = false;
   private mode: "find" | "select" = "select";
@@ -97,7 +98,6 @@ export class PickManyComponentService<VALUE = unknown>
   private searchText = "";
   private selectedType: "current" | "source" = "source";
   private source: MainMenuEntry<VALUE | string>[];
-  private value: VALUE;
 
   public configure(
     options: ListBuilderOptions<VALUE>,
@@ -116,7 +116,15 @@ export class PickManyComponentService<VALUE = unknown>
     const items = this.side(is.empty(this.source) ? "current" : "source");
     this.value ??= TTY.GV(items[START]) as VALUE;
     this.detectSide();
-    this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
+    this.keyboard.setKeymap(this, KEYMAP_NORMAL);
+  }
+
+  public async onEnd(): Promise<void> {
+    this.mode = "select";
+    this.final = true;
+    this.render();
+    await sleep();
+    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
   }
 
   public render(updateValue = false): void {
@@ -260,14 +268,6 @@ export class PickManyComponentService<VALUE = unknown>
     this.value = is.object(item) ? TTY.GV(item) : this.value;
   }
 
-  protected async onEnd(): Promise<void> {
-    this.mode = "select";
-    this.final = true;
-    this.render();
-    await sleep();
-    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
-  }
-
   protected onLeft(): void {
     const [left, right] = [
       this.side("current", true),
@@ -332,22 +332,20 @@ export class PickManyComponentService<VALUE = unknown>
     this.source = [...this.opt.source];
   }
 
-  protected searchAppend(key: string): boolean {
+  protected searchAppend(key: string): void {
     if ((key.length > SINGLE && key !== "space") || ["`"].includes(key)) {
-      return false;
+      return;
     }
     this.searchText += key === "space" ? " " : key;
     if (is.empty(this.side())) {
       this.selectedType = this.selectedType === "source" ? "current" : "source";
     }
     this.render(true);
-    return false;
   }
 
-  protected searchBack(): boolean {
+  protected searchBack(): void {
     this.searchText = this.searchText.slice(START, ARRAY_OFFSET * INVERT_VALUE);
     this.render(true);
-    return false;
   }
 
   protected selectAll(): void {
@@ -373,7 +371,7 @@ export class PickManyComponentService<VALUE = unknown>
   protected toggleFind(): void {
     this.mode = this.mode === "find" ? "select" : "find";
     this.searchText = "";
-    this.keyboard.setKeyMap(
+    this.keyboard.setKeymap(
       this,
       this.mode === "find" ? KEYMAP_FIND : KEYMAP_NORMAL,
     );

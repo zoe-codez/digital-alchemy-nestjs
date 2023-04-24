@@ -5,7 +5,7 @@ import chalk from "chalk";
 
 import { HELP_DIVIDER, KEYMAP_TICK } from "../config";
 import { ansiMaxLength, ansiPadEnd, template } from "../includes";
-import { HighlightCallbacks, tKeyMap } from "../types";
+import { HighlightCallbacks, TTYComponentKeymap } from "../types";
 import { ApplicationManagerService } from "./application-manager.service";
 import { EnvironmentService } from "./environment.service";
 import { KeyboardManagerService } from "./keyboard-manager.service";
@@ -27,7 +27,7 @@ interface KeymapHelpOptions {
   message?: string;
   notes?: string;
   onlyHelp?: boolean;
-  prefix?: tKeyMap;
+  prefix?: TTYComponentKeymap;
 }
 
 @Injectable()
@@ -97,16 +97,13 @@ export class KeymapService {
   }
 
   private buildLines<VALUE extends unknown = unknown>(
-    map: tKeyMap,
+    map: TTYComponentKeymap,
     current: VALUE,
   ): keyItem[] {
     return [...map.entries()]
-      .filter(([{ powerUser, active }]) => {
+      .filter(([{ powerUser }]) => {
         if (powerUser) {
           return false;
-        }
-        if (active) {
-          return active();
         }
         return true;
       })
@@ -133,7 +130,7 @@ export class KeymapService {
             normal = chalk.green,
             highlightMatch,
           } = config.highlight as HighlightCallbacks<VALUE>;
-          let matched = config.matchValue === current;
+          let matched = false;
           if (highlightMatch) {
             const result = highlightMatch(current);
             if (is.function(result)) {
