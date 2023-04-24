@@ -14,6 +14,7 @@ import {
 import chalk from "chalk";
 import { parse, parseDate } from "chrono-node";
 import dayjs, { Dayjs } from "dayjs";
+import { nextTick } from "process";
 
 import { PROMPT_QUESTION } from "../config";
 import { Editor, iBuilderEditor } from "../decorators";
@@ -82,7 +83,7 @@ const MONTH_MAX = new Map([
 ]);
 const DEFAULT_PLACEHOLDER = "tomorrow at noon";
 const DEFAULT_RANGE_PLACEHOLDER = "tomorrow at noon to next friday";
-const PADDING = 46; // 50-4
+const PADDING = 2;
 
 type DATE_TYPES = "day" | "hour" | "minute" | "month" | "second" | "year";
 const SORTED = [
@@ -214,6 +215,7 @@ export class DateEditorService
   }
 
   protected editType(key: string) {
+    nextTick(() => this.render());
     this.error = "";
     const field = this.editField;
     if (key === "backspace") {
@@ -252,6 +254,7 @@ export class DateEditorService
   }
 
   protected onDown() {
+    nextTick(() => this.render());
     this.error = "";
     const current = Number(this[this.editField] || "0");
     if (current === 0) {
@@ -272,6 +275,7 @@ export class DateEditorService
 
   protected onEnd() {
     if (this.type == "range") {
+      this.render();
       return this.onEndRange();
     }
     if (this.fuzzy && is.empty(this.chronoText)) {
@@ -310,6 +314,7 @@ export class DateEditorService
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
+    nextTick(() => this.render());
     this.error = "";
     switch (key) {
       case "space":
@@ -317,37 +322,37 @@ export class DateEditorService
         break;
       case "left":
         this.cursor = this.cursor <= START ? START : this.cursor - SINGLE;
-        return;
+        break;
       case "right":
         this.cursor =
           this.cursor >= this.chronoText.length
             ? this.chronoText.length
             : this.cursor + SINGLE;
-        return;
+        break;
       case "home":
         this.cursor = START;
-        return;
+        break;
       case "end":
         this.cursor = this.chronoText.length;
-        return;
+        break;
       case "delete":
         this.chronoText = [...this.chronoText]
           .filter((char, index) => index !== this.cursor)
           .join("");
         // no need for cursor adjustments
-        return;
+        break;
       case "backspace":
         if (shift) {
-          return;
+          break;
         }
         if (this.cursor === EMPTY) {
-          return;
+          break;
         }
         this.chronoText = [...this.chronoText]
           .filter((char, index) => index !== this.cursor - ARRAY_OFFSET)
           .join("");
         this.cursor--;
-        return;
+        break;
     }
     if (key === "tab") {
       return;
@@ -376,6 +381,7 @@ export class DateEditorService
     );
     this.edit = SORTED[index - INCREMENT];
     this.localDirty = false;
+    this.render();
   }
 
   protected onRight(): void {
@@ -390,6 +396,7 @@ export class DateEditorService
     );
     this.edit = SORTED[index + INCREMENT];
     this.localDirty = false;
+    this.render();
   }
 
   protected onUp(): void {
@@ -405,24 +412,29 @@ export class DateEditorService
     if (this.edit === "month") {
       this.updateMonth();
     }
+    this.render();
   }
 
   protected reset(): void {
     this.localDirty = false;
     this.chronoText = "";
+    this.render();
   }
 
   protected setEnd(): void {
     this.edit = "second";
     this.localDirty = false;
+    this.render();
   }
 
   protected setHome(): void {
     this.edit = this.type === "time" ? "hour" : "year";
     this.localDirty = false;
+    this.render();
   }
 
   protected setMax(): void {
+    nextTick(() => this.render());
     this.localDirty = true;
     switch (this.edit) {
       // year omitted on purpose
@@ -446,6 +458,7 @@ export class DateEditorService
   }
 
   protected setMin(): void {
+    nextTick(() => this.render());
     this.localDirty = true;
     switch (this.edit) {
       // year omitted on purpose
@@ -466,10 +479,12 @@ export class DateEditorService
     this.error = "";
     this.fuzzy = !this.fuzzy;
     this.setKeymap();
+    this.render();
   }
 
   protected toggleRangeSide(): void {
     this.end = !this.end;
+    this.render();
   }
 
   private onEndRange(): boolean {
@@ -535,7 +550,7 @@ export class DateEditorService
         cursor: this.cursor,
         padding: PADDING,
         value,
-        width: Math.max(Math.min(40, width), width * ONE_THIRD),
+        width: Math.max(Math.min(40, width), Math.floor(width * ONE_THIRD)),
       }),
     );
     if (result) {

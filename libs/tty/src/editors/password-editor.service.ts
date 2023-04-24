@@ -71,6 +71,7 @@ export class PasswordEditorService
 
   protected clear(): void {
     this.value = ``;
+    this.render();
   }
 
   protected onEnd() {
@@ -86,10 +87,12 @@ export class PasswordEditorService
         return;
       }
       this.value = this.value.slice(START, INVERT_VALUE);
+      this.render();
       return;
     }
     if (key === "space") {
       this.value += " ";
+      this.render();
       return;
     }
     if (key === "tab") {
@@ -99,6 +102,7 @@ export class PasswordEditorService
       return;
     }
     this.value += shift ? key.toUpperCase() : key;
+    this.render();
   }
 
   protected reset(): void {

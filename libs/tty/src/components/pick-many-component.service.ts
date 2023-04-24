@@ -8,12 +8,12 @@ import {
   LABEL,
   NOT_FOUND,
   SINGLE,
-  sleep,
   START,
   UP,
 } from "@digital-alchemy/utilities";
 import { forwardRef, Inject } from "@nestjs/common";
 import chalk from "chalk";
+import { nextTick } from "process";
 
 import { Component, iComponent } from "../decorators";
 import { ansiMaxLength, ansiPadEnd } from "../includes";
@@ -119,11 +119,10 @@ export class PickManyComponentService<VALUE = unknown>
     this.keyboard.setKeymap(this, KEYMAP_NORMAL);
   }
 
-  public async onEnd(): Promise<void> {
+  public onEnd(): void {
     this.mode = "select";
     this.final = true;
     this.render();
-    await sleep();
     this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
   }
 
@@ -163,6 +162,7 @@ export class PickManyComponentService<VALUE = unknown>
   }
 
   protected add(): void {
+    nextTick(() => this.render());
     if (this.selectedType === "current") {
       return;
     }
@@ -199,6 +199,7 @@ export class PickManyComponentService<VALUE = unknown>
   protected bottom(): void {
     const list = this.side();
     this.value = TTY.GV(list[list.length - ARRAY_OFFSET]);
+    this.render();
   }
 
   protected cancel(): void {
@@ -211,9 +212,11 @@ export class PickManyComponentService<VALUE = unknown>
     this.source = this.current;
     this.current = temporary;
     this.detectSide();
+    this.render();
   }
 
   protected navigateSearch(key: string): void {
+    nextTick(() => this.render());
     const all = this.side();
     let available = this.filterMenu(all);
     if (is.empty(available)) {
@@ -221,16 +224,16 @@ export class PickManyComponentService<VALUE = unknown>
     }
     if (["pageup", "home"].includes(key)) {
       this.value = TTY.GV(available[START]);
-      return this.render();
+      return;
     }
     if (["pagedown", "end"].includes(key)) {
       this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
-      return this.render();
+      return;
     }
     const index = available.findIndex(entry => TTY.GV(entry) === this.value);
     if (index === NOT_FOUND) {
       this.value = TTY.GV(available[START]);
-      return this.render();
+      return;
     }
     if (index === START && key === "up") {
       this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
@@ -244,6 +247,7 @@ export class PickManyComponentService<VALUE = unknown>
   }
 
   protected next(): void {
+    nextTick(() => this.render());
     const list = this.side();
     const index = list.findIndex(i => TTY.GV(i) === this.value);
     if (index === NOT_FOUND) {
@@ -266,6 +270,7 @@ export class PickManyComponentService<VALUE = unknown>
           ARRAY_OFFSET
       ];
     this.value = is.object(item) ? TTY.GV(item) : this.value;
+    this.render();
   }
 
   protected onLeft(): void {
@@ -288,6 +293,7 @@ export class PickManyComponentService<VALUE = unknown>
       left.length < current
         ? TTY.GV(left[left.length - ARRAY_OFFSET])
         : TTY.GV(left[current]);
+    this.render();
   }
 
   protected onRight(): void {
@@ -310,6 +316,7 @@ export class PickManyComponentService<VALUE = unknown>
       right.length - ARRAY_OFFSET < current
         ? TTY.GV(right[right.length - ARRAY_OFFSET])
         : TTY.GV(right[current]);
+    this.render();
   }
 
   protected previous(): void {
@@ -325,6 +332,7 @@ export class PickManyComponentService<VALUE = unknown>
       return;
     }
     this.value = TTY.GV(list[index - INCREMENT]);
+    this.render();
   }
 
   protected reset(): void {

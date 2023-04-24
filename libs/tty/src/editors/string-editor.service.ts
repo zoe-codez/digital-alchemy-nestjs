@@ -7,6 +7,7 @@ import {
   START,
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
+import { nextTick } from "process";
 
 import {
   DEFAULT_PROMPT_WIDTH,
@@ -117,6 +118,7 @@ export class StringEditorService
   protected clear(): void {
     this.value = "";
     this.cursor = START;
+    this.render();
   }
 
   protected external() {
@@ -131,6 +133,7 @@ export class StringEditorService
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
+    nextTick(() => this.render());
     switch (key) {
       case "left":
         this.cursor = this.cursor <= START ? START : this.cursor - SINGLE;
@@ -184,6 +187,7 @@ export class StringEditorService
   protected reset(): void {
     this.value = this.config.current ?? "";
     this.cursor = this.value.length;
+    this.render();
   }
 
   private renderBox(bgColor: string, cursor = this.cursor): void {

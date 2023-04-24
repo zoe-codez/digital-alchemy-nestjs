@@ -9,6 +9,7 @@ import {
   START,
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
+import { nextTick } from "process";
 
 import {
   PROMPT_QUESTION,
@@ -123,14 +124,17 @@ export class NumberEditorService
 
   protected clear(): void {
     this.value = "";
+    this.render();
   }
 
   protected decrement(): void {
     this.value = (Number(this.value) - INCREMENT).toString();
+    this.render();
   }
 
   protected increment(): void {
     this.value = (Number(this.value) + INCREMENT).toString();
+    this.render();
   }
 
   protected onEnd() {
@@ -140,6 +144,7 @@ export class NumberEditorService
   }
 
   protected onKeyPress(key: string): void {
+    nextTick(() => this.render());
     const current = this.value;
     switch (key) {
       case "left":
@@ -192,6 +197,7 @@ export class NumberEditorService
     this.value = (
       is.number(this.opt.current) ? this.opt.current : EMPTY
     ).toString();
+    this.render();
   }
 
   private renderBox(bgColor: string): void {

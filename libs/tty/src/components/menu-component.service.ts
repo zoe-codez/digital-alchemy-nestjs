@@ -410,6 +410,7 @@ export class MenuComponentService<VALUE = unknown | string>
   protected bottom(): void {
     const list = this.side(this.selectedType);
     this.value = TTY.GV(list[list.length - ARRAY_OFFSET].entry);
+    this.render(false);
   }
 
   /**
@@ -456,6 +457,7 @@ export class MenuComponentService<VALUE = unknown | string>
    * Move down 1 entry
    */
   protected next(): void {
+    nextTick(() => this.render(false));
     const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
@@ -492,6 +494,7 @@ export class MenuComponentService<VALUE = unknown | string>
       left.length - ARRAY_OFFSET < current
         ? TTY.GV(left[left.length - ARRAY_OFFSET].entry)
         : TTY.GV(left[current].entry);
+    this.render(false);
   }
 
   /**
@@ -514,29 +517,32 @@ export class MenuComponentService<VALUE = unknown | string>
       right.length - ARRAY_OFFSET < current
         ? TTY.GV(right[right.length - ARRAY_OFFSET].entry)
         : TTY.GV(right[current].entry);
+    this.render(false);
   }
 
   protected onSearchFindInputKeyPress(key: string) {
+    let update = false;
+    nextTick(() => this.render(update));
     const searchLength = this.searchText.length;
     switch (key) {
       case "left":
         this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
-        this.render(true);
+        update = true;
         return;
       case "right":
         this.searchCursor = Math.min(
           searchLength,
           this.searchCursor + INCREMENT,
         );
-        this.render(true);
+        update = true;
         return;
       case "end":
         this.searchCursor = searchLength;
-        this.render(true);
+        update = true;
         return;
       case "home":
         this.searchCursor = START;
-        this.render(true);
+        update = true;
         return;
       case "pagedown":
       case "down":
@@ -548,7 +554,6 @@ export class MenuComponentService<VALUE = unknown | string>
           available = all;
         }
         this.value = TTY.GV(available[START].entry);
-        this.render(false);
         return;
       case "backspace":
         if (this.searchCursor === START) {
@@ -558,14 +563,14 @@ export class MenuComponentService<VALUE = unknown | string>
           .filter((char, index) => index !== this.searchCursor - ARRAY_OFFSET)
           .join("");
         this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
-        this.render(true);
+        update = true;
         return;
       case "delete":
         // no need for cursor adjustments
         this.searchText = [...this.searchText]
           .filter((char, index) => index !== this.searchCursor)
           .join("");
-        this.render(true);
+        update = true;
         return;
       case "space":
         key = " ";
@@ -580,7 +585,7 @@ export class MenuComponentService<VALUE = unknown | string>
           this.searchText.slice(this.searchCursor),
         ].join("");
         this.searchCursor++;
-        this.render(true);
+        update = true;
     }
   }
 
@@ -588,12 +593,14 @@ export class MenuComponentService<VALUE = unknown | string>
    * Key handler for widget while in search mode
    */
   protected onSearchKeyPress(key: string): void {
+    let update = false;
+    nextTick(() => this.render(update));
     // ? Everywhere actions
     if (key === "escape") {
       // * Clear search text
       this.searchText = "";
       this.searchCursor = START;
-      this.render(true);
+      update = true;
       return;
     }
     if (this.mode === "find-input") {
@@ -610,7 +617,7 @@ export class MenuComponentService<VALUE = unknown | string>
     );
     if (["pageup", "up"].includes(key) && index == START) {
       this.mode = "find-input";
-      this.render(true);
+      update = true;
       return;
     }
     switch (key) {
@@ -621,7 +628,7 @@ export class MenuComponentService<VALUE = unknown | string>
           ARRAY_OFFSET * INVERT_VALUE,
         );
         this.searchCursor = this.searchText.length;
-        this.render(true);
+        update = true;
         return;
       case "up":
       case "down":
@@ -633,15 +640,13 @@ export class MenuComponentService<VALUE = unknown | string>
         return;
       case "space":
         this.searchText += " ";
-        this.render(true);
+        update = true;
         return;
       case "left":
         this.onLeft();
-        this.render(false);
         return;
       case "right":
         this.onRight();
-        this.render(false);
         return;
     }
     if (key.length > SINGLE) {
@@ -654,13 +659,14 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     this.searchText += key;
     this.searchCursor = this.searchText.length;
-    this.render(true);
+    update = true;
   }
 
   /**
    * Attempt to move up 1 item in the active list
    */
   protected previous(): void {
+    nextTick(() => this.render(false));
     const list = this.side(this.selectedType);
     const index = list.findIndex(i => TTY.GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
@@ -686,6 +692,7 @@ export class MenuComponentService<VALUE = unknown | string>
     } else {
       this.keyboard.setKeymap(this, SEARCH_KEYMAP);
     }
+    this.render(false);
   }
 
   /**
@@ -694,6 +701,7 @@ export class MenuComponentService<VALUE = unknown | string>
   protected top(): void {
     const list = this.side(this.selectedType);
     this.value = TTY.GV(list[FIRST].entry);
+    this.render(false);
   }
 
   /**

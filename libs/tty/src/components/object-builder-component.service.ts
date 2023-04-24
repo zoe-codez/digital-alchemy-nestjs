@@ -436,6 +436,7 @@ export class ObjectBuilderComponentService<
       return;
     }
     this.selectedRow++;
+    this.render();
   }
 
   /**
@@ -443,6 +444,7 @@ export class ObjectBuilderComponentService<
    */
   protected onPageDown(): void {
     this.selectedRow = this.visibleColumns.length - ARRAY_OFFSET;
+    this.render();
   }
 
   /**
@@ -450,6 +452,7 @@ export class ObjectBuilderComponentService<
    */
   protected onPageUp(): void {
     this.selectedRow = START;
+    this.render();
   }
 
   /**
@@ -461,6 +464,7 @@ export class ObjectBuilderComponentService<
       return;
     }
     this.selectedRow--;
+    this.render();
   }
 
   /**
@@ -490,6 +494,7 @@ export class ObjectBuilderComponentService<
       return;
     }
     set(this.value, field.path, original);
+    this.render();
   }
 
   /**
@@ -548,6 +553,7 @@ export class ObjectBuilderComponentService<
       defaultValue = deepExtend({}, defaultValue);
     }
     set(this.value, column.path, defaultValue);
+    this.render();
   }
 
   /**
