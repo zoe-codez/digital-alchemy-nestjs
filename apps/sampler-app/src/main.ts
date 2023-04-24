@@ -6,7 +6,6 @@ import {
   PromptService,
   TTYModule,
 } from "@digital-alchemy/tty";
-import { SECOND } from "@digital-alchemy/utilities";
 import { faker } from "@faker-js/faker";
 import chalk from "chalk";
 
