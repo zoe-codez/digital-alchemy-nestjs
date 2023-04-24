@@ -123,7 +123,7 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     });
   }
 
-  private footer(join = TABLE_PARTS.bottom_mid): string {
+  private footer(join: string = TABLE_PARTS.bottom_mid): string {
     return [
       TABLE_PARTS.bottom_left,
       this.columns.map(i => TABLE_PARTS.bottom.repeat(i.maxWidth)).join(join),

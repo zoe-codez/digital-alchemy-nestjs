@@ -96,3 +96,11 @@ export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<VALUE extends unknown = string> =
   | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]
   | [label: string];
+export type EditableSearchBoxOptions = {
+  bgColor: string;
+  cursor: number;
+  padding?: number;
+  placeholder?: string;
+  value: string;
+  width: number;
+};
