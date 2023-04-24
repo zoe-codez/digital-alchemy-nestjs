@@ -92,10 +92,6 @@ export type ExternalEditorOptions = {
   trim?: boolean;
 };
 
-export type CancelActivate<VALUE> = Promise<VALUE> & {
-  cancel: (value: VALUE) => void;
-};
-
 export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<VALUE extends unknown = string> =
   | [label: string | PROMPT_WITH_SHORT, value: string | VALUE]

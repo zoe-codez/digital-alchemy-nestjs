@@ -156,16 +156,13 @@ export class PromptService {
    *
    * Use the `.cancel` method attached to the promise to close the menu without user interaction
    */
-  // ! Leave method not async
-  // Not passing through the promise will lose the `.cancel`, which is desired here
-  public menu<VALUE extends unknown = string>(
+  public async menu<VALUE extends unknown = string>(
     options: MenuComponentOptions<VALUE | string>,
-  ) {
-    options.keyMap ??= {};
-    return this.applicationManager.activateComponent<
-      MenuComponentOptions<VALUE | string>,
-      VALUE
-    >("menu", options);
+  ): Promise<VALUE | string> {
+    return await this.applicationManager.activateComponent("menu", {
+      keyMap: {},
+      ...options,
+    });
   }
 
   /**
