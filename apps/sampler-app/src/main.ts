@@ -24,7 +24,6 @@ import {
 } from "./services";
 
 @QuickScript({
-  PERSISTENT: true,
   application: "sampler-app",
   bootstrap: {
     application: {
@@ -67,7 +66,6 @@ export class SamplerApp {
 
   public async exec(): Promise<void> {
     this.application.setHeader("TTY Demo", "Main Menu");
-
     const action = await this.prompt.menu({
       condensed: true,
       keyMap: {
