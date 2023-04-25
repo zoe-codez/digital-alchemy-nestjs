@@ -63,10 +63,6 @@
             "description": "Replace output (can't be done in previous step)"
           },
           {
-            "command": "cp prisma/schema.prisma dist/apps/pi-matrix/schema.prisma",
-            "description": "Duplicate the schema so it can be installed in prod"
-          },
-          {
             "command": "npx yarn publish --cwd dist/apps/pi-matrix --non-interactive",
             "description": "Publish it"
           }

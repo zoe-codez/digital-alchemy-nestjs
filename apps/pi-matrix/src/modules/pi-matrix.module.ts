@@ -15,7 +15,6 @@ import {
   BorderSpinQueueService,
   ImageService,
   MatrixService,
-  NotificationService,
   SyncAnimationService,
   TextService,
 } from "../services";
@@ -59,7 +58,6 @@ import {
     CountdownService,
     ImageService,
     MatrixService,
-    NotificationService,
     SyncAnimationService,
     TextService,
   ],
