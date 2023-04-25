@@ -14,7 +14,7 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
-import { FONTS } from "../contracts";
+import { FONTS } from "../types";
 import {
   AnimationService,
   LineService,

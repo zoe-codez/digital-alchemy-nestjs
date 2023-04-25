@@ -3,11 +3,7 @@ import { FetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
-import {
-  BorderSpinQueue,
-  GenericWidgetDTO,
-  PulseLaserOptions,
-} from "../contracts";
+import { BorderSpinQueue, GenericWidgetDTO, PulseLaserOptions } from "../types";
 
 @Injectable()
 export class MatrixFetch {

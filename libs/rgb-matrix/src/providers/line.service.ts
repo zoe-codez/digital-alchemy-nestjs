@@ -9,7 +9,7 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
-import { LineWidgetDTO } from "../contracts";
+import { LineWidgetDTO } from "../types";
 
 type LinePartial = Pick<LineWidgetDTO, "x" | "endX" | "y" | "endY">;
 

@@ -21,6 +21,7 @@ Some projects feature [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaS
 | [@digital-alchemy/config-builder](apps/config-builder)  | [npm](https://www.npmjs.com/package/@digital-alchemy/config-builder) | Terminal app for managing config files related to a `@digital-alchemy` app |
 | [@digital-alchemy/hass-type-generate](apps/hass-type-generate) | [npm](https://www.npmjs.com/package/@digital-alchemy/hass-type-generate) | Companion app for `@digital-alchemy/home-assistant` |
 | [@digital-alchemy/log-formatter](apps/log-formatter)  | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | `\|` pipe friendly tool to reformat json logs to pretty logs |
+| [@digital-alchemy/pi-matrix](apps/pi-matrix)  | [npm](https://www.npmjs.com/package/@digital-alchemy/pi-matrix) | Application bindings for `@digital-alchemy/rgb-matrix`. intended to run on Raspberry Pi, includes hardware build guide.  |
 
 ### Libraries
 
@@ -36,43 +37,17 @@ Some projects feature [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaS
 | [@digital-alchemy/tty](libs/tty) | [npm](https://www.npmjs.com/package/@digital-alchemy/tty) | Prompts and rendering utilities for interactions inside of the terminal |
 | [@digital-alchemy/utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | Standard utilities and constants used across the project |
 
-## Example Terminal Apps
+## Example Applications
 
-Sometimes useful example code.
+> Sometimes useful example code.
 
-### [Sampler App](apps/sampler-app)
+| Application | Type | Notes |
+| --- | --- | --- |
+| Sampler App | Terminal | Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal. |
+| Hass CLI | Terminal | Basic interactions with Home Assistant and development aid |
+| [Entity Creation](apps/examples/entity-creation) | Home Assistant | Minimal example app. Creates a few entities and not much else. |
+| [Scene Manager](apps/examples/scene-manager) | Home Assistant | An example home automation app, which manages several rooms. |
 
-Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal.
-
-```bash
-# run dev server
-npx nx serve sampler-app
-```
-
-### [Hass CLI](apps/hass-cli)
-
-Basic interactions with Home Assistant, in the form of a terminal app.
-Exists as both a convenience/development tool, and a place for practical testing of functionality provided by `@steggy/home-assistant`.
-
-```bash
-# run dev server with credentials passed in via environment variables
-BASE_URL=http://homeassistant.some.domain TOKEN=long_lived_access_token npx nx serve hass-cli
-```
-
-## Example Automation
-
-This code is intended to interact with Home Assistant.
-A [dockerized reference install](apps/examples/docker/homeassistant) is included with this repository intended for use with these apps to prevent accidental changes to your normal install.
-
-### [Entity Creation](apps/examples/entity-creation)
-
-Minimal example app. Creates a few entities and not much else.
-
-### [Scene Manager](apps/examples/scene-manager)
-
-> requires external mqtt dependency and additional configuration to be actually functional
-
-An example home automation app, which manages several rooms.
 
 ## Versioning notes
 

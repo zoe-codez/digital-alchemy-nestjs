@@ -8,7 +8,7 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
-import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../contracts";
+import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../types";
 
 export type TextLineLayout = Omit<
   TextWidgetDTO,

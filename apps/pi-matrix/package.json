@@ -4,12 +4,12 @@
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
   "bin": {
-    "log-formatter": "main.js"
+    "pi-matrix": "main.js"
   },
-  "name": "@digital-alchemy/log-formatter",
   "license": "MIT",
+  "description": "Rest bindings for rpi-led-matrix",
   "main": "main.js",
-  "displayName": "Log Formatter",
+  "name": "@digital-alchemy/pi-matrix",
   "version": "23.17.3",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
