@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
+  "bin": {
+    "pi-matrix": "main.js"
+  },
+  "license": "MIT",
+  "description": "Rest bindings for rpi-led-matrix",
+  "main": "main.js",
+  "name": "@digital-alchemy/pi-matrix",
+  "version": "23.17.3-dev.0",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

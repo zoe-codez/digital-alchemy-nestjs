@@ -1,4 +1,8 @@
 {
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
   "bin": {
     "log-formatter": "main.js"
   },

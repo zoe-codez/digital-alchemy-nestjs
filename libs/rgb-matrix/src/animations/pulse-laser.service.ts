@@ -24,7 +24,7 @@ import {
   LineWidgetDTO,
   PulseLaserOptions,
   RectangleWidgetDTO,
-} from "../contracts";
+} from "../types";
 
 const INITIAL_FILLIN = 250;
 const MIN_FILLIN = 100;

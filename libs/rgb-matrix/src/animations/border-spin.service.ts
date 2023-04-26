@@ -19,7 +19,7 @@ import {
   BorderSpinOptions,
   ColorSetter,
   LineWidgetDTO,
-} from "../contracts";
+} from "../types";
 import { LineService } from "../providers";
 
 const DEFAULT_BORDER_INTERVAL = 10;

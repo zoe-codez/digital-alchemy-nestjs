@@ -1,107 +1,103 @@
 # Description
 
-This project details the construction of Pi Matrix compatible hardware, and provides the software to do the rendering (coming soon)
+This application provides a canned rest interface intended for basic drawing, text, images, and basic gif rendering on rgb matrix panels.
+It utilizes [hzeller/rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix) under the hood.
 
-## Hardware
+This application & related matrix rendering libraries are under active development.
+Code APIs may receive breaking changes in the future as code matures
 
-> Links provided for easy to find product reference, project can be made much more cost efficiently
->
-> Items marked as optional if they can be easily worked around with
+## Hardware & compatibility
 
-### Controller (v3)
+See [build guide](./build.md) for reference hardware used in development. Anything compatible with the underlying libraries should work, there is no logic here that creates additional restrictions.
 
-| Front | Side |
-| --- | --- |
-| [<img src="./docs/images/front.jpg" height="350px">](./docs/images/front.jpg) | [<img src="./docs/images/side.jpg" height="350px">](./docs/images/side.jpg) |
+## Installing
 
-> Shopping links intended for reference, price shop for your setup
->
-> See see [here](https://github.com/hzeller/rpi-rgb-led-matrix) for hardware compatibility and configuration details
+This script is intended to install the app on a fresh rasbian lite install, and set it up to automatically run at boot.
+It will require a password and the configuration file to be entered at the start, and is hands free after that.
 
-| Name | Purchase Link | Required | Notes |
-| --- | --- | --- | --- |
-| Raspberry Pi 4 | n/a | Y |  |
-| Cooling / case | [Amazon](https://www.amazon.com/dp/B07VD568FB) | N | This one is very solid, and is great for keeping things contained. Version 1 uses a different cooler (see magnetic mounting section) |
-| USB Speaker | [Amazon](https://www.amazon.com/gp/product/B075M7FHM1) | N | Used for audio alerts |
-| Ribbon Cable | [Amazon](https://www.amazon.com/dp/B07D991KMR) | N | For orgnization. Can use jumpers to go from device directly to 16 pin cable if desired |
+```bash
+# - Basics
+# change to root
+sudo su
+# create configuration file
+mkdir /root/.config
+# save your configuration
+nano /root/.config/pi-matrix
+# (optional) update system & install extra runtime dependencies
+apt-get update; apt-get upgrade
+apt-get install -y imagemagick mplayer
+# - imagemagick needed for images
+# - mplayer needed for audio alerts via usb speaker
 
-### Matrix
+# - NodeJS
+# Fast Node Manager
+curl -fsSL https://fnm.vercel.app/install | bash
+source /root/.bashrc
 
-| Name | Purchase Link | Required | Notes |
-| --- | --- | --- | --- |
-| Power Supply | [Amazon](https://www.amazon.com/dp/B06XK2DDW4) | Y | Any 5V power source should be fine with sufficient amperage. Prototype builds used retired PC power supply |
-| Power Cord | n/a | Y | Use one of your extras |
-| End Cap | [Amazon](https://www.amazon.com/gp/product/B09JS8L4XT) | N | Aesthetics |
-| Dual extruded aluminum | [Amazon](https://www.amazon.com/gp/product/B08X4PB5GC) | Y | Structural |
-| Single extruded aluminum | [Amazon](https://www.amazon.com/gp/product/B087PVD55Y) | Y | Structural |
-| Corner bracket | [Amazon](https://www.amazon.com/gp/product/B0855V2JV3) | Y | Structural |
-| Countersunk Magnets | [Amazon](https://www.amazon.com/gp/product/B0816HQ5RD) | Y | Magnetic mount |
-| M3 screw | [Amazon](https://www.amazon.com/gp/product/B018RSXQ02) | Y | Magnetic mount |
-| M3 washers | [Amazon](https://www.amazon.com/gp/product/B07WST3YJJ) | Y | Magnetic mount |
-| M3 T-nut | [Amazon](https://www.amazon.com/gp/product/B08NZMD2BJ) | Y | Magnetic mount |
-| M3 standoff | [Amazon](https://www.amazon.com/gp/product/B00MJU8PM) | Y | Magnetic mount |
-| Cable connector | [Amazon](https://www.amazon.com/gp/product/B07WHFWMYQ) | N | Extra cable needed for laying out matrix in grid |
-| Extra ribbon cable | [Amazon](https://www.amazon.com/gp/product/B07PBGVCNL) | N | Extra cable needed for laying out matrix in grid |
-| Ribbon connectors | [Amazon](https://www.amazon.com/gp/product/B00E57QQVG) | N | Extra cable needed for laying out matrix in grid |
-| Slot cover | [Amazon](https://www.amazon.com/gp/product/B09KPZBTB9) | N | Aesthetics |
-| RGB matrix | [Adafruit](https://www.adafruit.com/product/2278) | Y | Anything compatible with [hzeller/rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix)
-| Matrix bonnet | [Adafruit](https://www.adafruit.com/product/3211) | N | Can adapt from 40 pin cable to the 16 + additional uses |
+# install node
+fnm install 18
 
-### Odds and ends
+# install yarn
+curl -o- -L https://yarnpkg.com/install.sh | bash
+source /root/.bashrc
 
-- Hot glue (sanity)
-- Zip tie (sanity)
-- Wire nuts (power)
-- Extra wire (power)
-- [SD card](https://www.amazon.com/dp/B08KSSX9PH)
-- Metallic sharpie (marking aluminum)
-- Hacksaw (cutting extruded aluminum)
-- Clear nail polish (coat any labels written with sharpie)
+# - app
+# install pi-matrix & pm2
+yarn global add @digital-alchemy/pi-matrix pm2
 
-## Controller Construction
+#  Start the app
+cd "$(yarn global dir)/node_modules/@digital-alchemy/pi-matrix/"
+pm2 start main.js
+# Set pm2 to startup at device boot
+pm2 startup
+pm2 save
+echo "Install complete!"
+```
 
-TODO
+### Updating
 
-## Matrix Contruction
+```bash
+yarn global upgrade @digital-alchemy/pi-matrix
+pm2 restart all
+```
 
-The matrix is made up of 2 layers: the aluminum frame, and the rgb matrix panel
+## Running
 
-| Image | Description |
-| --- | --- |
-| [<img src="./docs/images/prototype.jpg" height="350px">](./docs/images/prototype.jpg) | Completed prototype hardware |
-| [<img src="./docs/images/backside.jpg" height="350px">](./docs/images/backside.jpg) | Completed frame |
-| [<img src="./docs/images/party_parrot.gif" height="350px">](./docs/images/party_parrot.gif) | It's alive! |
+### On Boot
 
-### Frame
+When the application initially boots, it will display a clock on the first panel as proof of life.
 
-| Image | Description |
-| --- | --- |
-| [<img src="./docs/images/aluminum_join.jpg" height="350px">](./docs/images/aluminum_join.jpg) | Corner bracket joins |
-| [<img src="./docs/images/construction.jpg" height="350px">](./docs/images/construction.jpg) | Keep aluminum oversized for dry fitting |
+### Stability
 
-### Magnetic mounts
+Application may randomly crash with an error like `free(): invalid pointer`.
+This originates from lower level libraries, and no current fix exists.
 
-On the frame side, the mount is made from a T-nut, with a standoff threaded into it through a washer.
-A magnet is screwed into the top of the standoff.
-On the rgb matrix, the magnet can simply be screwed into the panel.
+`pm2` or similar mechanism should be used to automatically restart the app in case of failure.
 
-Keep an eye on the polarity & orientation of the magnets.
-Not all magnets are polarized the same, and it is important to not have both countersunk sides on the inside (screws contact at interface).
+> Anecdotally, this error never happens while app is running in background with `pm2` and no extra work is being done by the pi.
 
-| Image | Description |
-| --- | --- |
-| [<img src="./docs/images/frame_mount.jpg" height="350px">](./docs/images/frame_mount.jpg) | Frame side mount |
-| [<img src="./docs/images/panel_mount.jpg" height="350px">](./docs/images/panel_mount.jpg) | Magnet interface |
+### Custom logic on device
 
-### Attached controller
+[@digital-alchemy/pi-matrix-client](libs/li-matrix-client) contains all the logic, with this application being an extremely minimal rest wrapper.
+The best way to add additional functionality or different methods of interaction (ex: setting via mqtt, health checks, device boot announcements, etc) is to import the matrix client library into your own application, and build to your liking.
 
-The controller can also be attached to the frame via a similar mechanism
+## Example Configuration
 
-| Name | Purchase Link | Notes |
-| --- | --- | --- |
-| Heat sink | [Amazon](https://www.amazon.com/gp/product/B07PCMTZHF) | Removed fan, passive cooling is enough |
-| Power Cord | [Amazon](https://www.amazon.com/gp/product/B07V2CKPLG) | For a clean look |
+> This configuration can be used with the hardware in the build guide.
 
-| Image | Description |
-| --- | --- |
-| [<img src="./docs/images/magnetic_pi_mount.jpg" height="350px">](./docs/images/magnetic_pi_mount.jpg) | Side mount |
+```ini
+; https://github.com/alexeden/rpi-led-matrix#matrix-options
+[libs.rgb-matrix.MATRIX_OPTIONS]
+  chainLength=10
+  cols=64
+  hardwareMapping=adafruit-hat
+  rows=32
+
+; https://github.com/alexeden/rpi-led-matrix#runtime-options
+[libs.pi-matrix-client.RUNTIME_OPTIONS]
+  gpioSlowdown=4
+  dropPrivileges=0
+
+[libs.server]
+  ADMIN_KEY=super-secret-password
+```

@@ -1,0 +1,16 @@
+{
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
+  "description": "Rendering and layout utilities for rgb matrix",
+  "displayName": "Digital Alchemy - RGB Matrix",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/pi-matrix-client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
+  },
+  "version": "23.17.3"
+}

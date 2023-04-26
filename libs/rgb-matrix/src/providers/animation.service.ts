@@ -5,7 +5,7 @@ import {
   AnimatedBorderCallback,
   BorderSpinOptions,
   PulseLaserOptions,
-} from "../contracts";
+} from "../types";
 
 type callback<T> = T & { callback: AnimatedBorderCallback };
 

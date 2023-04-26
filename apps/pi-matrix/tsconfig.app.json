@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/out-tsc",
+    "types": [
+      "node"
+    ],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "../../libs/boilerplate/**/*.spec.ts",
+  ],
+  "include": [
+    "**/*.ts",
+    "../../libs/utilities/**/*ts",
+    "../../libs/server/**/*ts",
+    "../../libs/rgb-matrix/**/*ts",
+    "../../libs/pi-matrix-client/**/*ts",
+    "../../libs/boilerplate/**/*ts"
+  ]
+}
