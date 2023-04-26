@@ -101,6 +101,8 @@
       "rgb-matrix": "intellij",
       "adapters": "custom",
       "app": "vscode",
+      "pi-matrix-client": "bower",
+      "pi-matrix": "changesets",
       "automation-logic": "tasks",
       "boilerplate": "core",
       "build-pipeline": "pipe",
