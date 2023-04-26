@@ -14,13 +14,13 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
-import { FONTS } from "../types";
 import {
   AnimationService,
   LineService,
   MatrixFetch,
   TextLayoutService,
 } from "../providers";
+import { FONTS } from "../types";
 
 const providers = [
   AnimationService,

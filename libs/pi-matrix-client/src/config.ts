@@ -1,3 +1,5 @@
+export const LIB_PI_MATIX_CLIENT = "pi-matrix-client";
+
 export const MATRIX_OPTIONS = "MATRIX_OPTIONS";
 export const UPDATE_INTERVAL = "UPDATE_INTERVAL";
 export const RUNTIME_OPTIONS = "RUNTIME_OPTIONS";

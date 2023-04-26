@@ -1,26 +1,24 @@
-import { ApplicationModule } from "@digital-alchemy/boilerplate";
+import { LibraryModule } from "@digital-alchemy/boilerplate";
 import { RGBControllerModule } from "@digital-alchemy/rgb-matrix";
-import { ServerModule } from "@digital-alchemy/server";
 
-import { CountdownService } from "../animations";
 import {
   ANIMATION_CACHE_DIRECTORY,
   BORDER_SPIN_LAYER_BOTTLENECK,
   DEFAULT_ANIMATION_INTERVAL,
+  LIB_PI_MATIX_CLIENT,
   RUNTIME_OPTIONS,
   UPDATE_INTERVAL,
 } from "../config";
-import { AnimationController, MatrixController } from "../controllers";
 import {
   BorderSpinQueueService,
+  CountdownService,
   ImageService,
   MatrixService,
   SyncAnimationService,
   TextService,
 } from "../services";
 
-@ApplicationModule({
-  application: "pi-matrix",
+@LibraryModule({
   configuration: {
     [ANIMATION_CACHE_DIRECTORY]: {
       default: "/tmp/rgb-matrix/animations",
@@ -51,8 +49,8 @@ import {
       type: "number",
     },
   },
-  controllers: [AnimationController, MatrixController],
-  imports: [RGBControllerModule, ServerModule],
+  imports: [RGBControllerModule],
+  library: LIB_PI_MATIX_CLIENT,
   providers: [
     BorderSpinQueueService,
     CountdownService,
@@ -62,4 +60,6 @@ import {
     TextService,
   ],
 })
-export class PiMatrixModule {}
+export class PiMatrixClientModule {
+  //
+}

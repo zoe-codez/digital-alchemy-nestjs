@@ -1,12 +1,26 @@
-import { Bootstrap } from "@digital-alchemy/boilerplate";
+import {
+  LIB_BOILERPLATE,
+  LOG_LEVEL,
+  QuickScript,
+} from "@digital-alchemy/boilerplate";
+import { PiMatrixClientModule } from "@digital-alchemy/pi-matrix-client";
+import { ServerModule } from "@digital-alchemy/server";
 
-import { PiMatrixModule } from "../modules";
+import { AnimationController, MatrixController } from "../controllers";
 
-Bootstrap(PiMatrixModule, {
-  http: {
-    enabled: true,
+@QuickScript({
+  application: "pi-matrix",
+  bootstrap: {
+    application: {
+      config: {
+        libs: {
+          [LIB_BOILERPLATE]: { [LOG_LEVEL]: "debug" },
+        },
+      },
+    },
+    http: { enabled: true },
   },
-  logging: {
-    prettyLog: true,
-  },
-});
+  controllers: [AnimationController, MatrixController],
+  imports: [PiMatrixClientModule, ServerModule],
+})
+export class PiMatrix {}

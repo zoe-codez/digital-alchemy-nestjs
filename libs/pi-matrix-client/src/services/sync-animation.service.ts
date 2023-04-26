@@ -9,8 +9,8 @@ import {
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { v4 } from "uuid";
 
-import { CountdownService } from "../animations";
 import { BorderSpinQueueService } from "./border-spin-queue.service";
+import { CountdownService } from "./countdown.service";
 import { MatrixService } from "./matrix.service";
 
 @Injectable()
