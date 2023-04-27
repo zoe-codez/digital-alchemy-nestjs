@@ -1,0 +1,58 @@
+{
+  "name": "gotify",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/gotify/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/gotify/src/index.ts",
+        "outputPath": "dist/libs/gotify",
+        "packageJson": "libs/gotify/package.json",
+        "tsConfig": "libs/gotify/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/gotify/*.md",
+          "libs/gotify/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/gotify/**/*.ts"]
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Gotify",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build gotify --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/gotify --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}
