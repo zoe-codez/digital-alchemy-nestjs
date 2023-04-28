@@ -1,0 +1,50 @@
+{
+  "name": "game-of-life",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/examples/game-of-life/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "game-of-life:build",
+        "inspect": "inspect",
+        "port": 33345
+      }
+    },
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/examples/game-of-life",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/examples/game-of-life/src/environments/environment.ts",
+            "with": "apps/examples/game-of-life/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/examples/game-of-life/src/entrypoints/main.ts",
+        "tsConfig": "apps/examples/game-of-life/tsconfig.app.json",
+        "target": "node",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/examples/game-of-life/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}
