@@ -1,7 +1,11 @@
+import { RGB } from "@digital-alchemy/rgb-matrix";
 import { Color } from "rpi-led-matrix";
 
-export type MatrixConfigurationResponse = {
+export type GameConfiguration = {
+  color: RGB;
+  grid: GridArray;
   height: number;
+  speed: number;
   width: number;
 };
 

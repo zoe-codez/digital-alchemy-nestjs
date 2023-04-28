@@ -8,13 +8,12 @@ import {
   PiMatrixClientModule,
 } from "@digital-alchemy/pi-matrix-client";
 import {
-  ColorSetter,
   LIB_RGB_MATRIX,
   PANEL_COLUMNS,
   PANEL_HEIGHT,
   PANEL_TOTAL,
   PANEL_WIDTH,
-  StaticWidgetDTO,
+  RGB,
 } from "@digital-alchemy/rgb-matrix";
 import {
   ADMIN_KEY,
@@ -24,7 +23,6 @@ import {
 } from "@digital-alchemy/server";
 import {
   HALF,
-  is,
   NONE,
   PEAT,
   SECOND,
@@ -35,12 +33,12 @@ import {
 import { Body, Get, Post, Put } from "@nestjs/common";
 import { nextTick } from "process";
 
+import { ConwayService } from "../services";
 import {
   DEFAULT_AUTH_PASSWORD,
+  GameConfiguration,
   GridArray,
-  MatrixConfigurationResponse,
   off,
-  on,
   SetMatrixBody,
 } from "../types";
 
@@ -58,10 +56,12 @@ import {
   },
   controller: "/",
   imports: [PiMatrixClientModule, ServerModule],
+  providers: [ConwayService],
 })
 export class GameOfLifeClient {
   constructor(
     private readonly logger: AutoLogService,
+    private readonly conway: ConwayService,
     private readonly matrix: MatrixService,
     @InjectConfig(PANEL_COLUMNS, LIB_RGB_MATRIX)
     private readonly columns: number,
@@ -76,7 +76,7 @@ export class GameOfLifeClient {
     this.totalRows = Math.ceil(this.panelTotal / this.columns);
   }
 
-  private color: ColorSetter;
+  private color: RGB;
   private grid: GridArray;
   private remainingTicks = NONE;
   private tickTimeout = HALF * SECOND;
@@ -95,9 +95,12 @@ export class GameOfLifeClient {
    * ? Retrieve a description of the current state for the terminal app
    */
   @Get("/configuration")
-  public getConfiguration(): MatrixConfigurationResponse {
+  public getConfiguration(): GameConfiguration {
     return {
+      color: this.color,
+      grid: this.grid,
       height: this.totalRows,
+      speed: this.tickTimeout,
       width: this.totalWidth,
     };
   }
@@ -109,7 +112,7 @@ export class GameOfLifeClient {
    */
   @Post("/color")
   public setColor(
-    @Body() body: { color: ColorSetter },
+    @Body() body: { color: RGB },
   ): typeof GENERIC_SUCCESS_RESPONSE {
     this.color = body.color;
     return GENERIC_SUCCESS_RESPONSE;
@@ -153,27 +156,6 @@ export class GameOfLifeClient {
   }
 
   /**
-   * ? Y/N: should the cell live
-   */
-  private isAlive(rowIndex: number, colIndex: number): boolean {
-    let neighbors = 0;
-    if (!is.empty(this.grid[rowIndex - 1])) {
-      neighbors = on(this.grid[rowIndex - 1][colIndex - 1]);
-      neighbors = on(this.grid[rowIndex - 1][colIndex]);
-      neighbors = on(this.grid[rowIndex - 1][colIndex + 1]);
-    }
-    neighbors = on(this.grid[rowIndex][colIndex - 1]);
-    neighbors = on(this.grid[rowIndex][colIndex + 1]);
-    if (!is.empty(this.grid[rowIndex + 1])) {
-      neighbors = on(this.grid[rowIndex + 1][colIndex - 1]);
-      neighbors = on(this.grid[rowIndex + 1][colIndex]);
-      neighbors = on(this.grid[rowIndex + 1][colIndex + 1]);
-    }
-    const check = this.grid[rowIndex][colIndex] ? [2, 3] : [3];
-    return check.includes(neighbors);
-  }
-
-  /**
    * ? Recalculate the state of each cell
    */
   private async tick(): Promise<void> {
@@ -185,7 +167,7 @@ export class GameOfLifeClient {
     this.logger.debug(`[%s] remaining ticks`, this.remainingTicks);
     this.grid = this.grid.map((row, rowIndex) =>
       row.map((_, colIndex) =>
-        this.isAlive(rowIndex, colIndex) ? off : this.color,
+        this.conway.isAlive(this.grid, rowIndex, colIndex) ? off : this.color,
       ),
     ) as GridArray;
     await this.matrix.setGrid(this.grid);

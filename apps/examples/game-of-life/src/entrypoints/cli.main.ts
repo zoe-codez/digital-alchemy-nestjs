@@ -1,67 +1,96 @@
 import {
-  FetchService,
-  InjectConfig,
+  CacheService,
+  LIB_BOILERPLATE,
+  LOG_LEVEL,
   QuickScript,
 } from "@digital-alchemy/boilerplate";
-import { MAX_BRIGHTNESS, RGB } from "@digital-alchemy/rgb-matrix";
-import { ADMIN_KEY_HEADER } from "@digital-alchemy/server";
+import {
+  MatrixFetch,
+  MAX_BRIGHTNESS,
+  OFF,
+  RGB,
+} from "@digital-alchemy/rgb-matrix";
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
+  TableBuilderElement,
   TTYModule,
 } from "@digital-alchemy/tty";
-import { FetchWith, HALF, is, SECOND } from "@digital-alchemy/utilities";
+import { HALF, is, SECOND } from "@digital-alchemy/utilities";
+import chalk from "chalk";
 
-import {
-  DEFAULT_AUTH_PASSWORD,
-  GridArray,
-  MatrixConfigurationResponse,
-} from "../types";
+import { GameConfiguration, GridArray } from "../types";
 
-type PartialFetch = Omit<FetchWith, "baseUrl" | "headers">;
 const DEFAULT_COLOR: RGB = {
   b: MAX_BRIGHTNESS,
   g: MAX_BRIGHTNESS,
   r: MAX_BRIGHTNESS,
 };
+const RANGE = "0-100";
+const COLORS = {
+  b: "Blue",
+  g: "Green",
+  r: "Red",
+} as const;
+const RGB_ELEMENTS = Object.keys(COLORS).map(
+  (path: keyof typeof COLORS): TableBuilderElement<RGB> => ({
+    helpText: RANGE,
+    name: COLORS[path],
+    path,
+    type: "number",
+  }),
+);
+
+const CACHE_KEY = "conway_matrix_config_cache";
 
 @QuickScript({
   application: "game-of-life-cli",
+  bootstrap: {
+    application: {
+      config: {
+        libs: {
+          [LIB_BOILERPLATE]: { [LOG_LEVEL]: "silent" },
+        },
+      },
+    },
+  },
   imports: [TTYModule],
 })
 export class GameOfLifeCLI {
   constructor(
     private readonly prompt: PromptService,
     private readonly application: ApplicationManagerService,
+    private readonly cache: CacheService,
     private readonly screen: ScreenService,
-    private readonly fetchService: FetchService,
-    @InjectConfig("MATRIX_BASE_URL", {
-      default: "http://192.168.1.100:7000",
-      description: "Base URL to target GameOfLifeClient",
-      type: "string",
-    })
-    private readonly baseUrl: string,
-    @InjectConfig("MATRIX_AUTH", {
-      default: DEFAULT_AUTH_PASSWORD,
-      description: "Matrix auth password",
-      type: "string",
-    })
-    private readonly auth: string,
+    private readonly fetch: MatrixFetch,
   ) {}
 
   private color: RGB = DEFAULT_COLOR;
-  private configuration: MatrixConfigurationResponse;
+  private configuration: GameConfiguration;
   private grid: GridArray;
   private tickTimeout = HALF * SECOND;
 
+  private get headerMessage() {
+    if (this.configuration) {
+      return chalk.green(`✅ Matrix is connected!`);
+    }
+    return chalk.green(`❌ Cannot reach matrix`);
+  }
+
   public async exec(): Promise<void> {
     this.application.setHeader("Game of Life");
-    this.configuration ??= await this.fetchConfiguration();
+    try {
+      this.configuration ??= await this.fetchConfiguration();
+    } catch {
+      // trap-errors
+    }
 
     const action = await this.prompt.menu({
+      headerMessage: this.headerMessage,
       keyMap: {
         c: { entry: ["set color", "color"], highlight: "auto" },
+        g: { entry: ["edit grid", "grid"], highlight: "auto" },
         r: { entry: ["refresh data", "refresh"], highlight: "auto" },
         t: { entry: ["set ticks", "ticks"], highlight: "auto" },
       },
@@ -70,6 +99,7 @@ export class GameOfLifeCLI {
         { entry: ["refresh data", "refresh"] },
         { entry: ["set color", "color"] },
         { entry: ["set ticks", "ticks"] },
+        { entry: ["edit grid", "grid"] },
       ],
       search: { enabled: false },
     });
@@ -83,19 +113,17 @@ export class GameOfLifeCLI {
         return await this.exec();
       case "ticks":
         return await this.exec();
+      case "grid":
+        return await this.exec();
     }
   }
 
-  private async fetch<T>(fetchWith: PartialFetch) {
-    return await this.fetchService.fetch<T>({
-      ...fetchWith,
-      baseUrl: this.baseUrl,
-      headers: { [ADMIN_KEY_HEADER]: this.auth },
-    });
+  protected async onModuleInit() {
+    this.configuration = await this.cache.get(CACHE_KEY);
   }
 
-  private async fetchConfiguration(): Promise<MatrixConfigurationResponse> {
-    return await this.fetch({
+  private async fetchConfiguration(): Promise<GameConfiguration> {
+    return await this.fetch.fetch({
       url: "/configuration",
     });
   }
@@ -105,30 +133,13 @@ export class GameOfLifeCLI {
     const color = await this.prompt.objectBuilder<RGB, boolean>({
       cancel: false,
       current: this.color,
-      elements: [
-        {
-          helpText: "0-100",
-          name: "Red",
-          path: "r",
-          type: "number",
-        },
-        {
-          helpText: "0-100",
-          name: "Green",
-          path: "g",
-          type: "number",
-        },
-        {
-          helpText: "0-100",
-          name: "Blue",
-          path: "b",
-          type: "number",
-        },
-      ],
+      elements: RGB_ELEMENTS,
+      validate: ({ current }) =>
+        Object.values(current).every(i => i <= MAX_BRIGHTNESS && i >= OFF),
     });
     if (!is.boolean(color)) {
       this.color = color;
-      await this.fetch({
+      await this.fetch.fetch({
         body: { color },
         method: "post",
         url: "/color",

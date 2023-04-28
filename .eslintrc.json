@@ -91,6 +91,7 @@
               "cipheriv",
               "closable",
               "cmp",
+              "conway",
               "milli",
               "colorloop",
               "configurator",
