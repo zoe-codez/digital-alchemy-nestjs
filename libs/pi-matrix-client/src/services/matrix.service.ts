@@ -12,6 +12,7 @@ import {
   ImageWidgetDTO,
   LIB_RGB_MATRIX,
   LineWidgetDTO,
+  MATRIX_OPTIONS,
   RectangleWidgetDTO,
   TextWidgetDTO,
   UNLOAD_WIDGETS,
@@ -33,7 +34,7 @@ import {
   VerticalAlignment,
 } from "rpi-led-matrix";
 
-import { MATRIX_OPTIONS, RUNTIME_OPTIONS, UPDATE_INTERVAL } from "../config";
+import { RUNTIME_OPTIONS, UPDATE_INTERVAL } from "../config";
 import { ImageService } from "./image.service";
 import { SyncAnimationService } from "./sync-animation.service";
 import { TextService } from "./text.service";

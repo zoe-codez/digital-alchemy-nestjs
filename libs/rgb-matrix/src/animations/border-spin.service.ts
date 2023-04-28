@@ -14,13 +14,13 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
+import { LineService } from "../providers";
 import {
   AnimatedBorderCallback,
   BorderSpinOptions,
   ColorSetter,
   LineWidgetDTO,
 } from "../types";
-import { LineService } from "../providers";
 
 const DEFAULT_BORDER_INTERVAL = 10;
 const DEFAULT_BORDER_BRIGHTNESS = 50;
