@@ -1,5 +1,4 @@
 import {
-  CacheService,
   LIB_BOILERPLATE,
   LOG_LEVEL,
   QuickScript,
@@ -12,15 +11,21 @@ import {
 } from "@digital-alchemy/rgb-matrix";
 import {
   ApplicationManagerService,
+  EnvironmentService,
   PromptService,
   ScreenService,
   TableBuilderElement,
   TTYModule,
 } from "@digital-alchemy/tty";
-import { HALF, is, SECOND } from "@digital-alchemy/utilities";
+import { HALF, is, PEAT, SECOND } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 
-import { GameConfiguration, GridArray } from "../types";
+import { ConwayService, GameOfLifeComponentService } from "../services";
+import {
+  GameConfiguration,
+  GameOfLifeComponentOptions,
+  GridArray,
+} from "../types";
 
 const DEFAULT_COLOR: RGB = {
   b: MAX_BRIGHTNESS,
@@ -41,8 +46,9 @@ const RGB_ELEMENTS = Object.keys(COLORS).map(
     type: "number",
   }),
 );
-
-const CACHE_KEY = "conway_matrix_config_cache";
+const DEFAULT_HEIGHT = 128;
+const DEFAULT_WIDTH = 64;
+const DEFAULT_SPEED = 100;
 
 @QuickScript({
   application: "game-of-life-cli",
@@ -56,15 +62,30 @@ const CACHE_KEY = "conway_matrix_config_cache";
     },
   },
   imports: [TTYModule],
+  providers: [MatrixFetch, ConwayService, GameOfLifeComponentService],
 })
 export class GameOfLifeCLI {
   constructor(
     private readonly prompt: PromptService,
     private readonly application: ApplicationManagerService,
-    private readonly cache: CacheService,
     private readonly screen: ScreenService,
+    private readonly environment: EnvironmentService,
     private readonly fetch: MatrixFetch,
-  ) {}
+  ) {
+    const width = this.environment.width - 4;
+    const row = PEAT(width, false);
+    this.configuration = {
+      color: {
+        b: MAX_BRIGHTNESS,
+        g: MAX_BRIGHTNESS,
+        r: MAX_BRIGHTNESS,
+      },
+      grid: PEAT(DEFAULT_HEIGHT).map(() => [...row]),
+      height: DEFAULT_HEIGHT,
+      speed: DEFAULT_SPEED,
+      width: width,
+    };
+  }
 
   private color: RGB = DEFAULT_COLOR;
   private configuration: GameConfiguration;
@@ -80,14 +101,12 @@ export class GameOfLifeCLI {
 
   public async exec(): Promise<void> {
     this.application.setHeader("Game of Life");
-    try {
-      this.configuration ??= await this.fetchConfiguration();
-    } catch {
-      // trap-errors
-    }
+    // await this.fetchConfiguration();
+    await this.editGrid();
 
     const action = await this.prompt.menu({
       headerMessage: this.headerMessage,
+      helpNotes: [],
       keyMap: {
         c: { entry: ["set color", "color"], highlight: "auto" },
         g: { entry: ["edit grid", "grid"], highlight: "auto" },
@@ -106,7 +125,8 @@ export class GameOfLifeCLI {
 
     switch (action) {
       case "refresh":
-        this.configuration = await this.fetchConfiguration();
+        this.configuration = undefined;
+        await this.fetchConfiguration();
         return await this.exec();
       case "color":
         await this.setColor();
@@ -114,16 +134,20 @@ export class GameOfLifeCLI {
       case "ticks":
         return await this.exec();
       case "grid":
+        await this.editGrid();
         return await this.exec();
     }
   }
 
-  protected async onModuleInit() {
-    this.configuration = await this.cache.get(CACHE_KEY);
+  private async editGrid(): Promise<void> {
+    await this.application.activateComponent("game-of-life", {
+      ...this.configuration,
+      sendExternal: false,
+    } as GameOfLifeComponentOptions);
   }
 
-  private async fetchConfiguration(): Promise<GameConfiguration> {
-    return await this.fetch.fetch({
+  private async fetchConfiguration(): Promise<void> {
+    this.configuration ??= await this.fetch.fetch({
       url: "/configuration",
     });
   }

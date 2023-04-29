@@ -1,32 +1,43 @@
 import { is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import { GridArray, on } from "../types";
-
 const INC = 1;
-const CHECK_A = [2, 3];
-const CHECK_B = [3];
 
 @Injectable()
 export class ConwayService {
   /**
    * Y/N: should the cell live
    */
-  public isAlive(grid: GridArray, rowIndex: number, colIndex: number): boolean {
-    let neighbors = 0;
-    if (!is.empty(grid[rowIndex - INC])) {
-      neighbors = on(grid[rowIndex - INC][colIndex - INC]);
-      neighbors = on(grid[rowIndex - INC][colIndex]);
-      neighbors = on(grid[rowIndex - INC][colIndex + INC]);
+  public isAlive(
+    grid: boolean[][],
+    rowIndex: number,
+    colIndex: number,
+  ): boolean {
+    const neighbors = this.neighbors(grid, rowIndex, colIndex);
+    if (grid[rowIndex][colIndex]) {
+      return [2, 3].includes(neighbors);
     }
-    neighbors = on(grid[rowIndex][colIndex - INC]);
-    neighbors = on(grid[rowIndex][colIndex + INC]);
-    if (!is.empty(grid[rowIndex + INC])) {
-      neighbors = on(grid[rowIndex + INC][colIndex - INC]);
-      neighbors = on(grid[rowIndex + INC][colIndex]);
-      neighbors = on(grid[rowIndex + INC][colIndex + INC]);
+    return neighbors === 3;
+  }
+
+  public neighbors(grid: boolean[][], rowIndex: number, colIndex: number) {
+    const above = grid[rowIndex - INC];
+    const same = grid[rowIndex];
+    const below = grid[rowIndex + INC];
+
+    const list = [same[colIndex - INC], same[colIndex + INC]];
+    if (!is.empty(above)) {
+      list.push(above[colIndex], above[colIndex - INC], above[colIndex + INC]);
     }
-    const check = grid[rowIndex][colIndex] ? CHECK_A : CHECK_B;
-    return check.includes(neighbors);
+    if (!is.empty(below)) {
+      list.push(below[colIndex], below[colIndex - INC], below[colIndex + INC]);
+    }
+    return list.filter(Boolean).length;
+  }
+
+  public tick(grid: boolean[][]) {
+    return grid.map((row, rowIndex) =>
+      row.map((_, colIndex) => this.isAlive(grid, rowIndex, colIndex)),
+    );
   }
 }

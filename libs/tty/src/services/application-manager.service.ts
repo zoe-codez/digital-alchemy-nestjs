@@ -1,6 +1,7 @@
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { is, START } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import chalk from "chalk";
 import figlet, { Fonts } from "figlet";
 
 import {
@@ -66,6 +67,14 @@ export class ApplicationManagerService {
             CONFIG,
             VALUE
           >(name);
+          if (!component) {
+            this.screen.printLine(
+              // ? It probably wasn't listed in the providers anywhere
+              chalk.bgRed.bold
+                .white` Cannot find component {underline ${name}} `,
+            );
+            return;
+          }
           // There needs to be more type work around this
           // It's a disaster
           await component.configure(configuration, value =>

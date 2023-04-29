@@ -3,7 +3,7 @@ import { Color } from "rpi-led-matrix";
 
 export type GameConfiguration = {
   color: RGB;
-  grid: GridArray;
+  grid: boolean[][];
   height: number;
   speed: number;
   width: number;

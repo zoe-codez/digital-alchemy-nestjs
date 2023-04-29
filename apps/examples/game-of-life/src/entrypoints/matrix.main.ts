@@ -33,7 +33,7 @@ import {
 import { Body, Get, Post, Put } from "@nestjs/common";
 import { nextTick } from "process";
 
-import { ConwayService } from "../services";
+import { ConwayService, GameOfLifeComponentService } from "../services";
 import {
   DEFAULT_AUTH_PASSWORD,
   GameConfiguration,
@@ -77,7 +77,7 @@ export class GameOfLifeClient {
   }
 
   private color: RGB;
-  private grid: GridArray;
+  private grid: boolean[][];
   private remainingTicks = NONE;
   private tickTimeout = HALF * SECOND;
 
@@ -139,7 +139,7 @@ export class GameOfLifeClient {
    * ? HTTP: update the matrix state
    */
   @Post("/state")
-  public setState(@Body() body: GridArray): typeof GENERIC_SUCCESS_RESPONSE {
+  public setState(@Body() body: boolean[][]): typeof GENERIC_SUCCESS_RESPONSE {
     body = this.validateBody(body);
     if (this.remainingTicks !== NONE) {
       this.logger.warn(`Hold my beer, the grid is being changed live`);
@@ -165,12 +165,12 @@ export class GameOfLifeClient {
     }
     this.remainingTicks--;
     this.logger.debug(`[%s] remaining ticks`, this.remainingTicks);
-    this.grid = this.grid.map((row, rowIndex) =>
+    const grid = this.grid.map((row, rowIndex) =>
       row.map((_, colIndex) =>
         this.conway.isAlive(this.grid, rowIndex, colIndex) ? off : this.color,
       ),
     ) as GridArray;
-    await this.matrix.setGrid(this.grid);
+    await this.matrix.setGrid(grid);
     await sleep(this.tickTimeout);
     nextTick(() => this.tick());
   }
@@ -178,12 +178,12 @@ export class GameOfLifeClient {
   /**
    * ? Ensure the body has the correct number of row, and each row is fully populated with a value
    */
-  private validateBody(body: GridArray): GridArray {
+  private validateBody(body: boolean[][]): boolean[][] {
     return PEAT(this.totalRows).map((_, index) => {
       let row = body[index] || [];
       row = row.slice(START, this.totalWidth);
       if (row.length < this.totalWidth) {
-        row.push(...PEAT(this.totalWidth - row.length, off));
+        row.push(...PEAT(this.totalWidth - row.length, false));
       }
       return row;
     });

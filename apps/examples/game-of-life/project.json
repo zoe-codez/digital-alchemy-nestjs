@@ -7,9 +7,21 @@
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "game-of-life:build",
+        "buildTarget": "game-of-life:build:cli",
         "inspect": "inspect",
-        "port": 33345
+        "port": 33347
+      },
+      "configurations": {
+        "cli": {
+          "buildTarget": "game-of-life:build:cli",
+          "inspect": "inspect",
+          "port": 33347
+        },
+        "matrix": {
+          "buildTarget": "game-of-life:build:matrix",
+          "inspect": "inspect",
+          "port": 33348
+        }
       }
     },
     "build": {
@@ -17,24 +29,19 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/examples/game-of-life",
-        "generatePackageJson": true,
-        "fileReplacements": [
-          {
-            "replace": "apps/examples/game-of-life/src/environments/environment.ts",
-            "with": "apps/examples/game-of-life/src/environments/develop.environment.ts"
-          }
-        ],
-        "main": "apps/examples/game-of-life/src/entrypoints/main.ts",
         "tsConfig": "apps/examples/game-of-life/tsconfig.app.json",
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "generatePackageJson": true
       },
       "configurations": {
-        "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
+        "cli": {
+          "outputPath": "dist/apps/examples/game-of-life/cli",
+          "main": "apps/examples/game-of-life/src/entrypoints/cli.main.ts"
+        },
+        "matrix": {
+          "outputPath": "dist/apps/examples/game-of-life/matrix",
+          "main": "apps/examples/game-of-life/src/entrypoints/matrix.main.ts"
         }
       }
     },
