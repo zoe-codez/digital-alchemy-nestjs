@@ -47,7 +47,6 @@ const RGB_ELEMENTS = Object.keys(COLORS).map(
   }),
 );
 const DEFAULT_HEIGHT = 128;
-const DEFAULT_WIDTH = 64;
 const DEFAULT_SPEED = 100;
 
 @QuickScript({
