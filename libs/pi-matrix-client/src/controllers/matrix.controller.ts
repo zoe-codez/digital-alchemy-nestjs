@@ -1,4 +1,3 @@
-import { MatrixService } from "@digital-alchemy/pi-matrix-client";
 import {
   GenericWidgetDTO,
   MatrixDimensionsResponse,
@@ -7,6 +6,8 @@ import {
 import { GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { Color } from "rpi-led-matrix";
+
+import { MatrixService } from "../services";
 
 @Controller("/matrix")
 export class MatrixController {

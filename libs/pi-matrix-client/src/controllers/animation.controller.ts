@@ -1,4 +1,3 @@
-import { SyncAnimationService } from "@digital-alchemy/pi-matrix-client";
 import {
   AnimationWidgetDTO,
   BorderSpinQueue,
@@ -8,6 +7,8 @@ import {
 import { GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { nextTick } from "process";
+
+import { SyncAnimationService } from "../services";
 
 @Controller("/animation")
 export class AnimationController {

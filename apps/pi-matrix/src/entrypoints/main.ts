@@ -6,8 +6,6 @@ import {
 import { PiMatrixClientModule } from "@digital-alchemy/pi-matrix-client";
 import { ServerModule } from "@digital-alchemy/server";
 
-import { AnimationController, MatrixController } from "../controllers";
-
 @QuickScript({
   application: "pi-matrix",
   bootstrap: {
@@ -20,7 +18,6 @@ import { AnimationController, MatrixController } from "../controllers";
     },
     http: { enabled: true },
   },
-  controllers: [AnimationController, MatrixController],
-  imports: [PiMatrixClientModule, ServerModule],
+  imports: [PiMatrixClientModule.forRoot({ controllers: true }), ServerModule],
 })
 export class PiMatrix {}

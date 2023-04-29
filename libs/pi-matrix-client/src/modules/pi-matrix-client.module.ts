@@ -1,5 +1,6 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
 import { RGBControllerModule } from "@digital-alchemy/rgb-matrix";
+import { DynamicModule } from "@nestjs/common";
 
 import {
   ANIMATION_CACHE_DIRECTORY,
@@ -9,6 +10,7 @@ import {
   RUNTIME_OPTIONS,
   UPDATE_INTERVAL,
 } from "../config";
+import { AnimationController, MatrixController } from "../controllers";
 import {
   BorderSpinQueueService,
   CountdownService,
@@ -17,6 +19,16 @@ import {
   SyncAnimationService,
   TextService,
 } from "../services";
+import { PiMatrixClientOptions } from "../types";
+
+const providers = [
+  BorderSpinQueueService,
+  CountdownService,
+  ImageService,
+  MatrixService,
+  SyncAnimationService,
+  TextService,
+];
 
 @LibraryModule({
   configuration: {
@@ -51,15 +63,19 @@ import {
   },
   imports: [RGBControllerModule],
   library: LIB_PI_MATIX_CLIENT,
-  providers: [
-    BorderSpinQueueService,
-    CountdownService,
-    ImageService,
-    MatrixService,
-    SyncAnimationService,
-    TextService,
-  ],
+  providers,
 })
 export class PiMatrixClientModule {
-  //
+  public static forRoot({ controllers }: PiMatrixClientOptions): DynamicModule {
+    const forRootModule: DynamicModule = {
+      imports: [RGBControllerModule],
+      module: PiMatrixClientModule,
+      providers,
+    };
+    if (controllers) {
+      forRootModule.controllers = [AnimationController, MatrixController];
+    }
+
+    return forRootModule;
+  }
 }
