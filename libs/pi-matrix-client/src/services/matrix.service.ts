@@ -17,7 +17,7 @@ import {
   TextWidgetDTO,
   UNLOAD_WIDGETS,
 } from "@digital-alchemy/rgb-matrix";
-import { eachSeries, EMPTY } from "@digital-alchemy/utilities";
+import { eachSeries, EMPTY, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { isNumberString } from "class-validator";
 import dayjs from "dayjs";
@@ -125,8 +125,11 @@ export class MatrixService {
   }
 
   // ? Mental note: There is no way to look up current colors
-  // Would require the use of a render buffer
+  // Would require the use of a render buffer, the bottom level library doesn't support this
   public setGrid(grid: Color[][]): void {
+    if (!is.empty(this.widgets)) {
+      this.setWidgets([]);
+    }
     grid.forEach((row, rowIndex) =>
       row.forEach((cell, colIndex) =>
         this.matrix.setPixel(colIndex, rowIndex).fgColor(cell),

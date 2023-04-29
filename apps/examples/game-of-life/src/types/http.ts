@@ -9,8 +9,9 @@ export type GameConfiguration = {
   width: number;
 };
 
-export const off: Color = { b: 0, g: 0, r: 0 };
-export const on = ({ r, g, b }: Color = off) => (r + g + b === 0 ? 0 : 1);
+export const COLOR_OFF: Color = { b: 0, g: 0, r: 0 };
+export const COLOR_ON = ({ r, g, b }: Color = COLOR_OFF) =>
+  r + g + b === 0 ? 0 : 1;
 export type GridArray = Color[][];
 
 export class SetMatrixBody {

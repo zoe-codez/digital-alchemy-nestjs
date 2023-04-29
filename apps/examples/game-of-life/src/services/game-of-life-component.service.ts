@@ -3,7 +3,7 @@
  *
  * ~ Only render changes, not full screen. This is a big performance hit
  */
-import { MatrixFetch } from "@digital-alchemy/rgb-matrix";
+import { Colors, MatrixFetch, RGB } from "@digital-alchemy/rgb-matrix";
 import {
   ApplicationManagerService,
   Component,
@@ -25,8 +25,9 @@ import {
   START,
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
+import { Color } from "rpi-led-matrix";
 
-import { GameOfLifeComponentOptions } from "../types";
+import { COLOR_OFF, COLOR_ON, GameOfLifeComponentOptions } from "../types";
 import { ConwayService } from "./conway.service";
 
 const KEYMAP: TTYComponentKeymap = new Map([
@@ -187,8 +188,19 @@ export class GameOfLifeComponentService implements iComponent {
     await this.runner();
   }
 
-  protected settings(): void {
-    //
+  protected async settings(): Promise<void> {
+    this.application.setHeader("Game of Life", "Settings");
+    const settings = await this.prompt.objectBuilder({
+      elements: [
+        {
+          path: "",
+          type: "boolean",
+        },
+      ],
+    });
+    await this.prompt.acknowledge();
+    this.application.setHeader("");
+    this.render();
   }
 
   protected tick(): void {
@@ -247,5 +259,13 @@ export class GameOfLifeComponentService implements iComponent {
       this.boardTick();
       await sleep(SPEED);
     }
+  }
+
+  private async sendState(): Promise<void> {
+    await this.fetch.setGrid(
+      this.board.map(i => {
+        return i.map(cell => (cell ? COLOR_OFF : this.config.color));
+      }),
+    );
   }
 }

@@ -18,6 +18,7 @@ import {
   AnimationService,
   LineService,
   MatrixFetch,
+  MatrixMathService,
   TextLayoutService,
 } from "../providers";
 import { FONTS } from "../types";
@@ -28,6 +29,7 @@ const providers = [
   BorderSpinService,
   LineService,
   MatrixFetch,
+  MatrixMathService,
   PulseLaserService,
   TextLayoutService,
 ];

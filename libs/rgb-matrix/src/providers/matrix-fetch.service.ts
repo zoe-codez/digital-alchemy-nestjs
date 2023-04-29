@@ -1,9 +1,15 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { FetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
+import { Color } from "rpi-led-matrix";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
-import { BorderSpinQueue, GenericWidgetDTO, PulseLaserOptions } from "../types";
+import {
+  BorderSpinQueue,
+  GenericWidgetDTO,
+  MatrixDimensionsResponse,
+  PulseLaserOptions,
+} from "../types";
 
 @Injectable()
 export class MatrixFetch {
@@ -31,6 +37,15 @@ export class MatrixFetch {
     });
   }
 
+  public async exists(): Promise<boolean> {
+    try {
+      await this.getDimensions();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   public async fetch<VALUE>(
     fetchWith: Omit<FetchArguments, "baseUrl">,
   ): Promise<VALUE> {
@@ -38,6 +53,20 @@ export class MatrixFetch {
       ...fetchWith,
       baseUrl: this.baseUrl,
       headers: { "x-admin-key": this.key },
+    });
+  }
+
+  public async getDimensions(): Promise<MatrixDimensionsResponse> {
+    return await this.fetch({
+      url: `/matrix/dimensions`,
+    });
+  }
+
+  public async setGrid(grid: Color[][]): Promise<void> {
+    return await this.fetch({
+      body: { grid },
+      method: "post",
+      url: `/matrix/grid`,
     });
   }
 

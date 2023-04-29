@@ -1,14 +1,8 @@
-import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { DOWN, EMPTY, UP } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import {
-  PANEL_COLUMNS,
-  PANEL_HEIGHT,
-  PANEL_TOTAL,
-  PANEL_WIDTH,
-} from "../config";
 import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../types";
+import { MatrixMathService } from "./matrix-math.service";
 
 export type TextLineLayout = Omit<
   TextWidgetDTO,
@@ -46,21 +40,9 @@ const DEFAULT_HEIGHT = 6;
 
 @Injectable()
 export class TextLayoutService {
-  constructor(
-    @InjectConfig(PANEL_COLUMNS)
-    private readonly panelColumns: number,
-    @InjectConfig(PANEL_HEIGHT)
-    private readonly panelHeight: number,
-    @InjectConfig(PANEL_TOTAL)
-    private readonly panelTotal: number,
-    @InjectConfig(PANEL_WIDTH)
-    private readonly panelWidth: number,
-  ) {
-    this.xWidth = this.panelWidth * this.panelColumns;
-  }
+  constructor(private readonly math: MatrixMathService) {}
 
   private lines: LineInfo[];
-  private readonly xWidth: number;
 
   public addLine(text: TextLineLayout[], color: LineConfig): void {
     this.lines.push(...text.map(line => ({ color, line })));
@@ -91,8 +73,8 @@ export class TextLayoutService {
         }
         previous = y;
         y += height + lineHeight;
-        if (y > this.panelHeight) {
-          x += this.xWidth;
+        if (y > this.math.panelHeight) {
+          x += this.math.totalWidth;
           previous = EMPTY;
           y = height + lineHeight;
         }
