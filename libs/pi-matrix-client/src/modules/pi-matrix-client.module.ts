@@ -1,5 +1,5 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
-import { RGBControllerModule } from "@digital-alchemy/rgb-matrix";
+import { RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
 import { DynamicModule } from "@nestjs/common";
 
 import {
@@ -61,14 +61,14 @@ const providers = [
       type: "number",
     },
   },
-  imports: [RGBControllerModule],
+  imports: [RGBMatrixModule],
   library: LIB_PI_MATIX_CLIENT,
   providers,
 })
 export class PiMatrixClientModule {
   public static forRoot({ controllers }: PiMatrixClientOptions): DynamicModule {
     const forRootModule: DynamicModule = {
-      imports: [RGBControllerModule],
+      imports: [RGBMatrixModule],
       module: PiMatrixClientModule,
       providers,
     };

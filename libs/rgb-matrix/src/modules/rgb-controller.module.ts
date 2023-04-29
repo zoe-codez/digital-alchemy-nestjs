@@ -79,4 +79,4 @@ const providers = [
   library: LIB_RGB_MATRIX,
   providers,
 })
-export class RGBControllerModule {}
+export class RGBMatrixModule {}

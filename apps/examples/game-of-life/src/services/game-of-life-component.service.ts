@@ -24,34 +24,55 @@ import {
   INCREMENT,
   is,
   NONE,
+  PEAT,
   sleep,
   START,
 } from "@digital-alchemy/utilities";
 import chalk from "chalk";
 import { nextTick } from "process";
 
-import {
-  COLOR_OFF,
-  GameOfLifeComponentOptions,
-  GameOfLifeSettings,
-} from "../types";
+import { COLOR_OFF, GameOfLifeSettings } from "../types";
 import { ConwayService } from "./conway.service";
 
+const ICON_RENDER = `🧮`;
+const ICON_TOGGLE = `🪄`;
+const ICON_SETTINGS = `⚙️`;
+const ICON_CURSOR = `🖱️`;
+
 const KEYMAP: TTYComponentKeymap = new Map([
-  [{ key: ["down", "s"] }, "down"],
-  [{ key: "f4" }, "done"],
-  [{ key: "f5" }, "reset"],
-  [{ description: "toggle keymap visibility", key: "f6" }, "toggleKeymap"],
-  [{ description: "toggle debug", key: "f7" }, "toggleDebug"],
-  [{ description: "configure", key: "f8" }, "settings"],
-  [{ description: "advanced debug", key: "f9" }, "toggleAdvancedDebug"],
-  [{ key: ["left", "a"] }, "left"],
-  [{ key: "r" }, "runBatch"],
-  [{ key: ["right", "d"] }, "right"],
-  [{ description: "toggle continuous", key: "c" }, "toggleContinuous"],
-  [{ description: "toggle cell", key: "space" }, "toggle"],
-  [{ key: "t" }, "tick"],
-  [{ key: ["up", "w"] }, "up"],
+  [
+    { description: `${ICON_CURSOR}cursor down  `, key: ["down", "s"] },
+    "cursorDown",
+  ],
+  [{ description: `⏹️done  `, key: "f4" }, "done"],
+  [{ description: `⏮️reset  `, key: "f5" }, "reset"],
+  [
+    { description: `${ICON_TOGGLE}keymap visibility  `, key: "f6" },
+    "toggleKeymap",
+  ],
+  [
+    { description: `${ICON_TOGGLE}verify matrix connection  `, key: "f10" },
+    "checkConnection",
+  ],
+  [{ description: `${ICON_TOGGLE}debug  `, key: "f7" }, "toggleDebug"],
+  [{ description: `${ICON_SETTINGS}configure  `, key: "f8" }, "settings"],
+  [
+    { description: `${ICON_TOGGLE}advanced debug  `, key: "f9" },
+    "toggleAdvancedDebug",
+  ],
+  [
+    { description: `${ICON_CURSOR}cursor left  `, key: ["left", "a"] },
+    "cursorLeft",
+  ],
+  [{ description: `${ICON_RENDER}render batch`, key: "r" }, "runBatch"],
+  [
+    { description: `${ICON_CURSOR}cursor right  `, key: ["right", "d"] },
+    "cursorRight",
+  ],
+  [{ description: `🔁render continuous`, key: "c" }, "toggleContinuous"],
+  [{ description: `🔀toggle cell`, key: "space" }, "toggle"],
+  [{ description: `🔂render tick`, key: "t" }, "tick"],
+  [{ description: `${ICON_CURSOR}cursor up  `, key: ["up", "w"] }, "cursorUp"],
 ]);
 const SPEED = 50;
 const RUN_TICKS = 100;
@@ -81,79 +102,126 @@ const RGB_ELEMENTS = Object.keys(COLORS).map(
 @Component({ type: "game-of-life" })
 export class GameOfLifeComponentService implements iComponent {
   constructor(
-    private readonly screen: ScreenService,
-    private readonly keyboard: KeyboardManagerService,
-    private readonly conway: ConwayService,
-    private readonly keymap: KeymapService,
-    private readonly environment: EnvironmentService,
     private readonly application: ApplicationManagerService,
-    private readonly text: TextRenderingService,
-    private readonly prompt: PromptService,
+    private readonly conway: ConwayService,
+    private readonly environment: EnvironmentService,
     private readonly fetch: MatrixFetch,
-    @InjectConfig("DEFAULT_MINIMUM_WIDTH")
+    private readonly keyboard: KeyboardManagerService,
+    private readonly keymap: KeymapService,
+    private readonly prompt: PromptService,
+    private readonly screen: ScreenService,
+    private readonly text: TextRenderingService,
+    @InjectConfig("DEFAULT_MINIMUM_WIDTH", {
+      default: 250,
+      type: "number",
+    })
     private readonly defaultMinWidth: number,
-    @InjectConfig("DEFAULT_MINIMUM_HEIGHT")
+    @InjectConfig("DEFAULT_MINIMUM_HEIGHT", {
+      default: 250,
+      type: "number",
+    })
     private readonly defaultMinHeight: number,
+    @InjectConfig("DEFAULT_TOP", {
+      default: 20,
+      type: "number",
+    })
+    private readonly defaultTop: number,
+    @InjectConfig("DEFAULT_LEFT", {
+      default: 20,
+      type: "number",
+    })
+    private readonly defaultLeft: number,
   ) {}
 
   /**
    * display neighbor counts
    */
   private advancedDebug = false;
+
   /**
    * the current state
    */
   private board: boolean[][];
+
   /**
    * color to use for alive cells
    */
-  private color: RGB;
+  private color: RGB = { ...DEFAULT_COLOR };
+
   /**
    * is a pi matrix reachable?
    */
   private connected = false;
+
   /**
    * keep performing ticks
    */
   private continuous = false;
+
   /**
    * cursor position
    */
   private cursorX = START;
+
   /**
    * cursor position
    */
   private cursorY = START;
+
   /**
    * show help notes to describe the current state
    */
   private debug = false;
+
   /**
    * component complete callback
    */
   private done: ComponentDoneCallback;
+
   /**
    * ticks performed since last reset
    */
   private frame = START;
+
   /**
-   * --
+   * ! not constructively used
    */
   private isDone = false;
+
   /**
    * give more room in the console viewport by hiding keymap
    */
   private keymapVisible = false;
+
+  /**
+   * rendering top
+   */
+  private left = START;
+
+  /**
+   * enforce a board size larger than the visible area
+   */
   private minHeight = NONE;
+
+  /**
+   * enforce a board size larger than the visible area
+   */
   private minWidth = NONE;
+
   /**
    * batch run, decrements on tick
    */
   private runTicks = NONE;
+
   /**
    * sleep duration between ticks
    */
   private speed = SPEED;
+
+  /**
+   * rendering top
+   */
+  private top = START;
 
   /**
    * the game viewport width
@@ -178,6 +246,10 @@ export class GameOfLifeComponentService implements iComponent {
       notes: this.debug
         ? this.text.debug({
             frame: this.frame,
+            height: this.minHeight,
+            left: this.left,
+            top: this.top,
+            width: this.minWidth,
             x: this.cursorX,
             y: this.cursorY,
           })
@@ -192,8 +264,11 @@ export class GameOfLifeComponentService implements iComponent {
     // ? Application header (clear it)
     this.application.setHeader();
     // ? Set defaults
+    this.minHeight = this.defaultMinHeight;
+    this.left = this.defaultLeft;
+    this.top = this.defaultTop;
+    this.minWidth = this.defaultMinWidth;
     this.keymapVisible = true;
-    this.board = [];
     this.color = DEFAULT_COLOR;
     this.isDone = false;
     this.continuous = false;
@@ -202,6 +277,7 @@ export class GameOfLifeComponentService implements iComponent {
     this.frame = START;
     this.debug = false;
     this.speed = SPEED;
+    this.reset(false);
     // ? Bind keyboard
     this.keyboard.setKeymap(this, KEYMAP);
     // ? Reset cursor
@@ -225,9 +301,10 @@ export class GameOfLifeComponentService implements iComponent {
     const keymap = this.renderedKeymap;
     const height = this.getHeight(keymap);
     const message = this.board
-      .slice(START, height)
+      .slice(this.top, this.top + height)
       .map((row, rowIndex) => {
         return row
+          .slice(this.left, this.left + this.width)
           .map((cell, cellIndex) => {
             const color = chalk.bgBlack;
             let char = this.advancedDebug
@@ -249,10 +326,23 @@ export class GameOfLifeComponentService implements iComponent {
     this.screen.render(message, this.keymapVisible ? keymap : undefined);
   }
 
+  protected async checkConnection() {
+    this.application.setHeader("Checking connection");
+    const exists = await this.fetch.exists();
+    this.screen.printLine(
+      exists
+        ? chalk.green(`✅ Matrix is connected!`)
+        : chalk.green(`❌ Cannot reach matrix`),
+    );
+    await this.prompt.acknowledge();
+    this.application.setHeader();
+    this.render();
+  }
+
   /**
    * keypress handler - move cursor
    */
-  protected down(): void {
+  protected cursorDown(): void {
     const height = this.getHeight();
     this.cursorY =
       this.cursorY === height - ARRAY_OFFSET ? START : this.cursorY + INCREMENT;
@@ -262,7 +352,7 @@ export class GameOfLifeComponentService implements iComponent {
   /**
    * keypress handler - move cursor
    */
-  protected left(): void {
+  protected cursorLeft(): void {
     this.cursorX =
       this.cursorX === START
         ? this.width - ARRAY_OFFSET
@@ -271,22 +361,36 @@ export class GameOfLifeComponentService implements iComponent {
   }
 
   /**
-   * keypress handler - reset board
+   * keypress handler - move cursor
    */
-  protected reset(): void {
-    this.board = this.board.map(i => i.map(() => false));
+  protected cursorRight(): void {
+    this.cursorX =
+      this.cursorX === this.width - ARRAY_OFFSET
+        ? START
+        : this.cursorX + INCREMENT;
     this.render();
   }
 
   /**
    * keypress handler - move cursor
    */
-  protected right(): void {
-    this.cursorX =
-      this.cursorX === this.width - ARRAY_OFFSET
-        ? START
-        : this.cursorX + INCREMENT;
+  protected cursorUp(): void {
+    this.cursorY =
+      this.cursorY === START
+        ? this.getHeight() - ARRAY_OFFSET
+        : this.cursorY - INCREMENT;
     this.render();
+  }
+
+  /**
+   * keypress handler++ - reset board
+   */
+  protected reset(render = true): void {
+    const row = PEAT(this.minWidth, false);
+    this.board = PEAT(this.minHeight).map(() => [...row]);
+    if (render) {
+      this.render();
+    }
   }
 
   /**
@@ -312,11 +416,11 @@ export class GameOfLifeComponentService implements iComponent {
       boolean
     >({
       cancel: false,
-      current: {
-        speed: this.speed,
-      },
+      current: { ...this.color, speed: this.speed },
       elements: [
+        ...RGB_ELEMENTS,
         {
+          helpText: "milliseconds",
           name: "Sleep time",
           path: "speed",
           type: "number",
@@ -378,17 +482,6 @@ export class GameOfLifeComponentService implements iComponent {
    */
   protected toggleKeymap(): void {
     this.keymapVisible = !this.keymapVisible;
-    this.render();
-  }
-
-  /**
-   * keypress handler - move cursor
-   */
-  protected up(): void {
-    this.cursorY =
-      this.cursorY === START
-        ? this.getHeight() - ARRAY_OFFSET
-        : this.cursorY - INCREMENT;
     this.render();
   }
 
