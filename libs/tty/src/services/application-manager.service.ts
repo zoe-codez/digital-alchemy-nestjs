@@ -139,7 +139,7 @@ export class ApplicationManagerService {
   /**
    * Clear the screen, and place a new header message at the top of the screen
    */
-  public setHeader(primary: string, secondary = ""): number {
+  public setHeader(primary = "", secondary = ""): number {
     this.parts = [primary, secondary];
     this.screen.clear();
     for (let i = START; i < this.paddingTop; i++) {

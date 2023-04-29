@@ -4,9 +4,9 @@ import { Color } from "rpi-led-matrix";
 export type GameConfiguration = {
   color: RGB;
   grid: boolean[][];
-  height: number;
-  speed: number;
-  width: number;
+  height?: number;
+  speed?: number;
+  width?: number;
 };
 
 export const COLOR_OFF: Color = { b: 0, g: 0, r: 0 };

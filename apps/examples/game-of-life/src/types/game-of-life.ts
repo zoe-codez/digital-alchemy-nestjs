@@ -4,4 +4,6 @@ export type GameOfLifeComponentOptions = GameConfiguration & {
   sendExternal: boolean;
 };
 
-// export type
+export type GameOfLifeSettings = {
+  speed: number;
+};
