@@ -19,7 +19,8 @@ export class MatrixMathService {
   ) {
     this.bottomLeft = (this.columns - ARRAY_OFFSET) * this.panelHeight;
     this.totalWidth = this.panelWidth * this.columns;
-    this.totalHeight = Math.ceil(this.panelTotal / this.columns);
+    this.verticalPanelCount = Math.ceil(this.panelTotal / this.columns);
+    this.totalHeight = this.verticalPanelCount * this.panelHeight;
   }
 
   /**
@@ -34,4 +35,8 @@ export class MatrixMathService {
    * Total pixel count in the X direction
    */
   public readonly totalWidth: number;
+  /**
+   * Total vertical count of rows
+   */
+  public readonly verticalPanelCount: number;
 }

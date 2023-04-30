@@ -1,7 +1,6 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
-import { FetchArguments } from "@digital-alchemy/utilities";
+import { FetchArguments, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
-import { Color } from "rpi-led-matrix";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
 import {
@@ -9,6 +8,7 @@ import {
   GenericWidgetDTO,
   MatrixDimensionsResponse,
   PulseLaserOptions,
+  RGB,
 } from "../types";
 
 @Injectable()
@@ -62,9 +62,14 @@ export class MatrixFetch {
     });
   }
 
-  public async setGrid(grid: Color[][]): Promise<void> {
+  public async setGrid(grid: boolean[][], color: RGB): Promise<void> {
     return await this.fetch({
-      body: { grid },
+      body: {
+        color,
+        grid: grid
+          .map(i => i.map(index => is.random(["1", "0"])).join(""))
+          .join(`\n`),
+      },
       method: "post",
       url: `/matrix/grid`,
     });

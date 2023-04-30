@@ -60,8 +60,10 @@ export class MiddlewareService {
       return;
     }
     app.use(helmet(), cookieParser());
+    this.logger.debug(`[cookieParser], [helmet]`);
     app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
+    this.logger.debug(`json size limit {%s}`, this.limit);
     if (this.cors) {
       this.logger.debug(`Using [cors] middleware`);
       app.use(cors());

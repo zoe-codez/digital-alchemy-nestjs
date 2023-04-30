@@ -68,7 +68,7 @@ const providers = [
       type: "number",
     },
     [PI_MATRIX_BASE_URL]: {
-      default: "http://orchid:7000",
+      default: "http://localhost:7000",
       type: "string",
     },
     [PI_MATRIX_KEY]: {

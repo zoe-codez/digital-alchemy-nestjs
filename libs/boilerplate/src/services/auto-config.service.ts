@@ -49,6 +49,7 @@ export class AutoConfigService {
   public static setSwitches(update: string[]): void {
     SWITCHES = update;
   }
+
   constructor(
     /**
      * Override defaults provided by Bootstrap

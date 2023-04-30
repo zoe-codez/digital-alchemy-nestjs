@@ -5,11 +5,12 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
 import { ApplicationManagerService, TTYModule } from "@digital-alchemy/tty";
+import { sleep } from "@digital-alchemy/utilities";
 
 import { ConwayService, GameOfLifeComponentService } from "../services";
 
 @QuickScript({
-  application: "game-of-life-cli",
+  application: "game-of-life",
   bootstrap: {
     application: {
       config: {

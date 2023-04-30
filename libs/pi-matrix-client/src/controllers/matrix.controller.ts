@@ -1,15 +1,19 @@
 import {
+  Colors,
   GenericWidgetDTO,
   MatrixDimensionsResponse,
   MatrixMathService,
+  OFF,
+  RGB,
 } from "@digital-alchemy/rgb-matrix";
-import { GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
+import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { Color } from "rpi-led-matrix";
 
 import { MatrixService } from "../services";
 
 @Controller("/matrix")
+@AuthStack()
 export class MatrixController {
   constructor(
     private readonly matrix: MatrixService,
@@ -30,10 +34,17 @@ export class MatrixController {
   }
 
   @Post("/grid")
-  public setGrid(
-    @Body() { grid }: { grid: Color[][] },
+  public pixelGrid(
+    @Body() { grid, color }: { grid: string; color: Color },
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    this.matrix.setGrid(grid);
+    const parsed = grid
+      .split(`\n`)
+      .map(i => [...i].map(index => index === "1"));
+    this.matrix.setGrid(
+      parsed.map(row =>
+        row.map(cell => (cell ? color : { b: OFF, g: OFF, r: OFF })),
+      ),
+    );
     return GENERIC_SUCCESS_RESPONSE;
   }
 

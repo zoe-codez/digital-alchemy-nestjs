@@ -4,13 +4,14 @@ import {
   Colors,
   PulseLaserOptions,
 } from "@digital-alchemy/rgb-matrix";
-import { GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
+import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { nextTick } from "process";
 
 import { SyncAnimationService } from "../services";
 
 @Controller("/animation")
+@AuthStack()
 export class AnimationController {
   constructor(private readonly animation: SyncAnimationService) {}
 
