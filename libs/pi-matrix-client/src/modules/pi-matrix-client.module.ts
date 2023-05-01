@@ -1,34 +1,44 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
 import { RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
-import { DynamicModule } from "@nestjs/common";
+import { DynamicModule, Provider } from "@nestjs/common";
+import { join } from "path";
+import { cwd } from "process";
 
 import {
   ANIMATION_CACHE_DIRECTORY,
   BORDER_SPIN_LAYER_BOTTLENECK,
   DEFAULT_ANIMATION_INTERVAL,
-  LIB_PI_MATIX_CLIENT,
+  FONTS_DIRECTORY,
+  LIB_PI_MATRIX_CLIENT,
   RUNTIME_OPTIONS,
   UPDATE_INTERVAL,
 } from "../config";
-import { AnimationController, MatrixController } from "../controllers";
+import {
+  AnimationController,
+  MatrixController,
+  WidgetController,
+} from "../controllers";
 import {
   BorderSpinQueueService,
   CountdownService,
   ImageService,
-  MatrixService,
+  RenderService,
   SyncAnimationService,
   TextService,
+  WidgetService,
 } from "../services";
-import { PiMatrixClientOptions } from "../types";
+import { MatrixInstanceProvider, PiMatrixClientOptions } from "../types";
 
 const providers = [
   BorderSpinQueueService,
   CountdownService,
   ImageService,
-  MatrixService,
+  RenderService,
   SyncAnimationService,
   TextService,
-];
+  WidgetService,
+  MatrixInstanceProvider,
+] as Provider[];
 
 @LibraryModule({
   configuration: {
@@ -50,6 +60,11 @@ const providers = [
       description: "Default time between frames of an image animation (ms)",
       type: "number",
     },
+    [FONTS_DIRECTORY]: {
+      default: join(cwd(), "fonts"),
+      description: "Directory to load .bdf fonts from",
+      type: "string",
+    },
     [RUNTIME_OPTIONS]: {
       default: {},
       description: "See RuntimeOptions in rpi-led-matrix",
@@ -62,7 +77,7 @@ const providers = [
     },
   },
   imports: [RGBMatrixModule],
-  library: LIB_PI_MATIX_CLIENT,
+  library: LIB_PI_MATRIX_CLIENT,
   providers,
 })
 export class PiMatrixClientModule {
@@ -73,7 +88,11 @@ export class PiMatrixClientModule {
       providers,
     };
     if (controllers) {
-      forRootModule.controllers = [AnimationController, MatrixController];
+      forRootModule.controllers = [
+        AnimationController,
+        MatrixController,
+        WidgetController,
+      ];
     }
 
     return forRootModule;

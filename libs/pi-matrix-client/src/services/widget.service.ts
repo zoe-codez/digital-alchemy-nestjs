@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-identical-functions */
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   CircleWidgetDTO,
@@ -12,66 +11,47 @@ import {
   ImageWidgetDTO,
   LIB_RGB_MATRIX,
   LineWidgetDTO,
-  MATRIX_OPTIONS,
+  MAX_BRIGHTNESS,
   RectangleWidgetDTO,
   TextWidgetDTO,
   UNLOAD_WIDGETS,
 } from "@digital-alchemy/rgb-matrix";
-import { eachSeries, EMPTY, is } from "@digital-alchemy/utilities";
+import { eachSeries, EMPTY } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { isNumberString } from "class-validator";
 import dayjs from "dayjs";
 import EventEmitter from "eventemitter3";
-import { nextTick } from "process";
 import {
-  Color,
   HorizontalAlignment,
   LayoutUtils,
-  LedMatrix,
   LedMatrixInstance,
-  MatrixOptions,
-  RuntimeOptions,
   VerticalAlignment,
 } from "rpi-led-matrix";
 
-import { RUNTIME_OPTIONS, UPDATE_INTERVAL } from "../config";
+import { MATRIX_INSTANCE } from "../types";
 import { ImageService } from "./image.service";
 import { SyncAnimationService } from "./sync-animation.service";
 import { TextService } from "./text.service";
 
-const MAX_BRIGHTNESS = 255;
-export const AFTER_SYNC = "after-sync";
-export type tAfterSync = (arguments_: {
-  dt: number;
-  t: number;
-}) => boolean | Promise<boolean>;
-
 @Injectable()
-export class MatrixService {
+export class WidgetService {
   constructor(
-    private readonly logger: AutoLogService,
-    @InjectConfig(UPDATE_INTERVAL)
-    private readonly updateInterval: number,
-    @InjectConfig(MATRIX_OPTIONS, LIB_RGB_MATRIX)
-    private readonly matrixOptions: MatrixOptions,
-    @InjectConfig(RUNTIME_OPTIONS)
-    private readonly runtimeOptions: RuntimeOptions,
     @InjectConfig(DEFAULT_FONT, LIB_RGB_MATRIX)
     private readonly defaultFont: FONTS,
     @Inject(forwardRef(() => TextService))
     private readonly text: TextService,
     @Inject(forwardRef(() => ImageService))
     private readonly image: ImageService,
-    private readonly event: EventEmitter,
+    private readonly logger: AutoLogService,
     @Inject(forwardRef(() => SyncAnimationService))
     private readonly syncAnimation: SyncAnimationService,
+    private readonly event: EventEmitter,
+    @Inject(MATRIX_INSTANCE)
+    private readonly matrix: LedMatrixInstance,
   ) {}
 
-  public lastRender: {
-    dt: number;
-    t: number;
-  };
-  public matrix: LedMatrixInstance;
+  /**
+   * rendering widgets that are actively being maintained
+   */
   public widgets: GenericWidgetDTO[] = [
     {
       font: "5x8",
@@ -79,8 +59,10 @@ export class MatrixService {
       type: "clock",
     } as ClockWidgetDTO,
   ];
-  private isRendering = false;
-  private paused = false;
+
+  /**
+   * order of operations in rendering
+   */
   private get prerender(): GenericWidgetDTO[] {
     const out = [];
     this.syncAnimation.pre.forEach(value => {
@@ -88,6 +70,10 @@ export class MatrixService {
     });
     return out;
   }
+
+  /**
+   * order of operations in rendering
+   */
   private get postrender(): GenericWidgetDTO[] {
     const out = [];
     this.syncAnimation.post.forEach(value => {
@@ -95,53 +81,9 @@ export class MatrixService {
     });
     return out;
   }
-  private renderImmediate = false;
-  private stash: GenericWidgetDTO[][] = [];
 
-  public async render(): Promise<void> {
-    if (this.paused) {
-      this.logger.debug("paused");
-      return;
-    }
-    if (this.isRendering) {
-      this.renderImmediate = true;
-      return;
-    }
-    this.isRendering = true;
-    const list = [
-      //
-      ...this.prerender,
-      ...this.widgets,
-      ...this.postrender,
-    ];
-    try {
-      this.matrix.clear();
-      await eachSeries(list, async widget => await this.renderWidget(widget));
-      this.matrix.sync();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
-  }
-
-  // ? Mental note: There is no way to look up current colors
-  // Would require the use of a render buffer, the bottom level library doesn't support this
-  public setGrid(grid: Color[][]): void {
-    if (!is.empty(this.widgets)) {
-      this.setWidgets([]);
-    }
-    grid.forEach((row, rowIndex) =>
-      row.forEach((cell, colIndex) =>
-        this.matrix.setPixel(colIndex, rowIndex).fgColor(cell),
-      ),
-    );
-    this.matrix.sync();
-  }
-
-  public setWidgets(widgets: GenericWidgetDTO[]) {
-    this.event.emit(UNLOAD_WIDGETS);
-    this.widgets = widgets;
-    this.widgets.forEach((widget: GenericWidgetDTO) => {
+  public initWidgets(widgets: GenericWidgetDTO[]): void {
+    widgets.forEach((widget: GenericWidgetDTO) => {
       if (["clock", "text", "countdown"].includes(widget.type)) {
         this.text.load((widget as TextWidgetDTO).font);
         return;
@@ -163,36 +105,63 @@ export class MatrixService {
     });
   }
 
-  public start(): void {
-    this.widgets = this.stash.pop();
-    this.paused = false;
+  public async render(): Promise<void> {
+    const list = [this.prerender, this.widgets, this.postrender].flat();
+    try {
+      this.matrix.clear();
+      await eachSeries(list, async widget => await this.renderWidget(widget));
+      this.matrix.sync();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
   }
 
-  public stop(): void {
-    this.stash.push(this.widgets);
-    this.paused = true;
+  public renderWidget(widget: GenericWidgetDTO): void {
+    switch (widget.type) {
+      case "image": {
+        const i = widget as ImageWidgetDTO;
+        this.image.render(i.path, i);
+        return;
+      }
+      case "countdown": {
+        this.renderCountdown(widget as CountdownWidgetDTO);
+        return;
+      }
+      case "clock": {
+        this.renderText({
+          ...(widget as ClockWidgetDTO),
+          text: dayjs().format((widget as ClockWidgetDTO).format ?? "hh:mm:ss"),
+        });
+        return;
+      }
+      case "text": {
+        this.renderText(widget as TextWidgetDTO);
+        return;
+      }
+      case "line": {
+        this.renderLine(widget as LineWidgetDTO);
+        return;
+      }
+      case "rectangle": {
+        this.renderRectangle(widget as RectangleWidgetDTO);
+        return;
+      }
+      case "circle": {
+        this.renderCircle(widget as CircleWidgetDTO);
+        return;
+      }
+    }
+  }
+
+  public setWidgets(widgets: GenericWidgetDTO[]) {
+    this.event.emit(UNLOAD_WIDGETS);
+    this.widgets = widgets;
+    this.initWidgets(widgets);
   }
 
   protected onModuleInit(): void {
-    const matrix = Object.fromEntries(
-      Object.entries(this.matrixOptions).map(([name, value]) => [
-        name,
-        isNumberString(value) ? Number(value) : value,
-      ]),
-    );
-    const runtime = Object.fromEntries(
-      Object.entries(this.runtimeOptions).map(([name, value]) => [
-        name,
-        isNumberString(value) ? Number(value) : value,
-      ]),
-    );
-    this.logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
-    this.matrix = new LedMatrix(
-      { ...LedMatrix.defaultMatrixOptions(), ...matrix },
-      { ...LedMatrix.defaultRuntimeOptions(), ...runtime },
-    );
     this.text.load("5x8");
-    this.renderLoop();
   }
 
   private renderCircle({
@@ -235,22 +204,6 @@ export class MatrixService {
       .drawLine(Number(x), Number(y), Number(endX), Number(endY));
   }
 
-  private renderLoop(): void {
-    // This method cannot be async
-    // matrix library will go 100% CPU and break everything
-    this.matrix.afterSync((matrix, dt, t) => {
-      this.lastRender = { dt, t };
-      this.isRendering = false;
-      if (this.renderImmediate) {
-        this.renderImmediate = false;
-        nextTick(() => this.render());
-      }
-    });
-    setInterval(async () => {
-      await this.render();
-    }, this.updateInterval);
-  }
-
   private renderRectangle({
     brightness = MAX_BRIGHTNESS,
     color = Colors.White,
@@ -279,7 +232,6 @@ export class MatrixService {
   }: Partial<TextWidgetDTO>): void {
     const font = this.text.fonts.get(widget.font ?? this.defaultFont);
     const lines = LayoutUtils.textToLines(font, this.matrix.width(), text);
-    // lines[0]
     const glyphs = LayoutUtils.linesToMappedGlyphs(
       lines,
       font.height(),
@@ -296,42 +248,5 @@ export class MatrixService {
         y + (widget.y ?? EMPTY),
       ),
     );
-  }
-
-  private renderWidget(widget: GenericWidgetDTO): void {
-    switch (widget.type) {
-      case "image": {
-        const i = widget as ImageWidgetDTO;
-        this.image.render(i.path, i);
-        return;
-      }
-      case "countdown": {
-        this.renderCountdown(widget as CountdownWidgetDTO);
-        return;
-      }
-      case "clock": {
-        this.renderText({
-          ...(widget as ClockWidgetDTO),
-          text: dayjs().format((widget as ClockWidgetDTO).format ?? "hh:mm:ss"),
-        });
-        return;
-      }
-      case "text": {
-        this.renderText(widget as TextWidgetDTO);
-        return;
-      }
-      case "line": {
-        this.renderLine(widget as LineWidgetDTO);
-        return;
-      }
-      case "rectangle": {
-        this.renderRectangle(widget as RectangleWidgetDTO);
-        return;
-      }
-      case "circle": {
-        this.renderCircle(widget as CircleWidgetDTO);
-        return;
-      }
-    }
   }
 }

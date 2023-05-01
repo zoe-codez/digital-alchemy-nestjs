@@ -20,12 +20,14 @@ import execa from "execa";
 import { existsSync, mkdirSync, readdirSync } from "fs";
 import Jimp, { intToRGBA, read } from "jimp";
 import { join } from "path";
+import { LedMatrixInstance } from "rpi-led-matrix";
 
 import {
   ANIMATION_CACHE_DIRECTORY,
   DEFAULT_ANIMATION_INTERVAL,
 } from "../config";
-import { MatrixService } from "./matrix.service";
+import { MATRIX_INSTANCE } from "../types";
+import { RenderService } from "./render.service";
 
 type AnimationExtras = GifWidgetDTO & {
   cachePath?: string;
@@ -48,8 +50,9 @@ const IMAGE_CACHE = (widget: ImageWidgetDTO) =>
 export class ImageService {
   constructor(
     private readonly logger: AutoLogService,
-    @Inject(forwardRef(() => MatrixService))
-    private readonly loader: MatrixService,
+    @Inject(MATRIX_INSTANCE)
+    private readonly matrix: LedMatrixInstance,
+    @Inject(forwardRef(() => RenderService))
     @InjectConfig(ANIMATION_CACHE_DIRECTORY)
     private readonly cacheDirectory: string,
     @InjectConfig(DEFAULT_ANIMATION_INTERVAL)
@@ -58,10 +61,6 @@ export class ImageService {
 
   public renderCache = new Map<string, Cell[][]>();
   private readonly animationCancel = new Set<() => void>();
-
-  private get matrix() {
-    return this.loader.matrix;
-  }
 
   public async loadAnimation(options: GifWidgetDTO): Promise<void> {
     const cachePath = join(this.cacheDirectory, is.hash(options.path));

@@ -39,4 +39,18 @@ export class MatrixMathService {
    * Total vertical count of rows
    */
   public readonly verticalPanelCount: number;
+
+  public rolloverFix(
+    x: number,
+    y: number,
+  ): [x: number, y: number, panelShift: number] {
+    const panelShift = Math.floor(y / this.panelHeight);
+    return [
+      // ? push horizontally
+      x + panelShift * this.totalWidth,
+      // ? pull vertically
+      y % this.panelHeight,
+      panelShift,
+    ];
+  }
 }
