@@ -71,7 +71,7 @@ export class MatrixFetch {
           .join(`\n`),
       },
       method: "post",
-      url: `/matrix/grid`,
+      url: `/pixel`,
     });
   }
 
@@ -79,7 +79,7 @@ export class MatrixFetch {
     return await this.fetch({
       body: { dash },
       method: "post",
-      url: `/matrix/widgets`,
+      url: `/widget`,
     });
   }
 }

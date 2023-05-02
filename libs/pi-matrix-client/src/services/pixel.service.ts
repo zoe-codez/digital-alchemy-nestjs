@@ -1,7 +1,7 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { MatrixMathService } from "@digital-alchemy/rgb-matrix";
 import { is } from "@digital-alchemy/utilities";
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Color, LedMatrixInstance } from "rpi-led-matrix";
 
 import { MATRIX_INSTANCE } from "../types";
@@ -14,6 +14,7 @@ export class PixelService {
     @Inject(MATRIX_INSTANCE)
     private readonly matrix: LedMatrixInstance,
     private readonly math: MatrixMathService,
+    @Inject(forwardRef(() => RenderService))
     private readonly renderService: RenderService,
   ) {}
 

@@ -36,7 +36,7 @@ export class TextService {
     private readonly matrix: LedMatrixInstance,
     @InjectConfig(DEFAULT_FONT, LIB_RGB_MATRIX)
     private readonly defaultFont: FONTS,
-    @Inject(FONTS_DIRECTORY)
+    @InjectConfig(FONTS_DIRECTORY)
     private readonly root: string,
   ) {}
 

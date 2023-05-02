@@ -15,7 +15,7 @@ import {
   sleep,
   START,
 } from "@digital-alchemy/utilities";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import execa from "execa";
 import { existsSync, mkdirSync, readdirSync } from "fs";
 import Jimp, { intToRGBA, read } from "jimp";
@@ -27,7 +27,6 @@ import {
   DEFAULT_ANIMATION_INTERVAL,
 } from "../config";
 import { MATRIX_INSTANCE } from "../types";
-import { RenderService } from "./render.service";
 
 type AnimationExtras = GifWidgetDTO & {
   cachePath?: string;
@@ -52,7 +51,6 @@ export class ImageService {
     private readonly logger: AutoLogService,
     @Inject(MATRIX_INSTANCE)
     private readonly matrix: LedMatrixInstance,
-    @Inject(forwardRef(() => RenderService))
     @InjectConfig(ANIMATION_CACHE_DIRECTORY)
     private readonly cacheDirectory: string,
     @InjectConfig(DEFAULT_ANIMATION_INTERVAL)

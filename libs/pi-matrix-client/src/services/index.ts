@@ -3,6 +3,7 @@ export * from "./countdown.service";
 export * from "./image.service";
 export * from "./pixel.service";
 export * from "./render.service";
+export * from "./sound.service";
 export * from "./sync-animation.service";
 export * from "./text.service";
 export * from "./widget.service";

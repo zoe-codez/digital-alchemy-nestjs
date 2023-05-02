@@ -37,7 +37,7 @@ export const MatrixInstanceProvider = {
         isNumberString(value) ? Number(value) : value,
       ]),
     );
-    logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
+    // logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
     return new LedMatrix(
       { ...LedMatrix.defaultMatrixOptions(), ...matrix },
       { ...LedMatrix.defaultRuntimeOptions(), ...runtime },
