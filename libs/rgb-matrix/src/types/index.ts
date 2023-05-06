@@ -4,4 +4,6 @@ export * from "./comm";
 export * from "./events";
 export * from "./fonts";
 export * from "./hms";
+export * from "./pixel-rendering";
 export * from "./render-widget.dto";
+export * from "./sound";

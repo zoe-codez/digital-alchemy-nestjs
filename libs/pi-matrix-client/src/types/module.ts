@@ -9,9 +9,10 @@ import { LedMatrix, MatrixOptions } from "rpi-led-matrix";
 import { LIB_PI_MATRIX_CLIENT, RUNTIME_OPTIONS } from "../config";
 
 export type PiMatrixClientOptions = {
-  controllers?: boolean;
+  withControllers?: boolean;
 };
 export const MATRIX_INSTANCE = "MATRIX_INSTANCE";
+const LOGGING_DELAY = 2500;
 
 export const MatrixInstanceProvider = {
   inject: [AutoConfigService, AutoLogService],
@@ -37,7 +38,10 @@ export const MatrixInstanceProvider = {
         isNumberString(value) ? Number(value) : value,
       ]),
     );
-    // logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
+    setTimeout(() => {
+      logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
+    }, LOGGING_DELAY);
+
     return new LedMatrix(
       { ...LedMatrix.defaultMatrixOptions(), ...matrix },
       { ...LedMatrix.defaultRuntimeOptions(), ...runtime },

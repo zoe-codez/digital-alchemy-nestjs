@@ -14,3 +14,8 @@ export type PlaySoundCommand = {
 };
 
 export const NO_SOUND_DEVICE = -1;
+
+export type SoundConfiguration = {
+  directory: string;
+  files: string[];
+};

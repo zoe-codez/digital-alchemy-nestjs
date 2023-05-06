@@ -1,11 +1,12 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
-import { MatrixMathService } from "@digital-alchemy/rgb-matrix";
-import { is } from "@digital-alchemy/utilities";
+import { MatrixMathService, SetPixelGrid } from "@digital-alchemy/rgb-matrix";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { Color, LedMatrixInstance } from "rpi-led-matrix";
+import { LedMatrixInstance } from "rpi-led-matrix";
 
 import { MATRIX_INSTANCE } from "../types";
 import { RenderService } from "./render.service";
+
+const OFF = { b: 0, g: 0, r: 0 };
 
 @Injectable()
 export class PixelService {
@@ -22,34 +23,31 @@ export class PixelService {
     //
   }
 
-  public setGrid(grid: Color[][]): void {
+  public setGrid({ grid, palette, clear }: SetPixelGrid): void {
     this.renderService.renderMode = "pixel";
-
-    this.matrix.clear();
-    this.logger.info(`Received {%s} rows of pixels`, grid.length);
+    this.logger.debug(
+      { clear, palette },
+      `received {%s} rows of pixels`,
+      grid.length,
+    );
+    if (clear !== false) {
+      this.matrix.clear();
+    }
     grid.forEach((row, ROW) =>
-      row.forEach((color, COL) => {
-        if (ROW > 30) {
-          return;
-        }
-        const [x, y, panelShift] = this.math.rolloverFix(COL, ROW);
-        this.logger.debug({
-          COL,
-          ROW,
-          panelShift,
-          x,
-          y,
-        });
-        this.matrix.setPixel(x, y).fgColor(
-          x > 300
-            ? color
-            : is.random([
-                { b: 0, g: 0, r: 0 },
-                { b: 75, g: 100, r: 50 },
-              ]),
-        );
-      }),
+      row.forEach((color, COL) =>
+        this.pixel(COL, ROW).fgColor(palette[color] ?? OFF),
+      ),
     );
     this.matrix.sync();
+  }
+
+  /**
+   * * `col` / `row` come in as a plain list of x/y coords
+   *
+   * These need to be translated to numbers that make sense for a chain of panels
+   */
+  private pixel(col: number, row: number): LedMatrixInstance {
+    const [x, y] = this.math.rolloverFix(col, row);
+    return this.matrix.setPixel(x, y);
   }
 }

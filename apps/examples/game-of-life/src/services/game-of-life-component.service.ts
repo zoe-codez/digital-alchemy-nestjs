@@ -617,8 +617,7 @@ export class GameOfLifeComponentService implements iComponent {
       return i.map(cell => (cell ? COLOR_OFF : this.color));
     });
     const size = JSON.stringify(grid).length;
-    foo = await this.fetch.setGrid(visible, this.color);
-    debugger;
+    foo = await this.fetch.setPixels(visible, this.color);
     return [size, foo];
   }
 }

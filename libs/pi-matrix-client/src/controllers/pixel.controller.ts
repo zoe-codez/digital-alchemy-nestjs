@@ -1,7 +1,6 @@
-import { OFF } from "@digital-alchemy/rgb-matrix";
+import { SetPixelGrid } from "@digital-alchemy/rgb-matrix";
 import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Post } from "@nestjs/common";
-import { Color } from "rpi-led-matrix";
 
 import { PixelService } from "../services";
 
@@ -12,16 +11,9 @@ export class PixelController {
 
   @Post("/")
   public pixelGrid(
-    @Body() { grid, color }: { grid: string; color: Color },
+    @Body() grid: SetPixelGrid,
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    const parsed = grid
-      .split(`\n`)
-      .map(i => [...i].map(index => index === "1"));
-    this.pixel.setGrid(
-      parsed.map(row =>
-        row.map(cell => (cell ? color : { b: OFF, g: OFF, r: OFF })),
-      ),
-    );
+    this.pixel.setGrid(grid);
     return GENERIC_SUCCESS_RESPONSE;
   }
 }

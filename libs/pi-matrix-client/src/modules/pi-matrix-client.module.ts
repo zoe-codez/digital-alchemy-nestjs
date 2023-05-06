@@ -1,5 +1,5 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
-import { RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
+import { NO_SOUND_DEVICE, RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
 import { DynamicModule, Provider } from "@nestjs/common";
 import { homedir } from "os";
 import { join } from "path";
@@ -22,6 +22,7 @@ import {
   PixelController,
   WidgetController,
 } from "../controllers";
+import { SoundController } from "../controllers/sound.controller";
 import {
   BorderSpinQueueService,
   CountdownService,
@@ -33,11 +34,7 @@ import {
   TextService,
   WidgetService,
 } from "../services";
-import {
-  MatrixInstanceProvider,
-  NO_SOUND_DEVICE,
-  PiMatrixClientOptions,
-} from "../types";
+import { MatrixInstanceProvider, PiMatrixClientOptions } from "../types";
 
 const providers = [
   BorderSpinQueueService,
@@ -104,17 +101,20 @@ const providers = [
   providers,
 })
 export class PiMatrixClientModule {
-  public static forRoot({ controllers }: PiMatrixClientOptions): DynamicModule {
+  public static forRoot({
+    withControllers,
+  }: PiMatrixClientOptions): DynamicModule {
     const forRootModule: DynamicModule = {
       imports: [RGBMatrixModule],
       module: PiMatrixClientModule,
       providers,
     };
-    if (controllers) {
+    if (withControllers) {
       forRootModule.controllers = [
         AnimationController,
         MatrixController,
         PixelController,
+        SoundController,
         WidgetController,
       ];
     }

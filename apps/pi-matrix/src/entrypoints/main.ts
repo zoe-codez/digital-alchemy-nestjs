@@ -18,6 +18,9 @@ import { ServerModule } from "@digital-alchemy/server";
     },
     http: { enabled: true },
   },
-  imports: [PiMatrixClientModule.forRoot({ controllers: true }), ServerModule],
+  imports: [
+    PiMatrixClientModule.forRoot({ withControllers: true }),
+    ServerModule,
+  ],
 })
 export class PiMatrix {}

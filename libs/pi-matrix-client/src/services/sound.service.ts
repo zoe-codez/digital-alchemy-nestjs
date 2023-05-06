@@ -1,15 +1,16 @@
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import {
+  APlaySpeakerDevice,
+  NO_SOUND_DEVICE,
+  PlaySoundCommand,
+  SoundConfiguration,
+} from "@digital-alchemy/rgb-matrix";
 import { Injectable } from "@nestjs/common";
 import execa from "execa";
 import { readdirSync } from "fs";
 import { isAbsolute, join } from "path";
 
 import { DEFAULT_SOUND_DEVICE, SOUND_DIRECTORY } from "../config";
-import {
-  APlaySpeakerDevice,
-  NO_SOUND_DEVICE,
-  PlaySoundCommand,
-} from "../types";
 
 @Injectable()
 export class SoundService {
@@ -20,6 +21,13 @@ export class SoundService {
     private readonly soundDevice: number,
     private readonly logger: AutoLogService,
   ) {}
+
+  public describeConfiguration(): SoundConfiguration {
+    return {
+      directory: this.soundDirectory,
+      files: this.soundFileList(),
+    };
+  }
 
   public async playSound({
     sound,

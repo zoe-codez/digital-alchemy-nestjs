@@ -1,5 +1,6 @@
 import {
   AutoLogService,
+  CompressionService,
   InjectConfig,
   QuickScript,
 } from "@digital-alchemy/boilerplate";
@@ -13,7 +14,6 @@ import {
   HomeAssistantModuleConfiguration,
   LIB_HOME_ASSISTANT,
   PushCallService,
-  SERIALIZE,
   VERIFICATION_FILE,
 } from "@digital-alchemy/home-assistant";
 import { sleep } from "@digital-alchemy/utilities";
@@ -41,6 +41,7 @@ export class TypeGenerate {
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
     private readonly gen: HassCallTypeGenerator,
+    private readonly compression: CompressionService,
     private readonly push: PushCallService,
     @InjectConfig("TARGET_FILE", {
       description: "Alternate file to write to",
@@ -104,6 +105,7 @@ export class TypeGenerate {
       this.findExtraTypes();
     } catch (error) {
       this.logger.fatal({ error });
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       await sleep(10);
       exit(IT_BROKE);
     }
@@ -131,7 +133,7 @@ export class TypeGenerate {
         );
         return;
       }
-      const data = SERIALIZE.unserialize(
+      const data = this.compression.unserialize(
         readFileSync(join(base, this.verificationFile), "utf8"),
         HassDigitalAlchemySerializeState,
       );

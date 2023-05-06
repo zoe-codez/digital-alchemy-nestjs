@@ -4,11 +4,15 @@ import { Injectable } from "@nestjs/common";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
 import {
+  APlaySpeakerDevice,
   BorderSpinQueue,
+  FONTS,
   GenericWidgetDTO,
   MatrixDimensionsResponse,
   PulseLaserOptions,
   RGB,
+  SetPixelGrid,
+  SoundConfiguration,
 } from "../types";
 
 @Injectable()
@@ -56,20 +60,38 @@ export class MatrixFetch {
     });
   }
 
+  public async getCurrentWidgets(): Promise<GenericWidgetDTO[]> {
+    return await this.fetch({
+      url: `/widget`,
+    });
+  }
+
   public async getDimensions(): Promise<MatrixDimensionsResponse> {
     return await this.fetch({
       url: `/matrix/dimensions`,
     });
   }
 
-  public async setGrid(grid: boolean[][], color: RGB): Promise<void> {
+  public async getSoundConfiguration(): Promise<SoundConfiguration> {
     return await this.fetch({
-      body: {
-        color,
-        grid: grid
-          .map(i => i.map(index => is.random(["1", "0"])).join(""))
-          .join(`\n`),
-      },
+      url: `/sound/configuration`,
+    });
+  }
+
+  public async listAvailableFonts(): Promise<FONTS[]> {
+    return await this.fetch({
+      url: `/widget/fonts`,
+    });
+  }
+
+  public async listAvailableSoundDevices(): Promise<APlaySpeakerDevice[]> {
+    return await this.fetch({
+      url: `/sound/devices`,
+    });
+  }
+  public async setPixels(body: SetPixelGrid): Promise<void> {
+    return await this.fetch({
+      body,
       method: "post",
       url: `/pixel`,
     });

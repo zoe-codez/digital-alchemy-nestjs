@@ -1,6 +1,7 @@
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
+  CompressionService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { deepExtend, is, SINGLE, sleep } from "@digital-alchemy/utilities";
@@ -17,7 +18,6 @@ import {
 import {
   GenerateEntities,
   HassDigitalAlchemySerializeState,
-  SERIALIZE,
 } from "../../types";
 
 type ModuleConfigurations = Map<string, HassDigitalAlchemySerializeState>;
@@ -34,6 +34,7 @@ export class PushCallService {
     private readonly application: string,
     @InjectConfig(VERIFICATION_FILE)
     private readonly verificationFile: string,
+    private readonly compression: CompressionService,
   ) {
     if (this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER) {
       this.applicationIdentifier = this.application.replaceAll("-", "_");
@@ -77,7 +78,7 @@ export class PushCallService {
         return;
       }
       const info = readFileSync(verificationPath, "utf8");
-      const data = SERIALIZE.unserialize(
+      const data = this.compression.unserialize(
         info,
         HassDigitalAlchemySerializeState,
       );
