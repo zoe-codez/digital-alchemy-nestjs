@@ -41,45 +41,51 @@ import { nextTick } from "process";
 import { COLOR_OFF, GameOfLifeSettings } from "../types";
 import { ConwayService } from "./conway.service";
 
-const ICON_RENDER = `🧮`;
-const ICON_TOGGLE = `🪄`;
-const ICON_SETTINGS = `⚙️`;
-const ICON_CURSOR = `🖱️`;
+enum Palette {
+  on = "1",
+  off = "0",
+}
+enum Icons {
+  render = `🧮`,
+  toggle = `🪄`,
+  settings = `⚙️`,
+  cursor = `🖱️`,
+}
 
 const KEYMAP: TTYComponentKeymap = new Map([
   [
-    { description: `${ICON_CURSOR}cursor down  `, key: ["down", "s"] },
+    { description: `${Icons.cursor}cursor down  `, key: ["down", "s"] },
     "cursorDown",
   ],
   [{ description: `⏹️done  `, key: "f4" }, "done"],
   [{ description: `⏮️reset  `, key: "f5" }, "reset"],
   [
-    { description: `${ICON_TOGGLE}keymap visibility  `, key: "f6" },
+    { description: `${Icons.toggle}keymap visibility  `, key: "f6" },
     "toggleKeymap",
   ],
   [
-    { description: `${ICON_TOGGLE}verify matrix connection  `, key: "f10" },
+    { description: `${Icons.toggle}verify matrix connection  `, key: "f10" },
     "checkConnection",
   ],
-  [{ description: `${ICON_TOGGLE}debug  `, key: "f7" }, "toggleDebug"],
-  [{ description: `${ICON_SETTINGS}configure  `, key: "f8" }, "settings"],
+  [{ description: `${Icons.toggle}debug  `, key: "f7" }, "toggleDebug"],
+  [{ description: `${Icons.settings}configure  `, key: "f8" }, "settings"],
   [
-    { description: `${ICON_TOGGLE}advanced debug  `, key: "f9" },
+    { description: `${Icons.toggle}advanced debug  `, key: "f9" },
     "toggleAdvancedDebug",
   ],
   [
-    { description: `${ICON_CURSOR}cursor left  `, key: ["left", "a"] },
+    { description: `${Icons.cursor}cursor left  `, key: ["left", "a"] },
     "cursorLeft",
   ],
-  [{ description: `${ICON_RENDER}render batch`, key: "r" }, "runBatch"],
+  [{ description: `${Icons.render}render batch`, key: "r" }, "runBatch"],
   [
-    { description: `${ICON_CURSOR}cursor right  `, key: ["right", "d"] },
+    { description: `${Icons.cursor}cursor right  `, key: ["right", "d"] },
     "cursorRight",
   ],
   [{ description: `🔁render continuous`, key: "c" }, "toggleContinuous"],
   [{ description: `🔀toggle cell`, key: "space" }, "toggle"],
   [{ description: `🔂render tick`, key: "t" }, "tick"],
-  [{ description: `${ICON_CURSOR}cursor up  `, key: ["up", "w"] }, "cursorUp"],
+  [{ description: `${Icons.cursor}cursor up  `, key: ["up", "w"] }, "cursorUp"],
 ]);
 const SPEED = 50;
 const RUN_TICKS = 100;
@@ -612,13 +618,14 @@ export class GameOfLifeComponentService implements iComponent {
     // if (!this.connected) {
     //   return;
     // }
-    const visible = this.boardSlice(this.matrixHeight, this.matrixWidth);
-    const grid = visible.map(i => {
-      return i.map(cell => (cell ? COLOR_OFF : this.color));
+    const grid = this.boardSlice(this.matrixHeight, this.matrixWidth);
+    await this.fetch.setPixels({
+      clear: true,
+      grid: grid.map(row => row.map(i => (i ? Palette.on : Palette.off))),
+      palette: {
+        [Palette.off]: COLOR_OFF,
+        [Palette.on]: this.color,
+      },
     });
-    const size = JSON.stringify(grid).length;
-    foo = await this.fetch.setPixels(visible, this.color);
-    return [size, foo];
   }
 }
-let foo: unknown;

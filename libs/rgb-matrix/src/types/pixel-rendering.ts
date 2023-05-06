@@ -1,4 +1,4 @@
-import { Colors } from "./colors";
+import { RGB } from "./render-widget.dto";
 
 /**
  * An attempt at a format that takes into account size as a payload
@@ -24,5 +24,5 @@ export type SetPixelGrid = {
   /**
    * Use single character indexes for palette
    */
-  palette: Record<string, Colors>;
+  palette: Record<string, RGB>;
 };

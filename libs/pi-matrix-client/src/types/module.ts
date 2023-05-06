@@ -41,6 +41,24 @@ export const MatrixInstanceProvider = {
     setTimeout(() => {
       logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
     }, LOGGING_DELAY);
+    // process.on("exit", () => console.log("CAUGHT exit"));
+    // process.on("beforeExit", () => console.log("CAUGHT beforeExit"));
+    // process.on("uncaughtException", () =>
+    //   console.log("CAUGHT uncaughtException"),
+    // );
+    // process.on("uncaughtExceptionMonitor", () =>
+    //   console.log("CAUGHT uncaughtExceptionMonitor"),
+    // );
+    // process.on("unhandledRejection", () =>
+    //   console.log("CAUGHT unhandledRejection"),
+    // );
+    // process.on("SIGALRM", () => console.log("CAUGHT SIGALRM"));
+    // process.on("SIGABRT", () => console.log("CAUGHT SIGABRT"));
+    // process.on("SIGBREAK", () => console.log("CAUGHT SIGBREAK"));
+    // process.on("SIGHUP", () => console.log("CAUGHT SIGHUP"));
+    // process.on("SIGILL", () => console.log("CAUGHT SIGILL"));
+    // process.on("SIGKILL", () => console.log("CAUGHT SIGKILL"));
+    // process.on("SIGLOST", () => console.log("CAUGHT SIGLOST"));
 
     return new LedMatrix(
       { ...LedMatrix.defaultMatrixOptions(), ...matrix },
