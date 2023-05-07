@@ -10,7 +10,7 @@
   "description": "Rest bindings for rpi-led-matrix",
   "main": "main.js",
   "name": "@digital-alchemy/pi-matrix",
-  "version": "23.17.5",
+  "version": "23.18.0",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "pkg": {
     "scripts": [

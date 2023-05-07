@@ -700,9 +700,9 @@ export class GameOfLifeComponentService implements iComponent {
    * send the current state to the pi matrix
    */
   private async sendState() {
-    // if (!this.connected) {
-    //   return;
-    // }
+    if (!this.connected) {
+      return;
+    }
     const grid = this.boardSlice(this.matrixHeight, this.matrixWidth);
     await this.fetch.setPixels({
       clear: true,

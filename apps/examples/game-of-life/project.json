@@ -28,21 +28,15 @@
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/examples/game-of-life",
         "tsConfig": "apps/examples/game-of-life/tsconfig.app.json",
         "target": "node",
         "compiler": "tsc",
-        "generatePackageJson": true
+        "generatePackageJson": true,
+        "outputPath": "dist/apps/examples/game-of-life",
+        "main": "apps/examples/game-of-life/src/entrypoints/main.ts"
       },
       "configurations": {
-        "cli": {
-          "outputPath": "dist/apps/examples/game-of-life/cli",
-          "main": "apps/examples/game-of-life/src/entrypoints/cli.main.ts"
-        },
-        "matrix": {
-          "outputPath": "dist/apps/examples/game-of-life/matrix",
-          "main": "apps/examples/game-of-life/src/entrypoints/matrix.main.ts"
-        }
+        "production":{}
       }
     },
     "lint": {
