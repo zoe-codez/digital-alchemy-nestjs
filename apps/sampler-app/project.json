@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "sampler-app:build",
         "inspect": "inspect",
-        "port": 33343
+        "port": 33345
       }
     },
     "build": {

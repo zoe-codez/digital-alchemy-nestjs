@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "notification-tester:build",
         "inspect": "inspect",
-        "port": 33345
+        "port": 33349
       }
     },
     "build": {

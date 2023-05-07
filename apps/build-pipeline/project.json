@@ -1,6 +1,5 @@
 {
   "name": "build-pipeline",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/build-pipeline/src",
   "projectType": "application",
   "targets": {
@@ -9,7 +8,7 @@
       "options": {
         "buildTarget": "build-pipeline:build",
         "inspect": "inspect",
-        "port": 33339
+        "port": 33340
       }
     },
     "build": {

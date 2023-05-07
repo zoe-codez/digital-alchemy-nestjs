@@ -1,6 +1,5 @@
 {
   "name": "rgb-matrix",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/rgb-matrix/src",
   "projectType": "library",
   "targets": {

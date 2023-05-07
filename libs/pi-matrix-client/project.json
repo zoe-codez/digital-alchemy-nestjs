@@ -1,6 +1,5 @@
 {
   "name": "pi-matrix-client",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/pi-matrix-client/src",
   "projectType": "library",
   "targets": {

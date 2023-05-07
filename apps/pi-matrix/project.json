@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "pi-matrix:build",
         "inspect": "inspect",
-        "port": 33503
+        "port": 33344
       }
     },
     "build": {

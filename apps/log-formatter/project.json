@@ -9,7 +9,7 @@
       "options": {
         "buildTarget": "log-formatter:build",
         "inspect": "inspect",
-        "port": 33345
+        "port": 33344
       }
     },
     "prepare": {

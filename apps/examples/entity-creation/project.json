@@ -1,6 +1,5 @@
 {
   "name": "entity-creation",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/examples/entity-creation/src",
   "projectType": "application",
   "targets": {
@@ -9,7 +8,7 @@
       "options": {
         "buildTarget": "entity-creation:build",
         "inspect": "inspect",
-        "port": 33344
+        "port": 33347
       }
     },
     "build": {

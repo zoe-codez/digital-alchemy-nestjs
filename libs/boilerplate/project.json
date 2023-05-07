@@ -1,6 +1,5 @@
 {
   "name": "boilerplate",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/boilerplate/src",
   "projectType": "library",
   "targets": {

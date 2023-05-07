@@ -1,6 +1,5 @@
 {
   "name": "automation-logic",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/automation-logic/src",
   "projectType": "library",
   "targets": {

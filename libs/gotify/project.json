@@ -1,6 +1,5 @@
 {
   "name": "gotify",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/gotify/src",
   "projectType": "library",
   "targets": {
