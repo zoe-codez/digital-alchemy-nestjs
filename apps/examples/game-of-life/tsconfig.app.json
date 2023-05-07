@@ -3,24 +3,22 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../../dist/out-tsc",
-    "module": "commonjs",
-    "types": [
-      "node"
-    ]
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
   },
   "exclude": [
     "**/*.spec.ts",
-    "../../../libs/testing/**/*.ts",
     "../../../**/*.spec.ts",
   ],
   "include": [
     "**/*.ts",
     "../../../libs/boilerplate/**/*.ts",
-    "../../../libs/rgb-matrix/**/*.ts",
     "../../../libs/pi-matrix-client/**/*.ts",
     "../../../libs/render-utils/**/*.ts",
-    "../../../libs/tty/**/*.ts",
+    "../../../libs/rgb-matrix/**/*.ts",
     "../../../libs/server/**/*.ts",
-    "../../../libs/utilities/**/*.ts"
+    "../../../libs/tty/**/*.ts",
+    "../../../libs/utilities/**/*.ts",
   ]
 }

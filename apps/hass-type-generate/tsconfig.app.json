@@ -3,9 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../dist/out-tsc",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
@@ -17,10 +15,10 @@
     "**/*.ts",
     "../../libs/automation-logic/**/*.ts",
     "../../libs/boilerplate/**/*.ts",
-    "../../libs/server/**/*.ts",
-    "../../libs/render-utils/**/*.ts",
-    "../../libs/mqtt/**/*.ts",
     "../../libs/home-assistant/**/*.ts",
-    "../../libs/utilities/**/*.ts"
+    "../../libs/mqtt/**/*.ts",
+    "../../libs/render-utils/**/*.ts",
+    "../../libs/server/**/*.ts",
+    "../../libs/utilities/**/*.ts",
   ]
 }

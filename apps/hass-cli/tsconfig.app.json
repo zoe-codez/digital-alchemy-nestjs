@@ -3,23 +3,21 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    "types": [
-      "node"
-    ]
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
   },
   "exclude": [
     "**/*.spec.ts",
-    "../../libs/testing/**/*.ts",
     "../../**/*.spec.ts",
   ],
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
-    "../../libs/tty/**/*.ts",
-    "../../libs/server/**/*.ts",
-    "../../libs/render-utils/**/*.ts",
     "../../libs/home-assistant/**/*.ts",
-    "../../libs/utilities/**/*.ts"
+    "../../libs/render-utils/**/*.ts",
+    "../../libs/server/**/*.ts",
+    "../../libs/tty/**/*.ts",
+    "../../libs/utilities/**/*.ts",
   ]
 }
