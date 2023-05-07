@@ -2,15 +2,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "composite": true,
     "outDir": "../../dist/out-tsc",
+    "composite": true,
     "declaration": true,
     "types": ["node"],
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "**/*.tsx"],
-  "references": [
-    {"path": "../render-utils/tsconfig.lib.json"}
-  ]
+  "include": ["**/*.ts"],
+  "references": [ ]
 }

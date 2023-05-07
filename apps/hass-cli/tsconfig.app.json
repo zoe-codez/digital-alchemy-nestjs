@@ -18,6 +18,7 @@
     "../../libs/boilerplate/**/*.ts",
     "../../libs/tty/**/*.ts",
     "../../libs/server/**/*.ts",
+    "../../libs/render-utils/**/*.ts",
     "../../libs/home-assistant/**/*.ts",
     "../../libs/utilities/**/*.ts"
   ]

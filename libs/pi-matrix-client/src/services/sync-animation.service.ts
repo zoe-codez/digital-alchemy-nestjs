@@ -47,24 +47,27 @@ export class SyncAnimationService {
       );
     }
     switch (animation.animationOptions.type) {
-      case "border-spin":
+      case "border-spin": {
         await this.animation.borderSpin({
           ...animation.animationOptions,
           callback,
         });
         break;
-      case "countdown":
+      }
+      case "countdown": {
         await this.countdown.exec({
           ...animation.animationOptions,
           callback,
         });
         break;
-      case "pulse-laser":
+      }
+      case "pulse-laser": {
         await this.animation.pulseLaser({
           ...animation.animationOptions,
           callback,
         });
         break;
+      }
     }
     this.pre.delete(id);
     this.post.delete(id);

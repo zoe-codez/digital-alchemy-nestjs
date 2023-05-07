@@ -1,0 +1,1 @@
+export const MAX_COLOR_BRIGHTNESS = 255;

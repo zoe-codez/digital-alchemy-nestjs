@@ -36,31 +36,39 @@ export class JSONFilterService {
       return (empty && filter.empty) || (!filter.empty && !empty);
     }
     switch (filter.operation) {
-      case FILTER_OPERATIONS.gt:
+      case FILTER_OPERATIONS.gt: {
         return this.gt(value, filter.value as RelativeCompare);
-      case FILTER_OPERATIONS.gte:
+      }
+      case FILTER_OPERATIONS.gte: {
         return this.gte(value, filter.value as RelativeCompare);
-      case FILTER_OPERATIONS.lt:
+      }
+      case FILTER_OPERATIONS.lt: {
         return this.lt(value, filter.value as RelativeCompare);
-      case FILTER_OPERATIONS.lte:
+      }
+      case FILTER_OPERATIONS.lte: {
         return this.lte(value, filter.value as RelativeCompare);
-      case FILTER_OPERATIONS.ne:
+      }
+      case FILTER_OPERATIONS.ne: {
         return !this.eq(value, filter.value);
-      case FILTER_OPERATIONS.in:
+      }
+      case FILTER_OPERATIONS.in: {
         if (!is.array(filter.value)) {
           this.logger.warn({ filter }, `value is not an array`);
           return false;
         }
         return filter.value.some(cmp => this.eq(cmp, value));
-      case FILTER_OPERATIONS.nin:
+      }
+      case FILTER_OPERATIONS.nin: {
         if (!is.array(filter.value)) {
           this.logger.warn({ filter }, `value is not an array`);
           return false;
         }
         return !filter.value.some(cmp => this.eq(cmp, value));
-      case FILTER_OPERATIONS.regex:
+      }
+      case FILTER_OPERATIONS.regex: {
         return this.regex(value, filter.value as string | RegExp);
-      case FILTER_OPERATIONS.elem:
+      }
+      case FILTER_OPERATIONS.elem: {
         if (!is.array(value)) {
           this.logger.warn(
             { filter, value },
@@ -69,10 +77,12 @@ export class JSONFilterService {
           return false;
         }
         return value.some(cmp => this.eq(cmp, filter.value));
+      }
       // eq = default
       // case FILTER_OPERATIONS.eq:
-      default:
+      default: {
         return this.eq(value, filter.value);
+      }
     }
   }
 

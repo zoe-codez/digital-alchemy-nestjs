@@ -40,7 +40,7 @@ import {
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
   AutomationLogicModuleConfiguration,
   CannedTransitions,
-  MAX_BRIGHTNESS,
+  MAX_LED_BRIGHTNESS,
   OFF,
   ROOM_SCENES,
   SCENE_ROOM_OPTIONS,
@@ -216,8 +216,8 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
       const entity = this.entityManager.byId(entity_id);
       let { brightness = OFF } = entity.attributes as { brightness?: number };
       brightness += amount;
-      if (brightness > MAX_BRIGHTNESS) {
-        brightness = MAX_BRIGHTNESS;
+      if (brightness > MAX_LED_BRIGHTNESS) {
+        brightness = MAX_LED_BRIGHTNESS;
       }
       if (brightness < EMPTY) {
         brightness = EMPTY;
@@ -227,8 +227,8 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
         `[%s] set brightness: {%s/%s (%s%)}`,
         entity_id,
         brightness,
-        MAX_BRIGHTNESS,
-        Math.floor((brightness * PERCENT) / MAX_BRIGHTNESS),
+        MAX_LED_BRIGHTNESS,
+        Math.floor((brightness * PERCENT) / MAX_LED_BRIGHTNESS),
       );
       await this.call.light.turn_on({
         brightness,

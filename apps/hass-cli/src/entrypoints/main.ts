@@ -98,20 +98,25 @@ export class HassCLI {
       value,
     });
     switch (action) {
-      case "remover":
+      case "remover": {
         await this.remover.exec();
         return await this.exec(action);
-      case "done":
+      }
+      case "done": {
         return;
-      case "entity_inspect":
+      }
+      case "entity_inspect": {
         await this.entity.exec();
         return await this.exec(action);
-      case "backups":
+      }
+      case "backups": {
         await this.backup.exec();
         return await this.exec(action);
-      case "notifications":
+      }
+      case "notifications": {
         await this.notification.exec();
         return await this.exec(action);
+      }
     }
   }
 

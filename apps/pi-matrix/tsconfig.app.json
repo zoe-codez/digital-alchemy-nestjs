@@ -18,6 +18,7 @@
     "../../libs/utilities/**/*ts",
     "../../libs/server/**/*ts",
     "../../libs/rgb-matrix/**/*ts",
+    "../../libs/render-utils/**/*.ts",
     "../../libs/pi-matrix-client/**/*ts",
     "../../libs/boilerplate/**/*ts"
   ]

@@ -113,30 +113,36 @@ export class ConfigScanner {
     switch (action) {
       case "done":
         return;
-      case "print":
+      case "print": {
         this.screen.printLine(this.config);
         await this.prompt.acknowledge();
         return await this.exec(action);
-      case "list-files":
+      }
+      case "list-files": {
         this.listConfigFiles();
         this.screen.down();
         await this.prompt.acknowledge();
         return await this.exec(action);
-      case "edit":
+      }
+      case "edit": {
         await this.selectConfig();
         return await this.exec(action);
-      case "environment":
+      }
+      case "environment": {
         this.printEnvironment();
         await this.prompt.acknowledge();
         return await this.exec(action);
-      case "write-local":
+      }
+      case "write-local": {
         await this.writeLocal();
         await this.prompt.acknowledge();
         return await this.exec(action);
-      case "write-config":
+      }
+      case "write-config": {
         this.writeConfig();
         await this.prompt.acknowledge();
         return await this.exec(action);
+      }
     }
   }
 
@@ -217,19 +223,22 @@ export class ConfigScanner {
     let current = get(this.config, path, this.getDefaultValue(config));
     let result: unknown;
     switch (config.metadata.type) {
-      case "boolean":
+      case "boolean": {
         result = await this.prompt.boolean({
           current: Boolean(current),
           label: config.property,
         });
         break;
+      }
       case "number":
-        result = await this.prompt.number({
-          current: Number(current),
-          label: config.property,
-        });
+        {
+          result = await this.prompt.number({
+            current: Number(current),
+            label: config.property,
+          });
+        }
         break;
-      case "record":
+      case "record": {
         current = is.object(current) ? current : {};
         result = await this.prompt.arrayBuilder<{
           key: string;
@@ -252,7 +261,8 @@ export class ConfigScanner {
           ]),
         );
         break;
-      case "string":
+      }
+      case "string": {
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = is.array(metadata.enum)
           ? await this.prompt.pickOne({
@@ -265,16 +275,19 @@ export class ConfigScanner {
               label: config.property,
             });
         break;
-      case "string[]":
+      }
+      case "string[]": {
         result = await this.stringArray(
           config as ConfigTypeDTO<StringArrayConfig>,
           current as string[],
         );
         break;
-      default:
+      }
+      default: {
         await this.prompt.acknowledge({
           label: chalk.red`"${config.metadata.type}" editor not supported`,
         });
+      }
     }
     // await sleep(5000);
     set(this.config, path, result);
@@ -376,10 +389,11 @@ export class ConfigScanner {
         ) as unknown;
         if (!is.undefined(currentValue)) {
           switch (item.metadata.type) {
-            case "number":
+            case "number": {
               currentValue = Number(currentValue);
               break;
-            case "boolean":
+            }
+            case "boolean": {
               if (is.string(currentValue)) {
                 currentValue = ["false", "n"].includes(
                   currentValue.toLowerCase(),
@@ -387,6 +401,7 @@ export class ConfigScanner {
                 break;
               }
               currentValue = Boolean(currentValue);
+            }
           }
         }
         return this.buildMenuEntry(item, currentValue);

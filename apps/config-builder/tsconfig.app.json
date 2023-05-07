@@ -15,6 +15,7 @@
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
+    "../../libs/render-utils/**/*.ts",
     "../../libs/tty/**/*.ts",
     "../../libs/utilities/**/*.ts"
   ]

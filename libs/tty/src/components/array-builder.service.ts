@@ -140,18 +140,20 @@ export class ArrayBuilderService<VALUE extends object>
     let valueRemove: ValueToggle;
     const keyMapCallback: MainMenuCB<MenuResult> = (action, [, value]) => {
       switch (action) {
-        case "toggle":
+        case "toggle": {
           if (is.object(value) && !is.undefined((value as TypeToggle).type)) {
             typeToggle = value as TypeToggle;
             return true;
           }
           return chalk`Can only use toggle on {magenta.bold Show Group} entries.`;
-        case "remove":
+        }
+        case "remove": {
           if (is.object(value) && !is.undefined((value as ValueToggle).value)) {
             valueRemove = value as ValueToggle;
             return true;
           }
           return chalk`Can only use on values in the {bold.blue ${this.options.valuesLabel}} entries`;
+        }
       }
       return true;
     };
@@ -188,12 +190,13 @@ export class ArrayBuilderService<VALUE extends object>
     const cancel = Symbol();
     switch (result) {
       // done with editing, return result
-      case "done":
+      case "done": {
         this.onEnd();
         return;
+      }
 
       // remove a row (prompt first)
-      case "remove":
+      case "remove": {
         if (
           await this.prompt.confirm({
             label: chalk`Are you sure you want to delete {red ${get(
@@ -205,9 +208,10 @@ export class ArrayBuilderService<VALUE extends object>
           this.rows = this.rows.filter(row => row !== valueRemove.value);
         }
         return await this.render();
+      }
 
       // create a new row
-      case "add":
+      case "add": {
         const add = await this.objectBuild(
           deepExtend({}, this.options.defaultRow),
           cancel,
@@ -216,28 +220,32 @@ export class ArrayBuilderService<VALUE extends object>
           this.rows.push(add);
         }
         return await this.render();
+      }
 
       // toggle visibility of a type category
-      case "toggle":
+      case "toggle": {
         this.disabledTypes = this.disabledTypes.includes(
           String(typeToggle.type),
         )
           ? this.disabledTypes.filter(type => type !== String(typeToggle.type))
           : [...this.disabledTypes, String(typeToggle.type)];
         return await this.render();
+      }
 
       // toggle on all type categories
-      case "toggle_on":
+      case "toggle_on": {
         this.disabledTypes = toggles.map(i => String(TTY.GV(i).type));
         return await this.render();
+      }
 
       // toggle off all type categories
-      case "toggle_off":
+      case "toggle_off": {
         this.disabledTypes = [];
         return await this.render();
+      }
 
       // edit a row
-      case "edit":
+      case "edit": {
         const build = await this.objectBuild(
           deepExtend({}, this.rows[this.selectedRow]),
           cancel,
@@ -246,6 +254,7 @@ export class ArrayBuilderService<VALUE extends object>
           this.rows[this.selectedRow] = build;
         }
         return await this.render();
+      }
     }
   }
 

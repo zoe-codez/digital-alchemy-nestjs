@@ -152,11 +152,12 @@ export class AutoConfigService {
 
   private cast(data: string | string[], type: string): unknown {
     switch (type) {
-      case "boolean":
+      case "boolean": {
         data ??= "";
         return is.boolean(data)
           ? data
           : ["true", "y", "1"].includes((data as string).toLowerCase());
+      }
       case "number":
         return Number(data);
       case "string[]":

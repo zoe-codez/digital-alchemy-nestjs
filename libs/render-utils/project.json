@@ -1,0 +1,62 @@
+{
+  "name": "render-utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/render-utils/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/render-utils/src/index.ts",
+        "outputPath": "dist/libs/render-utils",
+        "packageJson": "libs/render-utils/package.json",
+        "tsConfig": "libs/render-utils/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "assets": [
+          "libs/render-utils/*.md",
+          "libs/render-utils/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "libs/render-utils/**/*.ts"
+        ]
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Render Utilities",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build render-utils --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/render-utils --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}

@@ -5,6 +5,8 @@ import {
   DEFAULT_FONT,
   FONTS,
   LIB_RGB_MATRIX,
+  MAX_COLOR_BRIGHTNESS,
+  OFF,
   TextWidgetDTO,
 } from "@digital-alchemy/rgb-matrix";
 import { EMPTY } from "@digital-alchemy/utilities";
@@ -24,7 +26,6 @@ import { FONTS_DIRECTORY } from "../config";
 import { MATRIX_INSTANCE } from "../types";
 
 const EXT = "bdf";
-const MAX_BRIGHTNESS = 255;
 
 @Injectable()
 export class TextService {
@@ -40,11 +41,13 @@ export class TextService {
     private readonly root: string,
   ) {}
 
-  public fonts = new Map<string, FontInstance>();
+  private fonts = new Map<string, FontInstance>();
 
   public font(font: FONTS) {
     this.load(font);
-    return this.matrix.font(this.fonts.get(font));
+    return (
+      this.matrix.font(this.fonts.get(font)) || this.font(this.defaultFont)
+    );
   }
 
   public load(name: FONTS): void {
@@ -72,7 +75,7 @@ export class TextService {
     this.matrix
       .font(font)
       .fgColor(widget.color ?? Colors.White)
-      .brightness(widget.brightness ?? MAX_BRIGHTNESS);
+      .brightness(this.brightnessRange(widget.brightness));
 
     glyphs.forEach(({ x, y, char }) =>
       this.matrix.drawText(
@@ -87,5 +90,15 @@ export class TextService {
     TextService.FONT_LIST = readdirSync(this.root)
       .filter(i => i.endsWith(EXT))
       .map(i => i.replace(`.${EXT}`, "") as FONTS);
+  }
+
+  /**
+   * Force a number that's in range
+   */
+  private brightnessRange(brightness: number) {
+    return Math.max(
+      Math.min(brightness ?? MAX_COLOR_BRIGHTNESS, MAX_COLOR_BRIGHTNESS),
+      OFF,
+    );
   }
 }
