@@ -9,5 +9,9 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "references": [
+    { "path": "../boilerplate/tsconfig.lib.json" },
+    { "path": "../utilities/tsconfig.lib.json" }
+  ]
 }

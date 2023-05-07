@@ -5,16 +5,13 @@
     "composite": true,
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "target": "ESNext"
   },
-  "exclude": [
-    "**/*.spec.ts"
-  ],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
+  "exclude": ["**/*.spec.ts"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "references": [
+    { "path": "../boilerplate/tsconfig.lib.json" },
+    { "path": "../utilities/tsconfig.lib.json" }
   ]
 }
