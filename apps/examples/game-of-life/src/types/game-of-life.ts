@@ -7,6 +7,7 @@ export type GameOfLifeComponentOptions = GameConfiguration & {
 };
 
 export type GameOfLifeSettings = RGB & {
+  batchSize: number;
   left: number;
   minHeight: number;
   minWidth: number;

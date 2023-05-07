@@ -15,7 +15,7 @@ export class CacheService {
     @InjectConfig(CACHE_PREFIX)
     private readonly prefix: string,
   ) {
-    this.prefix ||= activeApplication;
+    this.prefix ||= this.activeApplication;
   }
 
   public async del(key: string): Promise<void> {
@@ -23,7 +23,7 @@ export class CacheService {
     await this.cache.del(key);
   }
 
-  public async get<T>(key: string, defaultValue?: T): Promise<T> {
+  public async get<VALUE>(key: string, defaultValue?: VALUE): Promise<VALUE> {
     key = `${this.prefix}${key}`;
     return (await this.cache.get(key)) ?? defaultValue;
   }
@@ -33,7 +33,8 @@ export class CacheService {
     return await this.cache.store.keys(key);
   }
 
-  public async set(key: string, value: unknown, ttl?: number) {
+  // ? type added for easy validation
+  public async set<VALUE>(key: string, value: VALUE, ttl?: number) {
     key = `${this.prefix}${key}`;
     await this.cache.set(key, value, ttl);
   }

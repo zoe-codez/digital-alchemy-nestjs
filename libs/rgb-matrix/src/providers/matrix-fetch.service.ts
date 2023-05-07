@@ -1,5 +1,5 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
-import { FetchArguments, is } from "@digital-alchemy/utilities";
+import { FetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
@@ -10,7 +10,6 @@ import {
   GenericWidgetDTO,
   MatrixDimensionsResponse,
   PulseLaserOptions,
-  RGB,
   SetPixelGrid,
   SoundConfiguration,
 } from "../types";

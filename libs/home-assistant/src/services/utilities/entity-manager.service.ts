@@ -277,7 +277,7 @@ export class EntityManagerService {
     >;
     if (!current) {
       this.logger.error(
-        { context: `InjectEntityProxy(${entity})`, defaultValue },
+        { defaultValue, name: entity },
         `[proxyGetLogic] cannot find entity {%s}`,
         property,
       );
@@ -294,7 +294,7 @@ export class EntityManagerService {
     value: unknown,
   ): boolean {
     this.logger.error(
-      { context: `InjectEntityProxy(${entity})`, property, value },
+      { name: entity, property, value },
       `Entity proxy does not accept value setting`,
     );
     return false;

@@ -25,11 +25,6 @@ export class PixelService {
 
   public setGrid({ grid, palette, clear }: SetPixelGrid): void {
     this.renderService.renderMode = "pixel";
-    this.logger.debug(
-      { clear, palette },
-      `received {%s} rows of pixels`,
-      grid.length,
-    );
     if (clear !== false) {
       this.matrix.clear();
     }

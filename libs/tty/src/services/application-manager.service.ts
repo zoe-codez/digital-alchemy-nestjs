@@ -99,9 +99,9 @@ export class ApplicationManagerService {
     return await this.keyboard.wrap<VALUE>(async () => {
       const component = this.activeApplication;
       this.activeApplication = undefined;
-      const promise = new Promise<VALUE>(done => {
+      const promise = new Promise<VALUE>(async done => {
         const editor = this.editorExplorer.findServiceByType(name);
-        editor.configure(configuration, value => done(value as VALUE));
+        await editor.configure(configuration, value => done(value as VALUE));
         this.activeEditor = editor;
         editor.render();
       });

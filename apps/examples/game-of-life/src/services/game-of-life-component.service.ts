@@ -50,6 +50,11 @@ enum Icons {
   toggle = `🪄`,
   settings = `⚙️`,
   cursor = `🖱️`,
+  done = `⏹️`,
+  reset = `⏮️`,
+  continuous = `🔁`,
+  toggle_cell = `🔀`,
+  tick = `🔂`,
 }
 
 const KEYMAP: TTYComponentKeymap = new Map([
@@ -57,8 +62,8 @@ const KEYMAP: TTYComponentKeymap = new Map([
     { description: `${Icons.cursor}cursor down  `, key: ["down", "s"] },
     "cursorDown",
   ],
-  [{ description: `⏹️done  `, key: "f4" }, "done"],
-  [{ description: `⏮️reset  `, key: "f5" }, "reset"],
+  [{ description: `${Icons.done}done  `, key: "f4" }, "done"],
+  [{ description: `${Icons.reset}reset  `, key: "f5" }, "reset"],
   [
     { description: `${Icons.toggle}keymap visibility  `, key: "f6" },
     "toggleKeymap",
@@ -82,9 +87,18 @@ const KEYMAP: TTYComponentKeymap = new Map([
     { description: `${Icons.cursor}cursor right  `, key: ["right", "d"] },
     "cursorRight",
   ],
-  [{ description: `🔁render continuous`, key: "c" }, "toggleContinuous"],
-  [{ description: `🔀toggle cell`, key: "space" }, "toggle"],
-  [{ description: `🔂render tick`, key: "t" }, "tick"],
+  [
+    { description: `${Icons.continuous}render continuous`, key: "c" },
+    "toggleContinuous",
+  ],
+  [
+    {
+      description: `${Icons.toggle_cell}toggle cell`,
+      key: ["space", "`", "e"],
+    },
+    "toggle",
+  ],
+  [{ description: `${Icons.tick}render tick`, key: "t" }, "tick"],
   [{ description: `${Icons.cursor}cursor up  `, key: ["up", "w"] }, "cursorUp"],
 ]);
 const SPEED = 50;
@@ -99,9 +113,9 @@ const DEFAULT_COLOR: RGB = {
 };
 const RANGE = chalk`brightness on a {yellow 0}-{yellow 100} scale`;
 const COLORS = {
-  b: "Blue",
-  g: "Green",
-  r: "Red",
+  b: chalk.bgBlue(" ") + " Blue",
+  g: chalk.bgGreen(" ") + " Green",
+  r: chalk.bgRed(" ") + " Red",
 } as const;
 const RGB_ELEMENTS = Object.keys(COLORS).map(
   (path: keyof typeof COLORS): TableBuilderElement<RGB> => ({
@@ -151,6 +165,8 @@ export class GameOfLifeComponentService implements iComponent {
    * display neighbor counts
    */
   private advancedDebug = false;
+
+  private batchSize = RUN_TICKS;
 
   /**
    * the current state
@@ -261,7 +277,11 @@ export class GameOfLifeComponentService implements iComponent {
    */
   private get chalkColor() {
     const { r, g, b } = this.color;
-    return chalk.bgRgb((r / 100) * 255, (g / 100) * 255, (b / 100) * 255).black;
+    return chalk.bgRgb(
+      Math.floor((r / 100) * 255),
+      Math.floor((g / 100) * 255),
+      Math.floor((b / 100) * 255),
+    ).black;
   }
 
   private get renderedKeymap() {
@@ -286,30 +306,25 @@ export class GameOfLifeComponentService implements iComponent {
 
   /**
    * interface function for iComponent
+   *
+   * first parameter (options) is unused
    */
-  public configure(_: unknown, callback: ComponentDoneCallback): void {
+  public async configure(
+    _: unknown,
+    callback: ComponentDoneCallback,
+  ): Promise<void> {
     // ? Application header (clear it)
     this.application.setHeader();
     // ? Set defaults
-    this.minHeight = this.defaultMinHeight;
-    this.left = this.defaultLeft;
-    this.top = this.defaultTop;
-    this.minWidth = this.defaultMinWidth;
+    await this.loadCache();
     this.keymapVisible = true;
-    this.color = DEFAULT_COLOR;
     this.isDone = false;
     this.continuous = false;
     this.advancedDebug = false;
     this.done = callback;
-    this.frame = START;
     this.debug = false;
-    this.speed = SPEED;
-    this.reset(false);
     // ? Bind keyboard
     this.keyboard.setKeymap(this, KEYMAP);
-    // ? Reset cursor
-    this.cursorX = START;
-    this.cursorY = START;
   }
 
   /**
@@ -332,13 +347,15 @@ export class GameOfLifeComponentService implements iComponent {
         row
           .map((cell, cellIndex) => {
             const color = chalk.bgBlack;
+            // rowIndex += this.top;
+            // cellIndex += this.left;
             let char = this.advancedDebug
               ? this.conway.neighbors(this.board, rowIndex, cellIndex)
               : " ";
             if (rowIndex === this.cursorY && cellIndex === this.cursorX) {
               char = chalk.red("*");
             }
-            if (this.board[rowIndex][cellIndex]) {
+            if (this.isOn(rowIndex, cellIndex)) {
               return colorOn(char);
             }
             return color(char);
@@ -349,10 +366,11 @@ export class GameOfLifeComponentService implements iComponent {
       .join(`\n`);
 
     this.screen.render(message, this.keymapVisible ? keymap : undefined);
-    nextTick(async () => await this.sendState());
+    nextTick(async () => await this.sync());
   }
 
   protected async checkConnection() {
+    this.stop();
     this.application.setHeader("Checking connection");
     await this.matrixRefresh();
     this.screen.printLine(
@@ -409,19 +427,14 @@ export class GameOfLifeComponentService implements iComponent {
   }
 
   protected async onModuleInit() {
-    const state = await this.cache.get<MatrixState>(MATRIX_STATE_CACHE_KEY);
-    if (!state) {
-      return;
-    }
-    this.connected = state.connected;
-    this.matrixHeight = state.height;
-    this.matrixWidth = state.width;
+    await this.loadCache();
   }
 
   /**
    * keypress handler++ - reset board
    */
   protected reset(render = true): void {
+    this.stop();
     const row = PEAT(this.minWidth, false);
     this.board = PEAT(this.minHeight).map(() => [...row]);
     if (render) {
@@ -446,6 +459,7 @@ export class GameOfLifeComponentService implements iComponent {
    * keypress handler - pull up the settings interface
    */
   protected async settings(): Promise<void> {
+    this.stop();
     this.application.setHeader("Game of Life", "Settings");
     const settings = await this.prompt.objectBuilder<
       GameOfLifeSettings,
@@ -454,6 +468,7 @@ export class GameOfLifeComponentService implements iComponent {
       cancel: false,
       current: {
         ...this.color,
+        batchSize: this.batchSize,
         left: this.left,
         minHeight: this.minHeight,
         minWidth: this.minWidth,
@@ -494,13 +509,35 @@ export class GameOfLifeComponentService implements iComponent {
           path: "top",
           type: "number",
         },
+        {
+          helpText: "How many ticks to run sequentially in batches",
+          name: "Batch Size",
+          path: "batchSize",
+          type: "number",
+        },
       ],
     });
     if (!is.boolean(settings)) {
       this.speed = settings.speed;
+      this.color = {
+        b: settings.b,
+        g: settings.g,
+        r: settings.r,
+      };
+      this.top = settings.top;
+      this.left = settings.left;
+      this.minHeight = settings.minHeight;
+      this.minWidth = settings.minWidth;
+      this.batchSize = settings.batchSize;
+      await this.saveCacheState();
     }
     this.application.setHeader();
     this.render();
+  }
+
+  protected stop() {
+    this.continuous = false;
+    this.runTicks = NONE;
   }
 
   /**
@@ -516,8 +553,9 @@ export class GameOfLifeComponentService implements iComponent {
    * keypress handler - toggle life on an individual cell
    */
   protected toggle(): void {
-    this.board[this.cursorY][this.cursorX] =
-      !this.board[this.cursorY][this.cursorX];
+    const y = this.cursorY + this.top;
+    const x = this.cursorX + this.left;
+    this.board[y][x] = !this.board[y][x];
     this.render();
   }
 
@@ -583,6 +621,38 @@ export class GameOfLifeComponentService implements iComponent {
     return this.environment.height - sliceLines;
   }
 
+  private isOn(rowIndex: number, cell: number): boolean {
+    const row = this.board[rowIndex + this.top];
+    if (!row) {
+      return false;
+    }
+    return !!row[cell + this.left];
+  }
+
+  private async loadCache() {
+    const state = await this.cache.get<MatrixState>(MATRIX_STATE_CACHE_KEY);
+    if (!state) {
+      return;
+    }
+    this.connected = state.connected;
+    this.color = {
+      b: state.b,
+      g: state.g,
+      r: state.r,
+    };
+    this.matrixHeight = state.height;
+    this.matrixWidth = state.width;
+    this.cursorX = state.cursorX;
+    this.cursorY = state.cursorY;
+    this.left = state.left;
+    this.frame = state.frame;
+    this.batchSize = state.batchSize;
+    this.top = state.top;
+    this.minWidth = state.minWidth;
+    this.minHeight = state.minHeight;
+    this.board = state.board;
+  }
+
   private async matrixRefresh() {
     this.connected = await this.fetch.exists();
     if (this.connected) {
@@ -593,11 +663,7 @@ export class GameOfLifeComponentService implements iComponent {
       this.matrixHeight = NONE;
       this.matrixWidth = NONE;
     }
-    await this.cache.set(MATRIX_STATE_CACHE_KEY, {
-      connected: this.connected,
-      height: this.matrixHeight,
-      width: this.matrixWidth,
-    } as MatrixState);
+    await this.saveCacheState();
   }
 
   /**
@@ -609,6 +675,25 @@ export class GameOfLifeComponentService implements iComponent {
       this.boardTick();
       await sleep(this.speed);
     }
+  }
+
+  private async saveCacheState(): Promise<void> {
+    await this.cache.set<MatrixState>(MATRIX_STATE_CACHE_KEY, {
+      batchSize: this.batchSize,
+      board: this.board,
+      connected: this.connected,
+      cursorX: this.cursorX,
+      cursorY: this.cursorY,
+      frame: this.frame,
+      height: this.matrixHeight,
+      left: this.left,
+      minHeight: this.minHeight,
+      minWidth: this.minWidth,
+      speed: this.speed,
+      top: this.top,
+      width: this.matrixWidth,
+      ...this.color,
+    });
   }
 
   /**
@@ -627,5 +712,10 @@ export class GameOfLifeComponentService implements iComponent {
         [Palette.on]: this.color,
       },
     });
+  }
+
+  private async sync(): Promise<void> {
+    await this.saveCacheState();
+    await this.sendState();
   }
 }
