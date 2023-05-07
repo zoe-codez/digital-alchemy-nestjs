@@ -86,7 +86,7 @@ export class HassFetchAPIService {
       params,
       url: `/api/calendars/${calendar}`,
     });
-    this.logger.debug(
+    this.logger.trace(
       { ...params },
       `[%s] search found {%s} events`,
       calendar,

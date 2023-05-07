@@ -1,6 +1,7 @@
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
+  CompressionService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { is, SECOND, TitleCase } from "@digital-alchemy/utilities";
@@ -23,7 +24,6 @@ import {
   InjectedPushConfig,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
-  SERIALIZE,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
 import { PushEntityService } from "./push-entity.service";
@@ -58,6 +58,7 @@ export class PushEntityConfigService {
     private readonly fetch: HassFetchAPIService,
     private readonly pushProxy: PushProxyService,
     private readonly pushEntity: PushEntityService,
+    private readonly compression: CompressionService,
   ) {
     if (this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER) {
       this.applicationIdentifier = this.application.replaceAll("-", "_");
@@ -127,7 +128,7 @@ export class PushEntityConfigService {
       // ? obfuscate to discourage tampering, not intended to actually "hide" data
       // tampering could result in the generation of types that reflect neither the yaml nor application runtime state
       // no human should mess with that info by hand, just generate it again
-      SERIALIZE.serialize(this.serializeState()),
+      this.compression.serialize(this.serializeState()),
       // JSON.stringify(this.serializeState(), undefined, "  "), // for debugging
       "utf8",
     );

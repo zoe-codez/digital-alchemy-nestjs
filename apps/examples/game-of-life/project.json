@@ -1,0 +1,57 @@
+{
+  "name": "game-of-life",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/examples/game-of-life/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "game-of-life:build:cli",
+        "inspect": "inspect",
+        "port": 33347
+      },
+      "configurations": {
+        "cli": {
+          "buildTarget": "game-of-life:build:cli",
+          "inspect": "inspect",
+          "port": 33347
+        },
+        "matrix": {
+          "buildTarget": "game-of-life:build:matrix",
+          "inspect": "inspect",
+          "port": 33348
+        }
+      }
+    },
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/examples/game-of-life",
+        "tsConfig": "apps/examples/game-of-life/tsconfig.app.json",
+        "target": "node",
+        "compiler": "tsc",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "cli": {
+          "outputPath": "dist/apps/examples/game-of-life/cli",
+          "main": "apps/examples/game-of-life/src/entrypoints/cli.main.ts"
+        },
+        "matrix": {
+          "outputPath": "dist/apps/examples/game-of-life/matrix",
+          "main": "apps/examples/game-of-life/src/entrypoints/matrix.main.ts"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/examples/game-of-life/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

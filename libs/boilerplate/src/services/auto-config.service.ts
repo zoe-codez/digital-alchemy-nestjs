@@ -49,6 +49,7 @@ export class AutoConfigService {
   public static setSwitches(update: string[]): void {
     SWITCHES = update;
   }
+
   constructor(
     /**
      * Override defaults provided by Bootstrap
@@ -94,7 +95,9 @@ export class AutoConfigService {
     return this.APPLICATION;
   }
 
-  public get<T extends unknown = string>(path: string | [string, string]): T {
+  public get<T extends unknown = string>(
+    path: string | [library: string, config: string],
+  ): T {
     if (is.array(path)) {
       path =
         path[LABEL] === this.APPLICATION

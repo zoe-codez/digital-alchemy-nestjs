@@ -53,7 +53,7 @@ import {
       type: "string",
     },
     [BODY_SIZE]: {
-      default: "100kb",
+      default: "10mb",
       description: "Max JSON body size",
       type: "string",
     },

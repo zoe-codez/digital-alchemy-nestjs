@@ -1,6 +1,7 @@
 import { InjectConfig } from "@digital-alchemy/boilerplate";
 import { is, START } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import chalk from "chalk";
 import figlet, { Fonts } from "figlet";
 
 import {
@@ -66,6 +67,14 @@ export class ApplicationManagerService {
             CONFIG,
             VALUE
           >(name);
+          if (!component) {
+            this.screen.printLine(
+              // ? It probably wasn't listed in the providers anywhere
+              chalk.bgRed.bold
+                .white` Cannot find component {underline ${name}} `,
+            );
+            return;
+          }
           // There needs to be more type work around this
           // It's a disaster
           await component.configure(configuration, value =>
@@ -90,9 +99,9 @@ export class ApplicationManagerService {
     return await this.keyboard.wrap<VALUE>(async () => {
       const component = this.activeApplication;
       this.activeApplication = undefined;
-      const promise = new Promise<VALUE>(done => {
+      const promise = new Promise<VALUE>(async done => {
         const editor = this.editorExplorer.findServiceByType(name);
-        editor.configure(configuration, value => done(value as VALUE));
+        await editor.configure(configuration, value => done(value as VALUE));
         this.activeEditor = editor;
         editor.render();
       });
@@ -130,7 +139,7 @@ export class ApplicationManagerService {
   /**
    * Clear the screen, and place a new header message at the top of the screen
    */
-  public setHeader(primary: string, secondary = ""): number {
+  public setHeader(primary = "", secondary = ""): number {
     this.parts = [primary, secondary];
     this.screen.clear();
     for (let i = START; i < this.paddingTop; i++) {

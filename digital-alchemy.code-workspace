@@ -53,6 +53,24 @@
         "type": "node"
       },
       {
+        "name": "Attach Examples/Game of Life:CLI",
+        "port": 33347,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
+        "name": "Attach Examples/Game of Life:Matrix",
+        "port": 33348,
+        "request": "attach",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
         "name": "Attach Config Builder",
         "port": 33340,
         "request": "attach",

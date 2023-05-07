@@ -49,10 +49,6 @@ export class StaticWidgetDTO extends GenericWidgetDTO {
   colorMode: ColorSetter;
 }
 
-export class ExplodeWidgetDTO extends StaticWidgetDTO {
-  mode: "game_of_life";
-}
-
 export class DashboardWidgetDTO extends GenericWidgetDTO {
   x?: number;
   y?: number;

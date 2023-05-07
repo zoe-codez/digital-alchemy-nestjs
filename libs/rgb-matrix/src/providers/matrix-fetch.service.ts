@@ -3,7 +3,16 @@ import { FetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
-import { BorderSpinQueue, GenericWidgetDTO, PulseLaserOptions } from "../types";
+import {
+  APlaySpeakerDevice,
+  BorderSpinQueue,
+  FONTS,
+  GenericWidgetDTO,
+  MatrixDimensionsResponse,
+  PulseLaserOptions,
+  SetPixelGrid,
+  SoundConfiguration,
+} from "../types";
 
 @Injectable()
 export class MatrixFetch {
@@ -31,6 +40,15 @@ export class MatrixFetch {
     });
   }
 
+  public async exists(): Promise<boolean> {
+    try {
+      await this.getDimensions();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   public async fetch<VALUE>(
     fetchWith: Omit<FetchArguments, "baseUrl">,
   ): Promise<VALUE> {
@@ -41,11 +59,48 @@ export class MatrixFetch {
     });
   }
 
+  public async getCurrentWidgets(): Promise<GenericWidgetDTO[]> {
+    return await this.fetch({
+      url: `/widget`,
+    });
+  }
+
+  public async getDimensions(): Promise<MatrixDimensionsResponse> {
+    return await this.fetch({
+      url: `/matrix/dimensions`,
+    });
+  }
+
+  public async getSoundConfiguration(): Promise<SoundConfiguration> {
+    return await this.fetch({
+      url: `/sound/configuration`,
+    });
+  }
+
+  public async listAvailableFonts(): Promise<FONTS[]> {
+    return await this.fetch({
+      url: `/widget/fonts`,
+    });
+  }
+
+  public async listAvailableSoundDevices(): Promise<APlaySpeakerDevice[]> {
+    return await this.fetch({
+      url: `/sound/devices`,
+    });
+  }
+  public async setPixels(body: SetPixelGrid): Promise<void> {
+    return await this.fetch({
+      body,
+      method: "post",
+      url: `/pixel`,
+    });
+  }
+
   public async setWidgets(dash: GenericWidgetDTO[]): Promise<void> {
     return await this.fetch({
       body: { dash },
       method: "post",
-      url: `/matrix/widgets`,
+      url: `/widget`,
     });
   }
 }

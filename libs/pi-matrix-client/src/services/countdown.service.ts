@@ -6,14 +6,17 @@ import {
   TextWidgetDTO,
 } from "@digital-alchemy/rgb-matrix";
 import { sleep } from "@digital-alchemy/utilities";
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 
 import { TextService } from "../services";
 
 @Injectable()
 export class CountdownService {
-  constructor(private readonly text: TextService) {}
+  constructor(
+    @Inject(forwardRef(() => TextService))
+    private readonly text: TextService,
+  ) {}
 
   public async exec({
     callback,

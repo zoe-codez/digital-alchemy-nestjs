@@ -18,6 +18,7 @@ import {
   AnimationService,
   LineService,
   MatrixFetch,
+  MatrixMathService,
   TextLayoutService,
 } from "../providers";
 import { FONTS } from "../types";
@@ -28,6 +29,7 @@ const providers = [
   BorderSpinService,
   LineService,
   MatrixFetch,
+  MatrixMathService,
   PulseLaserService,
   TextLayoutService,
 ];
@@ -66,7 +68,7 @@ const providers = [
       type: "number",
     },
     [PI_MATRIX_BASE_URL]: {
-      default: "http://orchid:7000",
+      default: "http://localhost:7000",
       type: "string",
     },
     [PI_MATRIX_KEY]: {
@@ -77,4 +79,4 @@ const providers = [
   library: LIB_RGB_MATRIX,
   providers,
 })
-export class RGBControllerModule {}
+export class RGBMatrixModule {}

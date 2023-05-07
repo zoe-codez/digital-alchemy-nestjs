@@ -11,15 +11,15 @@ import { v4 } from "uuid";
 
 import { BorderSpinQueueService } from "./border-spin-queue.service";
 import { CountdownService } from "./countdown.service";
-import { MatrixService } from "./matrix.service";
+import { RenderService } from "./render.service";
 
 @Injectable()
 export class SyncAnimationService {
   constructor(
     @Inject(forwardRef(() => CountdownService))
     private readonly countdown: CountdownService,
-    @Inject(forwardRef(() => MatrixService))
-    private readonly matrix: MatrixService,
+    @Inject(forwardRef(() => RenderService))
+    private readonly matrix: RenderService,
     @Inject(forwardRef(() => BorderSpinQueueService))
     private readonly borderSpinQueue: BorderSpinQueueService,
     private readonly animation: AnimationService,

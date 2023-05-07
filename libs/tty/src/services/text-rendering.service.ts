@@ -19,7 +19,7 @@ import chalk from "chalk";
 import fuzzy from "fuzzysort";
 import { get } from "object-path";
 import { stdout } from "process";
-import { inspect } from "util";
+import { inspect, InspectOptions } from "util";
 
 import {
   FUZZY_HIGHLIGHT,
@@ -151,7 +151,7 @@ export class TextRenderingService {
     return out;
   }
 
-  public debug(data: object): string {
+  public debug(data: object, options: InspectOptions = {}): string {
     const [width] = stdout.getWindowSize();
     return (
       inspect(data, {
@@ -161,6 +161,7 @@ export class TextRenderingService {
         maxArrayLength: this.maxArrayLength,
         maxStringLength: Math.min(width, STRING_SHRINK),
         sorted: true,
+        ...options,
       })
         .split("\n")
         // strip off outer curly braces

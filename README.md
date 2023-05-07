@@ -44,3 +44,4 @@ Editor features are a strong focus focus of this library, with full typescript s
 | [Entity Creation](apps/examples/entity-creation) | `home-assistant` | Minimal example app. Creates a few entities and not much else |
 | [Scene Manager](apps/examples/scene-manager) | `home-assistant` | An example home automation app, which manages several rooms |
 | [Notification Tester](apps/examples/notification-tester) | `gotify` | Simple example of how to import `@digital-alchemy/gotify` into an app, and send notifications |
+| [Game of Life](apps/examples/game-of-life) | `rgb-matrix` | An implementation of Conway's Game of Life via  |

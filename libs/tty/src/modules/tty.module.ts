@@ -47,7 +47,6 @@ import {
   PasswordEditorService,
   StringEditorService,
 } from "../editors";
-import { FontAwesomeIcons } from "../icons";
 import {
   ApplicationManagerService,
   ChartingService,
@@ -123,7 +122,8 @@ import {
       type: "string",
     },
     [KEYMAP_TICK]: {
-      default: `{blue.dim ${FontAwesomeIcons.caret_right} }`,
+      default: `{blue.dim > }`,
+      // default: `{blue.dim ${FontAwesomeIcons.caret_right} }`,
       type: "string",
     },
     [MENU_COLUMN_DIVIDER]: {
@@ -168,7 +168,8 @@ import {
       type: "number",
     },
     [PROMPT_QUESTION]: {
-      default: `{blue ${FontAwesomeIcons.question}}`,
+      default: `{blue ?}`,
+      // default: `{blue ${FontAwesomeIcons.question}}`,
       type: "string",
     },
     [STRING_EDITOR_CONTENT]: {
