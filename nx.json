@@ -8,13 +8,14 @@
       "runner": "@nrwl/nx-cloud",
       "options": {
         "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e",
           "build-vsix",
+          "build",
+          "compile",
+          "e2e",
+          "lint",
+          "publish",
           "scan-config",
-          "publish"
+          "test"
         ],
         "accessToken": "NDUyZDBmMWQtNWIyYi00YTJmLWFkNGItMzRjNzYxNGVmYmEwfHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,
@@ -44,7 +45,6 @@
     }
   },
   "defaultProject": "config-builder",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],

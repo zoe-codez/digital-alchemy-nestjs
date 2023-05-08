@@ -1,6 +1,5 @@
 {
   "name": "pi-matrix",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/pi-matrix/src",
   "projectType": "application",
   "targets": {
@@ -47,24 +46,8 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Pi Matrix",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build pi-matrix --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/pi-matrix/main.js -c -m --keep-classnames --module > dist/apps/pi-matrix/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/pi-matrix/main.js; cat dist/apps/pi-matrix/minified.js >> dist/apps/pi-matrix/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/pi-matrix --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish.sh pi-matrix",
+            "description": "Canned script"
           }
         ]
       }

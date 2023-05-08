@@ -145,7 +145,12 @@
       "workspace.json": "nrwl",
 
       // * Compiled apps
-      "bin/pi-matrix": "exe"
+      "bin/pi-matrix": "image",
+      "bin/config-builder": "dhall",
+      "bin/hass-cli": "exe",
+      "bin/log-formatter": "log",
+      "bin/build-pipeline": "pipeline",
+      "bin/hass-type-generate": "typescript-def",
     },
     "material-icon-theme.folders.associations": {
       // * Projects
@@ -191,6 +196,12 @@
           "project.json"
         ],
         "url": "/node_modules/nx/schemas/project-schema.json"
+      },
+      {
+        "fileMatch": [
+          "nx.json"
+        ],
+        "url": "/node_modules/nx/schemas/nx-schema.json"
       }
     ],
     "explorer.fileNesting.patterns": {

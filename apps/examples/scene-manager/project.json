@@ -1,6 +1,5 @@
 {
   "name": "scene-manager",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/examples/scene-manager/src",
   "projectType": "application",
   "targets": {

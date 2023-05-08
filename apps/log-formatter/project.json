@@ -1,6 +1,5 @@
 {
   "name": "log-formatter",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/log-formatter/src",
   "projectType": "application",
   "targets": {
@@ -12,34 +11,23 @@
         "port": 33344
       }
     },
-    "prepare": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "npx nx build log-formatter --configuration=scan-config"
-          }
-        ]
-      }
-    },
     "build": {
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "assets": [],
-        "outputPath": "dist/apps/log-formatter",
+        "compiler": "tsc",
+        "extractLicenses": false,
         "generatePackageJson": true,
         "main": "apps/log-formatter/src/main.ts",
-        "tsConfig": "apps/log-formatter/tsconfig.app.json",
+        "outputPath": "dist/apps/log-formatter",
         "target": "node",
-        "compiler": "tsc"
+        "tsConfig": "apps/log-formatter/tsconfig.app.json"
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
+          "inspect": false
         }
       }
     },
@@ -56,28 +44,24 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Log Formatter",
-            "description": "Announce it"
-          },
+            "command": "tools/scripts/publish.sh log-formatter",
+            "description": "Canned script"
+          }
+        ]
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
           {
-            "command": "npx nx build log-formatter --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/log-formatter/main.js -c -m --keep-classnames --module > dist/apps/log-formatter/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/log-formatter/main.js; cat dist/apps/log-formatter/minified.js >> dist/apps/log-formatter/main.js",
-            "description": "Add environment for bash. Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/log-formatter --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/compile.sh log-formatter",
+            "description": "Canned script"
           }
         ]
       }
     }
   },
-  "tags": ["terminal"]
+  "tags": ["terminal", "utility"]
 }

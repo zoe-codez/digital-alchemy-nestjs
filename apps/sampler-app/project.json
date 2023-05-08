@@ -1,6 +1,5 @@
 {
   "name": "sampler-app",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/sampler-app/src",
   "projectType": "application",
   "targets": {

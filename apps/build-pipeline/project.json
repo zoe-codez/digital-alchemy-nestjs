@@ -44,28 +44,20 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build build-pipeline --configuration=production",
-            "description": "Create build"
-          },
-          {
-            "command": "npx terser dist/apps/build-pipeline/main.js -c -m --keep-classnames --module > tools/scripts/pipeline.js",
-            "description": "Move to final destination"
+            "command": "tools/scripts/publish.sh build-pipeline",
+            "description": "Canned script"
           }
         ]
       }
     },
-    "scan-config": {
+    "compile": {
       "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build build-pipeline --configuration=production",
-            "description": "Create standard production build"
-          },
-          {
-            "command": "mkdir -p dist/configs; node dist/apps/build-pipeline/main.js --scan-config > dist/configs/build-pipeline.json",
-            "description": "Scan config, output to dist"
+            "command": "tools/scripts/compile.sh build-pipeline",
+            "description": "Canned script"
           }
         ]
       }

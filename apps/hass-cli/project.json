@@ -1,6 +1,5 @@
 {
   "name": "hass-cli",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/hass-cli/src",
   "projectType": "application",
   "targets": {
@@ -10,16 +9,6 @@
         "buildTarget": "hass-cli:build",
         "inspect": "inspect",
         "port": 33342
-      }
-    },
-    "prepare": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "npx nx build hass-cli --configuration=scan-config"
-          }
-        ]
       }
     },
     "build": {
@@ -55,18 +44,26 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "scan-config": {
+    "publish": {
       "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build hass-cli --configuration=production",
-            "description": "Create standard production build"
-          },
+            "command": "tools/scripts/publish.sh hass-cli",
+            "description": "Canned script"
+          }
+        ]
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
           {
-            "command": "mkdir -p dist/configs; node dist/scan-config/hass-cli/main.js --scan-config > dist/configs/hass-cli.json",
-            "description": "Scan config, output to dist"
+            "command": "tools/scripts/compile.sh hass-cli",
+            "description": "Canned script"
           }
         ]
       }

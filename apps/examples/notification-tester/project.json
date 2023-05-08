@@ -1,6 +1,5 @@
 {
   "name": "notification-tester",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/examples/notification-tester/src",
   "projectType": "application",
   "targets": {

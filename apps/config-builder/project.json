@@ -11,16 +11,6 @@
         "port": 33340
       }
     },
-    "prepare": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "npx nx build config-builder --configuration=scan-config"
-          }
-        ]
-      }
-    },
     "build": {
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
@@ -49,62 +39,26 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "scan-config": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx nx build config-builder --configuration=production",
-            "description": "Create standard production build"
-          },
-          {
-            "command": "mkdir -p dist/configs; node dist/apps/config-builder/main.js --scan-config > dist/configs/config-builder.json",
-            "description": "Scan config, output to dist"
-          }
-        ]
-      }
-    },
-    "local-publish": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx figlet-cli -f Pagga Config Builder",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build config-builder --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/config-builder/main.js -c -m --keep-classnames --module > dist/apps/config-builder/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/config-builder/main.js; cat dist/apps/config-builder/minified.js >> dist/apps/config-builder/main.js",
-            "description": "Add environment for bash. Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "cp dist/apps/config-builder/main.js tools/scripts/config-builder.js",
-            "description": "Cache locally"
-          }
-        ]
-      }
-    },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx local-publish config-builder",
-            "description": "Build locally"
-          },
+            "command": "tools/scripts/publish.sh config-builder",
+            "description": "Canned script"
+          }
+        ]
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
           {
-            "command": "npx yarn publish --cwd dist/apps/config-builder --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/compile.sh config-builder",
+            "description": "Canned script"
           }
         ]
       }

@@ -1,6 +1,5 @@
 {
   "name": "hass-type-generate",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/hass-type-generate/src",
   "projectType": "application",
   "targets": {
@@ -45,52 +44,20 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga HASS Type Generate",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build hass-type-generate --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx nx post-process hass-type-generate",
-            "description": "Modify script"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/hass-type-generate --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish.sh hass-type-generate",
+            "description": "Canned script"
           }
         ]
       }
     },
-    "post-process": {
+    "compile": {
       "executor": "nx:run-commands",
       "options": {
         "parallel": false,
         "commands": [
           {
-            "command": "npx terser dist/apps/hass-type-generate/main.js -c -m --keep-classnames --module > dist/apps/hass-type-generate/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/hass-type-generate/main.js; cat dist/apps/hass-type-generate/minified.js >> dist/apps/hass-type-generate/main.js; chmod +x dist/apps/hass-type-generate/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          }
-        ]
-      }
-    },
-    "scan-config": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx nx build hass-type-generate --configuration=production",
-            "description": "Create standard production build"
-          },
-          {
-            "command": "mkdir -p dist/configs; node dist/apps/hass-type-generate/main.js --scan-config > dist/configs/hass-type-generate.json",
-            "description": "Scan config, output to dist"
+            "command": "tools/scripts/compile.sh hass-type-generate",
+            "description": "Canned script"
           }
         ]
       }
