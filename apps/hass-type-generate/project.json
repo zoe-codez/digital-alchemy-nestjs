@@ -44,7 +44,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish.sh hass-type-generate",
+            "command": "tools/scripts/publish-app.sh hass-type-generate",
             "description": "Canned script"
           }
         ]

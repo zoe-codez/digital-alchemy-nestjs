@@ -12,16 +12,15 @@
         "outputPath": "dist/libs/tty",
         "packageJson": "libs/tty/package.json",
         "tsConfig": "libs/tty/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/tty/*.md",
-          "libs/tty/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/tty/*.md",
+            "libs/tty/package.json"
+          ]
         }
       }
     },
@@ -38,16 +37,8 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga TTY",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build tty --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/tty --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish-lib.sh tty",
+            "description": "Canned script"
           }
         ]
       }

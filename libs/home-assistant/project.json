@@ -12,16 +12,15 @@
         "outputPath": "dist/libs/home-assistant",
         "packageJson": "libs/home-assistant/package.json",
         "tsConfig": "libs/home-assistant/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/home-assistant/*.md",
-          "libs/home-assistant/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/home-assistant/*.md",
+            "libs/home-assistant/package.json"
+          ]
         }
       }
     },
@@ -38,16 +37,8 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Home Assistant",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build home-assistant --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/home-assistant --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish-lib.sh home-assistant",
+            "description": "Canned script"
           }
         ]
       }
@@ -61,5 +52,6 @@
       }
     }
   },
-  "tags": ["nestjs"]
+  "implicitDependencies": ["!testing"],
+  "tags": ["nestjs", "home-assistant", "generated-types"]
 }

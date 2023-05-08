@@ -44,7 +44,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish.sh build-pipeline",
+            "command": "tools/scripts/publish-app.sh build-pipeline",
             "description": "Canned script"
           }
         ]

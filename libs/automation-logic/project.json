@@ -12,16 +12,15 @@
         "outputPath": "dist/libs/automation-logic",
         "packageJson": "libs/automation-logic/package.json",
         "tsConfig": "libs/automation-logic/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/automation-logic/*.md",
-          "libs/automation-logic/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/automation-logic/*.md",
+            "libs/automation-logic/package.json"
+          ]
         }
       }
     },
@@ -38,20 +37,12 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Automation Logic",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build automation-logic --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/automation-logic --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish-lib.sh automation-logic",
+            "description": "Canned script"
           }
         ]
       }
     }
   },
-  "tags": ["nestjs"]
+  "tags": ["nestjs", "home-assistant", "generated-types"]
 }

@@ -45,7 +45,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish.sh config-builder",
+            "command": "tools/scripts/publish-app.sh config-builder",
             "description": "Canned script"
           }
         ]

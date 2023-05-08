@@ -50,7 +50,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish.sh hass-cli",
+            "command": "tools/scripts/publish-app.sh hass-cli",
             "description": "Canned script"
           }
         ]

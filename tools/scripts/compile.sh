@@ -3,7 +3,7 @@ APP="$1"
 APP_DIST="dist/apps/$APP"
 
 # Print header
-jq .name < "apps/$APP/package.json" | sed "s|@digital-alchemy/||" | xargs npx figlet-cli -f Pagga
+jq .name < "apps/$APP/project.json" | xargs npx figlet-cli -f Pagga
 
 # Build app
 rm -r "$APP_DIST"

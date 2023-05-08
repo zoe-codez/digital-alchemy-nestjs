@@ -44,7 +44,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish.sh log-formatter",
+            "command": "tools/scripts/publish-app.sh log-formatter",
             "description": "Canned script"
           }
         ]

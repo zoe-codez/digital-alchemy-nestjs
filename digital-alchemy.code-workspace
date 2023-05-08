@@ -195,13 +195,13 @@
         "fileMatch": [
           "project.json"
         ],
-        "url": "/node_modules/nx/schemas/project-schema.json"
+        "url": "./node_modules/nx/schemas/project-schema.json"
       },
       {
         "fileMatch": [
           "nx.json"
         ],
-        "url": "/node_modules/nx/schemas/nx-schema.json"
+        "url": "./node_modules/nx/schemas/nx-schema.json"
       }
     ],
     "explorer.fileNesting.patterns": {

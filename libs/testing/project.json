@@ -12,16 +12,15 @@
         "outputPath": "dist/libs/testing",
         "packageJson": "libs/testing/package.json",
         "tsConfig": "libs/testing/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/testing/*.md",
-          "libs/testing/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/testing/*.md",
+            "libs/testing/package.json"
+          ]
         }
       }
     },
@@ -38,16 +37,8 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Testing",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build testing --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/testing --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish-lib.sh testing",
+            "description": "Canned script"
           }
         ]
       }

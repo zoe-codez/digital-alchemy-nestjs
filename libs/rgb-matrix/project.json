@@ -12,29 +12,24 @@
         "outputPath": "dist/libs/rgb-matrix",
         "packageJson": "libs/rgb-matrix/package.json",
         "tsConfig": "libs/rgb-matrix/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/rgb-matrix/*.md",
-          "libs/rgb-matrix/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/rgb-matrix/*.md",
+            "libs/rgb-matrix/package.json"
+          ]
         }
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
       "options": {
-        "lintFilePatterns": [
-          "libs/rgb-matrix/**/*.ts"
-        ]
-      }
+        "lintFilePatterns": ["libs/rgb-matrix/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
     },
     "publish": {
       "executor": "nx:run-commands",
@@ -42,20 +37,12 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga RGB Matrix",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build rgb-matrix --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/rgb-matrix --non-interactive",
-            "description": "Publish it"
+            "command": "tools/scripts/publish-lib.sh rgb-matrix",
+            "description": "Canned script"
           }
         ]
       }
     }
   },
-  "tags": ["nestjs"]
+  "tags": ["nestjs", "rgb-matrix"]
 }
