@@ -113,5 +113,5 @@ apps/**/artifacts
 !/.scene-managerrc
 !/.pino-prettyrc
 /.storage
-assets/docker/homeassistant/config
-assets/docker/homeassistant/config
+docker/homeassistant/config
+docker/homeassistant/config
