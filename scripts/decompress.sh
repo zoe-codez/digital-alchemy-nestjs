@@ -1,3 +1,3 @@
 #!/bin/sh
-cd apps/examples/docker/homeassistant || exit
+cd assets/docker/homeassistant || exit
 tar -xzvf ./reference.tar.gz

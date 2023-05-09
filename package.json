@@ -16,16 +16,16 @@
     "play": "terminalizer play",
     "render": "terminalizer render",
     "hass:compress": "./scripts/compress.sh",
-    "hass:cleanup": "rm -rf ./apps/examples/docker/homeassistant/config",
+    "hass:cleanup": "rm -rf ./assets/docker/homeassistant/config",
     "hass:decompress": "./scripts/decompress.sh",
     "hass:prep": "./scripts/hass-prep.sh",
     "hass:reset": "./scripts/hass-reset.sh",
-    "container:hass:logs": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml logs -f --tail 20",
-    "container:hass:restart": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml restart",
-    "container:hass:start": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml up -d",
-    "container:hass:stop": "docker compose -f ./apps/examples/docker/homeassistant/docker-compose.yaml stop",
-    "container:redis:start": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml up -d",
-    "container:redis:stop": "docker compose -f ./apps/examples/docker/redis/docker-compose.yaml stop"
+    "container:hass:logs": "docker compose -f ./assets/docker/homeassistant/docker-compose.yaml logs -f --tail 20",
+    "container:hass:restart": "docker compose -f ./assets/docker/homeassistant/docker-compose.yaml restart",
+    "container:hass:start": "docker compose -f ./assets/docker/homeassistant/docker-compose.yaml up -d",
+    "container:hass:stop": "docker compose -f ./assets/docker/homeassistant/docker-compose.yaml stop",
+    "container:redis:start": "docker compose -f ./assets/docker/redis/docker-compose.yaml up -d",
+    "container:redis:stop": "docker compose -f ./assets/docker/redis/docker-compose.yaml stop"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
