@@ -6,7 +6,7 @@ npx nx run-many --target=test --all || exit 1
 npx nx run-many --target=build --all --configuration=production || exit 1
 
 # Bump package.json versions
-node tools/scripts/pipeline.js
+./bin/build-pipeline
 
 # Build again (transfer package updates to `dist`)
 npx nx run-many --target=build --all --configuration=production || exit 1
