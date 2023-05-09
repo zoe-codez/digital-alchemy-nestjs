@@ -1,10 +1,11 @@
 {
   "name": "notification-tester",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/notification-tester/src",
   "projectType": "application",
   "targets": {
     "serve": {
-      "executor": "@nrwl/node:node",
+      "executor": "@nx/node:node",
       "options": {
         "buildTarget": "notification-tester:build",
         "inspect": "inspect",
@@ -12,7 +13,7 @@
       }
     },
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "compiler": "tsc",
@@ -31,7 +32,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/notification-tester/**/*.ts"]
       },

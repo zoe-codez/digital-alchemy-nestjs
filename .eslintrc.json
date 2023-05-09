@@ -84,7 +84,7 @@
           }
         ],
         "sonarjs/prefer-immediate-return": "off",
-        "@nrwl/nx/enforce-module-boundaries": [
+        "@nx/enforce-module-boundaries": [
           "error",
           {
             "allow": [],

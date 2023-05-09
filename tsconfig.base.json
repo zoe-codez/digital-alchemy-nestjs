@@ -31,9 +31,11 @@
       "@digital-alchemy/gotify": ["libs/gotify/src/index.ts"],
       "@digital-alchemy/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@digital-alchemy/mqtt": ["libs/mqtt/src/index.ts"],
-      "@digital-alchemy/pi-matrix-client":["libs/pi-matrix-client/src/index.ts"],
+      "@digital-alchemy/pi-matrix-client": [
+        "libs/pi-matrix-client/src/index.ts"
+      ],
       "@digital-alchemy/render-utils": ["libs/render-utils/src/index.ts"],
-      "@digital-alchemy/rgb-matrix":["libs/rgb-matrix/src/index.ts"],
+      "@digital-alchemy/rgb-matrix": ["libs/rgb-matrix/src/index.ts"],
       "@digital-alchemy/server": ["libs/server/src/index.ts"],
       "@digital-alchemy/testing": ["libs/testing/src/index.ts"],
       "@digital-alchemy/tty": ["libs/tty/src/index.ts"],

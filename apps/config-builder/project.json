@@ -1,10 +1,11 @@
 {
   "name": "config-builder",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/config-builder/src",
   "projectType": "application",
   "targets": {
     "serve": {
-      "executor": "@nrwl/node:node",
+      "executor": "@nx/node:node",
       "options": {
         "buildTarget": "config-builder:build",
         "inspect": "inspect",
@@ -12,7 +13,7 @@
       }
     },
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "compiler": "tsc",
@@ -20,7 +21,7 @@
         "main": "apps/config-builder/src/main.ts",
         "outputPath": "dist/apps/config-builder",
         "target": "node",
-        "tsConfig": "apps/config-builder/tsconfig.app.json",
+        "tsConfig": "apps/config-builder/tsconfig.app.json"
       },
       "configurations": {
         "production": {
@@ -31,7 +32,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/config-builder/**/*.ts"]
       },

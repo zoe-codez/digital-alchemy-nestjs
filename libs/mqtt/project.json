@@ -1,10 +1,11 @@
 {
   "name": "mqtt",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/mqtt/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
@@ -17,15 +18,12 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "assets": [
-            "libs/mqtt/*.md",
-            "libs/mqtt/package.json"
-          ]
+          "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/mqtt/**/*.ts"]
       },

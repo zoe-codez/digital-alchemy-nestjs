@@ -1,10 +1,11 @@
 {
   "name": "testing",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/testing/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
@@ -17,15 +18,12 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "assets": [
-            "libs/testing/*.md",
-            "libs/testing/package.json"
-          ]
+          "assets": ["libs/testing/*.md", "libs/testing/package.json"]
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/testing/**/*.ts"]
       },
