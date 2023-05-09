@@ -1,12 +1,12 @@
 {
-  "name": "entity-creation",
-  "sourceRoot": "apps/examples/entity-creation/src",
+  "name": "notification-tester",
+  "sourceRoot": "apps/notification-tester/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "entity-creation:build",
+        "buildTarget": "notification-tester:build",
         "inspect": "inspect",
         "port": 33347
       }
@@ -18,10 +18,10 @@
         "compiler": "tsc",
         "extractLicenses": false,
         "generatePackageJson": true,
-        "main": "apps/examples/entity-creation/src/entrypoints/main.ts",
-        "outputPath": "dist/apps/examples/entity-creation",
+        "main": "apps/notification-tester/src/entrypoints/main.ts",
+        "outputPath": "dist/apps/notification-tester",
         "target": "node",
-        "tsConfig": "apps/examples/entity-creation/tsconfig.app.json"
+        "tsConfig": "apps/notification-tester/tsconfig.app.json"
       },
       "configurations": {
         "production": {
@@ -33,10 +33,10 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/examples/entity-creation/**/*.ts"]
+        "lintFilePatterns": ["apps/notification-tester/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     }
   },
-  "tags": ["example-app", "home-assistant", "server"]
+  "tags": ["example-app", "server"]
 }

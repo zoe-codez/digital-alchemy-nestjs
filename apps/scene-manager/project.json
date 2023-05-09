@@ -1,6 +1,6 @@
 {
   "name": "scene-manager",
-  "sourceRoot": "apps/examples/scene-manager/src",
+  "sourceRoot": "apps/scene-manager/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -18,10 +18,10 @@
         "compiler": "tsc",
         "extractLicenses": false,
         "generatePackageJson": true,
-        "main": "apps/examples/scene-manager/src/entrypoints/main.ts",
-        "outputPath": "dist/apps/examples/scene-manager",
+        "main": "apps/scene-manager/src/entrypoints/main.ts",
+        "outputPath": "dist/apps/scene-manager",
         "target": "node",
-        "tsConfig": "apps/examples/scene-manager/tsconfig.app.json"
+        "tsConfig": "apps/scene-manager/tsconfig.app.json"
       },
       "configurations": {
         "production": {
@@ -33,7 +33,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/examples/scene-manager/**/*.ts"]
+        "lintFilePatterns": ["apps/scene-manager/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     }

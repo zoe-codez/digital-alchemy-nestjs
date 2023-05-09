@@ -1,6 +1,6 @@
 {
   "name": "game-of-life",
-  "sourceRoot": "apps/examples/game-of-life/src",
+  "sourceRoot": "apps/game-of-life/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -17,10 +17,10 @@
       "options": {
         "compiler": "tsc",
         "generatePackageJson": true,
-        "main": "apps/examples/game-of-life/src/entrypoints/main.ts",
-        "outputPath": "dist/apps/examples/game-of-life",
+        "main": "apps/game-of-life/src/entrypoints/main.ts",
+        "outputPath": "dist/apps/game-of-life",
         "target": "node",
-        "tsConfig": "apps/examples/game-of-life/tsconfig.app.json"
+        "tsConfig": "apps/game-of-life/tsconfig.app.json"
       },
       "configurations": {
         "production": {
@@ -33,7 +33,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/examples/game-of-life/**/*.ts"]
+        "lintFilePatterns": ["apps/game-of-life/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     },

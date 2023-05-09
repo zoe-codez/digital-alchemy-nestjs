@@ -2,19 +2,20 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../../dist/out-tsc",
+    "outDir": "../../dist/out-tsc",
     "types": ["node"],
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
   "exclude": [
     "**/*.spec.ts",
-    "../../../**/*.spec.ts",
+    "../../**/*.spec.ts",
   ],
   "include": [
     "**/*.ts",
-    "../../../libs/boilerplate/**/*.ts",
-    "../../../libs/gotify/**/*.ts",
-    "../../../libs/utilities/**/*.ts",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/home-assistant/**/*.ts",
+    "../../libs/server/**/*.ts",
+    "../../libs/utilities/**/*.ts",
   ]
 }

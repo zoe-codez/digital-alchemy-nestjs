@@ -35,13 +35,13 @@ Editor features are a strong focus focus of this library, with full typescript s
 
 ## Example Applications
 
-> Sometimes useful example code
+> Sometimes useful example / reference code
 
 | Application | Type | Notes |
 | --- | --- | --- |
 | [Sampler App](apps/sampler-app) | `terminal` | Demo app for TTY library functionality. Get a quick feel for how things look and work from inside your terminal |
 | [Hass CLI](apps/hass-cli) | `home-assistant`, `terminal` | Basic interactions with Home Assistant and development aid |
-| [Entity Creation](apps/examples/entity-creation) | `home-assistant` | Minimal example app. Creates a few entities and not much else |
-| [Scene Manager](apps/examples/scene-manager) | `home-assistant` | An example home automation app, which manages several rooms |
-| [Notification Tester](apps/examples/notification-tester) | `gotify` | Simple example of how to import `@digital-alchemy/gotify` into an app, and send notifications |
-| [Game of Life](apps/examples/game-of-life) | `rgb-matrix`, `tty` | An implementation of Conway's Game of Life with controls via TTY library, and optional mirroring to a `pi-matrix-client` compatible display |
+| [Entity Creation](apps/entity-creation) | `home-assistant` | Minimal example app. Creates a few entities and not much else |
+| [Scene Manager](apps/scene-manager) | `home-assistant` | An example home automation app, which manages several rooms |
+| [Notification Tester](apps/notification-tester) | `gotify` | Simple example of how to import `@digital-alchemy/gotify` into an app, and send notifications |
+| [Game of Life](apps/game-of-life) | `rgb-matrix`, `tty` | An implementation of Conway's Game of Life with controls via TTY library, and optional mirroring to a `pi-matrix-client` compatible display |

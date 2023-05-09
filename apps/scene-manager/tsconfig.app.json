@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/out-tsc",
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "../../**/*.spec.ts",
+  ],
+  "include": [
+    "**/*.ts",
+    "../../libs/automation-logic/**/*.ts",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/home-assistant/**/*.ts",
+    "../../libs/mqtt/**/*.ts",
+    "../../libs/server/**/*.ts",
+    "../../libs/utilities/**/*.ts",
+  ]
+}

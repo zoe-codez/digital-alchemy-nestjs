@@ -44,8 +44,8 @@
   "references": [
     { "path": "./apps/build-pipeline/tsconfig.json" },
     { "path": "./apps/config-builder/tsconfig.json" },
-    { "path": "./apps/examples/entity-creation/tsconfig.json" },
-    { "path": "./apps/examples/scene-manager/tsconfig.json" },
+    { "path": "./apps/entity-creation/tsconfig.json" },
+    { "path": "./apps/scene-manager/tsconfig.json" },
     { "path": "./apps/hass-cli/tsconfig.json" },
     { "path": "./apps/hass-type-generate/tsconfig.json" },
     { "path": "./apps/log-formatter/tsconfig.json" },

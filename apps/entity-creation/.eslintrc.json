@@ -1,5 +1,5 @@
 {
-  "extends": ["../../../.eslintrc.json"],
+  "extends": ["../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
@@ -12,7 +12,7 @@
         ]
       },
       "parserOptions": {
-        "project": ["apps/examples/scene-manager/tsconfig.app.json"]
+        "project": ["apps/entity-creation/tsconfig.app.json"]
       }
     },
     {
