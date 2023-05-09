@@ -1,4 +1,5 @@
-# 💻 Digital Alchemy Monorepo 🔮
+
+<h1 align="center">💻 Digital Alchemy Monorepo 🔮</h1>
 
 ## Description
 
