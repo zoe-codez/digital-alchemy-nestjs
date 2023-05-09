@@ -50,7 +50,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-app.sh hass-cli",
+            "command": "scripts/publish-app.sh hass-cli",
             "description": "Canned script"
           }
         ]
@@ -62,7 +62,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/compile.sh hass-cli",
+            "command": "scripts/compile.sh hass-cli",
             "description": "Canned script"
           }
         ]

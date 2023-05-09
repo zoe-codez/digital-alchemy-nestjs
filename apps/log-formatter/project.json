@@ -44,7 +44,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-app.sh log-formatter",
+            "command": "scripts/publish-app.sh log-formatter",
             "description": "Canned script"
           }
         ]
@@ -56,7 +56,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/compile.sh log-formatter",
+            "command": "scripts/compile.sh log-formatter",
             "description": "Canned script"
           }
         ]

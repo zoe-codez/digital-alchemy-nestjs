@@ -37,7 +37,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-lib.sh home-assistant",
+            "command": "scripts/publish-lib.sh home-assistant",
             "description": "Canned script"
           }
         ]

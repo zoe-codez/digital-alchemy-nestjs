@@ -37,7 +37,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-lib.sh rgb-matrix",
+            "command": "scripts/publish-lib.sh rgb-matrix",
             "description": "Canned script"
           }
         ]

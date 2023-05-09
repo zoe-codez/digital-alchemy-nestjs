@@ -1,7 +1,7 @@
 # Build Pipeline
 
 This code manages the build and publish workflow for this repository.
-The app itself isn't published anywhere, but cached locally in `tools/scripts`.
+The app itself isn't published anywhere, but build to `bin`
 
 ## Workflow
 

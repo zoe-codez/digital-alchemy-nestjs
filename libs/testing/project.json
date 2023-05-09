@@ -37,7 +37,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-lib.sh testing",
+            "command": "scripts/publish-lib.sh testing",
             "description": "Canned script"
           }
         ]

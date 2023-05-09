@@ -46,7 +46,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-app.sh pi-matrix",
+            "command": "scripts/publish-app.sh pi-matrix",
             "description": "Canned script"
           }
         ]

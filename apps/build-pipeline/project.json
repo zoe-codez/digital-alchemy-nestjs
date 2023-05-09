@@ -44,7 +44,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/compile.sh build-pipeline",
+            "command": "scripts/compile.sh build-pipeline",
             "description": "Canned script"
           }
         ]

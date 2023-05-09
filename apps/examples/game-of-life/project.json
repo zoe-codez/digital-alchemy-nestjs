@@ -43,7 +43,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/compile.sh game-of-life examples",
+            "command": "scripts/compile.sh game-of-life examples",
             "description": "Canned script"
           }
         ]

@@ -37,7 +37,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "tools/scripts/publish-lib.sh gotify",
+            "command": "scripts/publish-lib.sh gotify",
             "description": "Canned script"
           }
         ]
