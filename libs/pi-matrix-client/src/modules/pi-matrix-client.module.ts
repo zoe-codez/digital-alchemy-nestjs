@@ -75,7 +75,7 @@ const providers = [
       type: "number",
     },
     [FONTS_DIRECTORY]: {
-      default: join(cwd(), "fonts"),
+      default: join(cwd(), "assets", "fonts"),
       description:
         "Directory to load .bdf fonts from. A collection comes with the app",
       type: "string",

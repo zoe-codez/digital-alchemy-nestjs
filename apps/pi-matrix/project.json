@@ -33,7 +33,7 @@
           "assets": [
             {
               "glob": "**/*",
-              "input": "fonts",
+              "input": "assets/fonts",
               "output": "./fonts"
             }
           ]

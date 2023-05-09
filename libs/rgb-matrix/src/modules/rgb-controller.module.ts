@@ -1,11 +1,7 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
 import { RenderUtilitiesModule } from "@digital-alchemy/render-utils";
 
-import {
-  BorderPulseService,
-  BorderSpinService,
-  PulseLaserService,
-} from "../animations";
+import { BorderSpinService, PulseLaserService } from "../animations";
 import {
   DEFAULT_FONT,
   LIB_RGB_MATRIX,
@@ -23,7 +19,6 @@ import { FONTS } from "../types";
 
 const providers = [
   AnimationService,
-  BorderPulseService,
   BorderSpinService,
   LineService,
   MatrixFetch,
