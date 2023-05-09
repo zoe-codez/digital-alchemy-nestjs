@@ -38,18 +38,6 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "publish": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "tools/scripts/publish-app.sh build-pipeline",
-            "description": "Canned script"
-          }
-        ]
-      }
-    },
     "compile": {
       "executor": "nx:run-commands",
       "options": {
