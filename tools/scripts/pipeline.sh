@@ -21,10 +21,10 @@ npx nx run-many --target=build --all --configuration=production || exit 1
 # If any of the builds fail, then retry
 # NX will run from cache for successful ones
 # With only 1-2 failed, they shouldn't re-fail a 2nd time. Haven't observed it happen yet
-npx nx run-many --target=publish --all || npx nx run-many --target=publish --all || exit 1
+# npx nx run-many --target=publish --all || npx nx run-many --target=publish --all || exit 1
 
-# Commit and push
-# ---
-# Want commits with only package updates to appear with the "build" commit
-git commit -a -m "build"
-git push
+# # Commit and push
+# # ---
+# # Want commits with only package updates to appear with the "build" commit
+# git commit -a -m "build"
+# git push

@@ -6,5 +6,12 @@
     "types": ["jest", "node"],
     "resolveJsonModule": true
   },
-  "include": ["jest.config.ts", "**/*.ts"]
+  "include": ["jest.config.ts", "**/*.ts"],
+  "references": [
+    { "path": "../render-utils/tsconfig.lib.json" },
+    { "path": "../server/tsconfig.lib.json" },
+    { "path": "../rgb-matrix/tsconfig.lib.json" },
+    { "path": "../boilerplate/tsconfig.lib.json" },
+    { "path": "../utilities/tsconfig.lib.json" }
+  ]
 }

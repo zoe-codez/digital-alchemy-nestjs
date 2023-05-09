@@ -21,8 +21,13 @@ export class MatrixMathService {
     this.totalWidth = this.panelWidth * this.columns;
     this.verticalPanelCount = Math.ceil(this.panelTotal / this.columns);
     this.totalHeight = this.verticalPanelCount * this.panelHeight;
+    this.bottom = this.totalHeight * this.panelHeight;
   }
 
+  /**
+   * Max row
+   */
+  public readonly bottom: number;
   /**
    * Refers to the panel index for the first panel of the last row
    */

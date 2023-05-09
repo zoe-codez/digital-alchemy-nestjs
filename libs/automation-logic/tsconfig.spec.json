@@ -6,5 +6,11 @@
     "types": ["jest", "node"],
     "resolveJsonModule": true
   },
-  "include": ["jest.config.ts", "**/*.ts"]
+  "include": ["jest.config.ts", "**/*.ts"],
+  "references": [
+    { "path": "../boilerplate/tsconfig.lib.json" },
+    { "path": "../mqtt/tsconfig.lib.json" },
+    { "path": "../home-assistant/tsconfig.lib.json" },
+    { "path": "../utilities/tsconfig.lib.json" }
+  ]
 }
