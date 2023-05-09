@@ -15,20 +15,18 @@
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "assets": [],
-        "outputPath": "dist/apps/config-builder",
+        "compiler": "tsc",
         "generatePackageJson": true,
         "main": "apps/config-builder/src/main.ts",
-        "tsConfig": "apps/config-builder/tsconfig.app.json",
+        "outputPath": "dist/apps/config-builder",
         "target": "node",
-        "compiler": "tsc"
+        "tsConfig": "apps/config-builder/tsconfig.app.json",
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
+          "inspect": false
         }
       }
     },
@@ -64,5 +62,5 @@
       }
     }
   },
-  "tags": ["terminal"]
+  "tags": ["tty"]
 }

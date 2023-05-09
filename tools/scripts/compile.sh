@@ -1,13 +1,14 @@
 #!/bin/sh
 APP="$1"
+SUBFOLDER="$2"
 APP_DIST="dist/apps/$APP"
 
 # Print header
-jq .name < "apps/$APP/project.json" | xargs npx figlet-cli -f Pagga
+jq .name < "apps/${SUBFOLDER:+$SUBFOLDER/}$APP""/project.json" | xargs npx figlet-cli -f Pagga
 
 # Build app
-rm -r "$APP_DIST"
-npx nx build "$APP" --configuration=production
+rm -rf "$APP_DIST"
+npx nx build "$APP" --configuration=production || exit 0
 
 # Create dependencies
 cp yarn.lock "$APP_DIST"

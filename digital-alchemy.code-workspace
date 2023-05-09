@@ -180,11 +180,12 @@
       ".VSCodeCounter": "batch",
 
       // * Project internal
-      "recordings": "animation",
+      "entrypoints": "kubernetes",
       "editors": "svelte",
       "filters": "other",
       "interceptors": "hook",
       "modules": "redux-reducer",
+      "recordings": "animation",
 
       // * Misc
       "push": "interface",

@@ -8,32 +8,25 @@
       "options": {
         "buildTarget": "notification-tester:build",
         "inspect": "inspect",
-        "port": 33349
+        "port": 33347
       }
     },
     "build": {
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/examples/notification-tester",
+        "compiler": "tsc",
+        "extractLicenses": false,
         "generatePackageJson": true,
-        "fileReplacements": [
-          {
-            "replace": "apps/examples/notification-tester/src/environments/environment.ts",
-            "with": "apps/examples/notification-tester/src/environments/develop.environment.ts"
-          }
-        ],
         "main": "apps/examples/notification-tester/src/entrypoints/main.ts",
-        "tsConfig": "apps/examples/notification-tester/tsconfig.app.json",
+        "outputPath": "dist/apps/examples/notification-tester",
         "target": "node",
-        "compiler": "tsc"
+        "tsConfig": "apps/examples/notification-tester/tsconfig.app.json"
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
+          "inspect": false
         }
       }
     },
@@ -45,5 +38,5 @@
       "outputs": ["{options.outputFile}"]
     }
   },
-  "tags": []
+  "tags": ["example-app", "server"]
 }

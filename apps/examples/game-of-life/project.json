@@ -15,15 +15,19 @@
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "tsConfig": "apps/examples/game-of-life/tsconfig.app.json",
-        "target": "node",
         "compiler": "tsc",
         "generatePackageJson": true,
+        "main": "apps/examples/game-of-life/src/entrypoints/main.ts",
         "outputPath": "dist/apps/examples/game-of-life",
-        "main": "apps/examples/game-of-life/src/entrypoints/main.ts"
+        "target": "node",
+        "tsConfig": "apps/examples/game-of-life/tsconfig.app.json"
       },
       "configurations": {
-        "production":{}
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false
+        }
       }
     },
     "lint": {
@@ -32,7 +36,19 @@
         "lintFilePatterns": ["apps/examples/game-of-life/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "tools/scripts/compile.sh game-of-life examples",
+            "description": "Canned script"
+          }
+        ]
+      }
     }
   },
-  "tags": []
+  "tags": ["example-app", "tty", "rgb-matrix"]
 }
