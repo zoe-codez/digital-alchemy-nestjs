@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
+import { ColorService } from "@digital-alchemy/render-utils";
 import {
   ApplicationManagerService,
-  ColorsService,
   FontAwesomeIcons,
   MainMenuCB,
   MainMenuEntry,
@@ -80,7 +80,7 @@ type AdvancedMenuResult = string | { type: string };
 export class MenuService {
   constructor(
     private readonly application: ApplicationManagerService,
-    private readonly colors: ColorsService,
+    private readonly colors: ColorService,
     private readonly prompt: PromptService,
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,

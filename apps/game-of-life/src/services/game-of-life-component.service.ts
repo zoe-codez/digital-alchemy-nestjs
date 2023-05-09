@@ -8,7 +8,7 @@ import {
   MATRIX_STATE_CACHE_KEY,
   MatrixFetch,
   MatrixState,
-  MAX_BRIGHTNESS,
+  MAX_COLOR_BRIGHTNESS,
   RGB,
 } from "@digital-alchemy/rgb-matrix";
 import {
@@ -107,9 +107,9 @@ const PADDING = 2;
 const KEY_PADDING = 3;
 
 const DEFAULT_COLOR: RGB = {
-  b: MAX_BRIGHTNESS * HALF * HALF,
-  g: MAX_BRIGHTNESS * HALF * HALF,
-  r: MAX_BRIGHTNESS * HALF * HALF,
+  b: MAX_COLOR_BRIGHTNESS * HALF * HALF,
+  g: MAX_COLOR_BRIGHTNESS * HALF * HALF,
+  r: MAX_COLOR_BRIGHTNESS * HALF * HALF,
 };
 const RANGE = chalk`brightness on a {yellow 0}-{yellow 100} scale`;
 const COLORS = {
