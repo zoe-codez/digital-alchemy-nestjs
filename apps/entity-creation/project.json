@@ -4,39 +4,52 @@
   "sourceRoot": "apps/entity-creation/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "entity-creation:build",
-        "inspect": "inspect",
-        "port": 33347
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "compiler": "tsc",
-        "extractLicenses": false,
-        "generatePackageJson": true,
-        "main": "apps/entity-creation/src/entrypoints/main.ts",
-        "outputPath": "dist/apps/entity-creation",
         "target": "node",
-        "tsConfig": "apps/entity-creation/tsconfig.app.json"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/entity-creation",
+        "main": "apps/entity-creation/src/entrypoints/main.ts",
+        "tsConfig": "apps/entity-creation/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/entity-creation/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "entity-creation:build",
+        "port": 33342
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "entity-creation:build:development"
+        },
         "production": {
-          "optimization": true,
-          "inspect": false
+          "buildTarget": "entity-creation:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/entity-creation/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/entity-creation/**/*.ts"
+        ]
+      }
     }
   },
   "tags": ["example-app", "home-assistant", "server"]

@@ -4,39 +4,52 @@
   "sourceRoot": "apps/config-builder/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "config-builder:build",
-        "inspect": "inspect",
-        "port": 33340
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "compiler": "tsc",
-        "generatePackageJson": true,
-        "main": "apps/config-builder/src/main.ts",
-        "outputPath": "dist/apps/config-builder",
         "target": "node",
-        "tsConfig": "apps/config-builder/tsconfig.app.json"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/config-builder",
+        "main": "apps/config-builder/src/entrypoints/main.ts",
+        "tsConfig": "apps/config-builder/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/config-builder/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "config-builder:build",
+        "port": 33341
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "config-builder:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false
+          "buildTarget": "config-builder:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/config-builder/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/config-builder/**/*.ts"
+        ]
+      }
     },
     "publish": {
       "executor": "nx:run-commands",

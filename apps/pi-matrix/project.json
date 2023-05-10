@@ -4,41 +4,51 @@
   "sourceRoot": "apps/pi-matrix/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "pi-matrix:build",
-        "inspect": "inspect",
-        "port": 33344
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "assets": [],
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/pi-matrix",
-        "generatePackageJson": true,
         "main": "apps/pi-matrix/src/entrypoints/main.ts",
         "tsConfig": "apps/pi-matrix/tsconfig.app.json",
-        "fileReplacements": [],
-        "target": "node",
-        "compiler": "tsc"
+        "isolatedConfig": true,
+        "webpackConfig": "apps/pi-matrix/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "pi-matrix:build",
+        "port": 33348
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "pi-matrix:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": [],
-          "assets": [
-            {
-              "glob": "**/*",
-              "input": "assets/fonts",
-              "output": "./fonts"
-            }
-          ]
+          "buildTarget": "pi-matrix:build:production"
         }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/pi-matrix/**/*.ts"
+        ]
       }
     },
     "publish": {
@@ -52,13 +62,6 @@
           }
         ]
       }
-    },
-    "lint": {
-      "executor": "@nx/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/pi-matrix/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": []

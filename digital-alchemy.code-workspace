@@ -18,59 +18,56 @@
         "type": "node"
       },
       {
-        "name": "Attach Hass CLI",
+        "name": "Attach Entity Creation",
         "port": 33342,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
-        "name": "Attach Hass Type Generate",
+        "name": "Attach Game of Life",
         "port": 33343,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
-        "name": "Attach Log Formatter",
+        "name": "Attach Hass CLI",
         "port": 33344,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
-        "name": "Attach Pi Matrix",
+        "name": "Attach Hass Type Generate",
         "port": 33345,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
-        "name": "Attach Sampler App",
+        "name": "Attach Log Formatter",
         "port": 33346,
-        "request": "attach",
-        "skipFiles": ["<node_internals>/**"],
-        "type": "node"
-      },
-
-
-
-      {
-        "name": "Attach Entity Creation",
-        "port": 33347,
-        "request": "attach",
-        "skipFiles": ["<node_internals>/**"],
-        "type": "node"
-      },
-      {
-        "name": "Attach Examples/Game of Life:CLI",
-        "port": 33348,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
         "name": "Attach Notification Tester",
+        "port": 33347,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Pi Matrix",
+        "port": 33348,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Sampler App",
         "port": 33349,
         "request": "attach",
         "skipFiles": ["<node_internals>/**"],
@@ -87,22 +84,28 @@
   },
   "extensions": {
     "recommendations": [
-      // has associated workspace settings
+      // * editor cosmetic
+      // ~ text highlighting / formatting
       "aaron-bond.better-comments",
-      // eslint
-      "dbaeumer.vscode-eslint",
-      // material icon theme
+      // ~ material icon theme
       "pkief.material-icon-theme",
-      // dockerfile linting
-      "exiasr.hadolint",
-      // code formatting
-      "esbenp.prettier-vscode",
-      // import sorting
-      "nsoult.typescript-imports-sort",
-      // nx console (optional)
+      // ~ nx console (optional)
       "nrwl.angular-console",
-      // shell file linting
-      "timonwong.shellcheck"
+
+      // * linting
+      // ~ eslint
+      "dbaeumer.vscode-eslint",
+      // ~ dockerfile linting
+      "exiasr.hadolint",
+      // ~ shell file linting
+      "timonwong.shellcheck",
+
+      // * formatting
+      // ~ code formatting
+      "esbenp.prettier-vscode",
+      // ~ import sorting
+      "nsoult.typescript-imports-sort",
+
     ],
     "unwantedRecommendations": []
   },
@@ -191,20 +194,6 @@
       "push": "interface",
       "explorers": "context"
     },
-    "json.schemas": [
-      {
-        "fileMatch": [
-          "project.json"
-        ],
-        "url": "./node_modules/nx/schemas/project-schema.json"
-      },
-      {
-        "fileMatch": [
-          "nx.json"
-        ],
-        "url": "./node_modules/nx/schemas/nx-schema.json"
-      }
-    ],
     "explorer.fileNesting.patterns": {
       "project.json": "jest.config.js, .babelrc",
       "package.json": ".npmrc, yarn.lock",

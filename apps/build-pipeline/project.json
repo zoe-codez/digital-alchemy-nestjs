@@ -4,40 +4,52 @@
   "sourceRoot": "apps/build-pipeline/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "build-pipeline:build",
-        "inspect": "inspect",
-        "port": 33340
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "assets": [],
-        "outputPath": "dist/apps/build-pipeline",
-        "generatePackageJson": true,
-        "main": "apps/build-pipeline/src/main.ts",
-        "tsConfig": "apps/build-pipeline/tsconfig.app.json",
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/build-pipeline",
+        "main": "apps/build-pipeline/src/entrypoints/main.ts",
+        "tsConfig": "apps/build-pipeline/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/build-pipeline/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "build-pipeline:build",
+        "port": 33340
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "build-pipeline:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false
+          "buildTarget": "build-pipeline:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/build-pipeline/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/build-pipeline/**/*.ts"
+        ]
+      }
     },
     "compile": {
       "executor": "nx:run-commands",

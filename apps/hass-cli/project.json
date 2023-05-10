@@ -4,46 +4,52 @@
   "sourceRoot": "apps/hass-cli/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "hass-cli:build",
-        "inspect": "inspect",
-        "port": 33342
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/hass-cli",
-        "generatePackageJson": true,
-        "fileReplacements": [
-          {
-            "replace": "apps/hass-cli/src/environments/environment.ts",
-            "with": "apps/hass-cli/src/environments/develop.environment.ts"
-          }
-        ],
         "main": "apps/hass-cli/src/entrypoints/main.ts",
         "tsConfig": "apps/hass-cli/tsconfig.app.json",
-        "target": "node",
-        "compiler": "tsc"
+        "isolatedConfig": true,
+        "webpackConfig": "apps/hass-cli/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "hass-cli:build",
+        "port": 33344
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "hass-cli:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
+          "buildTarget": "hass-cli:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/hass-cli/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/hass-cli/**/*.ts"
+        ]
+      }
     },
     "publish": {
       "executor": "nx:run-commands",

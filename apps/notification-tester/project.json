@@ -4,39 +4,52 @@
   "sourceRoot": "apps/notification-tester/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "notification-tester:build",
-        "inspect": "inspect",
-        "port": 33347
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "compiler": "tsc",
-        "extractLicenses": false,
-        "generatePackageJson": true,
-        "main": "apps/notification-tester/src/entrypoints/main.ts",
-        "outputPath": "dist/apps/notification-tester",
         "target": "node",
-        "tsConfig": "apps/notification-tester/tsconfig.app.json"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/notification-tester",
+        "main": "apps/notification-tester/src/entrypoints/main.ts",
+        "tsConfig": "apps/notification-tester/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/notification-tester/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "notification-tester:build",
+        "port": 33347
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "notification-tester:build:development"
+        },
         "production": {
-          "optimization": true,
-          "inspect": false
+          "buildTarget": "notification-tester:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/notification-tester/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/notification-tester/**/*.ts"
+        ]
+      }
     }
   },
   "tags": ["example-app", "server"]

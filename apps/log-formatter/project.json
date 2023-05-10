@@ -4,40 +4,52 @@
   "sourceRoot": "apps/log-formatter/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nx/node:node",
-      "options": {
-        "buildTarget": "log-formatter:build",
-        "inspect": "inspect",
-        "port": 33344
-      }
-    },
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "assets": [],
-        "compiler": "tsc",
-        "extractLicenses": false,
-        "generatePackageJson": true,
-        "main": "apps/log-formatter/src/main.ts",
-        "outputPath": "dist/apps/log-formatter",
         "target": "node",
-        "tsConfig": "apps/log-formatter/tsconfig.app.json"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/log-formatter",
+        "main": "apps/log-formatter/src/entrypoints/main.ts",
+        "tsConfig": "apps/log-formatter/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/log-formatter/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "log-formatter:build",
+        "port": 33346
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "log-formatter:build:development"
+        },
         "production": {
-          "optimization": true,
-          "inspect": false
+          "buildTarget": "log-formatter:build:production"
         }
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/log-formatter/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
+        "lintFilePatterns": [
+          "apps/log-formatter/**/*.ts"
+        ]
+      }
     },
     "publish": {
       "executor": "nx:run-commands",
