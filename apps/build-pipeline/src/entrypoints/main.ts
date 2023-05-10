@@ -1,4 +1,5 @@
-import { QuickScript } from "@digital-alchemy/boilerplate";
+import { InjectConfig, QuickScript } from "@digital-alchemy/boilerplate";
+import { INCREMENT, START } from "@digital-alchemy/utilities";
 import JSON from "comment-json";
 import dayjs from "dayjs";
 import execa from "execa";
@@ -8,18 +9,32 @@ import { PackageJson } from "type-fest";
 
 const root = "package.json";
 
+// 23.10.0-dev.1
+
 @QuickScript()
 export class BuildPipelineService {
+  constructor(
+    @InjectConfig("DEV_BUILD", { default: false, type: "boolean" })
+    private readonly developmentBuild: boolean,
+  ) {}
+
   public async exec(): Promise<void> {
     // ? Bump root package.json version
     // * Load root package
     const rootPackage = JSON.parse(readFileSync(root, "utf8")) as PackageJson;
+    const currentVersion = rootPackage.version;
 
     // * Bump version
     const prefix = dayjs().format("YY.ww").replace(".0", ".");
-    rootPackage.version = rootPackage.version.startsWith(prefix)
+    rootPackage.version = currentVersion.startsWith(prefix)
       ? inc(rootPackage.version, "patch")
       : `${prefix}.0`;
+    if (this.developmentBuild) {
+      const number = currentVersion.includes("dev")
+        ? Number(currentVersion.split(".").pop()) + INCREMENT
+        : START;
+      rootPackage.version += `-dev.${number}`;
+    }
 
     // * Write back
     writeFileSync(root, JSON.stringify(rootPackage, undefined, "  ") + `\n`);

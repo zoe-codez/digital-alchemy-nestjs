@@ -9,7 +9,7 @@
       "outputs": [
         "{options.outputPath}"
       ],
-      "defaultConfiguration": "production",
+      "defaultConfiguration": "development",
       "options": {
         "target": "node",
         "compiler": "tsc",
@@ -20,8 +20,16 @@
         "webpackConfig": "apps/build-pipeline/webpack.config.js"
       },
       "configurations": {
-        "development": {},
-        "production": {}
+        "development": {
+          "optimization": false,
+          "generatePackageJson": false,
+          "inspect": true
+        },
+        "production": {
+          "optimization": true,
+          "generatePackageJson": true,
+          "inspect": false
+        }
       }
     },
     "serve": {
