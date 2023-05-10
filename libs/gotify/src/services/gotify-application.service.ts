@@ -45,7 +45,10 @@ export class GotifyApplicationService {
     });
   }
 
-  public async update(id: number, body: ApplicationParameters): Promise<Application> {
+  public async update(
+    id: number,
+    body: ApplicationParameters,
+  ): Promise<Application> {
     return await this.fetch.fetch({
       body,
       method: "put",

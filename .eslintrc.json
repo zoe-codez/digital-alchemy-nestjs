@@ -402,6 +402,7 @@
         "security/detect-object-injection": "off",
         "security/detect-non-literal-fs-filename": "off",
         "sort-keys-fix/sort-keys-fix": "warn",
+        "unicorn/prefer-event-target": "off",
         "simple-import-sort/imports": "warn",
         "simple-import-sort/exports": "warn",
         "no-console": ["error"],

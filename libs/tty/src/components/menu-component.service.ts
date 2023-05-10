@@ -1305,7 +1305,10 @@ export class MenuComponentService<VALUE = unknown | string>
   private side(side: "left" | "right"): MainMenuEntry<VALUE>[] {
     let temp = this.opt[side].map(item => [
       item,
-      ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),
+      ansiStrip(item.entry[LABEL]).replaceAll(
+        new RegExp("[^A-Za-z0-9]", "g"),
+        "",
+      ),
     ]) as [MainMenuEntry, string][];
     if (this.sort) {
       // Run through all the menu items, and find the highest priority for each type

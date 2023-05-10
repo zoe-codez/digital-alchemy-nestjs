@@ -483,8 +483,8 @@ export class PickManyComponentService<VALUE = unknown>
       );
     }
     return this[side].sort((a, b) => {
-      return a.entry[LABEL].replace(UNSORTABLE, "") >
-        b.entry[LABEL].replace(UNSORTABLE, "")
+      return a.entry[LABEL].replaceAll(UNSORTABLE, "") >
+        b.entry[LABEL].replaceAll(UNSORTABLE, "")
         ? UP
         : DOWN;
     }) as MainMenuEntry<VALUE>[];

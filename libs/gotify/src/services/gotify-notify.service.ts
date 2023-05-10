@@ -1,6 +1,10 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import { Injectable, InternalServerErrorException, Scope } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Scope,
+} from "@nestjs/common";
 
 import { BASE_URL, CHANNEL_MAPPING } from "../config";
 import { Message } from "../types";
@@ -22,7 +26,9 @@ export class GotifyNotify {
   public async send(body: Message): Promise<void> {
     const token = this.channels[this.application];
     if (is.empty(token)) {
-      throw new InternalServerErrorException(`Bad application channel: ${this.application}`);
+      throw new InternalServerErrorException(
+        `Bad application channel: ${this.application}`,
+      );
     }
     body.extras = {
       // "home::appliances::lighting::on": { brightness: 15 },
