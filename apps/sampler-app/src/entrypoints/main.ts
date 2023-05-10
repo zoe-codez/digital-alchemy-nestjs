@@ -1,5 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { QuickScript } from "@digital-alchemy/boilerplate";
+import { RenderUtilitiesModule } from "@digital-alchemy/render-utils";
 import {
   ApplicationManagerService,
   ErrorService,
@@ -21,7 +22,7 @@ import {
   ObjectService,
   PickManyService,
   StringService,
-} from "./services";
+} from "../services";
 
 @QuickScript({
   application: "sampler-app",
@@ -32,7 +33,7 @@ import {
       },
     },
   },
-  imports: [TTYModule],
+  imports: [TTYModule, RenderUtilitiesModule],
   providers: [
     AcknowledgeService,
     ArrayService,
@@ -40,8 +41,8 @@ import {
     ConfigSampler,
     ConfirmService,
     DateService,
-    MenuService,
     ItemGeneratorService,
+    MenuService,
     ObjectService,
     PickManyService,
     StringService,

@@ -64,5 +64,5 @@
       }
     }
   },
-  "tags": ["tty"]
+  "tags": ["tty", "internal"]
 }
