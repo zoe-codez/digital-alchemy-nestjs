@@ -1,253 +1,122 @@
 {
-  "folders": [
-    {
-      "path": "."
-    }
-  ],
+  "folders": [{ "path": "." }],
   "launch": {
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Attach Hass CLI",
-        "port": 33342,
+        "name": "Attach Build Pipeline",
+        "port": 33340,
         "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach Hass Type Generate",
-        "port": 33346,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach examples/Entity Creation",
-        "port": 33344,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach examples/Scene Manager",
-        "port": 33345,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach Sampler App",
-        "port": 33343,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach Examples/Game of Life:CLI",
-        "port": 33347,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
-        "type": "node"
-      },
-      {
-        "name": "Attach Examples/Game of Life:Matrix",
-        "port": 33348,
-        "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
+        "skipFiles": ["<node_internals>/**"],
         "type": "node"
       },
       {
         "name": "Attach Config Builder",
-        "port": 33340,
+        "port": 33341,
         "request": "attach",
-        "skipFiles": [
-          "<node_internals>/**"
-        ],
+        "skipFiles": ["<node_internals>/**"],
         "type": "node"
-      }
+      },
+      {
+        "name": "Attach Entity Creation",
+        "port": 33342,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Game of Life",
+        "port": 33343,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Hass CLI",
+        "port": 33344,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Hass Type Generate",
+        "port": 33345,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Log Formatter",
+        "port": 33346,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Notification Tester",
+        "port": 33347,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Pi Matrix",
+        "port": 33348,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Sampler App",
+        "port": 33349,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
+      {
+        "name": "Attach Scene Manager",
+        "port": 33350,
+        "request": "attach",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "node"
+      },
     ]
   },
   "extensions": {
     "recommendations": [
-      // better comments
+      // * editor cosmetic
+      // ~ text highlighting / formatting
       "aaron-bond.better-comments",
-      // eslint
-      "dbaeumer.vscode-eslint",
-      // material icon theme
+      // ~ material icon theme
       "pkief.material-icon-theme",
-      // dockerfile linting
-      "exiasr.hadolint",
-      // code formatting
-      "esbenp.prettier-vscode",
-      // highlighter for specific comment strings
-      "wayou.vscode-todo-highlight",
-      // import sorting
-      "nsoult.typescript-imports-sort",
-      // nx console
+      // ~ nx console (optional)
       "nrwl.angular-console",
-      // shell check
+
+      // * linting
+      // ~ eslint
+      "dbaeumer.vscode-eslint",
+      // ~ dockerfile linting
+      "exiasr.hadolint",
+      // ~ shell file linting
       "timonwong.shellcheck",
-      // import sorting
-      // works differently from eslint, use both for 100% consistency
-      "nsoult.typescript-imports-sort"
+
+      // * formatting
+      // ~ code formatting
+      "esbenp.prettier-vscode",
+      // ~ import sorting
+      "nsoult.typescript-imports-sort",
+
     ],
     "unwantedRecommendations": []
   },
   "settings": {
-    "material-icon-theme.folders.associations": {
-      ".config": "config",
-      ".ebextensions": "plugin",
-      ".gitsecret": "git",
-      ".well-known": "public",
-      "abb-cli": "benchmark",
-      "action": "azure-pipelines",
-      "activate": "examples",
-      "rgb-matrix": "intellij",
-      "adapters": "custom",
-      "app": "vscode",
-      "pi-matrix-client": "bower",
-      "pi-matrix": "changesets",
-      "automation-logic": "tasks",
-      "boilerplate": "core",
-      "build-pipeline": "pipe",
-      "canvas": "interface",
-      "changelog": "template",
-      "comparisons": "custom",
-      "conf.d": "routes",
-      "config-builder": "template",
-      "contracts": "contract",
-      "controller-backup": "download",
-      "controller-logic": "custom",
-      "cron": "ci",
-      "dashboard": "mjml",
-      "decorators": "delta",
-      "deployments": "terraform",
-      "devices": "project",
-      "devtools": "debug",
-      "domains": "mappings",
-      "dto": "database",
-      "edge": "cluster",
-      "editors": "svelte",
-      "enabled": "functions",
-      "endpoints": "mappings",
-      "entities": "components",
-      "entrypoints": "home",
-      "enums": "constant",
-      "event-emitter": "event",
-      "executors": "custom",
-      "explorers": "context",
-      "external": "shared",
-      "fetch-proxy": "public",
-      "fetch": "flow",
-      "filters": "other",
-      "footer": "react-components",
-      "form": "components",
-      "gotify": "messages",
-      "groups": "context",
-      "hass-cli": "debug",
-      "hass-type-generate": "batch",
-      "home-assistant": "middleware",
-      "home-cli": "admin",
-      "home-configure": "prisma",
-      "home-controller": "home",
-      "injectors": "expo",
-      "inputs": "font",
-      "interceptors": "hook",
-      "interfaces": "mappings",
-      "jest": "test",
-      "libs": "lib",
-      "lighting": "svg",
-      "log-formatter": "flow",
-      "logger": "log",
-      "maintenance": "rules",
-      "menu": "react-components",
-      "microservice": "template",
-      "modules": "redux-reducer",
-      "mongo": "ngrx-store",
-      "mqtt": "connection",
-      "nginx": "routes",
-      "node-red-contrib-digital-alchemy": "graphql",
-      "people": "admin",
-      "persistence": "database",
-      "pico-relay": "connection",
-      "premium": "admin",
-      "project": "components",
-      "proxy": "routes",
-      "recordings": "animation",
-      "render": "helper",
-      "requests": "content",
-      "response": "dist",
-      "rooms": "packages",
-      "routines": "animation",
-      "sampler-app": "content",
-      "select": "import",
-      "sensors": "stack",
-      "states": "stack",
-      "digital-alchemy": "home",
-      "strategies": "animation",
-      "strings": "template",
-      "push": "interface",
-      "symbols": "mappings",
-      "terminal": "batch",
-      "tty": "command",
-      "type-writer": "template",
-      "validate": "rules",
-      "webhook": "messages",
-      "work": "wordpress",
-      "workers": "tasks",
-      "workflows": "ci",
-      "workspaces": "examples",
-      "wrapper": "global"
-    },
-    "files.watcherExclude": {
-      "**/.git/objects/**": true,
-      "**/.git/subtree-cache/**": true,
-      "**/node_modules/*/**": true
-    },
     "material-icon-theme.files.associations": {
-      ".nxignore": "nrwl",
-      ".pino-prettyrc": "prettier",
-      "*.code-workspace": "contributing",
-      "*.docker-compose.yaml": "docker",
-      "*.dto.ts": "pug",
-      "*.entity.ts": "bithound",
-      "*.environment.ts": "dune",
-      "*.interceptor.ts": "nest-pipe",
-      "*.layout.ts": "diff",
-      "*.main.ts": "exe",
-      "*.payload.dto.ts": "javaclass",
-      "*.response.dto.ts": "java",
-      "*.schema.ts": "bithound",
-      "*.secret": "lock",
-      "*.strategy.ts": "nest-resolver",
-      "*.workspace.ts": "crystal",
-      "config.ts": "makefile",
-      "deep": "perl",
-      "environment.ts": "dune",
-      "home-cli": "pipeline",
-      "home-controller": "maven",
-      "index.ts": "stitches",
-      "jest-test": "test-jsx",
-      "jest.preset.js": "jest",
-      "license": "prolog",
-      "main.ts": "exe",
-      "package.json": "npm",
-      "project.json": "nrwl",
-      ".auto-config-testrc": "settings",
+      // * Deliberately included config files
+      ".auto-config-testrc": "drone",
+      ".entity-creationrc": "drone",
+      ".scene-managerrc": "drone",
+
+      // * TSConfig
       "tsconfig.app.json": "nodejs_alt",
       "tsconfig.base.json": "nodejs_alt",
       "tsconfig.build.json": "nodejs_alt",
@@ -255,7 +124,86 @@
       "tsconfig.json": "nodejs_alt",
       "tsconfig.lib.json": "nodejs_alt",
       "tsconfig.spec.json": "nodejs_alt",
-      "workspace.json": "nrwl"
+
+      // * Workspace root
+      ".nxignore": "nrwl",
+      ".pino-prettyrc": "prettier",
+      "*.code-workspace": "contributing",
+      "jest.preset.js": "jest",
+      "license": "prolog",
+
+      // * Project Visbility
+      "*.docker-compose.yaml": "docker",
+      "*.entity.ts": "bithound",
+      "*.environment.ts": "dune",
+      "*.interceptor.ts": "nest-pipe",
+      "*.main.ts": "exe",
+      "*.strategy.ts": "nest-resolver",
+      "config.ts": "makefile",
+      "environment.ts": "dune",
+      "index.ts": "stitches",
+      "main.ts": "exe",
+      "package.json": "npm",
+      "project.json": "nrwl",
+      "workspace.json": "nrwl",
+
+      // * Compiled apps
+      "bin/pi-matrix": "image",
+      "bin/config-builder": "dhall",
+      "bin/hass-cli": "exe",
+      "bin/log-formatter": "log",
+      "bin/build-pipeline": "pipeline",
+      "bin/hass-type-generate": "typescript-def",
+    },
+    "material-icon-theme.folders.associations": {
+      // * Projects
+      "automation-logic": "tasks",
+      "boilerplate": "core",
+      "build-pipeline": "pipe",
+      "config-builder": "template",
+      "entity-creation": "sublime",
+      "game-of-life": "animation",
+      "gotify": "messages",
+      "hass-cli": "debug",
+      "hass-type-generate": "batch",
+      "home-assistant": "middleware",
+      "log-formatter": "flow",
+      "mqtt": "connection",
+      "notification-tester": "command",
+      "pi-matrix-client": "bower",
+      "pi-matrix": "plastic",
+      "render-utils": "shader",
+      "rgb-matrix": "intellij",
+      "sampler-app": "content",
+      "scene-manager": "java",
+      "tty": "command",
+
+      // * Root
+      ".config": "config",
+      ".VSCodeCounter": "batch",
+
+      // * Project internal
+      "entrypoints": "kubernetes",
+      "editors": "svelte",
+      "filters": "other",
+      "interceptors": "hook",
+      "modules": "redux-reducer",
+      "recordings": "animation",
+
+      // * Misc
+      "push": "interface",
+      "explorers": "context"
+    },
+    "explorer.fileNesting.patterns": {
+      "project.json": "jest.config.js, .babelrc",
+      "package.json": ".npmrc, yarn.lock",
+      ".eslintrc.json": ".editorconfig, jest.preset.js, jest.config.ts, babel.config.json, .prettierrc, .prettierignore, .pino-prettyrc, .gitignore, .eslintignore, .dockerignore",
+      "digital-alchemy.code-workspace": "LICENSE, nx.json, .auto-config-testrc, .entity-creationrc, .scene-managerrc, terminalizer.yml"
+    },
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/node_modules/*/**": true
     },
     "search.exclude": {
       "**/node_modules": true,
@@ -265,17 +213,23 @@
       "**/*.code-search": true,
       "**/tools": true
     },
+    // ! Config files
     "files.associations": {
+      ".auto-config-testrc": "ini",
+      ".entity-creationrc": "ini",
       ".pino-prettyrc": "json",
-      "abb-cli": "ini",
-      "controller-backup": "ini",
+      ".scene-managerrc": "ini",
       "build-pipeline": "ini",
-      "home-controller": "ini",
+      "config-builder": "ini",
+      "entity-creation": "ini",
+      "game-of-life": "ini",
       "hass-cli": "ini",
       "hass-type-generate": "ini",
-      "pico-relay": "ini",
-      "config-builder": "ini",
-      "devtools": "ini"
+      "log-formatter": "ini",
+      "notification-tester": "ini",
+      "pi-matrix": "ini",
+      "sampler-app": "ini",
+      "scene-manager": "ini"
     },
     "files.exclude": {
       "**/.git": true,
@@ -285,7 +239,6 @@
       "**/CVS": true,
       "**/.DS_Store": true
     },
-    "prettier.arrowParens": "avoid",
     // ! <Decorative>
     "better-comments.tags": [
       // ! Important information
@@ -416,8 +369,7 @@
         "backgroundColor": "#3E5641",
         "bold": true,
         "italic": false
-      },
-
+      }
     ],
     // ! </Decorative>
     "typescript.tsdk": "node_modules/typescript/lib"

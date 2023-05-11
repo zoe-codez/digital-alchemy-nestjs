@@ -11,6 +11,14 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
+  "pkg": {
+    "scripts": [
+      "node_modules/**/*.js"
+    ],
+    "assets": [
+      "node_modules/**/*.flf"
+    ]
+  },
   "engines": {
     "node": ">=16.0.0"
   }

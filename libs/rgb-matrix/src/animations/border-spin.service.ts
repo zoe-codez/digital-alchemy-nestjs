@@ -1,4 +1,4 @@
-import { InjectConfig } from "@digital-alchemy/boilerplate";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
 import {
   ARRAY_OFFSET,
   NONE,
@@ -8,12 +8,6 @@ import {
 } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import {
-  PANEL_COLUMNS,
-  PANEL_HEIGHT,
-  PANEL_TOTAL,
-  PANEL_WIDTH,
-} from "../config";
 import { LineService } from "../providers";
 import {
   AnimatedBorderCallback,
@@ -40,28 +34,8 @@ type LineOptions = {
 export class BorderSpinService {
   constructor(
     private readonly line: LineService,
-    @InjectConfig(PANEL_COLUMNS) private readonly columns: number,
-    @InjectConfig(PANEL_HEIGHT) private readonly panelHeight: number,
-    @InjectConfig(PANEL_WIDTH) private readonly panelWidth: number,
-    @InjectConfig(PANEL_TOTAL) private readonly panelTotal: number,
-  ) {
-    this.bottomLeft = (this.columns - ARRAY_OFFSET) * this.panelHeight;
-    this.totalWidth = this.panelWidth * this.columns;
-    this.totalRows = Math.ceil(this.panelTotal / this.columns);
-  }
-
-  /**
-   * Refers to the panel index for the first panel of the last row
-   */
-  private readonly bottomLeft: number;
-  /**
-   * Total vertical count of rows
-   */
-  private readonly totalRows: number;
-  /**
-   * Total pixel count in the X direction
-   */
-  private readonly totalWidth: number;
+    private readonly math: MatrixMathService,
+  ) {}
 
   /**
    * Extend a line from the top/left + bottom/right, then retract
@@ -77,8 +51,10 @@ export class BorderSpinService {
     let color = colorA;
     const bothSidesPadding = padding * BOTH_SIDES;
     const totalHeight =
-      this.panelHeight * (this.panelTotal / this.columns) - bothSidesPadding;
-    const totalWidth = this.panelWidth * this.columns - bothSidesPadding;
+      this.math.panelHeight * (this.math.panelTotal / this.math.columns) -
+      bothSidesPadding;
+    const totalWidth =
+      this.math.panelWidth * this.math.columns - bothSidesPadding;
     const diff = totalWidth / totalHeight;
     // ! Extend
     for (let time = START; time <= totalHeight; time++) {
@@ -143,19 +119,19 @@ export class BorderSpinService {
     brightness,
     color,
   }: Omit<LineOptions, "totalHeight" | "totalWidth">) {
-    const shift = this.totalRows * this.totalWidth;
-    const min = shift + padding - this.totalWidth;
+    const shift = this.math.bottom * this.math.totalWidth;
+    const min = shift + padding - this.math.totalWidth;
     const left = shift - padding - Math.ceil(time * diff);
     const out = {
       brightness,
       color,
       // right
       endX: shift - padding - ARRAY_OFFSET,
-      endY: this.panelHeight - SINGLE - padding,
+      endY: this.math.panelHeight - SINGLE - padding,
       type: "line",
       // left
       x: left < min ? min : left,
-      y: this.panelHeight - SINGLE - padding,
+      y: this.math.panelHeight - SINGLE - padding,
     } as LineWidgetDTO;
     return out;
   }
@@ -182,7 +158,7 @@ export class BorderSpinService {
     return this.line
       .topToBottom(
         // ARRAY_OFFSET because grid is 0 indexed, and we need flush
-        this.totalWidth - ARRAY_OFFSET - padding,
+        this.math.totalWidth - ARRAY_OFFSET - padding,
         Math.min(time, totalHeight),
         padding,
       )
@@ -214,18 +190,18 @@ export class BorderSpinService {
     brightness,
     color,
   }: Omit<LineOptions, "offset" | "totalWidth">) {
-    const shift = this.totalRows * this.totalWidth;
+    const shift = this.math.bottom * this.math.totalWidth;
     const right = shift - Math.ceil(time * diff) - padding;
     const out = {
       brightness,
       color,
       // right
       endX: right,
-      endY: this.panelHeight - SINGLE - padding,
+      endY: this.math.panelHeight - SINGLE - padding,
       type: "line",
       // left
-      x: shift - this.totalWidth + padding,
-      y: this.panelHeight - SINGLE - padding,
+      x: shift - this.math.totalWidth + padding,
+      y: this.math.panelHeight - SINGLE - padding,
     } as LineWidgetDTO;
     return out;
   }
@@ -251,8 +227,8 @@ export class BorderSpinService {
     return this.line
       .bottomToTop(
         //
-        this.totalWidth - padding - ARRAY_OFFSET,
-        this.totalRows * this.panelHeight - time,
+        this.math.totalWidth - padding - ARRAY_OFFSET,
+        this.math.bottom * this.math.panelHeight - time,
         padding,
       )
       .map(i => ({ ...i, brightness, color, type: "line" } as LineWidgetDTO));
@@ -273,7 +249,10 @@ export class BorderSpinService {
       endY: START + padding,
       type: "line",
       // right
-      x: this.totalWidth * (this.columns - SINGLE) - padding - ARRAY_OFFSET,
+      x:
+        this.math.totalWidth * (this.math.columns - SINGLE) -
+        padding -
+        ARRAY_OFFSET,
       y: START + padding,
     } as LineWidgetDTO;
   }

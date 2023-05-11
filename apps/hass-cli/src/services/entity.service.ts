@@ -100,10 +100,11 @@ export class EntityService {
         break;
       case "done":
         return;
-      case "refresh":
+      case "refresh": {
         this.entities = undefined;
         this.lastRefresh = undefined;
         break;
+      }
     }
     if (!is.string(action)) {
       if ("entity" in action) {

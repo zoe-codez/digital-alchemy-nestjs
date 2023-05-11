@@ -19,7 +19,7 @@ import { GRADUAL_DIM_DEFAULT_INTERVAL } from "../config";
 import {
   ANIMATION_INTERRUPT,
   GradualDimOptions,
-  MAX_BRIGHTNESS,
+  MAX_LED_BRIGHTNESS,
   OFF,
   SCENE_SET_ENTITY,
 } from "../types";
@@ -63,9 +63,9 @@ export class GradualDimService {
       this.logger.warn(`[%s] invalid target brightness: %s`, entity_id, target);
       target = OFF;
     }
-    if (target > MAX_BRIGHTNESS) {
+    if (target > MAX_LED_BRIGHTNESS) {
       this.logger.warn(`[%s] invalid target brightness: %s`, entity_id, target);
-      target = MAX_BRIGHTNESS;
+      target = MAX_LED_BRIGHTNESS;
     }
     if (dayjs().isAfter(end)) {
       this.logger.error(

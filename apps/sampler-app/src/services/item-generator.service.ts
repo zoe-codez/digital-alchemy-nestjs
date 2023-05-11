@@ -41,7 +41,7 @@ export class ItemGeneratorService {
       case FakerSources.address:
         label = faker.address.streetAddress();
         break;
-      case FakerSources.animal:
+      case FakerSources.animal: {
         const keys = Object.keys(faker.animal).filter(
           i => is.function(faker.animal[i]) && !["type"].includes(i),
         );
@@ -49,6 +49,7 @@ export class ItemGeneratorService {
         label = faker.animal[animalType]();
         type = animalType;
         break;
+      }
     }
 
     return {

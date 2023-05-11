@@ -1,17 +1,14 @@
-import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import {
   CircleWidgetDTO,
   ClockWidgetDTO,
   Colors,
   CountdownWidgetDTO,
-  DEFAULT_FONT,
-  FONTS,
   GenericWidgetDTO,
   HMS,
   ImageWidgetDTO,
-  LIB_RGB_MATRIX,
   LineWidgetDTO,
-  MAX_BRIGHTNESS,
+  MAX_COLOR_BRIGHTNESS,
   RectangleWidgetDTO,
   TextWidgetDTO,
   UNLOAD_WIDGETS,
@@ -29,14 +26,13 @@ import {
 
 import { MATRIX_INSTANCE } from "../types";
 import { ImageService } from "./image.service";
+import { RenderService } from "./render.service";
 import { SyncAnimationService } from "./sync-animation.service";
 import { TextService } from "./text.service";
 
 @Injectable()
 export class WidgetService {
   constructor(
-    @InjectConfig(DEFAULT_FONT, LIB_RGB_MATRIX)
-    private readonly defaultFont: FONTS,
     @Inject(forwardRef(() => TextService))
     private readonly text: TextService,
     @Inject(forwardRef(() => ImageService))
@@ -47,6 +43,8 @@ export class WidgetService {
     private readonly event: EventEmitter,
     @Inject(MATRIX_INSTANCE)
     private readonly matrix: LedMatrixInstance,
+    @Inject(forwardRef(() => RenderService))
+    private readonly renderService: RenderService,
   ) {}
 
   /**
@@ -155,17 +153,14 @@ export class WidgetService {
   }
 
   public setWidgets(widgets: GenericWidgetDTO[]) {
+    this.renderService.renderMode = "widget";
     this.event.emit(UNLOAD_WIDGETS);
     this.widgets = widgets;
     this.initWidgets(widgets);
   }
 
-  protected onModuleInit(): void {
-    this.text.load("5x8");
-  }
-
   private renderCircle({
-    brightness = MAX_BRIGHTNESS,
+    brightness = MAX_COLOR_BRIGHTNESS,
     color = Colors.White,
     r = EMPTY,
     x = EMPTY,
@@ -191,7 +186,7 @@ export class WidgetService {
   }
 
   private renderLine({
-    brightness = MAX_BRIGHTNESS,
+    brightness = MAX_COLOR_BRIGHTNESS,
     color = Colors.White,
     endX = EMPTY,
     endY = EMPTY,
@@ -205,7 +200,7 @@ export class WidgetService {
   }
 
   private renderRectangle({
-    brightness = MAX_BRIGHTNESS,
+    brightness = MAX_COLOR_BRIGHTNESS,
     color = Colors.White,
     fill = "none",
     height,
@@ -223,14 +218,21 @@ export class WidgetService {
   }
 
   private renderText({
-    brightness = MAX_BRIGHTNESS,
+    brightness = MAX_COLOR_BRIGHTNESS,
     color = Colors.White,
     horizontal = HorizontalAlignment.Left,
     text,
     vertical = VerticalAlignment.Top,
     ...widget
   }: Partial<TextWidgetDTO>): void {
-    const font = this.text.fonts.get(widget.font ?? this.defaultFont);
+    const font = this.text.font(widget.font);
+    if (!font) {
+      this.logger.error(
+        `Failed to load font to render. Asked for {%s}`,
+        widget.font,
+      );
+      return;
+    }
     const lines = LayoutUtils.textToLines(font, this.matrix.width(), text);
     const glyphs = LayoutUtils.linesToMappedGlyphs(
       lines,

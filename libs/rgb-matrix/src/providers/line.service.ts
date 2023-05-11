@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
 import { ARRAY_OFFSET, NONE } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import {
-  PANEL_COLUMNS,
-  PANEL_HEIGHT,
-  PANEL_TOTAL,
-  PANEL_WIDTH,
-} from "../config";
 import { LineWidgetDTO } from "../types";
 
 type LinePartial = Pick<LineWidgetDTO, "x" | "endX" | "y" | "endY">;
@@ -19,28 +14,17 @@ type LinePartial = Pick<LineWidgetDTO, "x" | "endX" | "y" | "endY">;
 @Injectable()
 export class LineService {
   constructor(
-    @InjectConfig(PANEL_COLUMNS) private readonly columns: number,
-    @InjectConfig(PANEL_HEIGHT) private readonly panelHeight: number,
-    @InjectConfig(PANEL_WIDTH) private readonly panelWidth: number,
-    @InjectConfig(PANEL_TOTAL) private readonly panelTotal: number,
     private readonly logger: AutoLogService,
-  ) {
-    this.totalWidth = this.panelWidth * this.columns;
-    this.totalRows = Math.ceil(this.panelTotal / this.columns);
-    this.bottom = this.totalRows * this.panelHeight;
-  }
-
-  private readonly bottom: number;
-  private readonly totalRows: number;
-  private readonly totalWidth: number;
+    private readonly math: MatrixMathService,
+  ) {}
 
   public bottomToTop(
     left: number,
     height: number,
     offset = NONE,
   ): LinePartial[] {
-    const top = this.bottom - offset - height;
-    const bottom = this.bottom - offset;
+    const top = this.math.bottom - offset - height;
+    const bottom = this.math.bottom - offset;
     return this.multiPanelVerticalLine(left, top, bottom);
   }
 
@@ -56,7 +40,7 @@ export class LineService {
 
   private getHeight(start: number, end: number, localY: number): number {
     const distance = Math.abs(start - end);
-    const available = this.panelHeight - localY;
+    const available = this.math.panelHeight - localY;
     return Math.min(available, distance);
   }
 
@@ -73,9 +57,9 @@ export class LineService {
     }
     const out = [];
     while (yTop < yBottom) {
-      const start = Math.floor(yTop / this.panelHeight);
-      const localX = start * this.totalWidth;
-      const y = yTop % this.panelHeight;
+      const start = Math.floor(yTop / this.math.panelHeight);
+      const localX = start * this.math.totalWidth;
+      const y = yTop % this.math.panelHeight;
       const height = this.getHeight(yTop, yBottom, y);
       out.push({
         endX: localX + x,

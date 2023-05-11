@@ -3,13 +3,11 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": [
-      "jest",
-      "node"
-    ]
+    "types": ["jest", "node"],
+    "resolveJsonModule": true
   },
-  "include": [
-    "jest.config.ts",
-    "**/*.ts"
-, "../automation-logic/src/dynamic.ts"  ]
+  "include": ["jest.config.ts", "**/*.ts"],
+  "references": [
+    { "path": "../utilities/tsconfig.lib.json" }
+  ]
 }

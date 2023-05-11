@@ -4,57 +4,53 @@
   "sourceRoot": "apps/sampler-app/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nrwl/node:node",
-      "options": {
-        "buildTarget": "sampler-app:build",
-        "inspect": "inspect",
-        "port": 33343
-      }
-    },
     "build": {
-      "executor": "@nrwl/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "assets": [],
-        "outputPath": "dist/apps/sampler-app",
-        "generatePackageJson": true,
-        "main": "apps/sampler-app/src/main.ts",
-        "tsConfig": "apps/sampler-app/tsconfig.app.json",
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "outputPath": "dist/apps/sampler-app",
+        "main": "apps/sampler-app/src/entrypoints/main.ts",
+        "tsConfig": "apps/sampler-app/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/sampler-app/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "sampler-app:build",
+        "port": 33349
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "sampler-app:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false
+          "buildTarget": "sampler-app:build:production"
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/sampler-app/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
-    },
-    "scan-config": {
-      "executor": "nx:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx nx build sampler-app --configuration=production",
-            "description": "Create standard production build"
-          },
-          {
-            "command": "mkdir -p dist/configs; node dist/apps/sampler-app/main.js --scan-config > dist/configs/sampler-app.json",
-            "description": "Scan config, output to dist"
-          }
+        "lintFilePatterns": [
+          "apps/sampler-app/**/*.ts"
         ]
       }
     }
   },
-  "tags": ["terminal"]
+  "tags": ["tty"]
 }

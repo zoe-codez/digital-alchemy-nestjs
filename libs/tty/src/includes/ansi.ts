@@ -19,7 +19,7 @@ const ANSIREGEX_PATTERN = [
 ].join("|");
 
 export const ansiStrip = (text = ""): string =>
-  text.replace(new RegExp(ANSIREGEX_PATTERN, "g"), "");
+  text.replaceAll(new RegExp(ANSIREGEX_PATTERN, "g"), "");
 
 export function ansiPadEnd(
   text: string,
@@ -49,7 +49,8 @@ export function ansiPadStart(text: string, amount: number): string {
 
 export const ansiSort = (text: string[]): string[] =>
   text.sort((a, b) =>
-    ansiStrip(a).replace(UNSORTABLE, "") > ansiStrip(b).replace(UNSORTABLE, "")
+    ansiStrip(a).replaceAll(UNSORTABLE, "") >
+    ansiStrip(b).replaceAll(UNSORTABLE, "")
       ? UP
       : DOWN,
   );
@@ -167,7 +168,7 @@ export const ansiEscapes = {
           "`x`, `y` and `length` must be defined when `x` or `y` is defined",
         );
       }
-      message = message.replace(/\|/g, "");
+      message = message.replaceAll("|", "");
       returnValue += options.isHidden
         ? "AddHiddenAnnotation="
         : "AddAnnotation=";

@@ -14,6 +14,14 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "pkg": {
+    "scripts": [
+      "node_modules/**/*.js"
+    ],
+    "assets": [
+      "node_modules/**/*.flf"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zoe-codez/digital-alchemy.git"

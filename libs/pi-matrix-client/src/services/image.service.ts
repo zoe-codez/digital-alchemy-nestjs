@@ -182,6 +182,7 @@ export class ImageService {
     });
     let current = START;
     while (running) {
+      // ? increment to max -> reset -> repeat
       current = current >= frames ? START : current + INCREMENT;
       options.path = join(cachePath, `out-${current}.png`);
       await sleep(interval);

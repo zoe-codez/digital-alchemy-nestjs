@@ -1,0 +1,27 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": [
+          "warn",
+          // The numbers really are magic here
+          { "ignoreArrayIndexes": true }
+        ]
+      },
+      "parserOptions": {
+        "project": ["apps/notification-tester/tsconfig.app.json"]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
+    }
+  ]
+}

@@ -3,20 +3,19 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../dist/out-tsc",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
   "exclude": [
     "**/*.spec.ts",
-    "../../libs/boilerplate/**/*.spec.ts",
+    "../../**/*.spec.ts",
   ],
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
+    "../../libs/render-utils/**/*.ts",
     "../../libs/tty/**/*.ts",
-    "../../libs/utilities/**/*.ts"
+    "../../libs/utilities/**/*.ts",
   ]
 }

@@ -20,7 +20,8 @@ import {
     },
     [CHANNEL_MAPPING]: {
       default: {},
-      description: "Mapping of application names to tokens. Keep your keys out of the code!",
+      description:
+        "Mapping of application names to tokens. Keep your keys out of the code!",
       type: "record",
     },
     [TOKEN]: {
@@ -29,7 +30,11 @@ import {
       type: "string",
     },
   },
-  exports: [GotifyClientService, GotifyApplicationService, GotifyMessageService],
+  exports: [
+    GotifyClientService,
+    GotifyApplicationService,
+    GotifyMessageService,
+  ],
   library: LIB_GOTIFY,
   providers: [
     GotifyClientService,
@@ -44,7 +49,12 @@ export class GotifyModule {
     // @SendFrom()
     const config = [...DYNAMIC_PROVIDERS.values()];
     return {
-      exports: [...config, GotifyClientService, GotifyApplicationService, GotifyMessageService],
+      exports: [
+        ...config,
+        GotifyClientService,
+        GotifyApplicationService,
+        GotifyMessageService,
+      ],
       global: true,
       module: GotifyModule,
       providers: [

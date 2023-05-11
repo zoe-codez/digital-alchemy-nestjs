@@ -13,5 +13,5 @@ export enum Colors {
   White = 0xff_ff_ff,
   Yellow = 0xff_ff_00,
 }
-export const MAX_BRIGHTNESS = 100;
+export const MAX_COLOR_BRIGHTNESS = 255;
 export const OFF = 0;

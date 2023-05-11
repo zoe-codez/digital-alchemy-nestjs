@@ -4,41 +4,51 @@
   "sourceRoot": "apps/pi-matrix/src",
   "projectType": "application",
   "targets": {
-    "serve": {
-      "executor": "@nrwl/node:node",
-      "options": {
-        "buildTarget": "pi-matrix:build",
-        "inspect": "inspect",
-        "port": 33503
-      }
-    },
     "build": {
-      "executor": "@nrwl/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
-        "assets": [],
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/pi-matrix",
-        "generatePackageJson": true,
         "main": "apps/pi-matrix/src/entrypoints/main.ts",
         "tsConfig": "apps/pi-matrix/tsconfig.app.json",
-        "fileReplacements": [],
-        "target": "node",
-        "compiler": "tsc"
+        "isolatedConfig": true,
+        "webpackConfig": "apps/pi-matrix/webpack.config.js"
       },
       "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "pi-matrix:build",
+        "port": 33348
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "pi-matrix:build:development"
+        },
         "production": {
-          "optimization": true,
-          "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": [],
-          "assets": [
-            {
-              "glob": "**/*",
-              "input": "fonts",
-              "output": "./fonts"
-            }
-          ]
+          "buildTarget": "pi-matrix:build:production"
         }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/pi-matrix/**/*.ts"
+        ]
       }
     },
     "publish": {
@@ -47,34 +57,11 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Pi Matrix",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build pi-matrix --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/pi-matrix/main.js -c -m --keep-classnames --module > dist/apps/pi-matrix/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/pi-matrix/main.js; cat dist/apps/pi-matrix/minified.js >> dist/apps/pi-matrix/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/pi-matrix --non-interactive",
-            "description": "Publish it"
+            "command": "scripts/publish-app.sh pi-matrix",
+            "description": "Canned script"
           }
         ]
       }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/pi-matrix/**/*.ts"]
-      },
-      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": []

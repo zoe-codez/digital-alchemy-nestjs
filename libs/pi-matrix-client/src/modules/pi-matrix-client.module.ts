@@ -1,4 +1,5 @@
 import { LibraryModule } from "@digital-alchemy/boilerplate";
+import { RenderUtilitiesModule } from "@digital-alchemy/render-utils";
 import { NO_SOUND_DEVICE, RGBMatrixModule } from "@digital-alchemy/rgb-matrix";
 import { DynamicModule, Provider } from "@nestjs/common";
 import { homedir } from "os";
@@ -75,7 +76,7 @@ const providers = [
       type: "number",
     },
     [FONTS_DIRECTORY]: {
-      default: join(cwd(), "fonts"),
+      default: join(cwd(), "assets", "fonts"),
       description:
         "Directory to load .bdf fonts from. A collection comes with the app",
       type: "string",
@@ -91,12 +92,12 @@ const providers = [
       type: "string",
     },
     [UPDATE_INTERVAL]: {
-      default: 10,
+      default: 500,
       description: "Maximum delay between renders in ms",
       type: "number",
     },
   },
-  imports: [RGBMatrixModule],
+  imports: [RGBMatrixModule, RenderUtilitiesModule],
   library: LIB_PI_MATRIX_CLIENT,
   providers,
 })
@@ -105,6 +106,7 @@ export class PiMatrixClientModule {
     withControllers,
   }: PiMatrixClientOptions): DynamicModule {
     const forRootModule: DynamicModule = {
+      exports: providers,
       imports: [RGBMatrixModule],
       module: PiMatrixClientModule,
       providers,

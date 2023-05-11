@@ -1,7 +1,5 @@
-import {
-  MatrixDimensionsResponse,
-  MatrixMathService,
-} from "@digital-alchemy/rgb-matrix";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
+import { MatrixDimensionsResponse } from "@digital-alchemy/rgb-matrix";
 import { AuthStack } from "@digital-alchemy/server";
 import { Controller, Get } from "@nestjs/common";
 

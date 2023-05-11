@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
+import { ColorService } from "@digital-alchemy/render-utils";
 import {
   ApplicationManagerService,
-  ColorsService,
   FontAwesomeIcons,
   MainMenuCB,
   MainMenuEntry,
@@ -80,7 +80,7 @@ type AdvancedMenuResult = string | { type: string };
 export class MenuService {
   constructor(
     private readonly application: ApplicationManagerService,
-    private readonly colors: ColorsService,
+    private readonly colors: ColorService,
     private readonly prompt: PromptService,
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,
@@ -108,17 +108,19 @@ export class MenuService {
     );
     const keyMapCallback: MainMenuCB<AdvancedMenuResult> = (key, [, value]) => {
       switch (key) {
-        case "turn_on":
+        case "turn_on": {
           selectedValue = value;
           this.hiddenTypes = [];
           return true;
-        case "turn_off":
+        }
+        case "turn_off": {
           selectedValue = value;
           this.hiddenTypes = is.unique(
             PRE_GENERATED_MENU.map(({ type }) => type),
           );
           return true;
-        case "toggle":
+        }
+        case "toggle": {
           if (is.string(value)) {
             return `Can only toggle on type entries`;
           }
@@ -127,6 +129,7 @@ export class MenuService {
             ? this.hiddenTypes.filter(i => i !== value.type)
             : [...this.hiddenTypes, value.type];
           return true;
+        }
       }
       return true;
     };

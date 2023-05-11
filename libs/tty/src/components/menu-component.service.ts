@@ -528,27 +528,31 @@ export class MenuComponentService<VALUE = unknown | string>
     nextTick(() => this.render(update));
     const searchLength = this.searchText.length;
     switch (key) {
-      case "left":
+      case "left": {
         this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
         update = true;
         return;
-      case "right":
+      }
+      case "right": {
         this.searchCursor = Math.min(
           searchLength,
           this.searchCursor + INCREMENT,
         );
         update = true;
         return;
-      case "end":
+      }
+      case "end": {
         this.searchCursor = searchLength;
         update = true;
         return;
-      case "home":
+      }
+      case "home": {
         this.searchCursor = START;
         update = true;
         return;
+      }
       case "pagedown":
-      case "down":
+      case "down": {
         this.mode = "find-navigate";
         // * Move the top available item for the correct expected column
         const all = this.side(this.selectedType);
@@ -558,7 +562,8 @@ export class MenuComponentService<VALUE = unknown | string>
         }
         this.value = TTY.GV(available[START].entry);
         return;
-      case "backspace":
+      }
+      case "backspace": {
         if (this.searchCursor === START) {
           return;
         }
@@ -568,13 +573,15 @@ export class MenuComponentService<VALUE = unknown | string>
         this.searchCursor = Math.max(START, this.searchCursor - INCREMENT);
         update = true;
         return;
-      case "delete":
+      }
+      case "delete": {
         // no need for cursor adjustments
         this.searchText = [...this.searchText]
           .filter((char, index) => index !== this.searchCursor)
           .join("");
         update = true;
         return;
+      }
       case "space":
         key = " ";
       // fall through
@@ -624,7 +631,7 @@ export class MenuComponentService<VALUE = unknown | string>
       return;
     }
     switch (key) {
-      case "backspace":
+      case "backspace": {
         // * Back
         this.searchText = this.searchText.slice(
           START,
@@ -633,24 +640,29 @@ export class MenuComponentService<VALUE = unknown | string>
         this.searchCursor = this.searchText.length;
         update = true;
         return;
+      }
       case "up":
       case "down":
       case "home":
       case "pageup":
       case "end":
-      case "pagedown":
+      case "pagedown": {
         this.navigateSearch(key);
         return;
-      case "space":
+      }
+      case "space": {
         this.searchText += " ";
         update = true;
         return;
-      case "left":
+      }
+      case "left": {
         this.onLeft();
         return;
-      case "right":
+      }
+      case "right": {
         this.onRight();
         return;
+      }
     }
     if (key.length > SINGLE) {
       // These don't currently render in the help
@@ -1293,7 +1305,10 @@ export class MenuComponentService<VALUE = unknown | string>
   private side(side: "left" | "right"): MainMenuEntry<VALUE>[] {
     let temp = this.opt[side].map(item => [
       item,
-      ansiStrip(item.entry[LABEL]).replace(new RegExp("[^A-Za-z0-9]", "g"), ""),
+      ansiStrip(item.entry[LABEL]).replaceAll(
+        new RegExp("[^A-Za-z0-9]", "g"),
+        "",
+      ),
     ]) as [MainMenuEntry, string][];
     if (this.sort) {
       // Run through all the menu items, and find the highest priority for each type

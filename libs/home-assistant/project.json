@@ -5,7 +5,7 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
@@ -13,21 +13,20 @@
         "outputPath": "dist/libs/home-assistant",
         "packageJson": "libs/home-assistant/package.json",
         "tsConfig": "libs/home-assistant/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/home-assistant/*.md",
-          "libs/home-assistant/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": [
+            "libs/home-assistant/*.md",
+            "libs/home-assistant/package.json"
+          ]
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/home-assistant/**/*.ts"]
       },
@@ -39,22 +38,14 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Home Assistant",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build home-assistant --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/home-assistant --non-interactive",
-            "description": "Publish it"
+            "command": "scripts/publish-lib.sh home-assistant",
+            "description": "Canned script"
           }
         ]
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/home-assistant"],
       "options": {
         "jestConfig": "libs/home-assistant/jest.config.ts",
@@ -62,5 +53,6 @@
       }
     }
   },
-  "tags": ["nestjs"]
+  "implicitDependencies": ["!testing"],
+  "tags": ["nestjs", "home-assistant", "generated-types"]
 }

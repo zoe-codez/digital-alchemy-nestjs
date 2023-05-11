@@ -43,8 +43,8 @@ export class MQTTExplorerService {
         topic
           .replace("$queue/", "")
           .replace(/^\$share\/([\dA-Za-z]+)\//, "")
-          .replace(/([$()*.?[\\\]^|])/g, "\\$1")
-          .replace(/\+/g, "([^/]+)")
+          .replaceAll(/([$()*.?[\\\]^|])/g, "\\$1")
+          .replaceAll("+", "([^/]+)")
           .replace(/\/#$/, "(/.*)?") +
         "$",
       "y",

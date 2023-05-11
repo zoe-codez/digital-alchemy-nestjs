@@ -1,0 +1,68 @@
+{
+  "name": "game-of-life",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/game-of-life/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/game-of-life",
+        "main": "apps/game-of-life/src/entrypoints/main.ts",
+        "tsConfig": "apps/game-of-life/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/game-of-life/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "game-of-life:build",
+        "port": 33343
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "game-of-life:build:development"
+        },
+        "production": {
+          "buildTarget": "game-of-life:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/game-of-life/**/*.ts"
+        ]
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "scripts/compile.sh game-of-life examples",
+            "description": "Canned script"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["example-app", "tty", "rgb-matrix"]
+}

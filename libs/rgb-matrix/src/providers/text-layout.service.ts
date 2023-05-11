@@ -1,8 +1,8 @@
+import { MatrixMathService } from "@digital-alchemy/render-utils";
 import { DOWN, EMPTY, UP } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { Colors, FONTS, LineWidgetDTO, TextWidgetDTO } from "../types";
-import { MatrixMathService } from "./matrix-math.service";
 
 export type TextLineLayout = Omit<
   TextWidgetDTO,

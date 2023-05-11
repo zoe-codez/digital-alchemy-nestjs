@@ -1,4 +1,5 @@
-import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -16,7 +17,6 @@ import {
 } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import { PANEL_COLUMNS, PANEL_WIDTH } from "../config";
 import {
   AnimatedBorderCallback,
   Colors,
@@ -60,18 +60,13 @@ type ExecOptions = PulseLaserOptions & { callback: AnimatedBorderCallback };
 @Injectable()
 export class PulseLaserService {
   constructor(
-    @InjectConfig(PANEL_COLUMNS) private readonly columns: number,
-    @InjectConfig(PANEL_WIDTH) private readonly panelWidth: number,
     private readonly logger: AutoLogService,
-  ) {
-    this.totalWidth = this.panelWidth * this.columns;
-  }
-
-  private readonly totalWidth: number;
+    private readonly math: MatrixMathService,
+  ) {}
 
   public async exec(options: ExecOptions): Promise<void> {
     const { callback, step1Color, y, beam, row, brightness } = options;
-    const x = row * this.totalWidth;
+    const x = row * this.math.totalWidth;
     // Step 1: left side expand from point vertically
     await this.step1({
       callback,
@@ -157,7 +152,7 @@ export class PulseLaserService {
       y: yTop,
     };
     callback([top, bottom]);
-    for (let i = START; i < this.totalWidth - ARRAY_OFFSET; i++) {
+    for (let i = START; i < this.math.totalWidth - ARRAY_OFFSET; i++) {
       await wait();
       bottom.endX++;
       top.endX++;
@@ -173,8 +168,8 @@ export class PulseLaserService {
     row,
     brightness,
   }: ExecOptions): Promise<void> {
-    const x = row * this.totalWidth;
-    const endX = x + this.totalWidth - ARRAY_OFFSET;
+    const x = row * this.math.totalWidth;
+    const endX = x + this.math.totalWidth - ARRAY_OFFSET;
     const background = beam.map((color, index) => {
       return {
         brightness: HALF * brightness,
@@ -226,8 +221,8 @@ export class PulseLaserService {
       LineWidgetDTO | RectangleWidgetDTO
     >;
     callback(merged);
-    const movingStart = Math.floor(this.totalWidth * TWO_THIRDS);
-    const max = x + this.totalWidth;
+    const movingStart = Math.floor(this.math.totalWidth * TWO_THIRDS);
+    const max = x + this.math.totalWidth;
     let added = false;
     const mask = {
       color: Colors.Black,
@@ -240,7 +235,7 @@ export class PulseLaserService {
     } as RectangleWidgetDTO;
     delay = HALF * WAIT_INTERVAL;
 
-    for (let i = START; i < this.totalWidth + movingStart; i++) {
+    for (let i = START; i < this.math.totalWidth + movingStart; i++) {
       await sleep(delay);
       foreground.forEach(line => {
         if (line.endX < max - ARRAY_OFFSET) {

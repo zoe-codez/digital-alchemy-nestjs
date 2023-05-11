@@ -5,16 +5,17 @@
   "npmScope": "digital-alchemy",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/nx-cloud",
+      "runner": "nx-cloud",
       "options": {
         "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e",
           "build-vsix",
+          "build",
+          "compile",
+          "e2e",
+          "lint",
+          "publish",
           "scan-config",
-          "publish"
+          "test"
         ],
         "accessToken": "NDUyZDBmMWQtNWIyYi00YTJmLWFkNGItMzRjNzYxNGVmYmEwfHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,
@@ -44,7 +45,6 @@
     }
   },
   "defaultProject": "config-builder",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -55,6 +55,10 @@
     },
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
+    },
+    "compile": {
+      "dependsOn": ["default", "{workspaceRoot}/scripts/compile.sh"],
+      "outputs": ["{workspaceRoot}/dist"]
     }
   },
   "namedInputs": {
@@ -70,7 +74,6 @@
       "{workspaceRoot}/nx.json",
       "{workspaceRoot}/project.json",
       "{workspaceRoot}/tsconfig.base.json",
-      "{workspaceRoot}/workspace.json",
       "{workspaceRoot}/babel.config.json"
     ]
   }

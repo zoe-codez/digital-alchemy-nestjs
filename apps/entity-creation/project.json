@@ -1,0 +1,56 @@
+{
+  "name": "entity-creation",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/entity-creation/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/entity-creation",
+        "main": "apps/entity-creation/src/entrypoints/main.ts",
+        "tsConfig": "apps/entity-creation/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/entity-creation/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "entity-creation:build",
+        "port": 33342
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "entity-creation:build:development"
+        },
+        "production": {
+          "buildTarget": "entity-creation:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/entity-creation/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": ["example-app", "home-assistant", "server"]
+}

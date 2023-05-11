@@ -3,14 +3,14 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": [
-      "jest",
-      "node"
-    ],
+    "types": ["jest", "node"],
     "resolveJsonModule": true
   },
-  "include": [
-    "jest.config.ts",
-    "**/*.ts"
+  "include": ["jest.config.ts", "**/*.ts"],
+  "references": [
+    { "path": "../boilerplate/tsconfig.lib.json" },
+    { "path": "../server/tsconfig.lib.json" },
+    { "path": "../testing/tsconfig.lib.json" },
+    { "path": "../utilities/tsconfig.lib.json" }
   ]
 }

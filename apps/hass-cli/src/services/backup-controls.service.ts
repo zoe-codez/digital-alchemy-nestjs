@@ -88,7 +88,7 @@ export class BackupControlsService {
         return;
       case "refresh":
         return await this.exec(action);
-      case "create":
+      case "create": {
         if (backing_up) {
           this.logger.error("Wait for the current backup to finish");
           await this.prompt.acknowledge();
@@ -100,6 +100,7 @@ export class BackupControlsService {
         this.logger.info("Started new backup in background");
         await this.prompt.acknowledge();
         return await this.exec(action);
+      }
     }
     if (!is.object(action)) {
       return;
@@ -141,11 +142,12 @@ export class BackupControlsService {
     switch (action) {
       case "done":
         return;
-      case "download":
+      case "download": {
         await this.backup.download(slug, join(this.download, `${slug}.tar`));
         await this.prompt.acknowledge();
         return;
-      case "remove":
+      }
+      case "remove": {
         const confirm = await this.prompt.confirm({
           label: "Are you sure you want to remove this backup?",
         });
@@ -158,6 +160,7 @@ export class BackupControlsService {
         // Slow down the user a tad
         await this.prompt.acknowledge();
         return;
+      }
     }
   }
 }

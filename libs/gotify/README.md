@@ -19,4 +19,4 @@ Basic Typescript friendly bindings for [Gotify](https://gotify.net/) notificatio
 
 ## Example Usage
 
-See [notification-tester](https://github.com/zoe-codez/digital-alchemy/tree/main/apps/examples/notification-tester/src/entrypoints/main.ts)
+See [notification-tester](https://github.com/zoe-codez/digital-alchemy/tree/main/apps/notification-tester/src/entrypoints/main.ts)

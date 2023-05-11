@@ -1,0 +1,56 @@
+{
+  "name": "scene-manager",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/scene-manager/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/scene-manager",
+        "main": "apps/scene-manager/src/entrypoints/main.ts",
+        "tsConfig": "apps/scene-manager/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/scene-manager/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "scene-manager:build",
+        "port": 33350
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "scene-manager:build:development"
+        },
+        "production": {
+          "buildTarget": "scene-manager:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/scene-manager/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": ["example-app", "home-assistant", "server"]
+}

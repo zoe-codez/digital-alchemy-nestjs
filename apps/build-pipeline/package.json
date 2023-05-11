@@ -7,6 +7,17 @@
     "name": "zoe-codez",
     "url": "https://github.com/zoe-codez/digital-alchemy"
   },
+  "bin": {
+    "build-pipeline": "main.js"
+  },
+  "pkg": {
+    "scripts": [
+      "node_modules/**/*.js"
+    ],
+    "assets": [
+      "node_modules/**/*.flf"
+    ]
+  },
   "engines": {
     "node": ">=16.0.0"
   }

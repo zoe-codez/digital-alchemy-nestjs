@@ -1,12 +1,12 @@
+// * Basic plugins and settings, and spellcheck
+//
 {
   "env": {
     "es6": true,
     "node": true
   },
   "root": true,
-  "ignorePatterns": [
-    "**/*"
-  ],
+  "ignorePatterns": ["**/*"],
   "plugins": [
     "@nrwl/nx",
     "import",
@@ -21,11 +21,7 @@
   ],
   "overrides": [
     {
-      "files": [
-        "*.ts",
-        "*.tsx",
-        "*js"
-      ],
+      "files": ["*.ts"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
         "plugin:@typescript-eslint/recommended",
@@ -36,7 +32,6 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
-        "unicorn/switch-case-braces": "off",
         "spellcheck/spell-checker": [
           "warn",
           {
@@ -304,6 +299,7 @@
             ]
           }
         ],
+        "unicorn/switch-case-braces": "off",
         "@typescript-eslint/require-await": "warn",
         "security/detect-non-literal-regexp": "off",
         "unicorn/prefer-module": "off",
@@ -320,12 +316,7 @@
         "unicorn/no-useless-undefined": "off",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/unbound-method": "error",
-        "import/no-extraneous-dependencies": [
-          "error",
-          {
-            "packageDir": "./"
-          }
-        ],
+        "import/no-extraneous-dependencies": ["error", { "packageDir": "./" }],
         "@typescript-eslint/member-ordering": [
           1,
           {
@@ -388,81 +379,6 @@
           }
         ],
         "sonarjs/prefer-immediate-return": "off",
-        "@nrwl/nx/enforce-module-boundaries": [
-          "error",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "frontend",
-                "onlyDependOnLibsWithTags": [
-                  "shared"
-                ],
-                "bannedExternalImports": [
-                  "@nestjs/*"
-                ]
-              },
-              {
-                "sourceTag": "backend",
-                "onlyDependOnLibsWithTags": [
-                  "nestjs",
-                  "shared"
-                ],
-                "bannedExternalImports": []
-              },
-              {
-                "sourceTag": "terminal",
-                "onlyDependOnLibsWithTags": [
-                  "nestjs",
-                  "shared",
-                  "tty"
-                ],
-                "bannedExternalImports": []
-              },
-              {
-                "sourceTag": "shared",
-                "onlyDependOnLibsWithTags": [
-                  "shared"
-                ],
-                "bannedExternalImports": []
-              },
-              {
-                "sourceTag": "nestjs",
-                "onlyDependOnLibsWithTags": [
-                  "nestjs",
-                  "shared"
-                ],
-                "bannedExternalImports": []
-              },
-              {
-                "sourceTag": "tty",
-                "onlyDependOnLibsWithTags": [
-                  "nestjs",
-                  "shared",
-                  "tty"
-                ]
-              },
-              {
-                "sourceTag": "standalone",
-                "onlyDependOnLibsWithTags": [
-                  "shared"
-                ],
-                "bannedExternalImports": [
-                  "@nestjs/*"
-                ]
-              },
-              {
-                "sourceTag": "*",
-                "bannedExternalImports": [
-                  // dayjs is preferred
-                  // moment is needed for corner cases
-                  "moment"
-                ]
-              }
-            ]
-          }
-        ],
         "unicorn/prevent-abbreviations": [
           "error",
           {
@@ -486,25 +402,20 @@
         "security/detect-object-injection": "off",
         "security/detect-non-literal-fs-filename": "off",
         "sort-keys-fix/sort-keys-fix": "warn",
+        "unicorn/prefer-event-target": "off",
         "simple-import-sort/imports": "warn",
         "simple-import-sort/exports": "warn",
-        "no-console": [
-          "error"
-        ],
+        "no-console": ["error"],
         "@typescript-eslint/no-unnecessary-type-constraint": "off",
         "@typescript-eslint/no-unused-vars": [
           "warn",
-          {
-            "varsIgnorePattern": "logger"
-          }
+          { "varsIgnorePattern": "logger" }
         ],
         "@typescript-eslint/no-explicit-any": "error"
       }
     },
     {
-      "files": [
-        "*.spec.ts"
-      ],
+      "files": ["*.spec.ts"],
       "rules": {
         "@typescript-eslint/unbound-method": "off",
         "@typescript-eslint/no-magic-numbers": "off",
@@ -512,9 +423,7 @@
       }
     },
     {
-      "files": [
-        "*.controller.ts"
-      ],
+      "files": ["*.controller.ts"],
       "rules": {
         // 🤕
         "sonarjs/no-duplicate-string": "off",
@@ -523,27 +432,7 @@
       }
     },
     {
-      "files": [
-        "*.decorator.ts"
-      ],
-      "rules": {
-        // Incorrectly firing for exported maps and stuff
-        "sonarjs/no-unused-collection": "off",
-        "@typescript-eslint/ban-types": "off"
-      }
-    },
-    {
-      "files": [
-        "*persistence.service.ts"
-      ],
-      "rules": {
-        "unicorn/no-array-callback-reference": "off"
-      }
-    },
-    {
-      "files": [
-        "*module.ts"
-      ],
+      "files": ["*module.ts"],
       "rules": {
         "sonarjs/no-duplicate-string": "off",
         "unicorn/no-useless-spread": "off"

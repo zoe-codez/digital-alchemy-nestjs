@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { ExpressAdapter } from "@nestjs/platform-express";
-import chalk from "chalk";
+import { supportsColor } from "chalk";
 import { ClassConstructor } from "class-transformer";
 import express, { Express } from "express";
 import { exit } from "process";
@@ -149,7 +149,7 @@ export async function Bootstrap(
   } = bootOptions;
 
   // * Updates to the logger
-  if (prettyLog && chalk.supportsColor) {
+  if (prettyLog && supportsColor) {
     UsePrettyLogger(is.object(prettyLog) ? prettyLog : undefined);
   }
 

@@ -5,7 +5,7 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
@@ -13,21 +13,17 @@
         "outputPath": "dist/libs/boilerplate",
         "packageJson": "libs/boilerplate/package.json",
         "tsConfig": "libs/boilerplate/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "assets": [
-          "libs/boilerplate/*.md",
-          "libs/boilerplate/package.json"
-        ]
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "configurations": {
         "production": {
           "optimization": true,
-          "fileReplacements": []
+          "assets": ["libs/boilerplate/*.md", "libs/boilerplate/package.json"]
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/boilerplate/**/*.ts"]
       },
@@ -39,22 +35,14 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Boilerplate",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build boilerplate --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/boilerplate --non-interactive",
-            "description": "Publish it"
+            "command": "scripts/publish-lib.sh boilerplate",
+            "description": "Canned script"
           }
         ]
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/boilerplate"],
       "options": {
         "jestConfig": "libs/boilerplate/jest.config.ts",

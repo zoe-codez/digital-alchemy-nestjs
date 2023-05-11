@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
 import {
   Colors,
   DEFAULT_FONT,
@@ -7,9 +8,9 @@ import {
   LIB_RGB_MATRIX,
   TextWidgetDTO,
 } from "@digital-alchemy/rgb-matrix";
-import { EMPTY } from "@digital-alchemy/utilities";
+import { NONE } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
-import { readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import {
   Font,
@@ -24,7 +25,6 @@ import { FONTS_DIRECTORY } from "../config";
 import { MATRIX_INSTANCE } from "../types";
 
 const EXT = "bdf";
-const MAX_BRIGHTNESS = 255;
 
 @Injectable()
 export class TextService {
@@ -38,20 +38,35 @@ export class TextService {
     private readonly defaultFont: FONTS,
     @InjectConfig(FONTS_DIRECTORY)
     private readonly root: string,
+    private readonly math: MatrixMathService,
   ) {}
 
-  public fonts = new Map<string, FontInstance>();
+  private fonts = new Map<string, FontInstance>();
 
-  public font(font: FONTS) {
+  public font(font: FONTS): FontInstance {
     this.load(font);
-    return this.matrix.font(this.fonts.get(font));
+    const requested = this.fonts.get(font);
+    if (requested) {
+      return requested;
+    }
+    this.logger.error(
+      `[%s] font did not load, falling back to default {%s}`,
+      font,
+      this.defaultFont,
+    );
+    return this.font(this.defaultFont);
   }
 
   public load(name: FONTS): void {
     if (this.fonts.has(name)) {
       return;
     }
-    this.fonts.set(name, new Font(name, join(this.root, `${name}.${EXT}`)));
+    const file = join(this.root, `${name}.${EXT}`);
+    if (!existsSync(file)) {
+      this.logger.error({ file }, `[%s] cannot find font`, name);
+      return;
+    }
+    this.fonts.set(name, new Font(name, file));
     this.logger.debug(`[%s] loaded font`, name);
   }
 
@@ -72,13 +87,13 @@ export class TextService {
     this.matrix
       .font(font)
       .fgColor(widget.color ?? Colors.White)
-      .brightness(widget.brightness ?? MAX_BRIGHTNESS);
+      .brightness(this.math.containBrightness(widget.brightness));
 
     glyphs.forEach(({ x, y, char }) =>
       this.matrix.drawText(
         char,
-        x + (widget.x ?? EMPTY),
-        y + (widget.y ?? EMPTY),
+        x + (widget.x ?? NONE),
+        y + (widget.y ?? NONE),
       ),
     );
   }
@@ -87,5 +102,6 @@ export class TextService {
     TextService.FONT_LIST = readdirSync(this.root)
       .filter(i => i.endsWith(EXT))
       .map(i => i.replace(`.${EXT}`, "") as FONTS);
+    this.load(this.defaultFont);
   }
 }

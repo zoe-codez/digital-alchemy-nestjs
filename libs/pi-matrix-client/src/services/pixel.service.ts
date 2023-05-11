@@ -1,5 +1,6 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
-import { MatrixMathService, SetPixelGrid } from "@digital-alchemy/rgb-matrix";
+import { MatrixMathService } from "@digital-alchemy/render-utils";
+import { SetPixelGrid } from "@digital-alchemy/rgb-matrix";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { LedMatrixInstance } from "rpi-led-matrix";
 

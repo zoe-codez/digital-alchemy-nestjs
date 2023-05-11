@@ -375,25 +375,29 @@ export class ObjectBuilderComponentService<
       const current = get(is.object(row) ? row : {}, column.path);
       let value: unknown;
       switch (column.type) {
-        case "date":
+        case "date": {
           value = await this.prompt.date({
             current,
             label: column.name,
           });
           break;
-        case "number":
+        }
+        case "number": {
           value = await this.prompt.number({ current, label: column.name });
           break;
-        case "boolean":
+        }
+        case "boolean": {
           value = await this.prompt.boolean({
             current: current,
             label: column.name,
           });
           break;
-        case "string":
+        }
+        case "string": {
           value = await this.prompt.string({ current, label: column.name });
           break;
-        case "pick-many":
+        }
+        case "pick-many": {
           const currentValue = current ?? [];
           const source = column.options.filter(
             i => !currentValue.includes(TTY.GV(i)),
@@ -406,7 +410,8 @@ export class ObjectBuilderComponentService<
             source,
           });
           break;
-        case "pick-one":
+        }
+        case "pick-one": {
           value = await this.prompt.pickOne({
             current: current,
             headerMessage: column.name,
@@ -421,6 +426,7 @@ export class ObjectBuilderComponentService<
             this.screen.eraseLine(HELP_ERASE_SIZE);
           }
           break;
+        }
       }
       set(is.object(row) ? row : {}, column.path, value);
     });

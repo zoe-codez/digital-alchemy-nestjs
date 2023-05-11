@@ -83,15 +83,15 @@ export const prettyFormatMessage = (message: string): string => {
   }
   message = message
     // ? partA#partB - highlight it all in yellow
-    .replace(new RegExp("([^ ]+#[^ ]+)", "g"), i => chalk.yellow(i))
+    .replaceAll(new RegExp("([^ ]+#[^ ]+)", "g"), i => chalk.yellow(i))
     // ? [A] > [B] > [C] - highlight the >'s in blue
     .replaceAll("] > [", chalk`] {blue >} [`)
     // ? [Text] - strip brackets, highlight magenta
-    .replace(new RegExp("(\\[[^\\]\\[]+\\])", "g"), i =>
+    .replaceAll(new RegExp("(\\[[^\\]\\[]+\\])", "g"), i =>
       chalk.bold.magenta(i.slice(1, -1)),
     )
     // ? {Text} - strip braces, highlight gray
-    .replace(new RegExp("(\\{[^\\]}]+\\})", "g"), i =>
+    .replaceAll(new RegExp("(\\{[^\\]}]+\\})", "g"), i =>
       chalk.bold.gray(i.slice(1, -1)),
     );
   // ? " - Text" (line prefix with dash) - highlight dash
