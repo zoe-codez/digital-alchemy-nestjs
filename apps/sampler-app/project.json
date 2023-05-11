@@ -20,8 +20,16 @@
         "webpackConfig": "apps/sampler-app/webpack.config.js"
       },
       "configurations": {
-        "development": {},
-        "production": {}
+        "development": {
+          "optimization": false,
+          "generatePackageJson": false,
+          "inspect": true
+        },
+        "production": {
+          "optimization": true,
+          "generatePackageJson": true,
+          "inspect": false
+        }
       }
     },
     "serve": {
