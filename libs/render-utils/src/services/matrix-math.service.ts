@@ -8,6 +8,7 @@ import {
   PANEL_TOTAL,
   PANEL_WIDTH,
 } from "../config";
+import { MAX_COLOR_BRIGHTNESS, OFF } from "../types";
 
 @Injectable()
 export class MatrixMathService {
@@ -44,6 +45,13 @@ export class MatrixMathService {
    * Total vertical count of rows
    */
   public readonly verticalPanelCount: number;
+
+  public containBrightness(brightness: number) {
+    return Math.max(
+      Math.min(brightness ?? MAX_COLOR_BRIGHTNESS, MAX_COLOR_BRIGHTNESS),
+      OFF,
+    );
+  }
 
   public rolloverFix(
     x: number,

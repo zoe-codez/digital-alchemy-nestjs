@@ -226,6 +226,13 @@ export class WidgetService {
     ...widget
   }: Partial<TextWidgetDTO>): void {
     const font = this.text.font(widget.font);
+    if (!font) {
+      this.logger.error(
+        `Failed to load font to render. Asked for {%s}`,
+        widget.font,
+      );
+      return;
+    }
     const lines = LayoutUtils.textToLines(font, this.matrix.width(), text);
     const glyphs = LayoutUtils.linesToMappedGlyphs(
       lines,

@@ -39,7 +39,10 @@ export const MatrixInstanceProvider = {
       ]),
     );
     setTimeout(() => {
-      logger.info({ matrix: matrix, runtime: runtime }, `new [LedMatrix]`);
+      logger.info(
+        { context: "MatrixInstanceProvider", matrix: matrix, runtime: runtime },
+        `new [LedMatrix]`,
+      );
     }, LOGGING_DELAY);
     // process.on("exit", () => console.log("CAUGHT exit"));
     // process.on("beforeExit", () => console.log("CAUGHT beforeExit"));
