@@ -32,12 +32,12 @@ fi
 GIT_CLEAN=$(git status --porcelain)
 
 # * Only allowed to create finalized builds from clean branches
-if [ -z "$GIT_CLEAN" ]; then
+if [ -n "$GIT_CLEAN" ]; then
   ERROR=$(npx figlet-cli -f "$FONT" "Dirty branch")
   echo -e "${RED}${ERROR}${NC}"
+  echo "${GIT_CLEAN}"
   exit 1
 fi
-
 
 # * Rebuild local bin files
 npx figlet-cli -f "$FONT" "Compile" | lolcat
