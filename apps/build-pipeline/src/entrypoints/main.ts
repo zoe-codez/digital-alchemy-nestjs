@@ -14,7 +14,7 @@ const root = "package.json";
 @QuickScript()
 export class BuildPipelineService {
   constructor(
-    @InjectConfig("DEV_BUILD", { default: false, type: "boolean" })
+    @InjectConfig("DEV", { default: false, type: "boolean" })
     private readonly developmentBuild: boolean,
   ) {}
 
@@ -63,5 +63,9 @@ export class BuildPipelineService {
         JSON.stringify(content, undefined, "  ") + `\n`,
       );
     });
+
+    // * Directly output the new version to stdout for use with pipeline script
+    // eslint-disable-next-line no-console
+    console.log(rootPackage.version);
   }
 }

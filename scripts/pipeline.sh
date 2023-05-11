@@ -1,17 +1,66 @@
 #!/bin/bash
-# Run all tests, bail out if any fail
-npx nx run-many --target=test --all || exit 1
+RED="\033[0;31m"
+NC="\033[0m"
+FONT="Doom"
+MAIN="main"
 
-# Verify everything correctly builds (before bumping versions)
+
+# * Verify everything correctly builds
+# don't test with obviously broken code
+npx figlet-cli -f "$FONT" Build | lolcat
 npx nx run-many --target=build --all --configuration=production || exit 1
 
-# Rebuild local bin files
+# * Run tests
+npx figlet-cli -f "$FONT" Test | lolcat
+npx nx run-many --target=test --all || exit 1
+
+# * Lint
+npx figlet-cli -f "$FONT" Lint | lolcat
+npx nx run-many --target=lint --all || exit 1
+
+# ? If only interested if the pipeline is expected to produce a valid build
+if [[ $* == "--validate" ]]; then
+  npx figlet-cli -f "$FONT" LGTM | lolcat
+  exit 0
+fi
+
+# ? Tentatively seems like a good method
+# Other potential methods (may be worth testing exit codes?):
+# ~ git diff --cached --exit-code
+# ~ git diff-index --quiet HEAD
+#   - git update-index --really-refresh # (optionally in front)
+GIT_CLEAN=$(git status --porcelain)
+
+# * Only allowed to create finalized builds from clean branches
+if [ -z "$GIT_CLEAN" ]; then
+  ERROR=$(npx figlet-cli -f "$FONT" "Dirty branch")
+  echo -e "${RED}${ERROR}${NC}"
+  exit 1
+fi
+
+
+# * Rebuild local bin files
+npx figlet-cli -f "$FONT" "Compile" | lolcat
 npx nx run-many --target=compile --all || exit 1
 
-# Bump package.json versions
-./bin/build-pipeline
+if [[ $* == "--compile" ]]; then
+  npx figlet-cli -f "$FONT" "Compile succeeded" | lolcat
+  exit 0
+fi
 
-# Build again (transfer package updates to `dist`)
+CURRENT_BRANCH=$(git branch --show-current)
+if [[  $CURRENT_BRANCH != "${MAIN}" ]] && [[ $* != "--dev" ]]; then
+  echo -e "${RED}Can only publish dev builds from non-main branches${NC}"
+  exit 1
+else
+  echo "Publishing development build" | lolcat
+fi
+
+# * Bump package.json versions, retrieve new version back
+VERSION=$(./bin/build-pipeline "$*")
+
+# * Build again (transfer package updates to dist)
+npx figlet-cli -f "$FONT" "Publish ${VERSION}" | lolcat
 npx nx run-many --target=build --all --configuration=production || exit 1
 
 # Publish packages out
@@ -30,4 +79,11 @@ npx nx run-many --target=publish --all || npx nx run-many --target=publish --all
 # ---
 # Want commits with only package updates to appear with the "build" commit
 git commit -a -m "build"
-git push
+
+if [[ $* == "--tag" ]]; then
+  npx figlet-cli -f "$FONT" "Create tag ${VERSION}" | lolcat
+  git tag "${VERSION}"
+fi
+
+git push --follow-tags
+npx figlet-cli -f "$FONT" "Done" | lolcat
