@@ -32,21 +32,21 @@ fi
 GIT_CLEAN=$(git status --porcelain)
 
 # * Only allowed to create finalized builds from clean branches
-if [ -n "$GIT_CLEAN" ]; then
+if [ -n "$GIT_CLEAN" ] && [[ $* != "--dev" ]]; then
   ERROR=$(npx figlet-cli -f "$FONT" "Dirty branch")
   echo -e "${RED}${ERROR}${NC}"
   echo "${GIT_CLEAN}"
   exit 1
 fi
 
-# * Rebuild local bin files
-npx figlet-cli -f "$FONT" "Compile" | lolcat
-npx nx run-many --target=compile --all || exit 1
+# # * Rebuild local bin files
+# npx figlet-cli -f "$FONT" "Compile" | lolcat
+# npx nx run-many --target=compile --all || exit 1
 
-if [[ $* == "--compile" ]]; then
-  npx figlet-cli -f "$FONT" "Compile succeeded" | lolcat
-  exit 0
-fi
+# if [[ $* == "--compile" ]]; then
+#   npx figlet-cli -f "$FONT" "Compile succeeded" | lolcat
+#   exit 0
+# fi
 
 CURRENT_BRANCH=$(git branch --show-current)
 if [[  $CURRENT_BRANCH != "${MAIN}" ]] && [[ $* != "--dev" ]]; then
@@ -57,7 +57,7 @@ else
 fi
 
 # * Bump package.json versions, retrieve new version back
-VERSION=$(./bin/build-pipeline "$*")
+VERSION=$(node ./dist/apps/build-pipeline/main.js "$*")
 
 # * Build again (transfer package updates to dist)
 npx figlet-cli -f "$FONT" "Publish ${VERSION}" | lolcat
@@ -74,6 +74,11 @@ npx nx run-many --target=build --all --configuration=production || exit 1
 # NX will run from cache for successful ones
 # With only 1-2 failed, they shouldn't re-fail a 2nd time. Haven't observed it happen yet
 npx nx run-many --target=publish --all || npx nx run-many --target=publish --all || exit 1
+
+if [[ $* == "--dev" ]]; then
+  npx figlet-cli -f "$FONT" "Done" | lolcat
+  exit 0
+fi
 
 # Commit and push
 # ---
