@@ -339,6 +339,9 @@ export class GameOfLifeComponentService implements iComponent {
    * interface function for iComponent
    */
   public render(): void {
+    if (is.empty(this.board)) {
+      this.reset(false);
+    }
     const colorOn = this.chalkColor;
     const keymap = this.renderedKeymap;
     const height = this.getHeight(keymap);
@@ -632,6 +635,23 @@ export class GameOfLifeComponentService implements iComponent {
   private async loadCache() {
     const state = await this.cache.get<MatrixState>(MATRIX_STATE_CACHE_KEY);
     if (!state) {
+      this.reset();
+      this.connected = false;
+      this.color = {
+        b: 100,
+        g: 100,
+        r: 100,
+      };
+      this.matrixHeight = NONE;
+      this.matrixWidth = NONE;
+      this.cursorY = START;
+      this.cursorX = START;
+      this.left = 10;
+      this.top = 10;
+      this.frame = START;
+      this.minHeight = 250;
+      this.minWidth = 250;
+
       return;
     }
     this.connected = state.connected;
