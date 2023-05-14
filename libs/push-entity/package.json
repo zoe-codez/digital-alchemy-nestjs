@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
+  "description": "Entity generation tools for home assistant",
+  "displayName": "Digital Alchemy - Push Entity",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/push-entity",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
+  },
+  "scripts": {
+    "postinstall": "hass-type-generate || exit 0"
+  },
+  "version": "23.19.1"
+}

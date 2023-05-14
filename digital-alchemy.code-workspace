@@ -172,11 +172,13 @@
       "notification-tester": "command",
       "pi-matrix-client": "bower",
       "pi-matrix": "plastic",
+      "push-entity": "plastic",
       "render-utils": "shader",
       "rgb-matrix": "intellij",
       "sampler-app": "content",
       "scene-manager": "java",
       "tty": "command",
+      "type-generate": "generator",
 
       // * Root
       ".config": "config",

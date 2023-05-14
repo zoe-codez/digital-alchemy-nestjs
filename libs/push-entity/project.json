@@ -1,0 +1,58 @@
+{
+  "name": "push-entity",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/push-entity/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/push-entity/src/index.ts",
+        "outputPath": "dist/libs/push-entity",
+        "packageJson": "libs/push-entity/package.json",
+        "tsConfig": "libs/push-entity/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "assets": [
+            "libs/push-entity/*.md",
+            "libs/push-entity/package.json"
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/push-entity/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "scripts/publish-lib.sh push-entity",
+            "description": "Canned script"
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/push-entity"],
+      "options": {
+        "jestConfig": "libs/push-entity/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "implicitDependencies": ["!testing"],
+  "tags": ["nestjs", "push-entity", "generated-types"]
+}
