@@ -3,12 +3,15 @@ import {
   CompressionService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
-import { Injectable } from "@nestjs/common";
-import { existsSync, readdirSync, rmSync } from "fs";
+import { Injectable, NotImplementedException } from "@nestjs/common";
+import { existsSync, readdirSync, readFileSync, rmSync } from "fs";
 import { join } from "path";
 
 import { TYPES_CACHE_DIRECTORY } from "../config";
-import { TypeGenerateInterface } from "../types";
+import { FullCacheObject, TypeGenerateInterface } from "../types";
+
+// eslint-disable-next-line spellcheck/spell-checker
+const EXTENSION = "datg";
 
 @Injectable()
 export class RebuildService implements TypeGenerateInterface<boolean> {
@@ -39,16 +42,22 @@ export class RebuildService implements TypeGenerateInterface<boolean> {
     }
   }
 
-  public inspectCache() {
-    return undefined;
+  public inspectCache(cache: string) {
+    const contents = readFileSync(join(this.cacheDirectory, cache), "utf8");
+    return this.compression.unserialize<FullCacheObject>(contents);
   }
 
   public listCacheMetadata() {
-    const files = readdirSync(this.cacheDirectory);
-    return undefined;
+    return readdirSync(this.cacheDirectory)
+      .filter(i => i.endsWith(EXTENSION))
+      .map(i => {
+        const decoded = this.inspectCache(i);
+        return decoded.metadata;
+      });
   }
 
   public rebuild() {
+    throw new NotImplementedException();
     return undefined;
   }
 
