@@ -53,3 +53,14 @@ Modules are intended to be composed in any combination to build a desired applic
 | 📂 [Testing](libs/testing) | [npm](https://www.npmjs.com/package/@digital-alchemy/testing) | <ul><li>`nestjs_library`</li></ul> | Extensions to NestJS unit testing to be compatible with `@digital-alchemy` apps |
 | 📂 [Utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | <ul><li>`shared`</li></ul> | Standard utilities and constants used across the repository |
 | 🎬 [Notification Tester](apps/notification-tester) | `N/A` | <ul><li>`example_code`</li></ul> | Simple example of how to import [gotify](libs/gotify) into an app, and send notifications |
+
+## External Examples
+
+### Basic Application
+
+### Home Automation
+
+- [Project link](https://github.com/zoe-codez/home-automation)
+
+A working implementation of a home automation application.
+Intended to show the `automation-logic` & `home-assistant` libraries being used
