@@ -14,7 +14,7 @@ Modules are intended to be composed in any combination to build a desired applic
 
 | Local | NPM | Tags | Notes |
 | --- | --- | --- | --- |
-| ⛑️ [Type Generate](apps/hass-type-generate) | [npm](https://www.npmjs.com/package/@digital-alchemy/hass-type-generate) | <ul><li>`application`</li><li>`home_assistant`</li><li>`support`</li></ul> | Companion app for building dynamic types related to `automation-logic` & `home_assistant` |
+| 📂 [Push Entity](libs/push-entity) | [npm](https://www.npmjs.com/package/@digital-alchemy/push-entity) | <ul><li>`nestjs_library`</li><li>`home_assistant`</li><li>`generated_types`</li></ul> | Companion app for building dynamic types related to `automation-logic` & `home_assistant` |
 | 📂 [Automation Logic](libs/automation-logic) | [npm](https://www.npmjs.com/package/@digital-alchemy/automation-logic) | <ul><li>`nestjs_library`</li><li>`home_assistant`</li><li>`generated_types`</li></ul> | Canned automation logic, scene management, and more! |
 | 📂 [Home Assistant](libs/home-assistant) | [npm](https://www.npmjs.com/package/@digital-alchemy/home-assistant)  | <ul><li>`nestjs_library`</li><li>`home_assistant`</li><li>`generated_types`</li></ul> | Websocket and rest api bindings for Home Assistant. Generates custom types based on your install |
 | 🎬 [Entity Creation](apps/entity-creation) | **`N/A`** | <ul><li>`home_assistant`</li><li>`example_code`</li></ul> | Example code for generating basic push entities using `@digital-alchemy/home-assistant` |
@@ -45,14 +45,16 @@ Modules are intended to be composed in any combination to build a desired applic
 
 | Local | NPM | Tags | Notes |
 | --- | --- | --- | --- |
-| 🔬 [Log Formatter](apps/log-formatter) | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | <ul><li>`experiment`</li></ul> | Pipe (`\|`) friendly tool to reformat pino json logs to pretty logs |
+| ⛑️ [Type Writer](apps/type-writer) | [npm](https://www.npmjs.com/package/@digital-alchemy/type-writer) | <ul><li>`application`</li><li>`support`</li></ul> | Companion app for building & writing dynamic types from `@digital-alchemy` libraries |
+| 🎬 [Notification Tester](apps/notification-tester) | `N/A` | <ul><li>`example_code`</li></ul> | Simple example of how to import [gotify](libs/gotify) into an app, and send notifications |
 | 📂 [Boilerplate](libs/boilerplate) | [npm](https://www.npmjs.com/package/@digital-alchemy/boilerplate) | <ul><li>`nestjs_library`</li></ul> | Bootstrapping, configuration, logging, and other basics |
 | 📂 [Gotify](libs/gotify) | [npm](https://www.npmjs.com/package/@digital-alchemy/gotify) | <ul><li>`nestjs_library`</li></ul> | Application bindings for sending notifications though [Gotify](https://gotify.net/) |
 | 📂 [MQTT](libs/mqtt) | [npm](https://www.npmjs.com/package/@digital-alchemy/mqtt) | <ul><li>`nestjs_library`</li></ul> | Basic MQTT bindings |
 | 📂 [Server](libs/server) | [npm](https://www.npmjs.com/package/@digital-alchemy/server) | <ul><li>`nestjs_library`</li></ul> | Http server support, standard ssl & middleware configurations, request logging |
 | 📂 [Testing](libs/testing) | [npm](https://www.npmjs.com/package/@digital-alchemy/testing) | <ul><li>`nestjs_library`</li></ul> | Extensions to NestJS unit testing to be compatible with `@digital-alchemy` apps |
+| 📂 [Type Generate](libs/type-generate) | [npm](https://www.npmjs.com/package/@digital-alchemy/type-generate) | <ul><li>`nestjs_library`</li><li>`generated_types`</li></ul> | Tools for generating dynamic types and information |
 | 📂 [Utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | <ul><li>`shared`</li></ul> | Standard utilities and constants used across the repository |
-| 🎬 [Notification Tester](apps/notification-tester) | `N/A` | <ul><li>`example_code`</li></ul> | Simple example of how to import [gotify](libs/gotify) into an app, and send notifications |
+| 🔬 [Log Formatter](apps/log-formatter) | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | <ul><li>`experiment`</li></ul> | Pipe (`\|`) friendly tool to reformat pino json logs to pretty logs |
 
 ## External Examples
 
