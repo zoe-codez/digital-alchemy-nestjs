@@ -1,0 +1,16 @@
+{
+  "author": {
+    "name": "zoe-codez",
+    "url": "https://github.com/zoe-codez/digital-alchemy"
+  },
+  "description": "MQTT bindings for Digital Alchemy",
+  "displayName": "Digital Alchemy - MQTT",
+  "homepage": "https://github.com/zoe-codez/digital-alchemy",
+  "license": "MIT",
+  "name": "@digital-alchemy/type-generate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoe-codez/digital-alchemy.git"
+  },
+  "version": "23.19.1"
+}

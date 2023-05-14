@@ -1,0 +1,46 @@
+{
+  "name": "type-generate",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/type-generate/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "main": "libs/type-generate/src/index.ts",
+        "outputPath": "dist/libs/type-generate",
+        "packageJson": "libs/type-generate/package.json",
+        "tsConfig": "libs/type-generate/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "assets": ["libs/type-generate/*.md", "libs/type-generate/package.json"]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/type-generate/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "scripts/publish-lib.sh type-generate",
+            "description": "Canned script"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}

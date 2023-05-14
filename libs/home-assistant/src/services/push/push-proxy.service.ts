@@ -35,15 +35,14 @@ type ProxyEntity = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
 @Injectable()
 export class PushProxyService {
   constructor(
-    private readonly logger: AutoLogService,
-    private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
+    private readonly logger: AutoLogService,
+    private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushButton: PushButtonService,
     private readonly pushSensor: PushSensorService,
-    private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
   ) {}
 

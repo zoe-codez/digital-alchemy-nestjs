@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from "@digital-alchemy/utilities";
 import {
   IsBoolean,
   IsOptional,
@@ -47,7 +48,38 @@ export class BaseConfig {
 export const SwitchConfig = BaseConfig;
 export const ButtonConfig = BaseConfig;
 export type SwitchConfig = BaseConfig;
-export type ButtonConfig = BaseConfig;
+
+type PassthroughTarget = {
+  /**
+   * POSTDATA to send with requests
+   */
+  body?: object;
+  /**
+   * ~ default: process auth headers if `rawUrl` !== `true`
+   * ~ default: empty object if `rawUrl` === `true`
+   */
+  headers?: object;
+  /**
+   * default: `get`
+   */
+  method?: `${HTTP_METHODS}`;
+  /**
+   * Extra query params to add
+   */
+  params?: Record<string, string>;
+  /**
+   * default: false
+   */
+  rawUrl?: boolean;
+  /**
+   * Can be provided as local url `/controller/route`
+   */
+  url: string;
+};
+
+export type ButtonConfig = BaseConfig & {
+  target?: PassthroughTarget;
+};
 
 export class GenerateEntities {
   /**
