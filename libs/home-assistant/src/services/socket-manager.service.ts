@@ -3,8 +3,8 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import EventEmitter from "eventemitter3";
 
 import { HASSIO_WS_COMMAND, SOCKET_READY } from "../types";
+import { EntityManagerService } from "./entity-manager.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
-import { EntityManagerService } from "./utilities";
 
 /**
  * High level management for the Home Assistant websocket.

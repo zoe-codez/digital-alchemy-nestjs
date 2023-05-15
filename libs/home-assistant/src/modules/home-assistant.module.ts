@@ -16,8 +16,7 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
-import { TalkBackController } from "../controllers";
-import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
+import { CALL_PROXY, InjectEntityProxy } from "../decorators";
 import {
   BackupService,
   CallProxyService,
@@ -28,16 +27,7 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
-  PushBinarySensorService,
-  PushButtonService,
-  PushCallService,
-  PushEntityConfigService,
-  PushEntityService,
-  PushProxyService,
-  PushSensorService,
-  PushSwitchService,
   SocketManagerService,
-  TalkBackService,
 } from "../services";
 import {
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -157,6 +147,7 @@ import {
     },
   },
   exports: [HassFetchAPIService, HassCallTypeGenerator],
+  global: true,
   imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
   providers: [HassFetchAPIService, HassCallTypeGenerator],
@@ -165,19 +156,7 @@ export class HomeAssistantModule {
   public static forRoot(
     options: HomeAssistantModuleConfiguration = {},
   ): DynamicModule {
-    const push_services: Provider[] = [
-      PushBinarySensorService,
-      PushButtonService,
-      PushCallService,
-      PushEntityConfigService,
-      PushEntityService,
-      PushProxyService,
-      PushSensorService,
-      PushSwitchService,
-    ];
-
     const services: Provider[] = [
-      ...push_services,
       BackupService,
       CallProxyService,
       ConnectionBuilderService,
@@ -188,18 +167,14 @@ export class HomeAssistantModule {
       HassFetchAPIService,
       HassSocketAPIService,
       SocketManagerService,
-      TalkBackService,
       ...InjectEntityProxy.providers,
-      ...InjectPushEntity.providers,
       {
         inject: [CallProxyService],
         provide: CALL_PROXY,
         useFactory: (call: CallProxyService) => call.buildCallProxy(),
       },
     ];
-    options.controllers ??= false;
     return {
-      controllers: options.controllers ? [TalkBackController] : [],
       exports: services,
       global: true,
       imports: [RegisterCache()],

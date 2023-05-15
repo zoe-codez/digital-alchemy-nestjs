@@ -7,8 +7,8 @@ import { eachSeries, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import { nextTick } from "process";
 
-import { OnHassEvent, OnHassEventOptions } from "../../decorators";
-import { HassEventDTO, SocketMessageDTO } from "../../types";
+import { OnHassEvent, OnHassEventOptions } from "../decorators";
+import { HassEventDTO, SocketMessageDTO } from "../types";
 import { EntityManagerService } from "./entity-manager.service";
 
 type BindingPair = [context: string, callback: AnnotationPassThrough];

@@ -30,8 +30,9 @@ import {
   SOCKET_MESSAGES,
   SocketMessageDTO,
 } from "../types";
+import { ConnectionBuilderService } from "./connection-builder.service";
+import { EventManagerService } from "./event-manager.service";
 import { SocketManagerService } from "./socket-manager.service";
-import { ConnectionBuilderService, EventManagerService } from "./utilities";
 
 const CONNECTION_OPEN = 1;
 let connection: WS;

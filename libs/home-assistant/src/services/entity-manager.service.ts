@@ -18,7 +18,7 @@ import { exit, nextTick } from "process";
 import { Get } from "type-fest";
 import { v4 } from "uuid";
 
-import { OnEntityUpdate, OnEntityUpdateOptions } from "../../decorators";
+import { OnEntityUpdate, OnEntityUpdateOptions } from "../decorators";
 import {
   ALL_DOMAINS,
   ENTITY_STATE,
@@ -26,9 +26,9 @@ import {
   EntityHistoryResult,
   HASSIO_WS_COMMAND,
   PICK_ENTITY,
-} from "../../types";
-import { HassFetchAPIService } from "../hass-fetch-api.service";
-import { HassSocketAPIService } from "../hass-socket-api.service";
+} from "../types";
+import { HassFetchAPIService } from "./hass-fetch-api.service";
+import { HassSocketAPIService } from "./hass-socket-api.service";
 
 type WatchFunction<ENTITY_ID extends PICK_ENTITY> = (
   new_state: ENTITY_STATE<ENTITY_ID>,
