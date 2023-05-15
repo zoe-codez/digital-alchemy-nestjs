@@ -17,9 +17,9 @@ import { TemplateButton, TemplateButtonCommandId } from "../decorators";
 import {
   ButtonTemplate,
   ButtonTemplateYaml,
-  entity_split,
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
+  generated_entity_split,
   PICK_GENERATED_ENTITY,
+  PUSH_ENTITY_MODULE_CONFIGURATION,
   PushEntityModuleConfiguration,
   Template,
 } from "../types";
@@ -32,7 +32,7 @@ export class PushButtonService {
     private readonly application: string,
     private readonly logger: AutoLogService,
     private readonly scanner: ModuleScannerService,
-    @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
+    @Inject(PUSH_ENTITY_MODULE_CONFIGURATION)
     private readonly configuration: PushEntityModuleConfiguration,
     @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
@@ -92,7 +92,7 @@ export class PushButtonService {
         },
       ],
     } as ButtonTemplate;
-    const [, id] = entity_split(entity_id);
+    const [, id] = generated_entity_split(entity_id);
     button.unique_id = "digital_alchemy_button_" + id;
     return {
       button: [button],

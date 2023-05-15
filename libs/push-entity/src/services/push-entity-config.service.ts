@@ -20,9 +20,9 @@ import {
 } from "../config";
 import {
   HassDigitalAlchemySerializeState,
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
   InjectedPushConfig,
   PICK_GENERATED_ENTITY,
+  PUSH_ENTITY_MODULE_CONFIGURATION,
   PUSH_PROXY,
   PushEntityModuleConfiguration,
 } from "../types";
@@ -48,7 +48,7 @@ export class PushEntityConfigService {
     private readonly targetFolder: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
-    @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
+    @Inject(PUSH_ENTITY_MODULE_CONFIGURATION)
     private readonly configuration: PushEntityModuleConfiguration,
     @InjectConfig(APPLICATION_IDENTIFIER)
     private readonly applicationIdentifier: string,

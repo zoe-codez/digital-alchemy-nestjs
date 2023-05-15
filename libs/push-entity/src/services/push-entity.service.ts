@@ -8,11 +8,11 @@ import { nextTick } from "process";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
   BinarySensorConfig,
-  domain,
+  generated_domain,
   generated_entity_split,
   GET_CONFIG,
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
   PICK_GENERATED_ENTITY,
+  PUSH_ENTITY_MODULE_CONFIGURATION,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
   PushEntityModuleConfiguration,
@@ -76,7 +76,7 @@ export class PushEntityService<
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
     private readonly cache: CacheService,
-    @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
+    @Inject(PUSH_ENTITY_MODULE_CONFIGURATION)
     private readonly configuration: PushEntityModuleConfiguration,
   ) {
     configuration.generate_entities ??= {};
@@ -84,7 +84,7 @@ export class PushEntityService<
 
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
     return new Map(
-      [...STORAGE.entries()].filter(([id]) => domain(id) === search),
+      [...STORAGE.entries()].filter(([id]) => generated_domain(id) === search),
     ) as PushStorageMap<DOMAIN>;
   }
 

@@ -1,5 +1,9 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
-import { HassFetchAPIService } from "@digital-alchemy/home-assistant";
+import {
+  HassFetchAPIService,
+  ServiceListFieldDescription,
+  ServiceListServiceTarget,
+} from "@digital-alchemy/home-assistant";
 import { is, TitleCase } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import { dump } from "js-yaml";
@@ -15,11 +19,6 @@ import {
   SyntaxKind,
   TypeNode,
 } from "typescript";
-
-import {
-  ServiceListFieldDescription,
-  ServiceListServiceTarget,
-} from "../types";
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(

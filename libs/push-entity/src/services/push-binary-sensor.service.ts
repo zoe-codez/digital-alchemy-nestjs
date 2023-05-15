@@ -8,7 +8,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import {
   BinarySensorTemplate,
   BinarySensorTemplateYaml,
-  entity_split,
+  generated_entity_split,
   GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   Template,
@@ -64,7 +64,7 @@ export class PushBinarySensorService {
       name: config.name,
       state: GET_STATE_TEMPLATE,
     } as BinarySensorTemplate;
-    const [, id] = entity_split(entity_id);
+    const [, id] = generated_entity_split(entity_id);
     sensor.unique_id = "digital_alchemy_binary_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
     sensor.attributes.managed_by = this.application;

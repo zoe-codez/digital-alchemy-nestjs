@@ -10,9 +10,9 @@ import { join } from "path";
 
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
   isGeneratedDomain,
   PICK_GENERATED_ENTITY,
+  PUSH_ENTITY_MODULE_CONFIGURATION,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
   PushEntityModuleConfiguration,
@@ -34,7 +34,7 @@ type ProxyEntity = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
 @Injectable()
 export class PushProxyService {
   constructor(
-    @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
+    @Inject(PUSH_ENTITY_MODULE_CONFIGURATION)
     private readonly configuration: PushEntityModuleConfiguration,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,

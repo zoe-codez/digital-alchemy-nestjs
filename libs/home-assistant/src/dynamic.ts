@@ -3,6 +3,7 @@
 
 import { GenericEntityDTO, PICK_ENTITY } from "./types";
 
+// ~ Mental note: don't do a "as const" here (or with generated version)
 export const ENTITY_SETUP: Record<
   string,
   Record<string, GenericEntityDTO>

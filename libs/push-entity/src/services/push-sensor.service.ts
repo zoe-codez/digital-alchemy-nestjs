@@ -7,7 +7,7 @@ import { is } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 
 import {
-  entity_split,
+  generated_entity_split,
   GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   SensorTemplate,
@@ -66,7 +66,7 @@ export class PushSensorService {
       state: GET_STATE_TEMPLATE,
       unit_of_measurement: config.unit_of_measurement,
     } as SensorTemplate;
-    const [, id] = entity_split(entity_id);
+    const [, id] = generated_entity_split(entity_id);
     sensor.unique_id = "digital_alchemy_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
 

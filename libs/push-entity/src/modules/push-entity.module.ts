@@ -31,7 +31,7 @@ import {
   TalkBackService,
 } from "../services";
 import {
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
+  PUSH_ENTITY_MODULE_CONFIGURATION,
   PushEntityModuleConfiguration,
 } from "../types";
 
@@ -183,7 +183,7 @@ export class HomeAssistantModule {
       providers: [
         ...services,
         {
-          provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
+          provide: PUSH_ENTITY_MODULE_CONFIGURATION,
           useValue: options,
         },
       ],
