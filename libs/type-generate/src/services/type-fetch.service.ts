@@ -43,4 +43,11 @@ export class TypeFetchService implements TypeGenerateInterface {
       url: `/type-generate/rebuild`,
     });
   }
+  public async setCache(body: FullCacheObject) {
+    await this.fetch({
+      body,
+      method: "post",
+      url: `/type-generate/set-cache`,
+    });
+  }
 }

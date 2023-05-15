@@ -4,7 +4,13 @@ import {
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { Injectable, NotImplementedException } from "@nestjs/common";
-import { existsSync, readdirSync, readFileSync, rmSync } from "fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "fs";
 import { join } from "path";
 
 import { TYPES_CACHE_DIRECTORY } from "../config";
@@ -44,7 +50,7 @@ export class RebuildService implements TypeGenerateInterface<boolean> {
 
   public inspectCache(cache: string) {
     const contents = readFileSync(join(this.cacheDirectory, cache), "utf8");
-    return this.compression.unserialize<FullCacheObject>(contents);
+    return this.compression.unserialize(contents, FullCacheObject);
   }
 
   public listCacheMetadata() {
@@ -61,6 +67,23 @@ export class RebuildService implements TypeGenerateInterface<boolean> {
     return undefined;
   }
 
+  public setCache(data: FullCacheObject): boolean {
+    const path = this.cachePath(data.metadata.identifier);
+    data.metadata.lastUpdate = new Date().toISOString();
+    if (existsSync(path)) {
+      this.logger.info({ metadata: data.metadata }, `Updating existing cache`);
+    } else {
+      this.logger.info({ metadata: data.metadata }, `Creating cache`);
+    }
+    try {
+      writeFileSync(path, this.compression.serialize(data));
+      return true;
+    } catch (error) {
+      this.logger.error({ error }, `Failed to write cache`);
+      return false;
+    }
+  }
+
   protected onModuleInit() {
     if (existsSync(this.cacheDirectory)) {
       this.logger.trace(`Cache directory exists {%s}`, this.cacheDirectory);
@@ -70,6 +93,6 @@ export class RebuildService implements TypeGenerateInterface<boolean> {
   }
 
   private cachePath(id: string): string {
-    return join(this.cacheDirectory, id);
+    return join(this.cacheDirectory, `${id}.${EXTENSION}`);
   }
 }

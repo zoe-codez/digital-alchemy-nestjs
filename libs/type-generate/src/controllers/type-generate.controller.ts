@@ -1,5 +1,5 @@
 import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
-import { Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 
 import { RebuildService } from "../services";
 import {
@@ -36,6 +36,15 @@ export class TypeGenerateController
   @Post("/rebuild")
   public async rebuild(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.rebuildService.rebuild();
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Post("/set-cache")
+  public async setCache(
+    @Body()
+    data: FullCacheObject,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.rebuildService.setCache(data);
     return GENERIC_SUCCESS_RESPONSE;
   }
 }
