@@ -1,6 +1,3 @@
-export const HASS_ENTITY = "HASS_ENTITY";
-export const HASS_ENTITY_GROUP = "HASS_ENTITY_GROUP";
-export const ALL_ENTITIES_UPDATED = "ALL_ENTITIES_UPDATED";
 export const SOCKET_READY = "SOCKET_READY";
 export const ON_SOCKET_AUTH = "ON_SOCKET_AUTH";
 
@@ -54,6 +51,3 @@ export enum HassSocketMessageTypes {
   pong = "pong",
   auth_invalid = "auth_invalid",
 }
-
-export const HOME_ASSISTANT_MODULE_CONFIGURATION =
-  "HOME_ASSISTANT_MODULE_CONFIGURATION";

@@ -2,17 +2,13 @@ import { LibraryModule, RegisterCache } from "@digital-alchemy/boilerplate";
 import { DynamicModule, Provider } from "@nestjs/common";
 
 import {
-  APPLICATION_IDENTIFIER,
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
-  DEFAULT_APPLICATION_IDENTIFIER,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   LIB_HOME_ASSISTANT,
   RENDER_TIMEOUT,
   RETRY_INTERVAL,
-  TALK_BACK_BASE_URL,
   TOKEN,
-  VERIFICATION_FILE,
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from "../config";
@@ -29,16 +25,12 @@ import {
   HassSocketAPIService,
   SocketManagerService,
 } from "../services";
-import {
-  HOME_ASSISTANT_MODULE_CONFIGURATION,
-  HomeAssistantModuleConfiguration,
-} from "../types";
 
 // ? The "@" symbol cannot appear first, or tsdoc does weird stuff
 // If there is a better way to fix this, let me know
 /**
- * General purpose module for all Home Assistant interactions.
- * Interact with the proxy API, connect to the websocket, etc.
+ * # TLDR;
+ * Use `HomeAssistantModule.forRoot()`
  *
  * ## Basic Import
  *
@@ -77,15 +69,6 @@ import {
  */
 @LibraryModule({
   configuration: {
-    [APPLICATION_IDENTIFIER]: {
-      default: DEFAULT_APPLICATION_IDENTIFIER,
-      description: [
-        "The partial entity_id the represents this application to Home Assistant",
-        `If left as default, it will be replaced with the application name, with "-" changed to "_"`,
-        `Used to generate ids like: "binary_sensor.{app}_online"`,
-      ].join(". "),
-      type: "string",
-    },
     [BASE_URL]: {
       default: "http://localhost:8123",
       description: "Url to reach Home Assistant at",
@@ -118,21 +101,10 @@ import {
       description: "How often to retry connecting on connection failure (ms).",
       type: "number",
     },
-    [TALK_BACK_BASE_URL]: {
-      default: "http://192.168.1.1:7000",
-      description: "Base url to use with callbacks in home assistant",
-      type: "string",
-    },
     [TOKEN]: {
       // Not absolutely required, if the app does not intend to open a connection
       // Should probably use the other module though
       description: "Long lived access token to Home Assistant.",
-      type: "string",
-    },
-    [VERIFICATION_FILE]: {
-      default: "digital_alchemy_configuration",
-      description:
-        "Target file for storing app configurations within the package folder.",
       type: "string",
     },
     [WARN_REQUESTS_PER_SEC]: {
@@ -153,9 +125,7 @@ import {
   providers: [HassFetchAPIService, HassCallTypeGenerator],
 })
 export class HomeAssistantModule {
-  public static forRoot(
-    options: HomeAssistantModuleConfiguration = {},
-  ): DynamicModule {
+  public static forRoot(): DynamicModule {
     const services: Provider[] = [
       BackupService,
       CallProxyService,
@@ -179,13 +149,7 @@ export class HomeAssistantModule {
       global: true,
       imports: [RegisterCache()],
       module: HomeAssistantModule,
-      providers: [
-        ...services,
-        {
-          provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
-          useValue: options,
-        },
-      ],
+      providers: services,
     };
   }
 }

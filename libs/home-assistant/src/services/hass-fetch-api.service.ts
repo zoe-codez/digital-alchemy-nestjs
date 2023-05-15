@@ -183,6 +183,7 @@ export class HassFetchAPIService {
       return [];
     }
     const [history] = result;
+    this.logger.trace({ extra, from, to }, `[%s] `);
     return history;
   }
 
@@ -212,12 +213,14 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getAllEntities(): Promise<GenericEntityDTO[]> {
+    this.logger.trace(`Get all entities`);
     return await this.fetch<GenericEntityDTO[]>({
       url: `/api/states`,
     });
   }
 
   public async getConfig(): Promise<HassConfig> {
+    this.logger.trace(`Get config`);
     return await this.fetch({
       url: `/api/config`,
     });
@@ -229,6 +232,7 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
+    this.logger.trace(`Get logs`);
     const results = await this.fetch<HomeAssistantServerLogItem[]>({
       url: `/api/error/all`,
     });
@@ -245,6 +249,7 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getRawLogs(): Promise<string> {
+    this.logger.trace(`Get raw logs`);
     return await this.fetch<string>({
       process: "text",
       url: `/api/error_log`,
