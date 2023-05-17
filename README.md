@@ -3,45 +3,63 @@
 
 ## Description
 
-`@digital-alchemy` is a collections of projects built on top of the [NestJS](https://nestjs.com/) framework. The repository is a collection of general purpose libraries for building premium terminal applications, microservices, home automation logic, and more.
+`@digital-alchemy` is a collections of projects built on top of the [NestJS](https://nestjs.com/) framework. The repository is a collection of general purpose modules for building premium terminal applications, microservices, home automation logic, and more.
+Modules are intended to be composed in any combination to build a desired application.
 
-## Published Packages
+## 🛠️ Projects
 
-### Applications
+### 🏡 Home Assistant / Automation ⏳
 
-| Local | NPM | Notes |
-| --- | --- | --- |
-| [@digital-alchemy/hass-type-generate](apps/hass-type-generate) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/hass-type-generate)</sup> | Companion app for `@digital-alchemy/home-assistant` |
-| [@digital-alchemy/log-formatter](apps/log-formatter) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter)</sup> | Pipe (`\|`) friendly tool to reformat json logs to pretty logs |
-| [@digital-alchemy/pi-matrix](apps/pi-matrix) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/pi-matrix)</sup> | Application bindings for `@digital-alchemy/pi-matrix-client`. Intended to run on Raspberry Pi, includes hardware build guide |
+> A [docker based reference install](./docker/homeassistant/) provided to try out code without affecting an existing instance
 
-### Libraries
+| Local | NPM | Tags | Notes |
+| --- | --- | --- | --- |
+| 📂 [Automation Logic](libs/automation-logic) | [npm](https://www.npmjs.com/package/@digital-alchemy/automation-logic) | <ul><li>`nestjs_library`</li><li>`home_assistant`</li><li>`generated_types`</li></ul> | Canned automation logic, scene management, and more! |
+| 📂 [Home Assistant](libs/home-assistant) | [npm](https://www.npmjs.com/package/@digital-alchemy/home-assistant)  | <ul><li>`nestjs_library`</li><li>`home_assistant`</li><li>`generated_types`</li></ul> | Websocket and rest api bindings for Home Assistant. Generates custom types based on your install |
+| 🎬 [Entity Creation](apps/entity-creation) | **`N/A`** | <ul><li>`home_assistant`</li><li>`example_code`</li></ul> | Example code for generating basic push entities using `@digital-alchemy/home-assistant` |
+| 🎬 [Scene Manager](apps/scene-manager) | **`N/A`** | <ul><li>`home_assistant`</li><li>`example_code`</li></ul> | Example code for creating scene managed rooms using `@digital-alchemy/automation-logic` |
+
+### 🖥️ Terminal Applications 🕹️
 
 | Local | NPM | Tags | Notes |
 | ---  | --- | --- | --- |
-| [@digital-alchemy/automation-logic](libs/automation-logic) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/automation-logic)</sup> | <ul><li>`nestjs`</li><li>`home-assistant`</li><li>`generated-types`</li></ul> | Extended tools for building home automation services |
-| [@digital-alchemy/boilerplate](libs/boilerplate) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/boilerplate)</sup> | <ul><li>`nestjs`</sup> | Bootstrapping, configuration, logging, and other basics |
-| [@digital-alchemy/gotify](libs/gotify) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/gotify)</sup> | <ul><li>`nestjs`</sup> | Application bindings for sending notifications though [Gotify](https://gotify.net/) |
-| [@digital-alchemy/home-assistant](libs/home-assistant) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/home-assistant)</sup>  | <ul><li>`nestjs`</li><li>`home-assistant`</li><li>`generated-types`</li></ul> | Websocket and rest api bindings for Home Assistant. Generates custom types based on your install |
-| [@digital-alchemy/mqtt](libs/mqtt) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/mqtt)</sup> | <ul><li>`nestjs`</sup> | Basic MQTT bindings |
-| [@digital-alchemy/pi-matrix-client](libs/pi-matrix-client) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/pi-matrix-client)</sup> | <ul><li>`nestjs`</li><li>`rgb-matrix`</li><li>`app-as-library`</li></ul> | Application in the form of a library. Import and run as-is, or use as a starting point for a larger application |
-| [@digital-alchemy/render-utils](libs/render-utils) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/render-utils)</sup> | <ul><li>`nestjs`</li><li>`shared`</li><li>`rgb-matrix`</li><li>`tty`</li></ul> | Generic math and utility functions for rgb matrix displays and terminal apps |
-| [@digital-alchemy/rgb-matrix](libs/rgb-matrix) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/rgb-matrix)</sup> | <ul><li>`nestjs`</li><li>`rgb-matrix`</li></ul> | Layout and rendering utilities for arduino rgb matrix displays |
-| [@digital-alchemy/server](libs/server) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/server)</sup> | <ul><li>`nestjs`</li></ul> | Http server support, standard ssl & middleware configurations, request logging |
-| [@digital-alchemy/testing](libs/testing) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/testing)</sup> | <ul><li>`nestjs`</li></ul> | Extensions to NestJS unit testing to be compatible with `@digital-alchemy` apps |
-| [@digital-alchemy/tty](libs/tty) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/tty)</sup> | <ul><li>`nestjs`</li><li>`tty`</li></ul> | Prompts and rendering utilities for interactions inside of the terminal |
-| [@digital-alchemy/utilities](libs/utilities) | <sup>[npm](https://www.npmjs.com/package/@digital-alchemy/utilities)</sup> | <ul><li>`shared`</li></ul> | Standard utilities and constants used across the repository |
+| 📂 [TTY](libs/tty) | [npm](https://www.npmjs.com/package/@digital-alchemy/tty) | <ul><li>`nestjs_library`</li><li>`tty`</li></ul> | Prompts, canned components, rendering utilities, and keyboard interactions inside of the terminal |
+| 👀 [Sampler App](apps/sampler-app) | `N/A` | <ul><li>`example_code`</li><li>**`try me!`**</li></ul> | Demo app for [tty](libs/tty) library functionality. Get a quick feel for how things look and work from inside your terminal |
+| 🔬 [Hass CLI](apps/hass-cli) | `N/A` | <ul><li>`home_assistant`</li><li>`example_code`</li></ul> | Interactions with Home Assistant via terminal app. More development aid than functional tool. |
+| 👀 [Game of Life](apps/game-of-life) | `N/A` | <ul><li>`rgb_matrix`</li><li>`example_code`</li><li>`experiment`</li><li>**`try me!`**</li></ul> | An implementation of Conway’s Game of Life with controls via [tty](libs/tty) library. Optional state mirroring to a [pi-matrix-client](libs/pi-matrix-client) compatible display |
+| 🔬 [Config Builder](apps/config-builder) | `N/A` | <ul><li>`experiment`</li></ul> | Experimental application: terminal based application for manipulating config files compatible with this repo |
 
-## Example Applications
+### 🖼️ RGB Matrix 🚦
 
-> Sometimes useful example / reference code
+> [Hardware build guide](./apps/pi-matrix/build.md)
 
-| Application | Type | Notes | Tags |
+| Local | NPM | Tags | Notes |
 | --- | --- | --- | --- |
-| [Sampler App](apps/sampler-app) | `terminal` | Demo app for [tty](libs/tty) library functionality. Get a quick feel for how things look and work from inside your terminal | <ul><li>`functional`</li></ul> |
-| [Hass CLI](apps/hass-cli) | `home-assistant`, `terminal` | Basic interactions with Home Assistant and development aid | <ul><li>`functional`</li></ul> |
-| [Entity Creation](apps/entity-creation) | `home-assistant` | Minimal example app. Creates a few entities and not much else | <ul><li>`reference`</li></ul> |
-| [Scene Manager](apps/scene-manager) | `home-assistant` | An example home automation app, which manages several rooms | <ul><li>`reference`</li></ul> |
-| [Notification Tester](apps/notification-tester) | `gotify` | Simple example of how to import [gotify](libs/gotify) into an app, and send notifications | <ul><li>`reference`</li></ul> |
-| [Game of Life](apps/game-of-life) | `rgb-matrix`, `tty` | An implementation of Conway’s Game of Life with controls via [tty](libs/tty) library. Optional state mirroring to a [pi-matrix-client](libs/pi-matrix-client) compatible display | <ul><li>`try-me`</li><li>`experiment`</li></ul> |
-| [Config Builder](apps/config-builder) | `tty` | Terminal app for managing config files related to a `@digital-alchemy` app | <ul><li>`functional`</li><li>`experiment`</li></ul> |
+| 👀 [Pi Matrix](apps/pi-matrix) | [npm](https://www.npmjs.com/package/@digital-alchemy/pi-matrix) | <ul><li>`application`</li></ul>  | Simple application wrapper for `@digital-alchemy/pi-matrix-client` |
+| 📂 [Pi Matrix Client](libs/pi-matrix-client) | [npm](https://www.npmjs.com/package/@digital-alchemy/pi-matrix-client) | <ul><li>`native_bindings`</li><li>`nestjs_library`</li></ul> | Code intended to run on a pi / similar. Performs rendering functions. |
+| 📂 [Render Utils](libs/render-utils) | [npm](https://www.npmjs.com/package/@digital-alchemy/render-utils) | <ul><li>`shared`</li><li>`nestjs_library`</li></ul> | Generic math and utility functions for rgb matrix displays and terminal apps |
+| 📂 [Rgb Matrix](libs/rgb-matrix) | [npm](https://www.npmjs.com/package/@digital-alchemy/rgb-matrix) | <ul><li>`client`</li><li>`nestjs_library`</li></ul> | Layout and rendering utilities for arduino rgb matrix displays |
+
+### 🗜️ Meta / Other 🪆
+
+| Local | NPM | Tags | Notes |
+| --- | --- | --- | --- |
+| 🎬 [Notification Tester](apps/notification-tester) | `N/A` | <ul><li>`example_code`</li></ul> | Simple example of how to import [gotify](libs/gotify) into an app, and send notifications |
+| 📂 [Boilerplate](libs/boilerplate) | [npm](https://www.npmjs.com/package/@digital-alchemy/boilerplate) | <ul><li>`nestjs_library`</li></ul> | Bootstrapping, configuration, logging, and other basics |
+| 📂 [Gotify](libs/gotify) | [npm](https://www.npmjs.com/package/@digital-alchemy/gotify) | <ul><li>`nestjs_library`</li></ul> | Application bindings for sending notifications though [Gotify](https://gotify.net/) |
+| 📂 [MQTT](libs/mqtt) | [npm](https://www.npmjs.com/package/@digital-alchemy/mqtt) | <ul><li>`nestjs_library`</li></ul> | Basic MQTT bindings |
+| 📂 [Server](libs/server) | [npm](https://www.npmjs.com/package/@digital-alchemy/server) | <ul><li>`nestjs_library`</li></ul> | Http server support, standard ssl & middleware configurations, request logging |
+| 📂 [Testing](libs/testing) | [npm](https://www.npmjs.com/package/@digital-alchemy/testing) | <ul><li>`nestjs_library`</li></ul> | Extensions to NestJS unit testing to be compatible with `@digital-alchemy` apps |
+| 📂 [Utilities](libs/utilities) | [npm](https://www.npmjs.com/package/@digital-alchemy/utilities) | <ul><li>`shared`</li></ul> | Standard utilities and constants used across the repository |
+| 🔬 [Log Formatter](apps/log-formatter) | [npm](https://www.npmjs.com/package/@digital-alchemy/log-formatter) | <ul><li>`experiment`</li></ul> | Pipe (`\|`) friendly tool to reformat pino json logs to pretty logs |
+
+## External Examples
+
+### Basic Application
+
+### Home Automation
+
+- [Project link](https://github.com/zoe-codez/home-automation)
+
+A working implementation of a home automation application.
+Intended to show the `automation-logic` & `home-assistant` libraries being used
