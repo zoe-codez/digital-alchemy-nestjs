@@ -126,7 +126,7 @@ export class FormService<
         return raw;
       }
       return raw.map(item => {
-        const option = element.options.find(i => TTY.GV(i) === item);
+        const option = element.options.find(i => is.GV(i) === item);
         if (!option) {
           return item;
         }

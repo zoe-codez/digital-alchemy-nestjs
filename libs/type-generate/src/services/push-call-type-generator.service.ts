@@ -5,7 +5,7 @@ import {
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { HOME_ASSISTANT_PACKAGE_FOLDER } from "@digital-alchemy/home-assistant";
-import { deepExtend, is, SINGLE, sleep } from "@digital-alchemy/utilities";
+import { deepExtend, is } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
@@ -29,10 +29,9 @@ export class PushCallService {
   ) {}
 
   public async buildTypes(): Promise<GenerateEntities> {
-    const potential = this.loadAllPotentialConfigurations();
-    const verified = await this.verifyConfigurations(potential);
+    const verified = this.loadAllPotentialConfigurations();
     const assembled = {};
-    verified.forEach(({ configuration, application }) => {
+    verified.forEach(({ plugins, application }) => {
       if (is.empty(configuration.generate_entities)) {
         return;
       }
@@ -76,15 +75,5 @@ export class PushCallService {
       configurations.set(path, data);
     });
     return configurations;
-  }
-
-  private async verifyConfigurations(
-    potential: ModuleConfigurations,
-  ): Promise<ModuleConfigurations> {
-    await sleep(SINGLE);
-    this.logger.warn(
-      "Currently allowing all configurations in. Filtering by loaded is future feature",
-    );
-    return potential;
   }
 }
