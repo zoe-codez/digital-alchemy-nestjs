@@ -7,14 +7,10 @@ import {
 import {
   GenericEntityDTO,
   HassCallTypeGenerator,
-  HassDigitalAlchemySerializeState,
   HassFetchAPIService,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   HomeAssistantModule,
-  HomeAssistantModuleConfiguration,
   LIB_HOME_ASSISTANT,
-  PushCallService,
-  VERIFICATION_FILE,
 } from "@digital-alchemy/home-assistant";
 import { sleep } from "@digital-alchemy/utilities";
 import JSON from "comment-json";

@@ -18,7 +18,9 @@ declare module "@digital-alchemy/utilities" {
 /**
  * Standardized method for retrieving values from menu entries, and casting it
  */
-is.GV = <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>): T => {
+is.GV = function <T = string>(
+  item: { entry: PromptEntry<T> } | PromptEntry<T>,
+): T {
   if (!is.array(item)) {
     item = item?.entry;
   }
@@ -30,12 +32,13 @@ is.GV = <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>): T => {
     : (item[VALUE] as T);
 };
 
-is.searchEnabled = (options: MenuSearchOptions) =>
-  is.object(options)
+is.searchEnabled = function (options: MenuSearchOptions) {
+  return is.object(options)
     ? (options as BaseSearchOptions).enabled !== false
     : // false is the only allowed boolean
       // undefined = default enabled
       !is.boolean(options);
+};
 
 export interface PromptAcknowledgeOptions {
   label?: string;
