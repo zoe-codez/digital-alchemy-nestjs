@@ -6,13 +6,9 @@ import {
 import {
   GenericEntityDTO,
   HassCallTypeGenerator,
-  HassDigitalAlchemySerializeState,
   HassFetchAPIService,
   HOME_ASSISTANT_PACKAGE_FOLDER,
-  HomeAssistantModuleConfiguration,
   LIB_HOME_ASSISTANT,
-  PushCallService,
-  VERIFICATION_FILE,
 } from "@digital-alchemy/home-assistant";
 import { sleep } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
@@ -26,6 +22,12 @@ import {
 import { set } from "object-path";
 import { join } from "path";
 import { exit } from "process";
+
+import { VERIFICATION_FILE } from "../config";
+import {
+  HassDigitalAlchemySerializeState,
+  TypeGenerateModuleConfiguration,
+} from "../types";
 
 @Injectable()
 export class HomeAssistantService {
@@ -42,7 +44,7 @@ export class HomeAssistantService {
     private readonly targetFile: string,
     @InjectConfig(HOME_ASSISTANT_PACKAGE_FOLDER, LIB_HOME_ASSISTANT)
     private readonly packageFolder: string,
-    @InjectConfig(VERIFICATION_FILE, LIB_HOME_ASSISTANT)
+    @InjectConfig(VERIFICATION_FILE)
     private readonly verificationFile: string,
   ) {}
 
@@ -60,7 +62,7 @@ export class HomeAssistantService {
       const moduleSetup = JSON.stringify(
         {
           generate_entities: push,
-        } as HomeAssistantModuleConfiguration,
+        } as TypeGenerateModuleConfiguration,
         undefined,
         "  ",
       );

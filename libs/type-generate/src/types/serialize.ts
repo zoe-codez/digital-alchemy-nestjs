@@ -1,6 +1,9 @@
-import { IsObject, IsString, ValidateNested } from "class-validator";
-
-import { PushEntityModuleConfiguration } from "./module";
+import {
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 
 type InjectYamlReturn = {
   root_include: string;
@@ -24,7 +27,10 @@ export type InjectedPushConfig = {
   yaml: (basePath: string) => InjectYamlReturn;
 };
 
-export class PluginConfig {
+export class PluginConfig<CONFIGURATION extends object = object> {
+  @IsObject()
+  @IsOptional()
+  public configuration?: CONFIGURATION;
   @IsString()
   public name: string;
   @IsObject()
@@ -34,8 +40,6 @@ export class PluginConfig {
 export class HassDigitalAlchemySerializeState {
   @IsString()
   public application: string;
-  @ValidateNested()
-  public configuration: PushEntityModuleConfiguration;
   @ValidateNested()
   public plugins: PluginConfig[];
 }

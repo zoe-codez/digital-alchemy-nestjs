@@ -48,6 +48,12 @@ const libraryExports = [
       default: "",
       type: "string",
     },
+    [VERIFICATION_FILE]: {
+      default: "digital_alchemy_configuration",
+      description:
+        "Target file for storing app configurations within the package folder.",
+      type: "string",
+    },
   },
   exports: libraryExports,
   imports: [],

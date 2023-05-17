@@ -4,18 +4,14 @@ import {
   CompressionService,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
+import { HOME_ASSISTANT_PACKAGE_FOLDER } from "@digital-alchemy/home-assistant";
 import { deepExtend, is, SINGLE, sleep } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
 
-import {
-  APPLICATION_IDENTIFIER,
-  DEFAULT_APPLICATION_IDENTIFIER,
-  HOME_ASSISTANT_PACKAGE_FOLDER,
-  VERIFICATION_FILE,
-} from "../config";
-import { GenerateEntities, HassDigitalAlchemySerializeState } from "../types";
+import { VERIFICATION_FILE } from "../config";
+import { HassDigitalAlchemySerializeState } from "../types";
 
 type ModuleConfigurations = Map<string, HassDigitalAlchemySerializeState>;
 
@@ -25,18 +21,12 @@ export class PushCallService {
     private readonly logger: AutoLogService,
     @InjectConfig(HOME_ASSISTANT_PACKAGE_FOLDER)
     private readonly targetFolder: string,
-    @InjectConfig(APPLICATION_IDENTIFIER)
-    private readonly applicationIdentifier: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
     @InjectConfig(VERIFICATION_FILE)
     private readonly verificationFile: string,
     private readonly compression: CompressionService,
-  ) {
-    if (this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER) {
-      this.applicationIdentifier = this.application.replaceAll("-", "_");
-    }
-  }
+  ) {}
 
   public async buildTypes(): Promise<GenerateEntities> {
     const potential = this.loadAllPotentialConfigurations();
