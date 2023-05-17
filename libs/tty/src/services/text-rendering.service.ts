@@ -36,7 +36,6 @@ import {
   MenuDeepSearch,
   MenuHelpText,
   MenuSearchOptions,
-  TTY,
 } from "../types";
 
 const MAX_SEARCH_SIZE = 50;
@@ -195,7 +194,7 @@ export class TextRenderingService {
     const deep = (objectOptions as MenuDeepSearch).deep;
 
     const formatted = data.map(i => {
-      const value = TTY.GV(i.entry);
+      const value = is.GV(i.entry);
       return {
         deep: is.object(value) && !is.empty(deep) ? get(value, deep) : {},
         helpText: i.helpText,
@@ -234,7 +233,7 @@ export class TextRenderingService {
       .map(result => ({
         entry: [
           this.fuzzyHighlight(keys, result, "label"),
-          TTY.GV(result.obj.value),
+          is.GV(result.obj.value),
         ],
         helpText: this.fuzzyHighlight(keys, result, "helpText"),
         type: this.fuzzyHighlight(keys, result, "type"),
@@ -255,7 +254,7 @@ export class TextRenderingService {
       help: i.helpText,
       label: i.entry[LABEL],
       type: i.type,
-      value: TTY.GV(i.entry),
+      value: is.GV(i.entry),
     }));
     return fuzzy
       .go(searchText, formatted, { all: true, key: "label" })
@@ -365,7 +364,7 @@ export class TextRenderingService {
     if (entries.length <= this.pageSize) {
       return entries;
     }
-    const index = entries.findIndex(i => TTY.GV(i) === value);
+    const index = entries.findIndex(i => is.GV(i) === value);
     if (index <= BUFFER_SIZE) {
       return entries.slice(START, this.pageSize);
     }

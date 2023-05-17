@@ -9,28 +9,35 @@ export type PromptMenuItems<T extends unknown = string> = {
   value: T;
 }[];
 
-export const TTY = {
-  /**
-   * Standardized method for retrieving values from menu entries, and casting it
-   */
-  GV: <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>): T => {
-    if (!is.array(item)) {
-      item = item?.entry;
-    }
-    if (is.empty(item)) {
-      return undefined;
-    }
-    return item.length === SINGLE
-      ? (item[LABEL] as unknown as T)
-      : (item[VALUE] as T);
-  },
+declare module "@digital-alchemy/utilities" {
+  export interface DigitalAlchemyIs {
+    GV: <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>) => T;
+    searchEnabled: (options: MenuSearchOptions) => boolean;
+  }
+}
+/**
+ * Standardized method for retrieving values from menu entries, and casting it
+ */
+is.GV = function <T = string>(
+  item: { entry: PromptEntry<T> } | PromptEntry<T>,
+): T {
+  if (!is.array(item)) {
+    item = item?.entry;
+  }
+  if (is.empty(item)) {
+    return undefined;
+  }
+  return item.length === SINGLE
+    ? (item[LABEL] as unknown as T)
+    : (item[VALUE] as T);
+};
 
-  searchEnabled: (options: MenuSearchOptions) =>
-    is.object(options)
-      ? (options as BaseSearchOptions).enabled !== false
-      : // false is the only allowed boolean
-        // undefined = default enabled
-        !is.boolean(options),
+is.searchEnabled = function (options: MenuSearchOptions) {
+  return is.object(options)
+    ? (options as BaseSearchOptions).enabled !== false
+    : // false is the only allowed boolean
+      // undefined = default enabled
+      !is.boolean(options);
 };
 
 export interface PromptAcknowledgeOptions {

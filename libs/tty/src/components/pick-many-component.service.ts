@@ -27,7 +27,6 @@ import {
 import {
   ListBuilderOptions,
   MainMenuEntry,
-  TTY,
   TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
@@ -114,7 +113,7 @@ export class PickManyComponentService<VALUE = unknown>
     this.opt.items ??= `Items`;
     this.mode = "select";
     const items = this.side(is.empty(this.source) ? "current" : "source");
-    this.value ??= TTY.GV(items[START]) as VALUE;
+    this.value ??= is.GV(items[START]) as VALUE;
     this.detectSide();
     this.keyboard.setKeymap(this, KEYMAP_NORMAL);
   }
@@ -123,7 +122,7 @@ export class PickManyComponentService<VALUE = unknown>
     this.mode = "select";
     this.final = true;
     this.render();
-    this.done(this.current.map(i => TTY.GV(i.entry) as VALUE));
+    this.done(this.current.map(i => is.GV(i.entry) as VALUE));
   }
 
   public render(updateValue = false): void {
@@ -154,7 +153,7 @@ export class PickManyComponentService<VALUE = unknown>
       return;
     }
     const list = this.side();
-    const item = list.find(i => TTY.GV(i) === this.value);
+    const item = list.find(i => is.GV(i) === this.value);
     this.screen.render(
       this.text.mergeHelp(message.join(`\n`), item),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
@@ -171,16 +170,16 @@ export class PickManyComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.source.find(
-      item => TTY.GV(item.entry) === this.value,
+      item => is.GV(item.entry) === this.value,
     ) as MainMenuEntry<string>;
     this.current.push(item);
     // Remove from source
     this.source = this.source.filter(
-      check => TTY.GV(check.entry) !== this.value,
+      check => is.GV(check.entry) !== this.value,
     );
 
     // Find move item in original source list
-    const index = source.findIndex(i => TTY.GV(i) === this.value);
+    const index = source.findIndex(i => is.GV(i) === this.value);
 
     // If at bottom, move up one
     if (index === source.length - ARRAY_OFFSET) {
@@ -189,16 +188,16 @@ export class PickManyComponentService<VALUE = unknown>
         this.selectedType = "current";
         return;
       }
-      this.value = TTY.GV(source[index - INCREMENT]);
+      this.value = is.GV(source[index - INCREMENT]);
       return;
     }
     // If not bottom, move down one
-    this.value = TTY.GV(source[index + INCREMENT]);
+    this.value = is.GV(source[index + INCREMENT]);
   }
 
   protected bottom(): void {
     const list = this.side();
-    this.value = TTY.GV(list[list.length - ARRAY_OFFSET]);
+    this.value = is.GV(list[list.length - ARRAY_OFFSET]);
     this.render();
   }
 
@@ -223,24 +222,24 @@ export class PickManyComponentService<VALUE = unknown>
       available = all;
     }
     if (["pageup", "home"].includes(key)) {
-      this.value = TTY.GV(available[START]);
+      this.value = is.GV(available[START]);
       return;
     }
     if (["pagedown", "end"].includes(key)) {
-      this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
+      this.value = is.GV(available[available.length - ARRAY_OFFSET]);
       return;
     }
-    const index = available.findIndex(entry => TTY.GV(entry) === this.value);
+    const index = available.findIndex(entry => is.GV(entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = TTY.GV(available[START]);
+      this.value = is.GV(available[START]);
       return;
     }
     if (index === START && key === "up") {
-      this.value = TTY.GV(available[available.length - ARRAY_OFFSET]);
+      this.value = is.GV(available[available.length - ARRAY_OFFSET]);
     } else if (index === available.length - ARRAY_OFFSET && key === "down") {
-      this.value = TTY.GV(available[START]);
+      this.value = is.GV(available[START]);
     } else {
-      this.value = TTY.GV(
+      this.value = is.GV(
         available[key === "up" ? index - INCREMENT : index + INCREMENT],
       );
     }
@@ -249,17 +248,17 @@ export class PickManyComponentService<VALUE = unknown>
   protected next(): void {
     nextTick(() => this.render());
     const list = this.side();
-    const index = list.findIndex(i => TTY.GV(i) === this.value);
+    const index = list.findIndex(i => is.GV(i) === this.value);
     if (index === NOT_FOUND) {
-      this.value = TTY.GV(list[FIRST]);
+      this.value = is.GV(list[FIRST]);
       return;
     }
     if (index === list.length - ARRAY_OFFSET) {
       // Loop around
-      this.value = TTY.GV(list[FIRST]);
+      this.value = is.GV(list[FIRST]);
       return;
     }
-    this.value = TTY.GV(list[index + INCREMENT]);
+    this.value = is.GV(list[index + INCREMENT]);
   }
 
   protected numericSelect(mixed: string): void {
@@ -269,7 +268,7 @@ export class PickManyComponentService<VALUE = unknown>
         Number(is.empty(this.numericSelection) ? "1" : this.numericSelection) -
           ARRAY_OFFSET
       ];
-    this.value = is.object(item) ? TTY.GV(item) : this.value;
+    this.value = is.object(item) ? is.GV(item) : this.value;
     this.render();
   }
 
@@ -282,7 +281,7 @@ export class PickManyComponentService<VALUE = unknown>
       return;
     }
     this.selectedType = "current";
-    let current = right.findIndex(i => TTY.GV(i) === this.value);
+    let current = right.findIndex(i => is.GV(i) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -291,8 +290,8 @@ export class PickManyComponentService<VALUE = unknown>
     }
     this.value =
       left.length < current
-        ? TTY.GV(left[left.length - ARRAY_OFFSET])
-        : TTY.GV(left[current]);
+        ? is.GV(left[left.length - ARRAY_OFFSET])
+        : is.GV(left[current]);
     this.render();
   }
 
@@ -305,7 +304,7 @@ export class PickManyComponentService<VALUE = unknown>
       return;
     }
     this.selectedType = "source";
-    let current = left.findIndex(i => TTY.GV(i) === this.value);
+    let current = left.findIndex(i => is.GV(i) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -314,24 +313,24 @@ export class PickManyComponentService<VALUE = unknown>
     }
     this.value =
       right.length - ARRAY_OFFSET < current
-        ? TTY.GV(right[right.length - ARRAY_OFFSET])
-        : TTY.GV(right[current]);
+        ? is.GV(right[right.length - ARRAY_OFFSET])
+        : is.GV(right[current]);
     this.render();
   }
 
   protected previous(): void {
     const list = this.side();
-    const index = list.findIndex(i => TTY.GV(i) === this.value);
+    const index = list.findIndex(i => is.GV(i) === this.value);
     if (index === NOT_FOUND) {
-      this.value = TTY.GV(list[FIRST]);
+      this.value = is.GV(list[FIRST]);
       return;
     }
     if (index === FIRST) {
       // Loop around
-      this.value = TTY.GV(list[list.length - ARRAY_OFFSET]);
+      this.value = is.GV(list[list.length - ARRAY_OFFSET]);
       return;
     }
-    this.value = TTY.GV(list[index - INCREMENT]);
+    this.value = is.GV(list[index - INCREMENT]);
     this.render();
   }
 
@@ -387,11 +386,11 @@ export class PickManyComponentService<VALUE = unknown>
 
   protected top(): void {
     const list = this.side();
-    this.value = TTY.GV(list[FIRST]);
+    this.value = is.GV(list[FIRST]);
   }
 
   private detectSide(): void {
-    const isLeftSide = this.side("current").some(i => TTY.GV(i) === this.value);
+    const isLeftSide = this.side("current").some(i => is.GV(i) === this.value);
     this.selectedType = isLeftSide ? "current" : "source";
   }
 
@@ -403,7 +402,7 @@ export class PickManyComponentService<VALUE = unknown>
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
     }
-    this.value = TTY.GV(highlighted[START]);
+    this.value = is.GV(highlighted[START]);
     return highlighted;
   }
 
@@ -416,16 +415,16 @@ export class PickManyComponentService<VALUE = unknown>
 
     // Move item to current list
     const item = this.current.find(
-      ({ entry }) => TTY.GV(entry) === this.value,
+      ({ entry }) => is.GV(entry) === this.value,
     ) as MainMenuEntry<string>;
     this.source.push(item);
     // Remove from source
     this.current = this.current.filter(
-      ({ entry }) => TTY.GV(entry) !== this.value,
+      ({ entry }) => is.GV(entry) !== this.value,
     );
 
     // Find move item in original source list
-    const index = current.findIndex(i => TTY.GV(i) === this.value);
+    const index = current.findIndex(i => is.GV(i) === this.value);
 
     // If at bottom, move up one
     if (index === current.length - ARRAY_OFFSET) {
@@ -434,11 +433,11 @@ export class PickManyComponentService<VALUE = unknown>
         this.selectedType = "current";
         return;
       }
-      this.value = TTY.GV(current[index - INCREMENT]);
+      this.value = is.GV(current[index - INCREMENT]);
       return;
     }
     // If not bottom, move down one
-    this.value = TTY.GV(current[index + INCREMENT]);
+    this.value = is.GV(current[index + INCREMENT]);
   }
 
   private renderSide(
@@ -456,7 +455,7 @@ export class PickManyComponentService<VALUE = unknown>
       out.push(chalk.bold` {gray.inverse  List is empty } `);
     }
     menu.forEach(item => {
-      const inverse = TTY.GV(item) === this.value;
+      const inverse = is.GV(item) === this.value;
       const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
       if (this.selectedType === side) {
         out.push(

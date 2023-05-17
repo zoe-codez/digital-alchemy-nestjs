@@ -1,7 +1,6 @@
 import {
   ARRAY_OFFSET,
   INCREMENT,
-  INVERT_VALUE,
   is,
   LABEL,
   START,
@@ -17,7 +16,6 @@ import {
   ObjectBuilderOptions,
   TABLE_PARTS,
   TableBuilderElement,
-  TTY,
 } from "../types";
 import { EnvironmentService } from "./environment.service";
 import { TextRenderingService } from "./text-rendering.service";
@@ -126,7 +124,7 @@ export class FormService<
         return raw;
       }
       return raw.map(item => {
-        const option = element.options.find(i => TTY.GV(i) === item);
+        const option = element.options.find(i => is.GV(i) === item);
         if (!option) {
           return item;
         }

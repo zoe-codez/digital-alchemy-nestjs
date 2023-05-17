@@ -10,7 +10,6 @@ import {
   ScreenService,
   template,
   TextRenderingService,
-  TTY,
 } from "@digital-alchemy/tty";
 import { is, PEAT, SECOND, SINGLE, sleep } from "@digital-alchemy/utilities";
 import { faker } from "@faker-js/faker";
@@ -145,7 +144,7 @@ export class MenuService {
     );
     if (is.object(value)) {
       const type = value.type;
-      value = TTY.GV(types.find(i => TTY.GV(i).type === type));
+      value = is.GV(types.find(i => is.GV(i).type === type));
     }
     let selectedValue: AdvancedMenuResult;
     const result = await this.prompt.menu<string | { type: string }>({

@@ -29,7 +29,6 @@ import {
   ObjectBuilderMessagePositions,
   ObjectBuilderOptions,
   TableBuilderElement,
-  TTY,
   TTYComponentKeymap,
   TTYKeypressOptions,
 } from "../types";
@@ -400,10 +399,10 @@ export class ObjectBuilderComponentService<
         case "pick-many": {
           const currentValue = current ?? [];
           const source = column.options.filter(
-            i => !currentValue.includes(TTY.GV(i)),
+            i => !currentValue.includes(is.GV(i)),
           ) as MainMenuEntry<VALUE | string>[];
           const selected = column.options.filter(i =>
-            currentValue.includes(TTY.GV(i)),
+            currentValue.includes(is.GV(i)),
           ) as MainMenuEntry<VALUE | string>[];
           value = await this.prompt.pickMany<VALUE>({
             current: selected,
@@ -420,7 +419,7 @@ export class ObjectBuilderComponentService<
           // TODO: WHY?!
           // The auto erase should catch this... but it doesn't for some reason
           const { helpText } = column.options.find(
-            i => TTY.GV(i.entry) === value,
+            i => is.GV(i.entry) === value,
           );
           if (!is.empty(helpText)) {
             this.screen.eraseLine(HELP_ERASE_SIZE);
@@ -542,7 +541,7 @@ export class ObjectBuilderComponentService<
     // Might as well make it the official default
     if (is.undefined(column.default)) {
       if (column.type === "pick-one") {
-        set(this.value, column.path, TTY.GV(column.options[START]));
+        set(this.value, column.path, is.GV(column.options[START]));
       }
       return;
     }

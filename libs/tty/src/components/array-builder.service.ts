@@ -13,7 +13,6 @@ import {
   KeyMap,
   MainMenuCB,
   MainMenuEntry,
-  TTY,
 } from "../types";
 type TypeToggle = { type: string };
 
@@ -234,7 +233,7 @@ export class ArrayBuilderService<VALUE extends object>
 
       // toggle on all type categories
       case "toggle_on": {
-        this.disabledTypes = toggles.map(i => String(TTY.GV(i).type));
+        this.disabledTypes = toggles.map(i => String(is.GV(i).type));
         return await this.render();
       }
 
