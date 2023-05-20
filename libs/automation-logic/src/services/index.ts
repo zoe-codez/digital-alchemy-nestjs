@@ -9,4 +9,3 @@ export * from "./scene-controller.service";
 export * from "./scene-room.service";
 export * from "./sequence-matcher.service";
 export * from "./solar-calc.service";
-export * from "./transition-runner.service";

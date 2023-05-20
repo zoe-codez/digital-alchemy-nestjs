@@ -20,7 +20,7 @@ type StorageWriteBack = {
 };
 
 export type InjectedPushConfig = {
-  storage: () => [name: string, data: StorageWriteBack];
+  storage?: () => [name: string, data: StorageWriteBack];
   yaml: (basePath: string) => InjectYamlReturn;
 };
 

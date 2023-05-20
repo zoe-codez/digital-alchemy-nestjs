@@ -254,10 +254,9 @@ export class PushEntityConfigService {
     return {
       application: this.application,
       configuration: this.configuration,
-      plugins: [...this.LOCAL_PLUGINS.entries()].map(([name, data]) => ({
-        name,
-        storage: data.storage(),
-      })),
+      plugins: [...this.LOCAL_PLUGINS.entries()]
+        .filter(([, data]) => is.function(data.storage))
+        .map(([name, data]) => ({ name, storage: data.storage() })),
     };
   }
 

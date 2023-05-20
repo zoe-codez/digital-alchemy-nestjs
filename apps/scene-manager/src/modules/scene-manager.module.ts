@@ -117,6 +117,7 @@ export class SceneManagerModule {
   protected onPostInit() {
     setTimeout(async () => {
       await this.config.rebuild();
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     }, 5000);
   }
 }

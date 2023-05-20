@@ -27,7 +27,6 @@ import {
 import { Inject, Injectable, Provider, Scope } from "@nestjs/common";
 import { INQUIRER } from "@nestjs/core";
 import EventEmitter from "eventemitter3";
-import { get } from "object-path";
 import { nextTick } from "process";
 import { LiteralUnion } from "type-fest";
 import { v4 } from "uuid";
@@ -35,14 +34,10 @@ import { v4 } from "uuid";
 import { CIRCADIAN_SENSOR, DEFAULT_DIM } from "../config";
 import { iSceneRoomOptions, ROOM_CONFIG_MAP } from "../decorators";
 import {
-  ALL_GLOBAL_SCENES,
-  ALL_ROOM_NAMES,
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
   AutomationLogicModuleConfiguration,
-  CannedTransitions,
   MAX_LED_BRIGHTNESS,
   OFF,
-  ROOM_SCENES,
   SCENE_ROOM_OPTIONS,
   SCENE_SET_ENTITY,
   SceneList,
@@ -63,18 +58,19 @@ type tTransitions<SCOPED extends string> = Partial<
   >
 >;
 
-const ANY = "*";
+type ALL_GLOBAL_SCENES = string;
+type ALL_ROOM_NAMES = string;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type ROOM_SCENES<NAME> = string;
+type NAME = string;
 
 /**
  * Importing this provider is required to actually register a room.
  * The annotation itself is not enough
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
-  public static loaded = new Map<
-    ALL_ROOM_NAMES,
-    SceneRoomService<ALL_ROOM_NAMES>
-  >();
+export class SceneRoomService {
+  public static loaded = new Map<ALL_ROOM_NAMES, SceneRoomService>();
   /**
    * pre-create rooms to ensure they are created at least once
    */
@@ -240,7 +236,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
   public load(name: NAME): void {
     this.name = name;
     const ref = this as unknown;
-    this.controller.register(name, ref as SceneRoomService<ALL_ROOM_NAMES>);
+    this.controller.register(name, ref as SceneRoomService);
   }
 
   /**
@@ -418,7 +414,7 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
     }
     const options = this.inquirer.constructor[
       SCENE_ROOM_OPTIONS
-    ] as iSceneRoomOptions<NAME>;
+    ] as iSceneRoomOptions;
     if (!is.object(options)) {
       return;
     }
@@ -461,158 +457,5 @@ export class SceneRoomService<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES> {
         list.filter(i => is.undefined((i[VALUE] as HasKelvin).kelvin)),
       ),
     };
-  }
-
-  /**
-   * Retrieve a scene - scene transition step (if exists)
-   */
-  private getTransition(
-    from: ROOM_SCENES<NAME>,
-    to: ROOM_SCENES<NAME>,
-    explicit = false,
-    useMethods = true,
-  ) {
-    if (useMethods) {
-      const method = this.getTransitionMethod(from, to, true);
-      if (method) {
-        return method;
-      }
-    }
-    const canned = this.getTransitionCanned(from, to, true);
-    if (canned) {
-      return canned;
-    }
-    if (explicit) {
-      return undefined;
-    }
-    if (useMethods) {
-      const method = this.getTransitionMethod(from, to, false);
-      if (method) {
-        return method;
-      }
-    }
-    return this.getTransitionCanned(from, to, false);
-  }
-
-  private getTransitionCanned(
-    from: ROOM_SCENES<NAME>,
-    to: ROOM_SCENES<NAME>,
-    explicit = false,
-  ): CannedTransitions[] {
-    // const transitions = this.options.transitions;
-    const transitions = undefined;
-    if (!transitions) {
-      return undefined;
-    }
-    const item = get(transitions, [from, to].join("."));
-    if (item) {
-      return item;
-    }
-    if (!explicit) {
-      return undefined;
-    }
-    return (
-      get(transitions, [ANY, to].join(".")) ||
-      get(transitions, [from, ANY].join(".")) ||
-      get(transitions, [ANY, ANY].join("."))
-    );
-  }
-
-  /**
-   * exact match > to match > from match > complete wildcard
-   */
-  private getTransitionMethod(
-    from: ROOM_SCENES<NAME>,
-    to: ROOM_SCENES<NAME>,
-    explicit = false,
-  ): AnnotationPassThrough {
-    if (explicit) {
-      return get(this.transitions, [from, to].join("."), undefined);
-    }
-    const source = this.transitions[from] ?? this.transitions[ANY];
-    return source[to] ?? source[ANY];
-  }
-
-  private async runTransitions(
-    from: ROOM_SCENES<NAME>,
-    to: ROOM_SCENES<NAME>,
-  ): Promise<ROOM_SCENES<NAME>> {
-    from;
-    to;
-
-    return await undefined;
-    // let transition = this.getTransition(from, to);
-    // if (is.undefined(transition)) {
-    //   return to;
-    // }
-
-    // let interrupt = false;
-    // const stop = () => (interrupt = true);
-
-    // // string result = method name
-    // if (is.string(transition)) {
-    //   // wat
-    //   if (!is.function(this.parent[transition])) {
-    //     this.logger.error(
-    //       `[%s] failed to run transition function {%s} (undefined)`,
-    //       this.name,
-    //       transition,
-    //     );
-    //     return to;
-    //   }
-
-    //   // the method should return a scene name, or void
-    //   const result: ROOM_SCENES<NAME> | undefined = await this.parent[
-    //     transition
-    //   ]({
-    //     from,
-    //     stop,
-    //     to,
-    //   });
-    //   const out = interrupt ? undefined : to;
-
-    //   // sanity check: did the function return an invalid scene?
-    //   // "valid" is defined as being in the scene list.
-    //   // It can be assumed that if typescript isn't erroring, and it's in this list, it's valid
-    //   if (is.string(result) && !this.scenes.has(result)) {
-    //     //  ...whatever
-    //     const runAnyway = this.getTransition(from, result, true);
-    //     if (!runAnyway) {
-    //       this.logger.error(
-    //         { from, method: transition, result, to },
-    //         `Invalid transition result. Should be scene name, or undefined`,
-    //       );
-    //       return out;
-    //     }
-    //   }
-
-    //   // if the returned value is the same as the original target, skip down to the internal transition runner
-    //   if (result !== to) {
-    //     // recurse if valid
-    //     if (this.scenes.has(result)) {
-    //       const runResult = await this.runTransitions(from, result);
-    //       return this.scenes.has(runResult) || is.undefined(runResult)
-    //         ? runResult
-    //         : to;
-    //     }
-    //     return out;
-    //   }
-
-    //   // Identify if there are any canned transitions to run
-    //   transition = this.getTransition(from, to, false, false);
-    //   if (!is.array(transition)) {
-    //     // No canned stuff to run
-    //     return out;
-    //   }
-    // }
-
-    // // hand off logic
-    // // this cannot do redirects
-    // await this.transition.run(
-    //   transition as LightTransition[],
-    //   this.scenes.get(to) ?? {},
-    //   stop,
-    // );
-    // return interrupt ? undefined : to;
   }
 }

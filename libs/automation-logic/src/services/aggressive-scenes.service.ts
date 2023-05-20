@@ -15,7 +15,7 @@ import { CronExpression, each, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { AGGRESSIVE_SCENES } from "../config";
-import { ALL_ROOM_NAMES, SceneDefinition, SceneSwitchState } from "../types";
+import { SceneDefinition, SceneSwitchState } from "../types";
 import { LightMangerService } from "./light-manager.service";
 import { SceneRoomService } from "./scene-room.service";
 
@@ -72,7 +72,7 @@ export class AggressiveScenesService {
    * - warnings
    * - state changes
    */
-  private async validateRoomScene(roomName: ALL_ROOM_NAMES): Promise<void> {
+  private async validateRoomScene(roomName: string): Promise<void> {
     const room = SceneRoomService.loaded.get(roomName);
     const { configuration, options } = room.sceneDefinition;
     if (this.aggressive === false || options?.aggressive?.enabled === false) {
