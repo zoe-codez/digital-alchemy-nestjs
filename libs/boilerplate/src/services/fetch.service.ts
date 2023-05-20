@@ -142,7 +142,7 @@ export class FetchService {
     { process }: FetchWith,
     response: Response,
   ): Promise<T> {
-    if (process === false) {
+    if (process === false || process === "raw") {
       return response as T;
     }
     const text = await response.text();

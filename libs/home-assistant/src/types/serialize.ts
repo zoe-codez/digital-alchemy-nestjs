@@ -1,6 +1,6 @@
 import { IsObject, IsString, ValidateNested } from "class-validator";
 
-import { HomeAssistantModuleConfiguration } from "./module";
+import { HomeAssistantModuleConfiguration } from "./generate-entities";
 
 type InjectYamlReturn = {
   root_include: string;

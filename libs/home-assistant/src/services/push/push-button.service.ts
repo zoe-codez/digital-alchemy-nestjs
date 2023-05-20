@@ -55,11 +55,10 @@ export class PushButtonService {
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml[] {
-    return [
-      ...(is.empty(entity_id) ? [...this.passthrough.keys()] : [entity_id]),
-    ].map(entity_id => {
-      return this.createYaml(availability, entity_id);
-    });
+    const ids = is.empty(entity_id)
+      ? [entity_id]
+      : [...this.passthrough.keys()];
+    return ids.map(entity_id => this.createYaml(availability, entity_id));
   }
 
   public restCommands() {

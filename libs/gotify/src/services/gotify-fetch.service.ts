@@ -1,5 +1,5 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
-import { FetchArguments } from "@digital-alchemy/utilities";
+import { FilteredFetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { BASE_URL, TOKEN } from "../config";
@@ -16,7 +16,7 @@ export class GotifyFetch {
     fetchService.BASE_URL = baseUrl;
   }
 
-  public async fetch<T>(fetch: Partial<FetchArguments>): Promise<T> {
+  public async fetch<T>(fetch: FilteredFetchArguments): Promise<T> {
     return await this.fetchService.fetch({
       ...fetch,
       headers: {

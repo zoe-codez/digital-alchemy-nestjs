@@ -5,7 +5,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import {
   DOWN,
-  FetchWith,
+  FilteredFetchArguments,
   is,
   NO_CHANGE,
   SECOND,
@@ -124,7 +124,7 @@ export class HassFetchAPIService {
 
   public async download(
     destination: string,
-    fetchWitch: Omit<FetchWith, "baseUrl" | "headers" | "destination">,
+    fetchWitch: FilteredFetchArguments,
   ): Promise<void> {
     return await this.fetchService.download({
       ...fetchWitch,
@@ -134,9 +134,7 @@ export class HassFetchAPIService {
     });
   }
 
-  public async fetch<T>(
-    fetchWitch: Omit<FetchWith, "baseUrl" | "headers">,
-  ): Promise<T> {
+  public async fetch<T>(fetchWitch: FilteredFetchArguments): Promise<T> {
     return await this.fetchService.fetch<T>({
       ...fetchWitch,
       baseUrl: this.baseUrl,

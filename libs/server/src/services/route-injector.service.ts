@@ -58,9 +58,6 @@ export class RouteInjector {
       case HTTP_METHODS.options:
         requestMethod = RequestMethod.OPTIONS;
         break;
-      case HTTP_METHODS.head:
-        requestMethod = RequestMethod.HEAD;
-        break;
       case HTTP_METHODS.patch:
         requestMethod = RequestMethod.PATCH;
         break;

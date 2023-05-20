@@ -37,6 +37,9 @@ export class TalkBackService {
   private readonly headers: Record<string, string>;
 
   public createButtonRest(buttons: PICK_GENERATED_ENTITY<"button">[]) {
+    // hello world
+    // doing a thing
+    // this.pushButton.announce(buttons[0]);asdf
     return Object.fromEntries(
       buttons.map(key => [
         TemplateButtonCommandId(this.application, key),
