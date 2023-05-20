@@ -278,13 +278,13 @@ export class HassFetchAPIService {
     });
   }
 
-  public async webhook(id: string, data: object = {}): Promise<void> {
-    this.logger.trace({ data, id }, `webhook`);
+  public async webhook(name: string, data: object = {}): Promise<void> {
+    this.logger.trace({ data, name }, `webhook`);
     await this.fetch({
       body: data,
       method: "post",
       process: "text",
-      url: `/api/webhook/${id}`,
+      url: `/api/webhook/${name}`,
     });
   }
 }

@@ -35,7 +35,7 @@ export class AggressiveScenesService {
   protected async checkRooms() {
     try {
       await each([...SceneRoomService.loaded.keys()], async room => {
-        this.logger.trace(`[%s] check room`, room);
+        this.logger.trace({ name: room }, `check room`);
         await this.validateRoomScene(room);
       });
     } catch (error) {
@@ -54,14 +54,21 @@ export class AggressiveScenesService {
       return;
     }
     if (entity.state === "unavailable") {
-      this.logger.warn(`[%s] is {unavailable}, cannot manage state`);
+      this.logger.warn(
+        { name: entity_id },
+        `{unavailable} entity, cannot manage state`,
+      );
       return;
     }
     if (entity.state === expected.state) {
       // * As expected
       return;
     }
-    this.logger.debug(`[%s] changing state to {%s}`, entity_id, expected.state);
+    this.logger.debug(
+      { name: entity_id },
+      `changing state to {%s}`,
+      expected.state,
+    );
     await this.call.switch[`turn_${expected.state}`]({ entity_id });
   }
 
@@ -81,9 +88,8 @@ export class AggressiveScenesService {
     }
     if (!configuration) {
       this.logger.warn(
-        { configuration, options },
-        `[%s] cannot validate room scene`,
-        roomName,
+        { configuration, name: roomName, options },
+        `cannot validate room scene`,
       );
       return;
     }
@@ -101,7 +107,7 @@ export class AggressiveScenesService {
         // The wrong id was probably input
         //
         // ? This is distinct from "unavailable" entities
-        this.logger.error(`[%s] cannot find entity`, entity_id);
+        this.logger.error({ name: entity_id }, `cannot find entity`);
         return;
       }
       const entityDomain = domain(entity_id);
@@ -113,7 +119,10 @@ export class AggressiveScenesService {
           await this.manageSwitch(entity, definition);
           return;
         default:
-          this.logger.debug(`[%s] so actions set for domain`, entityDomain);
+          this.logger.debug(
+            { name: entityDomain },
+            `so actions set for domain`,
+          );
       }
     });
   }

@@ -76,7 +76,7 @@ export class PushButtonService {
   ): ButtonTemplateYaml {
     const config = get(this.configuration.generate_entities, entity_id);
     if (!config) {
-      this.logger.error(`[%s] could not load configuration`, entity_id);
+      this.logger.error({ name: entity_id }, `could not load configuration`);
       return { button: [] };
     }
     const button = {

@@ -18,6 +18,7 @@ import {
   SensorConfig,
   StorageData,
   SwitchConfig,
+  UPDATE_TRIGGER,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
 
@@ -96,13 +97,13 @@ export class PushEntityService<
     updates: MergeAndEmit<STATE, ATTRIBUTES>,
   ): Promise<void> {
     const data = STORAGE.get(sensor_id);
-    const context = LOG_CONTEXT(sensor_id);
+    const name = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
     // Merge state
     if ("state" in updates && data.state !== updates.state) {
       this.logger.trace(
-        { context, from: data.state, to: updates.state },
+        { from: data.state, name, to: updates.state },
         `update state`,
       );
       data.state = updates.state;
@@ -117,7 +118,7 @@ export class PushEntityService<
         if (matches) {
           return;
         }
-        this.logger.trace({ context, from, to }, `updating attribute`);
+        this.logger.trace({ from, name, to }, `updating attribute`);
         dirty = true;
       });
     }
@@ -126,7 +127,7 @@ export class PushEntityService<
     if (dirty) {
       STORAGE.set(sensor_id, data);
     } else {
-      this.logger.trace({ context }, `no changes to flush`);
+      this.logger.trace({ name }, `no changes to flush`);
     }
     const friendly_name = get(
       this.configuration.generate_entities,
@@ -140,8 +141,8 @@ export class PushEntityService<
       state: this.cast(data.state as string | number | boolean),
     };
     // Emit to home assistant anyways?
-    await this.fetch.updateEntity(sensor_id, update);
-    // await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
+    // await this.fetch.updateEntity(sensor_id, update);
+    await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
   }
 
   public async generate<

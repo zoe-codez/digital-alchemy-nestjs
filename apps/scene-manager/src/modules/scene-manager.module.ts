@@ -74,11 +74,11 @@ import { Bedroom, Loft, Office } from "../rooms";
           is_work: { name: "Is work" },
           should_sleep: { name: "Should sleep" },
         },
-        // button: {
-        //   entity_creation_button: {
-        //     name: "Example button",
-        //   },
-        // },
+        button: {
+          office_focus: {
+            name: "Office focus",
+          },
+        },
         sensor: {
           next_solar_event: {
             name: "Next solar event",
@@ -89,10 +89,12 @@ import { Bedroom, Loft, Office } from "../rooms";
         },
         switch: {
           office_plants: {
+            icon: "mdi:light-flood-down",
             name: "Office plant lights",
             track_history: true,
           },
           windows_open: {
+            icon: "mdi:window-open",
             name: "Window is open",
             track_history: true,
           },

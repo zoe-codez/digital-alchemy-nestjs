@@ -13,7 +13,6 @@ import {
 import {
   CronExpression,
   DOWN,
-  EMPTY,
   HALF,
   is,
   MINUTE,
@@ -48,9 +47,13 @@ export enum SolarEvents {
   sunsetStart = "sunsetStart",
 }
 
-const CACHE_LONG = "solar:CACHE_LONG";
-const CACHE_LAT = "solar:CACHE_LAT";
+const SOLAR_CACHE = "SOLAR_CACHE";
+type CacheData = {
+  lat: number;
+  long: number;
+};
 let claimed = false;
+const DEFAULT_POSITION = 0;
 
 @Injectable()
 export class SolarCalcService {
@@ -66,8 +69,8 @@ export class SolarCalcService {
     }
   }
 
-  public latitude = EMPTY;
-  public longitude = EMPTY;
+  public latitude = DEFAULT_POSITION;
+  public longitude = DEFAULT_POSITION;
   private CALCULATOR;
   private readonly callbacks = new Map<SolarOptions, AnnotationPassThrough[]>();
   private emit = false;
@@ -186,8 +189,12 @@ export class SolarCalcService {
   }
 
   protected async onModuleInit(): Promise<void> {
-    this.longitude = await this.cache.get(CACHE_LONG, EMPTY);
-    this.latitude = await this.cache.get(CACHE_LAT, EMPTY);
+    const { lat, long } = await this.cache.get<CacheData>(SOLAR_CACHE, {
+      lat: DEFAULT_POSITION,
+      long: DEFAULT_POSITION,
+    });
+    this.longitude = long;
+    this.latitude = lat;
     this.initScan();
   }
 
@@ -207,8 +214,10 @@ export class SolarCalcService {
       const config = await this.fetch.getConfig();
       this.latitude = config.latitude;
       this.longitude = config.longitude;
-      await this.cache.set(CACHE_LONG, config.longitude);
-      await this.cache.set(CACHE_LAT, config.latitude);
+      await this.cache.set<CacheData>(SOLAR_CACHE, {
+        lat: config.latitude,
+        long: config.longitude,
+      });
       this.updateCalculator();
     }, SECOND);
   }
@@ -217,7 +226,7 @@ export class SolarCalcService {
     this.scanner.bindMethodDecorator<SolarOptions>(
       SolarEvent,
       ({ exec, data, context }) => {
-        this.logger.info({ context }, `[@SolarEvent] {%s}`, data);
+        this.logger.info({ name: context }, `[@SolarEvent] {%s}`, data);
         const current = this.callbacks.get(data) ?? [];
         current.push(exec);
         this.callbacks.set(data, current);
@@ -234,15 +243,15 @@ export class SolarCalcService {
     }
     if (dayjs().isAfter(calc[key])) {
       this.logger.debug(
-        `[%s] already fired for today {%s}`,
-        key,
+        { name: key },
+        `already fired for today {%s}`,
         (calc[key] as Date).toLocaleTimeString(),
       );
       return;
     }
     this.logger.info(
-      `[%s] will fire at {%s}`,
-      key,
+      { name: key },
+      `will fire at {%s}`,
       (calc[key] as Date).toLocaleTimeString(),
     );
     const timer = new CronTime(calc[key]);

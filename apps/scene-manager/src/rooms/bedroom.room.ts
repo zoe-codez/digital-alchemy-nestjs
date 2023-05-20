@@ -1,5 +1,6 @@
-import { SceneRoom, SceneRoomService } from "@digital-alchemy/automation-logic";
+import { SceneRoom } from "@digital-alchemy/automation-logic";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { iCallService, InjectCallProxy } from "@digital-alchemy/home-assistant";
 
 import { LutronPicoSequenceMatcher, PicoIds } from "../includes";
 
@@ -25,13 +26,16 @@ const BedroomPico = LutronPicoSequenceMatcher(PicoIds.bedroom);
 export class Bedroom {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly scene: SceneRoomService<"bedroom">,
+    @InjectCallProxy()
+    private readonly call: iCallService,
   ) {}
 
   @BedroomPico(["off", "off"])
-  protected onDoubleTapOff(): void {
+  protected async onDoubleTapOff() {
     this.logger.info(`Scene off via pico event`);
-    this.scene.set("off");
+    await this.call.scene.turn_on({
+      entity_id: "scene.bedroom_off",
+    });
   }
 
   @BedroomPico(["stop", "raise", "raise"])

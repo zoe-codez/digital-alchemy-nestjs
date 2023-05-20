@@ -35,10 +35,6 @@ export interface iSceneRoomOptions<
    */
   scenes?: SceneList<RoomScenes<CONFIG, ROOM_NAME>>;
 }
-// /**
-//  * Describe
-//  */
-// transitions?: SceneTransitionMapping<ROOM_NAME>;
 
 type RoomName<CONFIG extends Record<string, { scenes?: object }>> = Extract<
   keyof CONFIG,

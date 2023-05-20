@@ -4,7 +4,6 @@ import {
   refTimes,
   SCENE_CHANGE,
   SceneRoom,
-  SceneRoomService,
   SolarCalcService,
   SolarEvent,
 } from "@digital-alchemy/automation-logic";
@@ -22,8 +21,6 @@ import {
   TemplateButton,
 } from "@digital-alchemy/home-assistant";
 import dayjs from "dayjs";
-
-import { Loft } from "./loft.room";
 
 @SceneRoom({
   name: "office",
@@ -61,8 +58,6 @@ export class Office {
     @InjectCallProxy()
     private readonly call: iCallService,
     private readonly solar: SolarCalcService,
-    public readonly scene: SceneRoomService<"office">,
-    private readonly loft: Loft,
     @InjectEntityProxy("binary_sensor.should_sleep")
     private readonly shouldSleep: ENTITY_STATE<"binary_sensor.should_sleep">,
     @InjectEntityProxy("switch.windows_open")
@@ -71,7 +66,13 @@ export class Office {
     private readonly rainyWeather: ENTITY_STATE<"binary_sensor.is_rainy_weather">,
     @InjectEntityProxy("switch.office_plants")
     private readonly officePlants: ENTITY_STATE<"switch.office_plants">,
+    @InjectEntityProxy("sensor.office_current_scene")
+    private readonly sceneEntity: ENTITY_STATE<"sensor.office_current_scene">,
   ) {}
+
+  private get currentScene() {
+    return (this.sceneEntity.attributes as { scene: string }).scene;
+  }
 
   @DeterministicSwitch({
     entity_id: "switch.office_plants",
@@ -85,7 +86,7 @@ export class Office {
     if (dayjs().isBefore(PM3)) {
       return true;
     }
-    if (this.scene.current === "off") {
+    if (this.currentScene === "off") {
       return false;
     }
     if (this.rainyWeather.state === "on") {
@@ -103,7 +104,7 @@ export class Office {
     if (this.windowOpen.state === "on") {
       return false;
     }
-    if (this.scene.current === "off") {
+    if (this.currentScene === "off") {
       return false;
     }
     return true;
@@ -111,10 +112,10 @@ export class Office {
 
   @Cron(CronExpression.EVERY_DAY_AT_11PM)
   protected async eveningHandOff(force = false): Promise<void> {
-    if (!(force || ["auto", "dim"].includes(this.scene.current))) {
+    if (!(force || ["auto", "dim"].includes(this.currentScene))) {
       return;
     }
-    await this.scene.set("evening");
+    await this.call.scene.turn_on({ entity_id: "scene.office_evening" });
   }
 
   @TemplateButton("button.office_focus")
@@ -125,6 +126,8 @@ export class Office {
       return;
     }
     this.logger.info("Office focus");
-    await Promise.all([this.scene.set("auto")]);
+    await Promise.all([
+      this.call.scene.turn_on({ entity_id: "scene.office_focus" }),
+    ]);
   }
 }
