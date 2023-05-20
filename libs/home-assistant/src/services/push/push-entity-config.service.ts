@@ -24,6 +24,7 @@ import {
   InjectedPushConfig,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
+  PUSH_PROXY_DOMAINS,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
 import { PushEntityService } from "./push-entity.service";
@@ -96,9 +97,31 @@ export class PushEntityConfigService {
 
   protected async onModuleInit() {
     await this.initialize();
+
     setInterval(() => {
       this.sendHealthCheck();
     }, HEALTH_CHECK_INTERVAL * SECOND);
+
+    setTimeout(() => {
+      this.checkUtilization();
+    }, SECOND);
+  }
+
+  /**
+   * These entities won't have YAML generated.
+   */
+  private checkUtilization() {
+    const domains: PUSH_PROXY_DOMAINS[] = ["binary_sensor", "sensor"];
+    domains.forEach(domain => {
+      const entities = this.configuration.generate_entities[domain] ?? {};
+      const list = this.pushEntity.domainStorage(domain);
+      Object.keys(entities).forEach(item => {
+        const id = `${domain}.${item}`;
+        if (!list.has(id as PICK_GENERATED_ENTITY<typeof domain>)) {
+          this.logger.warn({ name: id }, `Entity not utilized`);
+        }
+      });
+    });
   }
 
   private async cleanup(): Promise<boolean> {

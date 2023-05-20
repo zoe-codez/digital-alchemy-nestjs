@@ -24,17 +24,16 @@ export class PushBinarySensorService {
     private readonly logger: AutoLogService,
     private readonly pushEntity: PushEntityService<"binary_sensor">,
   ) {}
+
   public createBinarySensorYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"binary_sensor">,
   ): BinarySensorTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("binary_sensor");
-
-    return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
-      entity_id => {
-        return this.createYaml(availability, storage, entity_id);
-      },
-    );
+    const keys = [...(is.empty(entity_id) ? storage.keys() : [entity_id])];
+    return keys.map(entity_id => {
+      return this.createYaml(availability, storage, entity_id);
+    });
   }
 
   public createProxy(id: PICK_GENERATED_ENTITY<"binary_sensor">) {

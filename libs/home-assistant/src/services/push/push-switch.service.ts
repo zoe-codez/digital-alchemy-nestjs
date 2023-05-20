@@ -78,7 +78,7 @@ export class PushSwitchService {
         state,
       };
       // Double tap prevents the switch from being indecisive
-      this.logger.trace({ data }, `[%s] switch state double tap`, entity_id);
+      this.logger.trace({ data, name: entity_id }, `Switch state double tap`);
       await this.fetch.updateEntity(entity_id, {
         attributes: this.attributes.get(entity_id),
         state,

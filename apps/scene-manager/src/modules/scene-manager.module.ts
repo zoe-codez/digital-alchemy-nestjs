@@ -9,6 +9,7 @@ import { MQTTModule } from "@digital-alchemy/mqtt";
 import { ServerModule } from "@digital-alchemy/server";
 
 import { Bedroom, Loft, Office } from "../rooms";
+import { SensorSyncService } from "../services";
 
 @ApplicationModule({
   application: "scene-manager",
@@ -104,7 +105,7 @@ import { Bedroom, Loft, Office } from "../rooms";
     MQTTModule,
     ServerModule,
   ],
-  providers: [Bedroom, Office, Loft],
+  providers: [Bedroom, Office, Loft, SensorSyncService],
 })
 export class SceneManagerModule {
   constructor(

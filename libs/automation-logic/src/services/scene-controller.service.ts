@@ -63,9 +63,9 @@ export class SceneControllerService {
     target.attributes.scene = scene;
   }
 
-  public register(room: string, setter: SceneRoomService): void {
-    this.logger.warn(`[%s] register`, room);
-    setProxy.set(room, setter);
+  public register(name: string, setter: SceneRoomService): void {
+    this.logger.debug({ name }, `Register`);
+    setProxy.set(name, setter);
   }
 
   protected async onModuleInit(): Promise<void> {
@@ -125,7 +125,7 @@ export class SceneControllerService {
     const rooms = Object.keys(room_configuration ?? {});
     await each(rooms, async (name: string) => {
       const room = room_configuration[name];
-      this.logger.info(`[%s] init room`, room?.name ?? name);
+      this.logger.info({ name: room?.name ?? name }, `Init room`);
       // * current scene sensor
       const id = `sensor.${name}_current_scene` as NewEntityId<"sensor">;
       this.pushEntity.insert(id, {

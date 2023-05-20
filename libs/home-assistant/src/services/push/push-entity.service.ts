@@ -118,7 +118,7 @@ export class PushEntityService<
         if (matches) {
           return;
         }
-        this.logger.trace({ from, name, to }, `updating attribute`);
+        this.logger.trace({ from, name, to }, `Updating attribute`);
         dirty = true;
       });
     }
@@ -127,7 +127,7 @@ export class PushEntityService<
     if (dirty) {
       STORAGE.set(sensor_id, data);
     } else {
-      this.logger.trace({ name }, `no changes to flush`);
+      this.logger.trace({ name }, `No changes to flush`);
     }
     const friendly_name = get(
       this.configuration.generate_entities,
@@ -156,7 +156,7 @@ export class PushEntityService<
     }
     proxyOptions.set(entity, options);
     const context = LOG_CONTEXT(entity);
-    this.logger.info({ context }, `initializing`);
+    this.logger.info({ context }, `Initializing`);
     proxyMap.set(
       entity,
       new Proxy(
@@ -186,7 +186,7 @@ export class PushEntityService<
     entity: NewEntityId<CREATE_DOMAIN>,
     config: GET_CONFIG<CREATE_DOMAIN>,
   ) {
-    this.logger.debug({ config }, `[%s] insert`, entity);
+    this.logger.debug({ config, name: entity }, `Insert`);
     const [domain, id] = generated_entity_split(entity);
     this.configuration.generate_entities[domain] ??= {};
     this.configuration.generate_entities[domain][id] = config;
@@ -250,7 +250,7 @@ export class PushEntityService<
       data.attributes = value.attributes;
       data.state = value.state;
     } else {
-      this.logger.info({ context }, `initial cache populate`);
+      this.logger.info({ context }, `Initial cache populate`);
       await this.cache.set(key, data);
     }
     STORAGE.set(entity, data);

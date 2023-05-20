@@ -165,6 +165,7 @@ export class PushProxyService {
       ...this.pushSensor.createSensorYaml(availability),
       ...this.pushButton.createButtonYaml(availability),
     ] as Partial<Record<TemplateTypes, { unique_id: string }[]>>[];
+
     if (is.empty(templates)) {
       return undefined;
     }
@@ -181,13 +182,13 @@ export class PushProxyService {
       }
       // * flatten everything into a single folder, and write files
       // TODO: is there a better way of structuring things so it can be base/{key}/...files?
-      data[key].forEach(fileData =>
+      data[key].forEach(fileData => {
         writeFileSync(
           join(base, `${fileData.unique_id}.yaml`),
           dump(data),
           "utf8",
-        ),
-      );
+        );
+      });
     });
     // * these come in as a flat list
     return `template: !include_dir_list ./${folder}`;
