@@ -62,8 +62,12 @@ export class FetchService {
    * Resolve url provided in args into a full path w/ domain
    */
   public fetchCreateUrl({ rawUrl, url, ...fetchWith }: FetchWith): string {
-    let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
-    if (/*fetchWith.control || */ fetchWith.params) {
+    let out = url;
+    if (!rawUrl) {
+      const base = fetchWith.baseUrl || this.BASE_URL;
+      out = base + url;
+    }
+    if (!is.empty(fetchWith.params)) {
       out = `${out}?${this.buildFilterString(fetchWith)}`;
     }
     return out;

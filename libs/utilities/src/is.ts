@@ -2,6 +2,17 @@ import deepEqual from "deep-equal";
 
 import { EMPTY, EVEN, START } from "./utilities";
 
+type MaybeEmptyTypes =
+  | string
+  | Array<unknown>
+  | Set<unknown>
+  | Map<unknown, unknown>
+  | object;
+
+type MaybeFunction = (
+  ...parameters: unknown[]
+) => unknown | void | Promise<unknown | void>;
+
 // TODO: declaration merging to allow other libs to create definitions here
 /**
  * type testing and basic conversion tools
@@ -19,14 +30,7 @@ export class DigitalAlchemyIs {
     return test instanceof Date;
   }
 
-  public empty(
-    type:
-      | string
-      | Array<unknown>
-      | Set<unknown>
-      | Map<unknown, unknown>
-      | object,
-  ): boolean {
+  public empty(type: MaybeEmptyTypes): boolean {
     if (is.string(type) || is.array(type)) {
       return type.length === EMPTY;
     }
@@ -50,11 +54,7 @@ export class DigitalAlchemyIs {
     return test % EVEN === EMPTY;
   }
 
-  public function<
-    T extends (
-      ...parameters: unknown[]
-    ) => unknown | void | Promise<unknown | void>,
-  >(test: unknown): test is T {
+  public function<T extends MaybeFunction>(test: unknown): test is T {
     return typeof test === "function";
   }
 

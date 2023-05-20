@@ -1,3 +1,4 @@
+import { FetchWith } from "@digital-alchemy/utilities";
 import {
   IsBoolean,
   IsOptional,
@@ -47,7 +48,16 @@ export class BaseConfig {
 export const SwitchConfig = BaseConfig;
 export const ButtonConfig = BaseConfig;
 export type SwitchConfig = BaseConfig;
-export type ButtonConfig = BaseConfig;
+export type ButtonConfig = BaseConfig & {
+  /**
+   * **Note:** Default operation causes button to bind to a `@TemplateButton` annotation.
+   * Providing this value will break annotation functionality.
+   *
+   * Cause the button to send a http request to a custom target.
+   * Urls will attempt to generate in a way that resolves to this application, using `ADMIN_KEY` based auth, unless overridden
+   */
+  target?: FetchWith;
+};
 
 export class GenerateEntities {
   /**
