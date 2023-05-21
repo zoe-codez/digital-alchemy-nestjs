@@ -10,7 +10,6 @@ import {
 } from "@digital-alchemy/server";
 import { FetchWith, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { get } from "object-path";
 
 import { TALK_BACK_BASE_URL } from "../../config";
 import { TemplateButtonCommandId } from "../../decorators";
@@ -49,16 +48,12 @@ export class TalkBackService {
   private readonly authHeaders: Record<string, string>;
 
   public createButtonRest(buttons: PICK_GENERATED_ENTITY<"button">[]) {
-    // hello world
-    // doing a thing
-    // this.pushButton.announce(buttons[0]);asdf
     return Object.fromEntries(
       buttons.map(key => {
-        const targetPath = ["button", key, "target"];
-        const buttonCustomTarget: FetchWith = get(
-          this.configuration.generate_entities,
-          targetPath,
-        );
+        const [, idPart] = key.split(".");
+        const buttonCustomTarget =
+          this.configuration.generate_entities.button[idPart]?.target;
+
         const id = TemplateButtonCommandId(this.application, key);
         const baseGeneratedUrl = `${this.baseUrl}/talk-back/button-press/${key}`;
         if (!is.object(buttonCustomTarget)) {

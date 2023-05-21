@@ -8,11 +8,13 @@ import {
 import { MQTTModule } from "@digital-alchemy/mqtt";
 import { ServerModule } from "@digital-alchemy/server";
 
+import { AppController } from "../controllers";
 import { Bedroom, Loft, Office } from "../rooms";
 import { SensorSyncService } from "../services";
 
 @ApplicationModule({
   application: "scene-manager",
+  controllers: [AppController],
   imports: [
     AutomationLogicModule.forRoot({
       global_scenes: { high: true, off: true },
@@ -76,6 +78,12 @@ import { SensorSyncService } from "../services";
           should_sleep: { name: "Should sleep" },
         },
         button: {
+          custom_rest: {
+            name: "Custom rest",
+            target: {
+              url: "/app/custom-rest",
+            },
+          },
           office_focus: {
             name: "Office focus",
           },
