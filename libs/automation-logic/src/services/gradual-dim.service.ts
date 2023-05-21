@@ -11,14 +11,13 @@ import {
 } from "@digital-alchemy/home-assistant";
 import { is, sleep, START } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
-import dayjs from "dayjs";
+import dayjs, { ConfigType } from "dayjs";
 import { nextTick } from "process";
 import { v4 } from "uuid";
 
 import { GRADUAL_DIM_DEFAULT_INTERVAL } from "../config";
 import {
   ANIMATION_INTERRUPT,
-  GradualDimOptions,
   MAX_LED_BRIGHTNESS,
   OFF,
   SCENE_SET_ENTITY,
@@ -26,6 +25,14 @@ import {
 
 const UP = 1;
 const DOWN = -1;
+
+export interface GradualDimOptions {
+  end: ConfigType;
+  entity_id: PICK_ENTITY<"light">;
+  kelvin?: number;
+  stop: () => void;
+  target: number;
+}
 
 @Injectable()
 export class GradualDimService {

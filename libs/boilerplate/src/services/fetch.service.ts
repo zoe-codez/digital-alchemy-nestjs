@@ -62,8 +62,12 @@ export class FetchService {
    * Resolve url provided in args into a full path w/ domain
    */
   public fetchCreateUrl({ rawUrl, url, ...fetchWith }: FetchWith): string {
-    let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
-    if (/*fetchWith.control || */ fetchWith.params) {
+    let out = url;
+    if (!rawUrl) {
+      const base = fetchWith.baseUrl || this.BASE_URL;
+      out = base + url;
+    }
+    if (!is.empty(fetchWith.params)) {
       out = `${out}?${this.buildFilterString(fetchWith)}`;
     }
     return out;
@@ -142,7 +146,7 @@ export class FetchService {
     { process }: FetchWith,
     response: Response,
   ): Promise<T> {
-    if (process === false) {
+    if (process === false || process === "raw") {
       return response as T;
     }
     const text = await response.text();

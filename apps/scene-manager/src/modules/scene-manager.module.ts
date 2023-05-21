@@ -8,10 +8,13 @@ import {
 import { MQTTModule } from "@digital-alchemy/mqtt";
 import { ServerModule } from "@digital-alchemy/server";
 
+import { AppController } from "../controllers";
 import { Bedroom, Loft, Office } from "../rooms";
+import { SensorSyncService } from "../services";
 
 @ApplicationModule({
   application: "scene-manager",
+  controllers: [AppController],
   imports: [
     AutomationLogicModule.forRoot({
       global_scenes: { high: true, off: true },
@@ -74,11 +77,17 @@ import { Bedroom, Loft, Office } from "../rooms";
           is_work: { name: "Is work" },
           should_sleep: { name: "Should sleep" },
         },
-        // button: {
-        //   entity_creation_button: {
-        //     name: "Example button",
-        //   },
-        // },
+        button: {
+          custom_rest: {
+            name: "Custom rest",
+            target: {
+              url: "/app/custom-rest",
+            },
+          },
+          office_focus: {
+            name: "Office focus",
+          },
+        },
         sensor: {
           next_solar_event: {
             name: "Next solar event",
@@ -89,10 +98,12 @@ import { Bedroom, Loft, Office } from "../rooms";
         },
         switch: {
           office_plants: {
+            icon: "mdi:light-flood-down",
             name: "Office plant lights",
             track_history: true,
           },
           windows_open: {
+            icon: "mdi:window-open",
             name: "Window is open",
             track_history: true,
           },
@@ -102,7 +113,7 @@ import { Bedroom, Loft, Office } from "../rooms";
     MQTTModule,
     ServerModule,
   ],
-  providers: [Bedroom, Office, Loft],
+  providers: [Bedroom, Office, Loft, SensorSyncService],
 })
 export class SceneManagerModule {
   constructor(
@@ -117,6 +128,7 @@ export class SceneManagerModule {
   protected onPostInit() {
     setTimeout(async () => {
       await this.config.rebuild();
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     }, 5000);
   }
 }

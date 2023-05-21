@@ -211,7 +211,7 @@ export class EntityManagerService {
       }
       const old = get(oldState, entity.entity_id);
       if (is.equal(old, entity)) {
-        this.logger.trace(`[%s] no change on refresh`, entity.entity_id);
+        this.logger.trace({ name: entity.entity_id }, ` no change on refresh`);
         return;
       }
       nextTick(async () => {
@@ -325,7 +325,7 @@ export class EntityManagerService {
           const current = entityWatchers.get(entity_id) ?? [];
           const item: Watcher<typeof entity_id> = {
             callback: async (...data) => {
-              this.logger.trace({ context }, `[OnEntityUpdate](%s)`, entity_id);
+              this.logger.trace({ context, name: entity_id }, `OnEntityUpdate`);
               await exec(...data);
             },
             id: v4(),

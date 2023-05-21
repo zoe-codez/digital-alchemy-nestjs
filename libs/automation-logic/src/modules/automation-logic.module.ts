@@ -30,7 +30,6 @@ import {
   SequenceActivateService,
   SolarCalcService,
   StateEnforcerService,
-  TransitionRunnerService,
 } from "../services";
 import {
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
@@ -100,11 +99,11 @@ import {
   library: LIB_AUTOMATION_LOGIC,
 })
 export class AutomationLogicModule {
-  public static forRoot(
-    configuration: AutomationLogicModuleConfiguration = {},
+  public static forRoot<CONFIG extends AutomationLogicModuleConfiguration>(
+    configuration?: CONFIG,
   ): DynamicModule {
     return {
-      exports: [CircadianService, SceneRoomService, SolarCalcService],
+      exports: [SolarCalcService],
       global: true,
       imports: [DiscoveryModule, RegisterCache(), MQTTModule],
       module: AutomationLogicModule,
@@ -120,17 +119,16 @@ export class AutomationLogicModule {
         SequenceActivateService,
         SolarCalcService,
         StateEnforcerService,
-        TransitionRunnerService,
         {
           provide: AUTOMATION_LOGIC_MODULE_CONFIGURATION,
-          useValue: configuration,
+          useValue: configuration ?? {},
         },
         {
           inject: [ScannerService],
           provide: ROOM_CONFIG_MAP,
           useFactory: (scanner: ScannerService) => scanner.build(),
         },
-        ...SceneRoomService.buildProviders(configuration),
+        ...SceneRoomService.buildProviders(configuration ?? {}),
       ],
     };
   }

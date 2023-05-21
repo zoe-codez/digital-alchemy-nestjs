@@ -1,21 +1,18 @@
 import { Controller, Injectable } from "@nestjs/common";
+import { ClassConstructor } from "class-transformer";
+import { Get } from "type-fest";
 
-import {
-  ALL_ROOM_NAMES,
-  iSceneRoom,
-  ROOM_SCENES,
-  SCENE_ROOM_OPTIONS,
-  SceneList,
-} from "../types";
+import { RoomConfiguration, SCENE_ROOM_OPTIONS, SceneList } from "../types";
 
 export const ROOM_CONFIG_MAP = "ROOM_CONFIG_MAP";
-export type ROOM_CONFIG_MAP = Map<
-  ALL_ROOM_NAMES,
-  iSceneRoomOptions<ALL_ROOM_NAMES>
->;
+type ALL_ROOM_NAMES = string;
+
+export type ROOM_CONFIG_MAP = Map<ALL_ROOM_NAMES, iSceneRoomOptions>;
+type Config = Record<string, RoomConfiguration>;
 
 export interface iSceneRoomOptions<
-  ROOM_NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES,
+  CONFIG extends Config = Config,
+  ROOM_NAME extends RoomName<CONFIG> = RoomName<CONFIG>,
 > {
   /**
    * Turning on lights without specifying an `rgb_color` will put the light into an automatically circadian mode.
@@ -36,17 +33,23 @@ export interface iSceneRoomOptions<
   /**
    * Scene declarations
    */
-  scenes?: SceneList<ROOM_SCENES<ROOM_NAME>>;
+  scenes?: SceneList<RoomScenes<CONFIG, ROOM_NAME>>;
 }
-// /**
-//  * Describe
-//  */
-// transitions?: SceneTransitionMapping<ROOM_NAME>;
 
-export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
-  options: iSceneRoomOptions<NAME>,
-): ClassDecorator {
-  return function (target: iSceneRoom<NAME>) {
+type RoomName<CONFIG extends Record<string, { scenes?: object }>> = Extract<
+  keyof CONFIG,
+  string
+>;
+type RoomScenes<
+  CONFIG extends Record<string, { scenes?: object }>,
+  NAME extends RoomName<CONFIG>,
+> = Extract<keyof Get<NAME, "scenes">, string>;
+
+export function SceneRoom<
+  CONFIG extends Config = Config,
+  NAME extends RoomName<CONFIG> = RoomName<CONFIG>,
+>(options: iSceneRoomOptions<CONFIG, NAME>): ClassDecorator {
+  return function (target: ClassConstructor<unknown>) {
     SceneRoom.SCENE_ROOM_MAP.set(options.name, options);
     //
     target[SCENE_ROOM_OPTIONS] = options;
@@ -61,7 +64,4 @@ export function SceneRoom<NAME extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
 /**
  * name => provider
  */
-SceneRoom.SCENE_ROOM_MAP = new Map<
-  ALL_ROOM_NAMES,
-  iSceneRoomOptions<ALL_ROOM_NAMES>
->();
+SceneRoom.SCENE_ROOM_MAP = new Map<ALL_ROOM_NAMES, iSceneRoomOptions>();

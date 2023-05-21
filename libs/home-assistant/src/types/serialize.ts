@@ -1,6 +1,6 @@
 import { IsObject, IsString, ValidateNested } from "class-validator";
 
-import { HomeAssistantModuleConfiguration } from "./module";
+import { HomeAssistantModuleConfiguration } from "./generate-entities";
 
 type InjectYamlReturn = {
   root_include: string;
@@ -20,7 +20,7 @@ type StorageWriteBack = {
 };
 
 export type InjectedPushConfig = {
-  storage: () => [name: string, data: StorageWriteBack];
+  storage?: () => [name: string, data: StorageWriteBack];
   yaml: (basePath: string) => InjectYamlReturn;
 };
 

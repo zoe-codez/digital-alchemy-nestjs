@@ -7,7 +7,7 @@ import {
   ButtonConfig,
   SensorConfig,
   SwitchConfig,
-} from "./module";
+} from "./generate-entities";
 
 type generated = typeof MODULE_SETUP.generate_entities;
 

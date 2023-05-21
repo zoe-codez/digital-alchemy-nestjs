@@ -18,6 +18,7 @@ import {
   SensorConfig,
   StorageData,
   SwitchConfig,
+  UPDATE_TRIGGER,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
 
@@ -96,13 +97,13 @@ export class PushEntityService<
     updates: MergeAndEmit<STATE, ATTRIBUTES>,
   ): Promise<void> {
     const data = STORAGE.get(sensor_id);
-    const context = LOG_CONTEXT(sensor_id);
+    const name = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
     // Merge state
     if ("state" in updates && data.state !== updates.state) {
       this.logger.trace(
-        { context, from: data.state, to: updates.state },
+        { from: data.state, name, to: updates.state },
         `update state`,
       );
       data.state = updates.state;
@@ -117,7 +118,7 @@ export class PushEntityService<
         if (matches) {
           return;
         }
-        this.logger.trace({ context, from, to }, `updating attribute`);
+        this.logger.trace({ from, name, to }, `Updating attribute`);
         dirty = true;
       });
     }
@@ -126,7 +127,7 @@ export class PushEntityService<
     if (dirty) {
       STORAGE.set(sensor_id, data);
     } else {
-      this.logger.trace({ context }, `no changes to flush`);
+      this.logger.trace({ name }, `No changes to flush`);
     }
     const friendly_name = get(
       this.configuration.generate_entities,
@@ -140,8 +141,8 @@ export class PushEntityService<
       state: this.cast(data.state as string | number | boolean),
     };
     // Emit to home assistant anyways?
-    await this.fetch.updateEntity(sensor_id, update);
-    // await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
+    // await this.fetch.updateEntity(sensor_id, update);
+    await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
   }
 
   public async generate<
@@ -155,7 +156,7 @@ export class PushEntityService<
     }
     proxyOptions.set(entity, options);
     const context = LOG_CONTEXT(entity);
-    this.logger.info({ context }, `initializing`);
+    this.logger.info({ context }, `Initializing`);
     proxyMap.set(
       entity,
       new Proxy(
@@ -185,7 +186,7 @@ export class PushEntityService<
     entity: NewEntityId<CREATE_DOMAIN>,
     config: GET_CONFIG<CREATE_DOMAIN>,
   ) {
-    this.logger.debug({ config }, `[%s] insert`, entity);
+    this.logger.debug({ config, name: entity }, `Insert`);
     const [domain, id] = generated_entity_split(entity);
     this.configuration.generate_entities[domain] ??= {};
     this.configuration.generate_entities[domain][id] = config;
@@ -249,7 +250,7 @@ export class PushEntityService<
       data.attributes = value.attributes;
       data.state = value.state;
     } else {
-      this.logger.info({ context }, `initial cache populate`);
+      this.logger.info({ context }, `Initial cache populate`);
       await this.cache.set(key, data);
     }
     STORAGE.set(entity, data);

@@ -5,7 +5,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import {
   DOWN,
-  FetchWith,
+  FilteredFetchArguments,
   is,
   NO_CHANGE,
   SECOND,
@@ -115,6 +115,7 @@ export class HassFetchAPIService {
    * Pass through of home assistant's yaml check
    */
   public async checkConfig(): Promise<CheckConfigResult> {
+    this.logger.trace(`Check config`);
     return await this.fetch({
       method: `post`,
       url: `/api/config/core/check_config`,
@@ -123,7 +124,7 @@ export class HassFetchAPIService {
 
   public async download(
     destination: string,
-    fetchWitch: Omit<FetchWith, "baseUrl" | "headers" | "destination">,
+    fetchWitch: FilteredFetchArguments,
   ): Promise<void> {
     return await this.fetchService.download({
       ...fetchWitch,
@@ -133,9 +134,7 @@ export class HassFetchAPIService {
     });
   }
 
-  public async fetch<T>(
-    fetchWitch: Omit<FetchWith, "baseUrl" | "headers">,
-  ): Promise<T> {
+  public async fetch<T>(fetchWitch: FilteredFetchArguments): Promise<T> {
     return await this.fetchService.fetch<T>({
       ...fetchWitch,
       baseUrl: this.baseUrl,
@@ -195,7 +194,7 @@ export class HassFetchAPIService {
     event: string,
     data?: DATA,
   ): Promise<void> {
-    this.logger.debug({ ...data }, `[%s] firing event`, event);
+    this.logger.trace({ name: event, ...data }, `Firing event`);
     const response = await this.fetch<{ message: string }>({
       body: { ...data },
       method: "post",
@@ -212,12 +211,14 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getAllEntities(): Promise<GenericEntityDTO[]> {
+    this.logger.trace(`Get all entities`);
     return await this.fetch<GenericEntityDTO[]>({
       url: `/api/states`,
     });
   }
 
   public async getConfig(): Promise<HassConfig> {
+    this.logger.trace(`Get config`);
     return await this.fetch({
       url: `/api/config`,
     });
@@ -229,6 +230,7 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
+    this.logger.trace(`Get logs`);
     const results = await this.fetch<HomeAssistantServerLogItem[]>({
       url: `/api/error/all`,
     });
@@ -245,6 +247,7 @@ export class HassFetchAPIService {
    * Correct timestamps for javascript-ness
    */
   public async getRawLogs(): Promise<string> {
+    this.logger.trace(`Get raw logs`);
     return await this.fetch<string>({
       process: "text",
       url: `/api/error_log`,
@@ -252,6 +255,7 @@ export class HassFetchAPIService {
   }
 
   public async listServices(): Promise<HassServiceDTO[]> {
+    this.logger.trace(`List services`);
     return await this.fetch<HassServiceDTO[]>({
       url: `/api/services`,
     });
@@ -271,6 +275,7 @@ export class HassFetchAPIService {
     if (!is.empty(attributes)) {
       body.attributes = attributes;
     }
+    this.logger.trace({ ...body, name: entity_id }, `Set entity state`);
     return await this.fetch({
       body,
       method: "post",
@@ -278,13 +283,13 @@ export class HassFetchAPIService {
     });
   }
 
-  public async webhook(id: string, data: object = {}): Promise<void> {
-    this.logger.trace({ data, id }, `webhook`);
+  public async webhook(name: string, data: object = {}): Promise<void> {
+    this.logger.trace({ ...data, name }, `Webhook`);
     await this.fetch({
       body: data,
       method: "post",
       process: "text",
-      url: `/api/webhook/${id}`,
+      url: `/api/webhook/${name}`,
     });
   }
 }

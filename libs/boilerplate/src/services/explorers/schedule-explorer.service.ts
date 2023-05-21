@@ -28,7 +28,7 @@ export class ScheduleExplorerService {
         schedules.forEach(schedule => {
           this.logger.debug({ context }, ` - {%s}`, schedule);
           const cronJob = new CronJob(schedule, async () => {
-            this.logger.trace({ context }, `Cron {%s}`, schedule);
+            this.logger.trace({ context }, `cron {%s}`, schedule);
             await exec();
           });
           cronJob.start();

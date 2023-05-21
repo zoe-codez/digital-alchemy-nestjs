@@ -1,5 +1,6 @@
-import { OnSceneChange, SceneRoom } from "@digital-alchemy/automation-logic";
+import { SceneRoom } from "@digital-alchemy/automation-logic";
 import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { OnEntityUpdate } from "@digital-alchemy/home-assistant";
 
 @SceneRoom({
   name: "loft",
@@ -11,13 +12,8 @@ import { AutoLogService } from "@digital-alchemy/boilerplate";
 export class Loft {
   constructor(private readonly logger: AutoLogService) {}
 
-  @OnSceneChange("loft")
+  @OnEntityUpdate("scene.loft_current_scene")
   protected onLoftSceneChange() {
     this.logger.info("On loft scene change");
-  }
-
-  @OnSceneChange({ room: "loft", target_scene: "off" })
-  protected onLoftTurnOff() {
-    this.logger.info("On loft scene change => off");
   }
 }

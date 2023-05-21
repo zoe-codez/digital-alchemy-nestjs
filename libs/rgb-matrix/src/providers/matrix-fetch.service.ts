@@ -1,5 +1,5 @@
 import { FetchService, InjectConfig } from "@digital-alchemy/boilerplate";
-import { FetchArguments } from "@digital-alchemy/utilities";
+import { FilteredFetchArguments } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { PI_MATRIX_BASE_URL, PI_MATRIX_KEY } from "../config";
@@ -49,9 +49,7 @@ export class MatrixFetch {
     }
   }
 
-  public async fetch<VALUE>(
-    fetchWith: Omit<FetchArguments, "baseUrl">,
-  ): Promise<VALUE> {
+  public async fetch<VALUE>(fetchWith: FilteredFetchArguments): Promise<VALUE> {
     return await this.fetchService.fetch({
       ...fetchWith,
       baseUrl: this.baseUrl,

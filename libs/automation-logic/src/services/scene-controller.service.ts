@@ -2,14 +2,10 @@ import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
-  ModuleScannerService,
-  ScannerBinding,
 } from "@digital-alchemy/boilerplate";
 import {
   GET_ATTRIBUTE_TEMPLATE,
-  iCallService,
   Icon,
-  InjectCallProxy,
   NewEntityId,
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
@@ -26,16 +22,8 @@ import { join } from "path";
 
 import { MQTT_TOPIC_PREFIX } from "../config";
 import {
-  OnSceneChange,
-  OnSceneChangeOptions,
-  ROOM_CONFIG_MAP,
-} from "../decorators";
-import {
-  ALL_GLOBAL_SCENES,
-  ALL_ROOM_NAMES,
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
   AutomationLogicModuleConfiguration,
-  ROOM_SCENES,
 } from "../types";
 import { MQTTHealth } from "./mqtt-health.service";
 import { SceneRoomService } from "./scene-room.service";
@@ -43,11 +31,10 @@ import { SceneRoomService } from "./scene-room.service";
 const icon: Icon = undefined;
 
 const currentScenes = new Map<
-  ALL_ROOM_NAMES,
+  string,
   PUSH_PROXY<PICK_GENERATED_ENTITY<"sensor">>
 >();
-const bindings: ScannerBinding<OnSceneChangeOptions>[] = [];
-const setProxy = new Map<ALL_ROOM_NAMES, SceneRoomService<ALL_ROOM_NAMES>>();
+const setProxy = new Map<string, SceneRoomService>();
 
 @Injectable()
 export class SceneControllerService {
@@ -58,74 +45,37 @@ export class SceneControllerService {
     private readonly mqtt: MqttService,
     private readonly pushEntity: PushEntityService,
     private readonly pushProxy: PushProxyService,
-    private readonly scanner: ModuleScannerService,
-    @InjectCallProxy()
-    private readonly call: iCallService,
     @Inject(AUTOMATION_LOGIC_MODULE_CONFIGURATION)
     private readonly configuration: AutomationLogicModuleConfiguration,
     @InjectConfig(MQTT_TOPIC_PREFIX)
     private readonly prefix: string,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
-    @Inject(ROOM_CONFIG_MAP)
-    private readonly roomConfiguration: ROOM_CONFIG_MAP,
   ) {}
 
-  public currentScene(room: ALL_ROOM_NAMES) {
+  public currentScene(room: string) {
     return currentScenes.get(room);
   }
 
-  /**
-   * Set a common scene across multiple rooms.
-   * Limited to global scenes
-   */
-  public globalSet(
-    scene: ALL_GLOBAL_SCENES,
-    options?: { include: ALL_ROOM_NAMES[] } | { exclude: ALL_ROOM_NAMES[] },
-  ): void {
-    const exclude =
-      is.object(options) && "exclude" in options ? options.exclude : [];
-    const rooms =
-      is.object(options) && "include" in options
-        ? options.include
-        : [...setProxy.keys()].filter(i => !exclude.includes(i));
-    rooms.forEach(room => setProxy.get(room).set(scene));
-  }
-
-  public onSceneChange<ROOM extends ALL_ROOM_NAMES = ALL_ROOM_NAMES>(
-    room: ROOM,
-    scene: ROOM_SCENES<ROOM>,
-    name: string,
-  ): void {
+  public onSceneChange(room: string, scene: string, name: string): void {
     const target = currentScenes.get(room);
     target.state = name;
     target.attributes.scene = scene;
   }
 
-  public register(
-    room: ALL_ROOM_NAMES,
-    setter: SceneRoomService<ALL_ROOM_NAMES>,
-  ): void {
-    this.logger.warn(`[%s] register`, room);
-    setProxy.set(room, setter);
+  public register(name: string, setter: SceneRoomService): void {
+    this.logger.debug({ name }, `Register`);
+    setProxy.set(name, setter);
   }
 
   protected async onModuleInit(): Promise<void> {
     this.addPlugin();
-    this.scanForOnSceneChange();
     await this.findRooms();
   }
 
   private addPlugin(): void {
     const name = "scene_controller";
     this.config.LOCAL_PLUGINS.set(name, {
-      storage: () => [
-        name,
-        {
-          target: join(__dirname, "..", "dynamic.d.ts"),
-          typesData: this.generateTypes(),
-        },
-      ],
       yaml: (base: string) => {
         const { room_configuration } = this.configuration;
         if (is.empty(room_configuration)) {
@@ -173,9 +123,9 @@ export class SceneControllerService {
   private async findRooms(): Promise<void> {
     const { room_configuration } = this.configuration;
     const rooms = Object.keys(room_configuration ?? {});
-    await each(rooms, async (name: ALL_ROOM_NAMES) => {
+    await each(rooms, async (name: string) => {
       const room = room_configuration[name];
-      this.logger.info(`[%s] init room`, room?.name ?? name);
+      this.logger.info({ name: room?.name ?? name }, `Init room`);
       // * current scene sensor
       const id = `sensor.${name}_current_scene` as NewEntityId<"sensor">;
       this.pushEntity.insert(id, {
@@ -201,34 +151,11 @@ export class SceneControllerService {
             `${this.prefix}/${this.application}/room-scene/${name}/${id}`,
             () => {
               this.logger.debug({ id, name }, "[%s] scene set", fullName);
-              setProxy.get(name).set(id as ROOM_SCENES<typeof name>);
+              setProxy.get(name).set(id);
             },
           );
         });
       }
     });
-  }
-
-  private generateTypes(): string {
-    return [
-      `export const MODULE_CONFIGURATION = ${JSON.stringify(
-        this.configuration,
-        undefined,
-        "  ",
-      )};`,
-      `export const ROOM_MAPPINGS = ${JSON.stringify(
-        Object.fromEntries(this.roomConfiguration.entries()),
-        undefined,
-        "  ",
-      )};`,
-    ].join(`\n`);
-  }
-
-  private scanForOnSceneChange(): void {
-    this.logger.info(`[@OnSceneChange] binding`);
-    this.scanner.bindMethodDecorator<OnSceneChangeOptions>(
-      OnSceneChange,
-      binding => bindings.push(binding),
-    );
   }
 }

@@ -1,3 +1,5 @@
+import { MergeExclusive } from "type-fest";
+
 import { is } from "./is";
 
 export type FetchParameterTypes =
@@ -11,34 +13,23 @@ export enum HTTP_METHODS {
   get = "get",
   delete = "delete",
   put = "put",
-  head = "head",
-  options = "options",
   patch = "patch",
-  index = "index",
   post = "post",
 }
-export type FetchWith<
-  T extends Record<never, string> = Record<never, string>,
-  BODY extends unknown = unknown,
-> = Partial<FetchArguments<BODY>> & T;
 
-export type FetchArguments<BODY extends unknown = unknown> = {
-  /**
-   * Frequently filled in by wrapper services
-   */
-  baseUrl?: string;
-  /**
-   * POSTDATA
-   */
-  body?: BODY;
+type NoBodyMethods = "get" | "delete";
+type BodyMethods = "put" | "patch" | "post";
+
+export type FetchWith<
+  EXTRA extends Record<never, string> = Record<never, string>,
+  BODY extends unknown = unknown,
+> = Partial<FetchArguments<BODY>> & EXTRA;
+
+type BaseFetchArguments = {
   /**
    * Headers to append
    */
   headers?: Record<string, unknown>;
-  /**
-   * HTTP method
-   */
-  method?: `${HTTP_METHODS}`;
   /**
    * Query params to send
    */
@@ -46,22 +37,64 @@ export type FetchArguments<BODY extends unknown = unknown> = {
   /**
    * Built in post-processing
    *
-   * - true = attempt to decode as json
-   * - false = return the node-fetch response object without processing
-   * - 'text' = return result as text, no additional processing
-   */
-  process?: boolean | "text";
-  /**
-   * URL is the full path (includes http://...)
+   * - true / "json" = attempt to decode as json
+   * - false / "raw" = return the node-fetch response object without processing
+   * - "text" = return result as text, no additional processing
    *
-   * Ignores baseUrl if set
+   * ? boolean values are deprecated
    */
-  rawUrl?: boolean;
+  process?: boolean | "text" | "json" | "raw";
+};
+
+type BaseFetchUrl = {
   /**
    * URL to send request to
    */
   url: string;
-};
+} & MergeExclusive<
+  {
+    /**
+     * Frequently filled in by wrapper services
+     */
+    baseUrl?: string;
+  },
+  {
+    /**
+     * URL is the full path (includes http://...)
+     *
+     * Ignores baseUrl if set
+     */
+    rawUrl?: boolean;
+  }
+>;
+
+type BaseFetchBody<BODY extends unknown = unknown> = MergeExclusive<
+  {
+    /**
+     * POSTDATA
+     */
+    body?: BODY;
+    /**
+     * HTTP method
+     */
+    method: BodyMethods;
+  },
+  {
+    /**
+     * HTTP method
+     */
+    method?: NoBodyMethods;
+  }
+>;
+
+export type FetchArguments<BODY extends unknown = unknown> = BaseFetchUrl &
+  BaseFetchArguments &
+  BaseFetchBody<BODY>;
+
+export type FilteredFetchArguments<BODY extends unknown = unknown> =
+  BaseFetchBody<BODY> &
+    Pick<BaseFetchUrl, "url"> &
+    Pick<BaseFetchArguments, "process" | "params">;
 
 /**
  * Same thing as FetchWith, but the function doesn't need any args

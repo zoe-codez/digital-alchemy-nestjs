@@ -43,6 +43,15 @@ export class PushButtonService {
     AnnotationPassThrough
   >();
 
+  private get restKeys() {
+    const { button = {} } = this.configuration.generate_entities;
+    const withTarget = Object.keys(button)
+      .filter(key => is.object(button[key].target))
+      .map(i => `button.${i}` as PICK_GENERATED_ENTITY<"button">);
+    // ? de-duplicate
+    return is.unique([...this.passthrough.keys(), ...withTarget]);
+  }
+
   public announce(id: PICK_GENERATED_ENTITY<"button">): void {
     const callback = this.passthrough.get(id);
     if (!callback) {
@@ -55,15 +64,12 @@ export class PushButtonService {
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml[] {
-    return [
-      ...(is.empty(entity_id) ? [...this.passthrough.keys()] : [entity_id]),
-    ].map(entity_id => {
-      return this.createYaml(availability, entity_id);
-    });
+    const ids = is.empty(entity_id) ? this.restKeys : [entity_id];
+    return ids.map(entity_id => this.createYaml(availability, entity_id));
   }
 
   public restCommands() {
-    return this.talkBack.createButtonRest([...this.passthrough.keys()]);
+    return this.talkBack.createButtonRest(this.restKeys);
   }
 
   protected onModuleInit(): void {
@@ -76,7 +82,7 @@ export class PushButtonService {
   ): ButtonTemplateYaml {
     const config = get(this.configuration.generate_entities, entity_id);
     if (!config) {
-      this.logger.error(`[%s] could not load configuration`, entity_id);
+      this.logger.error({ name: entity_id }, `could not load configuration`);
       return { button: [] };
     }
     const button = {
