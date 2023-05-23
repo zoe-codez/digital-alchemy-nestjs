@@ -1,7 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import {
   LOCATION_UPDATED,
-  refTimes,
   SolarCalcService,
   SolarEvent,
   SolarEvents,
@@ -15,6 +14,7 @@ import {
 import {
   CronExpression,
   DOWN,
+  is,
   TitleCase,
   UP,
 } from "@digital-alchemy/utilities";
@@ -86,17 +86,17 @@ export class SensorSyncService {
   @Cron(CronExpression.EVERY_5_MINUTES)
   @OnEvent({ events: [SOCKET_READY, LOCATION_UPDATED] })
   protected async onDayPhaseUpdate(): Promise<void> {
-    const now = dayjs();
     const calc = await this.calc.getCalc();
-    const [AM11, PM6, EOD, PM945, AM830, PM3, AM7, PM11] = refTimes([
-      "11",
-      "18",
-      "24",
-      "21:45",
-      "08:30",
-      "15",
-      "07",
-      "23",
+    const [now, AM11, PM6, EOD, PM945, AM830, PM3, AM7, PM11] = is.shortTime([
+      "NOW",
+      "AM11",
+      "PM6",
+      "TOMORROW",
+      "PM9:45",
+      "AM8:30",
+      "PM3",
+      "AM7",
+      "PM11",
     ]);
 
     this.isAfternoon.state = now.isAfter(AM11) && now.isBefore(PM6);

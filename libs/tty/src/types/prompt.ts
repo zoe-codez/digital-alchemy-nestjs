@@ -11,8 +11,8 @@ export type PromptMenuItems<T extends unknown = string> = {
 
 declare module "@digital-alchemy/utilities" {
   export interface DigitalAlchemyIs {
-    GV: <T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>) => T;
-    searchEnabled: (options: MenuSearchOptions) => boolean;
+    GV<T = string>(item: { entry: PromptEntry<T> } | PromptEntry<T>): T;
+    searchEnabled(options: MenuSearchOptions): boolean;
   }
 }
 /**

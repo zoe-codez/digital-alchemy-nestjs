@@ -1,7 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import {
   DeterministicSwitch,
-  refTimes,
   SCENE_CHANGE,
   SceneRoom,
   SolarCalcService,
@@ -20,6 +19,7 @@ import {
   InjectEntityProxy,
   TemplateButton,
 } from "@digital-alchemy/home-assistant";
+import { is } from "@digital-alchemy/utilities";
 import dayjs from "dayjs";
 
 @SceneRoom({
@@ -82,7 +82,7 @@ export class Office {
     if (!this.solar.between("sunrise", "sunset")) {
       return false;
     }
-    const [PM3] = refTimes(["15"]);
+    const [PM3] = is.shortTime(["PM3"]);
     if (dayjs().isBefore(PM3)) {
       return true;
     }
