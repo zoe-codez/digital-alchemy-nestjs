@@ -6,6 +6,7 @@ import {
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
   DEFAULT_APPLICATION_IDENTIFIER,
+  HEALTH_CHECK_INTERVAL,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   LIB_HOME_ASSISTANT,
   RENDER_TIMEOUT,
@@ -105,6 +106,11 @@ import {
       default: 500,
       description:
         "Socket service will commit sudoku if more than this many outgoing messages are sent to Home Assistant in a second. Usually indicates runaway code.",
+      type: "number",
+    },
+    [HEALTH_CHECK_INTERVAL]: {
+      default: 10_000,
+      description: "How often to send application health check messages (ms)",
       type: "number",
     },
     [HOME_ASSISTANT_PACKAGE_FOLDER]: {

@@ -1,8 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import {
-  ACTIVE_APPLICATION,
-  AutoLogService,
-} from "@digital-alchemy/boilerplate";
+import { ACTIVE_APPLICATION } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 
@@ -22,7 +19,6 @@ export class PushSensorService {
   constructor(
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
-    private readonly logger: AutoLogService,
     private readonly pushEntity: PushEntityService<"sensor">,
   ) {}
 

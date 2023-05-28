@@ -48,6 +48,9 @@ export class BaseConfig {
 export const SwitchConfig = BaseConfig;
 export const ButtonConfig = BaseConfig;
 export type SwitchConfig = BaseConfig;
+export type InputSelectConfig = BaseConfig & {
+  options: string[];
+};
 export type ButtonConfig = BaseConfig & {
   /**
    * **Note:** Default operation causes button to bind to a `@TemplateButton` annotation.
@@ -75,9 +78,15 @@ export class GenerateEntities {
   @IsOptional()
   public button?: Record<string, ButtonConfig>;
   /**
+   * Select
+   */
+  @ValidateNested()
+  @IsOptional()
+  public input_select?: Record<string, InputSelectConfig>;
+  /**
    * Binary sensors will not be created unless they are also injected.
    *
-   * Use `@InjectPushEntity` + `
+   * Use `@InjectPushEntity`
    */
   @ValidateNested()
   @IsOptional()

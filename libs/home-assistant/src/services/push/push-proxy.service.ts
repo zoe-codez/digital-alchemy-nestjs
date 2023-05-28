@@ -1,8 +1,4 @@
-import {
-  ACTIVE_APPLICATION,
-  AutoLogService,
-  CacheService,
-} from "@digital-alchemy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 import { mkdirSync, writeFileSync } from "fs";
@@ -20,6 +16,8 @@ import {
 } from "../../types";
 import { PushBinarySensorService } from "./push-binary-sensor.service";
 import { PushButtonService } from "./push-button.service";
+import { PushEntityService } from "./push-entity.service";
+import { PushSelectService } from "./push-select.service";
 import { PushSensorService } from "./push-sensor.service";
 import { PushSwitchService } from "./push-switch.service";
 
@@ -36,20 +34,18 @@ type ProxyEntity = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
 export class PushProxyService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
-    @Inject(ACTIVE_APPLICATION)
-    private readonly application: string,
     private readonly pushButton: PushButtonService,
     private readonly pushSensor: PushSensorService,
+    private readonly pushSelect: PushSelectService,
+    private readonly pushEntity: PushEntityService,
     private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
   ) {}
 
   public applicationYaml(packageFolder: string): string {
-    const app = this.application.replaceAll("-", "_");
-    const availability = `{{ is_state("binary_sensor.${app}_online", "on") }}`;
+    const availability = `{{ is_state("${this.pushEntity.onlineId}", "on") }}`;
 
     return [
       // Rest commands always available, let them fail
@@ -64,9 +60,6 @@ export class PushProxyService {
   public async createPushProxy<ENTITY extends ProxyEntity = ProxyEntity>(
     entity: ENTITY,
   ): Promise<PUSH_PROXY<ENTITY>> {
-    if (isGeneratedDomain(entity, "switch")) {
-      return (await this.pushSwitch.createProxy(entity)) as PUSH_PROXY<ENTITY>;
-    }
     if (isGeneratedDomain(entity, "sensor")) {
       return (await this.pushSensor.createProxy(entity)) as PUSH_PROXY<ENTITY>;
     }

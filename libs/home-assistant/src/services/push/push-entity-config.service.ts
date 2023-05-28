@@ -12,8 +12,7 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import {
-  APPLICATION_IDENTIFIER,
-  DEFAULT_APPLICATION_IDENTIFIER,
+  HEALTH_CHECK_INTERVAL,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   VERIFICATION_FILE,
 } from "../../config";
@@ -34,7 +33,6 @@ import { PushProxyService } from "./push-proxy.service";
  * Stored as mildly obfuscated
  */
 const boot = dayjs();
-const HEALTH_CHECK_INTERVAL = 10;
 
 /**
  * Functionality for managing a particular application's push entity configuration within Home Assistant.
@@ -51,20 +49,16 @@ export class PushEntityConfigService {
     private readonly application: string,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
-    @InjectConfig(APPLICATION_IDENTIFIER)
-    private readonly applicationIdentifier: string,
     @InjectConfig(VERIFICATION_FILE)
     private readonly verificationFile: string,
+    @InjectConfig(HEALTH_CHECK_INTERVAL)
+    private readonly healthCheckInterval: number,
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
     private readonly pushProxy: PushProxyService,
     private readonly pushEntity: PushEntityService,
     private readonly compression: CompressionService,
-  ) {
-    if (this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER) {
-      this.applicationIdentifier = this.application.replaceAll("-", "_");
-    }
-  }
+  ) {}
 
   /**
    * Mapping between mount points and extra data.
@@ -80,37 +74,16 @@ export class PushEntityConfigService {
   /**
    * ID will be different
    */
-  private lastBuildDate: PUSH_PROXY<"sensor.last_build_date">;
-  /**
-   * ID will be different
-   */
   private uptimeProxy: PUSH_PROXY<"sensor.online">;
 
   private get appRoot() {
-    return join(this.targetFolder, this.applicationIdentifier);
-  }
-
-  public async rebuild(): Promise<void> {
-    await this.dumpConfiguration();
-    await this.verifyYaml();
-  }
-
-  protected async onModuleInit() {
-    await this.initialize();
-
-    setInterval(() => {
-      this.sendHealthCheck();
-    }, HEALTH_CHECK_INTERVAL * SECOND);
-
-    setTimeout(() => {
-      this.checkUtilization();
-    }, SECOND);
+    return join(this.targetFolder, this.pushEntity.identifier);
   }
 
   /**
    * These entities won't have YAML generated.
    */
-  private checkUtilization() {
+  public checkUtilization() {
     const domains: PUSH_PROXY_DOMAINS[] = ["binary_sensor", "sensor"];
     domains.forEach(domain => {
       const entities = this.configuration.generate_entities[domain] ?? {};
@@ -122,6 +95,21 @@ export class PushEntityConfigService {
         }
       });
     });
+  }
+
+  public async rebuild(): Promise<void> {
+    await this.dumpConfiguration();
+    await this.verifyYaml();
+  }
+
+  protected async onModuleInit() {
+    await this.initialize();
+
+    setInterval(() => this.sendHealthCheck(), this.healthCheckInterval);
+  }
+
+  protected onPostInit(): void {
+    setTimeout(() => this.checkUtilization(), SECOND);
   }
 
   private async cleanup(): Promise<boolean> {
@@ -167,10 +155,7 @@ export class PushEntityConfigService {
   private async initOnline() {
     const initSwitches = this.configuration?.generate_entities?.switch ?? {};
     // * `binary_sensor.{app}_online`
-    const online_id = `binary_sensor.${this.application.replace(
-      "-",
-      "_",
-    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
+    const online_id = this.pushEntity.onlineId;
     const switchAttributes = Object.keys(initSwitches).map(name => {
       return [name, `{{ trigger.json.attributes.${name} }}`];
     });
@@ -184,9 +169,7 @@ export class PushEntityConfigService {
        * The delay_off manages the available for all the other connected entities
        */
       availability: "1",
-      delay_off: {
-        seconds: 30,
-      },
+      delay_off: { seconds: 30 },
       name: `${TitleCase(this.application)} Online`,
       track_history: true,
     });
@@ -239,16 +222,6 @@ export class PushEntityConfigService {
    */
   private async initialize() {
     await this.initOnline();
-    // * `sensor.{app}_last_build`
-    const last_build_id = `sensor.${this.application.replace(
-      "-",
-      "_",
-    )}_last_build` as PICK_GENERATED_ENTITY<"sensor">;
-    this.pushEntity.insert(last_build_id, {
-      device_class: "timestamp",
-      name: `${TitleCase(this.application)} Last Config Build`,
-    });
-    this.lastBuildDate = await this.pushProxy.createPushProxy(last_build_id);
 
     // *  `sensor.{app}_uptime`
     const uptime_id = `sensor.${this.application.replace(

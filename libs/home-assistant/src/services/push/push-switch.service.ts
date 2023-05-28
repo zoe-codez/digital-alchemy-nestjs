@@ -99,34 +99,27 @@ export class PushSwitchService {
     const { config } = storage.get(entity_id);
     const [, id] = generated_entity_split(entity_id);
     const sensor = {
+      availability_template: availability,
       friendly_name: config.name,
       icon_template: config.icon,
+      turn_off: {
+        service:
+          "rest_command." +
+          TemplateButtonCommandId(this.application, entity_id) +
+          "_off",
+      },
+      turn_on: {
+        service:
+          "rest_command." +
+          TemplateButtonCommandId(this.application, entity_id) +
+          "_on",
+      },
+      unique_id: `digital_alchemy_switch_${id}`,
+      value_template: `{{ is_state_attr('${this.pushEntity.onlineId}', '${id}','on') }}`,
     } as SwitchTemplateYaml;
-    sensor.unique_id = "digital_alchemy_switch_" + is.hash(entity_id);
-    sensor.availability_template = availability;
     this.attributes.set(entity_id, {
-      // availability_template: availability,
       friendly_name: config.name,
-      // icon_template: config.icon,
     });
-    // switches must obey the availability of the service hosting them
-    const online_id = `binary_sensor.${this.application.replace(
-      "-",
-      "_",
-    )}_online` as PICK_GENERATED_ENTITY<"binary_sensor">;
-    sensor.value_template = `{{ is_state_attr('${online_id}', '${id}','on') }}`;
-    sensor.turn_on = {
-      service:
-        "rest_command." +
-        TemplateButtonCommandId(this.application, entity_id) +
-        "_on",
-    };
-    sensor.turn_off = {
-      service:
-        "rest_command." +
-        TemplateButtonCommandId(this.application, entity_id) +
-        "_off",
-    };
     return sensor;
   }
 }

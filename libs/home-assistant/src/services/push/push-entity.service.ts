@@ -1,9 +1,18 @@
-import { AutoLogService, CacheService } from "@digital-alchemy/boilerplate";
+import {
+  ACTIVE_APPLICATION,
+  AutoLogService,
+  CacheService,
+  InjectConfig,
+} from "@digital-alchemy/boilerplate";
 import { is, TitleCase } from "@digital-alchemy/utilities";
 import { Inject, Injectable } from "@nestjs/common";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 
+import {
+  APPLICATION_IDENTIFIER,
+  DEFAULT_APPLICATION_IDENTIFIER,
+} from "../../config";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
   BinarySensorConfig,
@@ -79,8 +88,22 @@ export class PushEntityService<
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
+    @Inject(ACTIVE_APPLICATION)
+    private readonly application: string,
+    @InjectConfig(APPLICATION_IDENTIFIER)
+    private readonly applicationIdentifier: string,
   ) {
     configuration.generate_entities ??= {};
+    this.identifier =
+      this.applicationIdentifier === DEFAULT_APPLICATION_IDENTIFIER
+        ? this.application.replace("-", "_")
+        : this.applicationIdentifier;
+  }
+
+  public readonly identifier: string;
+
+  public get onlineId(): PICK_GENERATED_ENTITY<"binary_sensor"> {
+    return `binary_sensor.${this.identifier}_online`;
   }
 
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {

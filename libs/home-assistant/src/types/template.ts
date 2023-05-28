@@ -43,10 +43,17 @@ export type NumberTemplate = Base & {
   step: Template;
 };
 
-export type SelectTemplate = Base & {
+/**
+ * Currently limited to plain list of strings as options due to . See:
+ *
+ * ~ https://community.home-assistant.io/t/input-select-enhancement-support-mapping/94391/13
+ * ~ https://community.home-assistant.io/t/select-helper-with-label-and-values/467301
+ */
+export type InputSelectTemplate = Base & {
   optimistic?: boolean;
-  options: Template;
+  options: string[];
   select_action: Action;
+  select_option: string;
   state: Template;
 };
 
@@ -61,6 +68,9 @@ export type SensorTemplateYaml = {
 
 export type ButtonTemplateYaml = {
   button: ButtonTemplate[];
+};
+export type InputSelectTemplateYaml = {
+  select: InputSelectTemplate[];
 };
 
 export type BinarySensorTemplateYaml = {
@@ -84,7 +94,7 @@ export type TemplateYaml =
   | BinarySensorTemplateYaml
   | SwitchTemplateYaml
   | ButtonTemplateYaml
-  | SelectTemplate
+  | InputSelectTemplateYaml
   | NumberTemplate;
 //
 

@@ -5,6 +5,7 @@ import { ENTITY_SETUP, iCallService, MODULE_SETUP } from "../dynamic";
 import {
   BinarySensorConfig,
   ButtonConfig,
+  InputSelectConfig,
   SensorConfig,
   SwitchConfig,
 } from "./generate-entities";
@@ -93,9 +94,13 @@ type BinarySensorProxy = {
   attributes: Record<string, unknown>;
   state: boolean;
 };
+type InputSelectProxy = {
+  state: string;
+};
 
 export enum PushProxyDomains {
   switch = "switch",
+  input_select = "input_select",
   sensor = "sensor",
   binary_sensor = "binary_sensor",
 }
@@ -109,6 +114,7 @@ export type PUSH_PROXY<
   ENTITY extends PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
 > = {
   binary_sensor: BinarySensorProxy;
+  input_select: InputSelectProxy;
   sensor: SensorProxy;
   switch: SwitchProxy;
 }[GetDomain<ENTITY>];
@@ -170,6 +176,7 @@ export type GetDomain<ENTITY extends PICK_ENTITY | PICK_GENERATED_ENTITY> =
 export type ConfigDomainMap = {
   binary_sensor: BinarySensorConfig;
   button: ButtonConfig;
+  input_select: InputSelectConfig;
   sensor: SensorConfig;
   switch: SwitchConfig;
 };
