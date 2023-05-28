@@ -1,5 +1,4 @@
 import {
-  ACTIVE_APPLICATION,
   AnnotationPassThrough,
   AutoLogService,
   ModuleScannerService,
@@ -13,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { get } from "object-path";
 
-import { TemplateButton, TemplateButtonCommandId } from "../../decorators";
+import { TemplateButton } from "../../decorators";
 import {
   ButtonTemplate,
   ButtonTemplateYaml,
@@ -24,18 +23,18 @@ import {
   Template,
 } from "../../types";
 import { TalkBackService } from "../utilities";
+import { PushEntityService } from "./push-entity.service";
 
 @Injectable()
 export class PushButtonService {
   constructor(
-    @Inject(ACTIVE_APPLICATION)
-    private readonly application: string,
     private readonly logger: AutoLogService,
     private readonly scanner: ModuleScannerService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
     @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
+    private readonly pushEntity: PushEntityService,
   ) {}
 
   private readonly passthrough = new Map<
@@ -51,21 +50,20 @@ export class PushButtonService {
     // ? de-duplicate
     return is.unique([...this.passthrough.keys(), ...withTarget]);
   }
-
-  public announce(id: PICK_GENERATED_ENTITY<"button">): void {
-    const callback = this.passthrough.get(id);
-    if (!callback) {
-      throw new NotFoundException();
-    }
-    callback();
-  }
-
   public createButtonYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml[] {
     const ids = is.empty(entity_id) ? this.restKeys : [entity_id];
     return ids.map(entity_id => this.createYaml(availability, entity_id));
+  }
+
+  public onTalkBack(id: PICK_GENERATED_ENTITY<"button">): void {
+    const callback = this.passthrough.get(id);
+    if (!callback) {
+      throw new NotFoundException();
+    }
+    callback();
   }
 
   public restCommands() {
@@ -91,10 +89,7 @@ export class PushButtonService {
       name: config.name,
       press: [
         {
-          service: `rest_command.${TemplateButtonCommandId(
-            this.application,
-            entity_id,
-          )}`,
+          service: this.pushEntity.commandId(entity_id),
         },
       ],
     } as ButtonTemplate;

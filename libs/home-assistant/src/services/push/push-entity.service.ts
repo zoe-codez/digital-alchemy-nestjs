@@ -106,6 +106,17 @@ export class PushEntityService<
     return `binary_sensor.${this.identifier}_online`;
   }
 
+  public commandId(entity: string, suffix?: string): string {
+    const out = `rest_command.${this.identifier}_${entity.replaceAll(
+      ".",
+      "_",
+    )}`;
+    if (!is.empty(suffix)) {
+      return `${out}_${suffix}`;
+    }
+    return out;
+  }
+
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
     return new Map(
       [...STORAGE.entries()].filter(([id]) => domain(id) === search),

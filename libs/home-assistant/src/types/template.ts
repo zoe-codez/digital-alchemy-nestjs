@@ -1,3 +1,5 @@
+import { FetchWith } from "@digital-alchemy/utilities";
+
 import { SensorDeviceClasses } from "./sensor-device-class";
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
@@ -11,6 +13,11 @@ interface Base {
   name?: string;
   unique_id?: string;
 }
+
+/**
+ * Seem to be compatible on accident
+ */
+export type HARestCall = FetchWith;
 
 export type Timer = Record<string, number>;
 

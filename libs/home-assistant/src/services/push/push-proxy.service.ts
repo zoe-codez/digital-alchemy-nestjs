@@ -17,7 +17,7 @@ import {
 import { PushBinarySensorService } from "./push-binary-sensor.service";
 import { PushButtonService } from "./push-button.service";
 import { PushEntityService } from "./push-entity.service";
-import { PushSelectService } from "./push-select.service";
+import { PushInputSelectService } from "./push-input-select.service";
 import { PushSensorService } from "./push-sensor.service";
 import { PushSwitchService } from "./push-switch.service";
 
@@ -38,7 +38,7 @@ export class PushProxyService {
     private readonly configuration: HomeAssistantModuleConfiguration,
     private readonly pushButton: PushButtonService,
     private readonly pushSensor: PushSensorService,
-    private readonly pushSelect: PushSelectService,
+    private readonly pushSelect: PushInputSelectService,
     private readonly pushEntity: PushEntityService,
     private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
@@ -113,6 +113,7 @@ export class PushProxyService {
   private buildRest(packageFolder: string): string {
     // * all known rest commands
     const rest = {
+      ...this.pushSelect.restCommands(),
       ...this.pushButton.restCommands(),
       ...this.pushSwitch.restCommands(),
     };

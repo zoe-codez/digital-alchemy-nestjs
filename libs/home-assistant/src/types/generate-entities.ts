@@ -103,6 +103,9 @@ export class GenerateEntities {
 
 export class HomeAssistantModuleConfiguration {
   @IsOptional()
+  @ValidateNested()
+  public authHeaders?: Record<string, string>;
+  @IsOptional()
   @IsBoolean()
   public controllers?: boolean;
   @IsOptional()

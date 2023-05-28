@@ -7,7 +7,6 @@ import { is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { nextTick } from "process";
 
-import { TemplateButtonCommandId } from "../../decorators";
 import {
   generated_entity_split,
   PICK_GENERATED_ENTITY,
@@ -67,10 +66,9 @@ export class PushSwitchService {
 
   public onTalkBack(
     entity_id: PICK_GENERATED_ENTITY<"switch">,
-    action: "turn_on" | "turn_off",
+    state: "on" | "off",
   ): void {
     const [, id] = generated_entity_split(entity_id);
-    const state = action === "turn_on" ? "on" : "off";
     this.config.onlineProxy.attributes[id] = state;
     nextTick(async () => {
       const data = {
@@ -103,23 +101,15 @@ export class PushSwitchService {
       friendly_name: config.name,
       icon_template: config.icon,
       turn_off: {
-        service:
-          "rest_command." +
-          TemplateButtonCommandId(this.application, entity_id) +
-          "_off",
+        service: this.pushEntity.commandId(entity_id, "off"),
       },
       turn_on: {
-        service:
-          "rest_command." +
-          TemplateButtonCommandId(this.application, entity_id) +
-          "_on",
+        service: this.pushEntity.commandId(entity_id, "on"),
       },
       unique_id: `digital_alchemy_switch_${id}`,
       value_template: `{{ is_state_attr('${this.pushEntity.onlineId}', '${id}','on') }}`,
     } as SwitchTemplateYaml;
-    this.attributes.set(entity_id, {
-      friendly_name: config.name,
-    });
+    this.attributes.set(entity_id, { friendly_name: config.name });
     return sensor;
   }
 }
