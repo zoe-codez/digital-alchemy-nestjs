@@ -4,7 +4,6 @@ import {
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import {
-  GET_ATTRIBUTE_TEMPLATE,
   Icon,
   NewEntityId,
   PICK_GENERATED_ENTITY,
@@ -99,7 +98,7 @@ export class SceneControllerService {
               join(base, `${id}.yaml`),
               dump({
                 availability: this.health.availability,
-                command_topic: `${this.prefix}/${this.application}/room-scene/${name}/${sceneName}`,
+                command_topic: this.commandTopic(name, sceneName),
                 name: `${room.name ?? TitleCase(name)} ${
                   scene?.friendly_name ?? TitleCase(sceneName)
                 }`,
@@ -120,6 +119,10 @@ export class SceneControllerService {
     });
   }
 
+  private commandTopic(room: string, scene: string) {
+    return `${this.prefix}/${this.application}/room-scene/${room}/${scene}`;
+  }
+
   private async findRooms(): Promise<void> {
     const { room_configuration } = this.configuration;
     const rooms = Object.keys(room_configuration ?? {});
@@ -130,7 +133,7 @@ export class SceneControllerService {
       const id = `sensor.${name}_current_scene` as NewEntityId<"sensor">;
       this.pushEntity.insert(id, {
         attributes: {
-          scene: GET_ATTRIBUTE_TEMPLATE("scene"),
+          scene: this.config.attributeTemplate("scene"),
         },
         icon,
         name: `${room?.name || TitleCase(name)} current scene`,

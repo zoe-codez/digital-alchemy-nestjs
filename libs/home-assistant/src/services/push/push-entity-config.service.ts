@@ -17,6 +17,8 @@ import {
   VERIFICATION_FILE,
 } from "../../config";
 import {
+  entity_split,
+  generated_entity_split,
   HassDigitalAlchemySerializeState,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
@@ -71,6 +73,8 @@ export class PushEntityConfigService {
    */
   public onlineProxy: PUSH_PROXY<"binary_sensor.online">;
 
+  public readonly stateTemplate = `{{ trigger.json.state }}`;
+
   /**
    * ID will be different
    */
@@ -78,6 +82,10 @@ export class PushEntityConfigService {
 
   private get appRoot() {
     return join(this.targetFolder, this.pushEntity.identifier);
+  }
+
+  public attributeTemplate(attribute: string) {
+    return `{{ trigger.json.attributes.${attribute} }}`;
   }
 
   /**
@@ -97,9 +105,33 @@ export class PushEntityConfigService {
     });
   }
 
+  /**
+   * Standardized ugly code path for passing states back to home assistant.
+   * To be replaced with something more sane eventually
+   */
+  public doubleProxy(entity_id: PICK_GENERATED_ENTITY, value: unknown) {
+    const [, id] = generated_entity_split(entity_id);
+    this.onlineProxy.attributes[id] = value;
+  }
+
+  public doubleProxyYaml(
+    entity_id: PICK_GENERATED_ENTITY,
+    testAgainst?: string,
+  ) {
+    const [, id] = entity_split(entity_id);
+    if (!is.empty(testAgainst)) {
+      return `{{ is_state_attr('${this.pushEntity.onlineId}', '${id}', '${testAgainst}') }}`;
+    }
+    return `{{ state_attr('${this.pushEntity.onlineId}', '${id}') }}`;
+  }
+
   public async rebuild(): Promise<void> {
     await this.dumpConfiguration();
     await this.verifyYaml();
+  }
+
+  public uniqueId(entity_id: PICK_GENERATED_ENTITY) {
+    return `digital_alchemy_${entity_id.replaceAll(".", "_")}`;
   }
 
   protected async onModuleInit() {
@@ -189,10 +221,6 @@ export class PushEntityConfigService {
    * This will grow in the future, but also become more configurable.
    *
    * ## Current
-   *
-   * ### `sensor.{app}_last_build`
-   *
-   * Timestamp to describe the last time this application dumped it's configuration successfully to Home Assistant
    *
    * ### `sensor.{app}_uptime` **(required)**
    *

@@ -27,9 +27,9 @@ import {
   SensorConfig,
   StorageData,
   SwitchConfig,
-  UPDATE_TRIGGER,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
+import { TalkBackService } from "../utilities";
 
 type ProxyOptions = {
   getter?: (property: string) => unknown;
@@ -85,6 +85,7 @@ export class PushEntityService<
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
+    private readonly talkBack: TalkBackService,
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
@@ -174,9 +175,14 @@ export class PushEntityService<
       },
       state: this.cast(data.state as string | number | boolean),
     };
-    // Emit to home assistant anyways?
     // await this.fetch.updateEntity(sensor_id, update);
-    await this.fetch.webhook(UPDATE_TRIGGER.event(sensor_id), update);
+    // ? ^^^^ Q: Emit to home assistant anyways? ^^^^^^
+    // A: Seems to wipe out some additional attribute (like icon / name). Unclear on benefit if everything else is working properly
+
+    await this.fetch.webhook(
+      this.talkBack.updateTriggerEventName(sensor_id),
+      update,
+    );
   }
 
   public async generate<

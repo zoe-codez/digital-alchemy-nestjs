@@ -3,7 +3,7 @@ import { AuthStack, GENERIC_SUCCESS_RESPONSE } from "@digital-alchemy/server";
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import { TalkBackService } from "../services";
-import { PICK_GENERATED_ENTITY } from "../types";
+import { InputSelectOnSelect, PICK_GENERATED_ENTITY } from "../types";
 
 /**
  * Note: URL segments must be matched against `talk-back.service`
@@ -27,7 +27,7 @@ export class TalkBackController {
   @Post("/input_select/:key")
   public onInputSelectAction(
     @Param("key") key: PICK_GENERATED_ENTITY<"input_select">,
-    @Body() body: object,
+    @Body() body: InputSelectOnSelect,
   ): typeof GENERIC_SUCCESS_RESPONSE {
     this.talkBack.onInputSelectTalkBack(key, body);
     return GENERIC_SUCCESS_RESPONSE;

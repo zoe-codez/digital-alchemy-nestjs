@@ -1,10 +1,7 @@
 import { FetchWith } from "@digital-alchemy/utilities";
+import { IsString } from "class-validator";
 
 import { SensorDeviceClasses } from "./sensor-device-class";
-import {
-  ALL_GENERATED_SERVICE_DOMAINS,
-  PICK_GENERATED_ENTITY,
-} from "./utility";
 
 interface Base {
   attributes?: Record<string, Template>;
@@ -20,6 +17,11 @@ interface Base {
 export type HARestCall = FetchWith;
 
 export type Timer = Record<string, number>;
+
+export class InputSelectOnSelect {
+  @IsString()
+  public option: string;
+}
 
 type Action = unknown;
 export type Template = string;
@@ -105,46 +107,8 @@ export type TemplateYaml =
   | NumberTemplate;
 //
 
-export const GET_STATE_TEMPLATE = `{{ trigger.json.state }}`;
-export const GET_ATTRIBUTE_TEMPLATE = (attribute: string) =>
-  `{{ trigger.json.attributes.${attribute} }}`;
 export type StorageData<CONFIG extends object = object> = {
   attributes: Record<string, unknown>;
   config: CONFIG;
   state: unknown;
 };
-
-export const UPDATE_TRIGGER = (
-  domain: ALL_GENERATED_SERVICE_DOMAINS,
-  sensor_id: string,
-) => {
-  if (!sensor_id.includes(".")) {
-    sensor_id = domain + "." + sensor_id;
-  }
-  return [
-    {
-      platform: "webhook",
-      webhook_id: UPDATE_TRIGGER.event(
-        sensor_id as PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
-      ),
-    },
-  ];
-};
-
-UPDATE_TRIGGER.event = (
-  entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
-) => `digital_alchemy_${entity.replace(".", "_")}_update`;
-
-export const TALK_BACK_ACTION = (webhook_id: string) => {
-  return [
-    {
-      platform: "webhook",
-      webhook_id,
-    },
-  ];
-};
-
-TALK_BACK_ACTION.event = (
-  entity: PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
-  action: string,
-) => `digital_alchemy_${entity}_talk_back_${action}`;

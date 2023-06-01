@@ -4,7 +4,7 @@ import {
   ADMIN_KEY_HEADER,
   LIB_SERVER,
 } from "@digital-alchemy/server";
-import { is } from "@digital-alchemy/utilities";
+import { FetchWith, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { TALK_BACK_BASE_URL } from "../../config";
@@ -12,6 +12,7 @@ import {
   HARestCall,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
+  InputSelectOnSelect,
   PICK_GENERATED_ENTITY,
 } from "../../types";
 import {
@@ -20,6 +21,7 @@ import {
   PushStorageMap,
   PushSwitchService,
 } from "../push";
+import { PushInputSelectService } from "../push/push-input-select.service";
 
 /**
  * Note: generated url segments must be matched against `talk-back.controller`
@@ -37,6 +39,8 @@ export class TalkBackService {
     private readonly pushSwitch: PushSwitchService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)
     private readonly configuration: HomeAssistantModuleConfiguration,
+    @Inject(forwardRef(() => PushInputSelectService))
+    private readonly pushSelect: PushInputSelectService,
     private readonly fetchService: FetchService,
     private readonly pushEntity: PushEntityService,
   ) {
@@ -109,10 +113,11 @@ export class TalkBackService {
         return [
           id,
           {
+            body: { option: "{{ option }}" } as InputSelectOnSelect,
             headers: this.authHeaders,
-            method: "get",
+            method: "post",
             url: `${this.baseUrl}/talk-back/input_select/${key}`,
-          },
+          } as FetchWith,
         ];
       }),
     );
@@ -139,9 +144,9 @@ export class TalkBackService {
 
   public onInputSelectTalkBack(
     entity_id: PICK_GENERATED_ENTITY<"input_select">,
-    data: object,
+    data: InputSelectOnSelect,
   ) {
-    //
+    this.pushSelect.onTalkBack(entity_id, data);
   }
 
   public onSwitchTalkBack(
@@ -149,5 +154,18 @@ export class TalkBackService {
     action: "on" | "off",
   ) {
     this.pushSwitch.onTalkBack(entity_id, action);
+  }
+
+  public updateTriggerEvent(entity_id: PICK_GENERATED_ENTITY) {
+    return [
+      {
+        platform: "webhook",
+        webhook_id: this.updateTriggerEventName(entity_id),
+      },
+    ];
+  }
+
+  public updateTriggerEventName(entity_id: PICK_GENERATED_ENTITY) {
+    return `digital_alchemy_${entity_id.replace(".", "_")}_update`;
   }
 }

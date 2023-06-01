@@ -1,18 +1,17 @@
 /* eslint-disable spellcheck/spell-checker */
 import { ACTIVE_APPLICATION } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import {
-  entity_split,
-  GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   SensorTemplate,
   SensorTemplateYaml,
   Template,
-  UPDATE_TRIGGER,
 } from "../../types";
+import { TalkBackService } from "../utilities";
 import { PushEntityService, PushStorageMap } from "./push-entity.service";
+import { PushEntityConfigService } from "./push-entity-config.service";
 
 @Injectable()
 export class PushSensorService {
@@ -20,6 +19,9 @@ export class PushSensorService {
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
     private readonly pushEntity: PushEntityService<"sensor">,
+    @Inject(forwardRef(() => PushEntityConfigService))
+    private readonly config: PushEntityConfigService,
+    private readonly talkBack: TalkBackService,
   ) {}
 
   public createProxy(id: PICK_GENERATED_ENTITY<"sensor">) {
@@ -59,18 +61,17 @@ export class PushSensorService {
       device_class: config.device_class,
       icon: config.icon,
       name: config.name,
-      state: GET_STATE_TEMPLATE,
+      state: this.config.stateTemplate,
+      unique_id: this.config.uniqueId(entity_id),
       unit_of_measurement: config.unit_of_measurement,
     } as SensorTemplate;
-    const [, id] = entity_split(entity_id);
-    sensor.unique_id = "digital_alchemy_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
 
     sensor.attributes.managed_by = this.application;
 
     return {
       sensor: [sensor],
-      trigger: UPDATE_TRIGGER("sensor", entity_id),
+      trigger: this.talkBack.updateTriggerEvent(entity_id),
     };
   }
 }

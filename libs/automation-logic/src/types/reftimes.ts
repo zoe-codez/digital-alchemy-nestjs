@@ -96,7 +96,7 @@ is.shortTime = function (times: ShortTime[]): Dayjs[] {
     if (i === "TOMORROW") {
       return dayjs(`${today} 24`);
     }
-    let [hour, minute] = i.slice(SLICE_LENGTH).split(".");
+    let [hour, minute] = i.slice(SLICE_LENGTH).split(":");
     minute ??= "00";
     if (i.charAt(START).toLowerCase() === "p") {
       hour = (Number(hour) + ROLLOVER).toString();

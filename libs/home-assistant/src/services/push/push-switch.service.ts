@@ -1,8 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import {
-  ACTIVE_APPLICATION,
-  AutoLogService,
-} from "@digital-alchemy/boilerplate";
+import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { nextTick } from "process";
@@ -22,8 +19,6 @@ import { PushEntityConfigService } from "./push-entity-config.service";
 export class PushSwitchService {
   constructor(
     private readonly logger: AutoLogService,
-    @Inject(ACTIVE_APPLICATION)
-    private readonly application: string,
     @Inject(forwardRef(() => PushEntityConfigService))
     private readonly config: PushEntityConfigService,
     @Inject(forwardRef(() => TalkBackService))
@@ -95,19 +90,14 @@ export class PushSwitchService {
     entity_id: PICK_GENERATED_ENTITY<"switch">,
   ) {
     const { config } = storage.get(entity_id);
-    const [, id] = generated_entity_split(entity_id);
     const sensor = {
       availability_template: availability,
       friendly_name: config.name,
       icon_template: config.icon,
-      turn_off: {
-        service: this.pushEntity.commandId(entity_id, "off"),
-      },
-      turn_on: {
-        service: this.pushEntity.commandId(entity_id, "on"),
-      },
-      unique_id: `digital_alchemy_switch_${id}`,
-      value_template: `{{ is_state_attr('${this.pushEntity.onlineId}', '${id}','on') }}`,
+      turn_off: { service: this.pushEntity.commandId(entity_id, "off") },
+      turn_on: { service: this.pushEntity.commandId(entity_id, "on") },
+      unique_id: this.config.uniqueId(entity_id),
+      value_template: this.config.doubleProxyYaml(entity_id, "on"),
     } as SwitchTemplateYaml;
     this.attributes.set(entity_id, { friendly_name: config.name });
     return sensor;

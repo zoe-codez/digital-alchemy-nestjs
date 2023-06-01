@@ -1,28 +1,26 @@
-import {
-  ACTIVE_APPLICATION,
-  AutoLogService,
-} from "@digital-alchemy/boilerplate";
+import { ACTIVE_APPLICATION } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import {
   BinarySensorTemplate,
   BinarySensorTemplateYaml,
-  entity_split,
-  GET_STATE_TEMPLATE,
   PICK_GENERATED_ENTITY,
   Template,
-  UPDATE_TRIGGER,
 } from "../../types";
+import { TalkBackService } from "../utilities";
 import { PushEntityService, PushStorageMap } from "./push-entity.service";
+import { PushEntityConfigService } from "./push-entity-config.service";
 
 @Injectable()
 export class PushBinarySensorService {
   constructor(
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
-    private readonly logger: AutoLogService,
     private readonly pushEntity: PushEntityService<"binary_sensor">,
+    @Inject(forwardRef(() => PushEntityConfigService))
+    private readonly config: PushEntityConfigService,
+    private readonly talkBack: TalkBackService,
   ) {}
 
   public createBinarySensorYaml(
@@ -61,15 +59,14 @@ export class PushBinarySensorService {
       device_class: config.device_class,
       icon: config.icon,
       name: config.name,
-      state: GET_STATE_TEMPLATE,
+      state: this.config.stateTemplate,
+      unique_id: this.config.uniqueId(entity_id),
     } as BinarySensorTemplate;
-    const [, id] = entity_split(entity_id);
-    sensor.unique_id = "digital_alchemy_binary_sensor_" + id;
     sensor.attributes = config.attributes ?? {};
     sensor.attributes.managed_by = this.application;
     return {
       binary_sensor: [sensor],
-      trigger: UPDATE_TRIGGER("binary_sensor", entity_id),
+      trigger: this.talkBack.updateTriggerEvent(entity_id),
     };
   }
 }

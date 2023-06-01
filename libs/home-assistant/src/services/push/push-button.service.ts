@@ -16,7 +16,6 @@ import { TemplateButton } from "../../decorators";
 import {
   ButtonTemplate,
   ButtonTemplateYaml,
-  entity_split,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   PICK_GENERATED_ENTITY,
@@ -24,6 +23,7 @@ import {
 } from "../../types";
 import { TalkBackService } from "../utilities";
 import { PushEntityService } from "./push-entity.service";
+import { PushEntityConfigService } from "./push-entity-config.service";
 
 @Injectable()
 export class PushButtonService {
@@ -35,6 +35,8 @@ export class PushButtonService {
     @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
     private readonly pushEntity: PushEntityService,
+    @Inject(forwardRef(() => PushEntityConfigService))
+    private readonly config: PushEntityConfigService,
   ) {}
 
   private readonly passthrough = new Map<
@@ -87,14 +89,9 @@ export class PushButtonService {
       availability: config.availability ?? availability,
       icon: config.icon,
       name: config.name,
-      press: [
-        {
-          service: this.pushEntity.commandId(entity_id),
-        },
-      ],
+      press: [{ service: this.pushEntity.commandId(entity_id) }],
+      unique_id: this.config.uniqueId(entity_id),
     } as ButtonTemplate;
-    const [, id] = entity_split(entity_id);
-    button.unique_id = "digital_alchemy_button_" + id;
     return {
       button: [button],
     };
