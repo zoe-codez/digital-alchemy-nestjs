@@ -20,6 +20,7 @@ export class PushBinarySensorService {
     private readonly pushEntity: PushEntityService<"binary_sensor">,
     @Inject(forwardRef(() => PushEntityConfigService))
     private readonly config: PushEntityConfigService,
+    @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
   ) {}
 

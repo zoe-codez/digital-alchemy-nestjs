@@ -1,6 +1,6 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { mkdirSync, writeFileSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";
@@ -40,6 +40,7 @@ export class PushProxyService {
     private readonly pushSensor: PushSensorService,
     private readonly pushSelect: PushInputSelectService,
     private readonly pushEntity: PushEntityService,
+    @Inject(forwardRef(() => PushBinarySensorService))
     private readonly pushBinarySensor: PushBinarySensorService,
     private readonly pushSwitch: PushSwitchService,
   ) {}

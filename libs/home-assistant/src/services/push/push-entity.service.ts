@@ -5,7 +5,7 @@ import {
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import { is, TitleCase } from "@digital-alchemy/utilities";
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { get, set } from "object-path";
 import { nextTick } from "process";
 
@@ -85,6 +85,7 @@ export class PushEntityService<
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetch: HassFetchAPIService,
+    @Inject(forwardRef(() => TalkBackService))
     private readonly talkBack: TalkBackService,
     private readonly cache: CacheService,
     @Inject(HOME_ASSISTANT_MODULE_CONFIGURATION)

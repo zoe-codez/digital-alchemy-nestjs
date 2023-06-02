@@ -88,6 +88,29 @@ import { SensorSyncService } from "../services";
             name: "Office focus",
           },
         },
+        input_select: {
+          test_select: {
+            options: [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e",
+              "f",
+              "g",
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+            ],
+          },
+        },
         sensor: {
           next_solar_event: {
             name: "Next solar event",
