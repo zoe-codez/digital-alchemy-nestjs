@@ -28,14 +28,14 @@ export class PushInputSelectService {
     private readonly config: PushEntityConfigService,
   ) {}
 
-  public createSensorYaml(
+  public createYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"input_select">,
   ): InputSelectTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("input_select");
     return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
       entity_id => {
-        return this.createYaml(availability, storage, entity_id);
+        return this.createTemplateYaml(availability, storage, entity_id);
       },
     );
   }
@@ -55,7 +55,14 @@ export class PushInputSelectService {
     return this.talkBack.createInputSelectRest(keys);
   }
 
-  private createYaml(
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"input_select">,
+    data: { state: boolean },
+  ): Promise<void> {
+    return await undefined;
+  }
+
+  private createTemplateYaml(
     availability: Template,
     storage: PushStorageMap<"input_select">,
     entity_id: PICK_GENERATED_ENTITY<"input_select">,

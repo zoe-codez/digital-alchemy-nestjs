@@ -33,17 +33,6 @@ export class PushSwitchService {
     Pick<SwitchTemplateYaml, "friendly_name">
   >();
 
-  public createProxy(id: PICK_GENERATED_ENTITY<"switch">) {
-    return this.pushEntity.generate(id, {
-      validate: (property, value) => {
-        if (property === "state") {
-          return is.boolean(value);
-        }
-        return true;
-      },
-    });
-  }
-
   public createSensorYaml(
     availability: Template,
     entity_id?: PICK_GENERATED_ENTITY<"switch">,
@@ -82,6 +71,15 @@ export class PushSwitchService {
   public restCommands() {
     const storage = this.pushEntity.domainStorage("switch");
     return this.talkBack.createSwitchRest(storage);
+  }
+
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"switch">,
+    data: { state: boolean },
+  ): Promise<void> {
+    if (!is.undefined(data.state)) {
+      await this.onTalkBack(entity, data.state ? "on" : "off");
+    }
   }
 
   private createYaml(

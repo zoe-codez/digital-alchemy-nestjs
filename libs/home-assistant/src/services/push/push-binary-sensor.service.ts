@@ -24,29 +24,25 @@ export class PushBinarySensorService {
     private readonly talkBack: TalkBackService,
   ) {}
 
-  public createBinarySensorYaml(
+  public createYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"binary_sensor">,
   ): BinarySensorTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("binary_sensor");
     const keys = [...(is.empty(entity_id) ? storage.keys() : [entity_id])];
-    return keys.map(entity_id => {
-      return this.createYaml(availability, storage, entity_id);
-    });
+    return keys.map(entity_id =>
+      this.createTemplateYaml(availability, storage, entity_id),
+    );
   }
 
-  public createProxy(id: PICK_GENERATED_ENTITY<"binary_sensor">) {
-    return this.pushEntity.generate(id, {
-      validate: (property, value) => {
-        if (property === "state") {
-          return is.boolean(value);
-        }
-        return true;
-      },
-    });
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"binary_sensor">,
+    data: { state: boolean },
+  ): Promise<void> {
+    await this.pushEntity.proxySet(entity, "state", data.state);
   }
 
-  private createYaml(
+  private createTemplateYaml(
     availability: Template,
     storage: PushStorageMap<"binary_sensor">,
     entity_id: PICK_GENERATED_ENTITY<"binary_sensor">,

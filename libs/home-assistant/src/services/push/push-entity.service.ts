@@ -252,6 +252,7 @@ export class PushEntityService<
       this.logger.error({ entity, value }, `Value failed validation`);
       return false;
     }
+    this.logger.trace({ name: entity, property, value }, `proxy set value`);
     const update = {};
     set(update, property, value);
     nextTick(async () => await this.emitUpdate(entity, update));

@@ -1,18 +1,21 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from "@nestjs/common";
 import { mkdirSync, writeFileSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";
 
 import {
   ALL_GENERATED_SERVICE_DOMAINS,
+  domain,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
-  isGeneratedDomain,
   PICK_GENERATED_ENTITY,
-  PUSH_PROXY,
-  PUSH_PROXY_DOMAINS,
 } from "../../types";
 import { PushBinarySensorService } from "./push-binary-sensor.service";
 import { PushButtonService } from "./push-button.service";
@@ -21,14 +24,9 @@ import { PushInputSelectService } from "./push-input-select.service";
 import { PushSensorService } from "./push-sensor.service";
 import { PushSwitchService } from "./push-switch.service";
 
-const AUTO_INIT_DOMAINS = new Set<ALL_GENERATED_SERVICE_DOMAINS>([
-  "button",
-  "switch",
-]);
-
-type TemplateTypes = "binary_sensor" | "sensor" | "button";
-
-type ProxyEntity = PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
+type GenericYaml = Partial<
+  Record<ALL_GENERATED_SERVICE_DOMAINS, { unique_id: string }[]>
+>;
 
 @Injectable()
 export class PushProxyService {
@@ -38,7 +36,7 @@ export class PushProxyService {
     private readonly configuration: HomeAssistantModuleConfiguration,
     private readonly pushButton: PushButtonService,
     private readonly pushSensor: PushSensorService,
-    private readonly pushSelect: PushInputSelectService,
+    private readonly pushInputSelect: PushInputSelectService,
     private readonly pushEntity: PushEntityService,
     @Inject(forwardRef(() => PushBinarySensorService))
     private readonly pushBinarySensor: PushBinarySensorService,
@@ -58,54 +56,40 @@ export class PushProxyService {
       .join(`\n`);
   }
 
-  public async createPushProxy<ENTITY extends ProxyEntity = ProxyEntity>(
-    entity: ENTITY,
-  ): Promise<PUSH_PROXY<ENTITY>> {
-    if (isGeneratedDomain(entity, "sensor")) {
-      return (await this.pushSensor.createProxy(entity)) as PUSH_PROXY<ENTITY>;
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"binary_sensor">,
+    data: { state: boolean },
+  ): Promise<void>;
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"switch">,
+    data: { state: boolean },
+  ): Promise<void>;
+  public async setEntityValue<
+    STATE extends string = string,
+    ATTRIBUTES extends object = object,
+  >(
+    entity: PICK_GENERATED_ENTITY<"sensor">,
+    data: {
+      attributes?: ATTRIBUTES;
+      state?: STATE;
+    },
+  ): Promise<void>;
+  public async setEntityValue(
+    entity: PICK_GENERATED_ENTITY<"input_select">,
+    data: { state: boolean },
+  ): Promise<void>;
+  public async setEntityValue(entity, data): Promise<void> {
+    switch (domain(entity)) {
+      case "switch":
+        return await this.pushSwitch.setEntityValue(entity, data);
+      case "sensor":
+        return await this.pushSensor.setEntityValue(entity, data);
+      case "binary_sensor":
+        return await this.pushBinarySensor.setEntityValue(entity, data);
+      case "input_select":
+        return await this.pushInputSelect.setEntityValue(entity, data);
     }
-    if (isGeneratedDomain(entity, "binary_sensor")) {
-      return (await this.pushBinarySensor.createProxy(
-        entity,
-      )) as PUSH_PROXY<ENTITY>;
-    }
-    this.logger.error(
-      { context: `@InjectPushEntity(${entity})` },
-      `No proxy support for this domain`,
-    );
-    return undefined;
-  }
-
-  protected async onModuleInit(): Promise<void> {
-    await this.autoInit();
-  }
-
-  private async autoInit(): Promise<void> {
-    const { generate_entities } = this.configuration;
-    if (is.empty(generate_entities)) {
-      return;
-    }
-    await Promise.all(
-      (Object.keys(generate_entities) as ALL_GENERATED_SERVICE_DOMAINS[])
-        .filter(key => AUTO_INIT_DOMAINS.has(key))
-        .map(async key => {
-          const generate = generate_entities[key];
-          if (is.empty(generate)) {
-            return;
-          }
-          if (key === "switch") {
-            // Switches
-            await Promise.all(
-              Object.keys(generate).map(async id => {
-                const entity_id =
-                  `${key}.${id}` as PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>;
-                this.logger.debug(`[%s] auto init`, entity_id);
-                await this.createPushProxy(entity_id);
-              }),
-            );
-          }
-        }),
-    );
+    throw new NotImplementedException();
   }
 
   /**
@@ -114,7 +98,7 @@ export class PushProxyService {
   private buildRest(packageFolder: string): string {
     // * all known rest commands
     const rest = {
-      ...this.pushSelect.restCommands(),
+      ...this.pushInputSelect.restCommands(),
       ...this.pushButton.restCommands(),
       ...this.pushSwitch.restCommands(),
     };
@@ -156,10 +140,11 @@ export class PushProxyService {
   private buildTemplates(packageFolder: string, availability: string) {
     //  * all things that can grouped as a template
     const templates = [
-      ...this.pushBinarySensor.createBinarySensorYaml(availability),
-      ...this.pushSensor.createSensorYaml(availability),
-      ...this.pushButton.createButtonYaml(availability),
-    ] as Partial<Record<TemplateTypes, { unique_id: string }[]>>[];
+      ...this.pushBinarySensor.createYaml(availability),
+      ...this.pushButton.createYaml(availability),
+      ...this.pushInputSelect.createYaml(availability),
+      ...this.pushSensor.createYaml(availability),
+    ] as GenericYaml[];
 
     if (is.empty(templates)) {
       return undefined;
@@ -171,7 +156,7 @@ export class PushProxyService {
       const key = Object.keys(data).find(
         // 🪄 - Either brilliant, or terrible. Let's see if it breaks somehow
         key => is.array(data[key]) && key !== "trigger",
-      ) as TemplateTypes;
+      ) as ALL_GENERATED_SERVICE_DOMAINS;
       if (is.empty(data[key])) {
         return;
       }

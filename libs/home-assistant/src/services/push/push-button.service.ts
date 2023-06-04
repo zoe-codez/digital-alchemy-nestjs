@@ -52,7 +52,7 @@ export class PushButtonService {
     // ? de-duplicate
     return is.unique([...this.passthrough.keys(), ...withTarget]);
   }
-  public createButtonYaml(
+  public createYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml[] {

@@ -1,6 +1,9 @@
 /* eslint-disable spellcheck/spell-checker */
-import { ACTIVE_APPLICATION } from "@digital-alchemy/boilerplate";
-import { is } from "@digital-alchemy/utilities";
+import {
+  ACTIVE_APPLICATION,
+  AutoLogService,
+} from "@digital-alchemy/boilerplate";
+import { each, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import {
@@ -16,6 +19,7 @@ import { PushEntityConfigService } from "./push-entity-config.service";
 @Injectable()
 export class PushSensorService {
   constructor(
+    private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION)
     private readonly application: string,
     private readonly pushEntity: PushEntityService<"sensor">,
@@ -24,30 +28,35 @@ export class PushSensorService {
     private readonly talkBack: TalkBackService,
   ) {}
 
-  public createProxy(id: PICK_GENERATED_ENTITY<"sensor">) {
-    return this.pushEntity.generate(id, {
-      validate: (property, value) => {
-        if (property === "state") {
-          return is.string(value) || is.number(value);
-        }
-        return true;
-      },
-    });
-  }
-
-  public createSensorYaml(
+  public createYaml(
     availability?: Template,
     entity_id?: PICK_GENERATED_ENTITY<"sensor">,
   ): SensorTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("sensor");
     return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
-      entity_id => {
-        return this.createYaml(availability, storage, entity_id);
-      },
+      entity_id => this.createTemplateYaml(availability, storage, entity_id),
     );
   }
 
-  private createYaml(
+  public async setEntityValue<
+    STATE extends string = string,
+    ATTRIBUTES extends object = object,
+  >(
+    entity: PICK_GENERATED_ENTITY<"sensor">,
+    data: { attributes?: ATTRIBUTES; state?: STATE },
+  ): Promise<void> {
+    this.logger.trace({ data, name: entity }, `set sensor data`);
+    if (!is.undefined(data.state)) {
+      await this.pushEntity.proxySet(entity, "state", data.state);
+    }
+    if (is.object(data.attributes)) {
+      await each(Object.entries(data.attributes), async ([key, value]) => {
+        await this.pushEntity.proxySet(entity, `attributes.${key}`, value);
+      });
+    }
+  }
+
+  private createTemplateYaml(
     availability: Template,
     storage: PushStorageMap<"sensor">,
     entity_id: PICK_GENERATED_ENTITY<"sensor">,
