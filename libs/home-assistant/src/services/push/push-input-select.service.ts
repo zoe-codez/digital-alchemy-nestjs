@@ -1,7 +1,8 @@
 import { is } from "@digital-alchemy/utilities";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject } from "@nestjs/common";
 import { Get } from "type-fest";
 
+import { CreateYamlOptions, iPushDomain, PushDomain } from "../../decorators";
 import {
   ConfigDomainMap,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -12,12 +13,14 @@ import {
   PICK_GENERATED_ENTITY,
   Template,
 } from "../../types";
+import { PushEntityConfigService } from "../push-entity-config.service";
 import { TalkBackService } from "../utilities";
 import { PushEntityService, PushStorageMap } from "./push-entity.service";
-import { PushEntityConfigService } from "./push-entity-config.service";
 
-@Injectable()
-export class PushInputSelectService {
+@PushDomain({
+  domain: "input_select",
+})
+export class PushInputSelectService implements iPushDomain<"input_select"> {
   constructor(
     private readonly pushEntity: PushEntityService<"input_select">,
     @Inject(forwardRef(() => TalkBackService))
@@ -28,10 +31,10 @@ export class PushInputSelectService {
     private readonly config: PushEntityConfigService,
   ) {}
 
-  public createYaml(
-    availability?: Template,
-    entity_id?: PICK_GENERATED_ENTITY<"input_select">,
-  ): InputSelectTemplateYaml[] {
+  public createYaml({
+    entity_id,
+    availability,
+  }: CreateYamlOptions<"input_select">): InputSelectTemplateYaml[] {
     const storage = this.pushEntity.domainStorage("input_select");
     return [...(is.empty(entity_id) ? storage.keys() : [entity_id])].map(
       entity_id => {

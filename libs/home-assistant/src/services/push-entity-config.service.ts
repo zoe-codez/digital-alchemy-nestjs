@@ -15,7 +15,7 @@ import {
   HEALTH_CHECK_INTERVAL,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   VERIFICATION_FILE,
-} from "../../config";
+} from "../config";
 import {
   entity_split,
   generated_entity_split,
@@ -26,9 +26,9 @@ import {
   PICK_GENERATED_ENTITY,
   PUSH_PROXY,
   PUSH_PROXY_DOMAINS,
-} from "../../types";
-import { HassFetchAPIService } from "../hass-fetch-api.service";
-import { PushEntityService } from "./push-entity.service";
+} from "../types";
+import { HassFetchAPIService } from "./hass-fetch-api.service";
+import { PushEntityService } from "./push/push-entity.service";
 import { PushProxyService } from "./push-proxy.service";
 
 /**
@@ -60,7 +60,9 @@ export class PushEntityConfigService {
     private readonly pushProxy: PushProxyService,
     private readonly pushEntity: PushEntityService,
     private readonly compression: CompressionService,
-  ) {}
+  ) {
+    this.uptimeId = `sensor.${this.application.replace("-", "_")}_uptime`;
+  }
 
   /**
    * Mapping between mount points and extra data.
@@ -75,10 +77,11 @@ export class PushEntityConfigService {
 
   public readonly stateTemplate = `{{ trigger.json.state }}`;
 
+  private readonly uptimeId: PICK_GENERATED_ENTITY<"sensor">;
+
   /**
    * ID will be different
    */
-  private uptimeProxy: PUSH_PROXY<"sensor.online">;
 
   private get appRoot() {
     return join(this.targetFolder, this.pushEntity.identifier);
@@ -184,17 +187,15 @@ export class PushEntityConfigService {
     this.logger.debug(`Done`);
   }
 
-  private async initOnline() {
+  private initOnline() {
     const initSwitches = this.configuration?.generate_entities?.switch ?? {};
     // * `binary_sensor.{app}_online`
-    const online_id = this.pushEntity.onlineId;
     const switchAttributes = Object.keys(initSwitches).map(name => {
       return [name, `{{ trigger.json.attributes.${name} }}`];
     });
-    this.pushEntity.insert(online_id, {
-      attributes: {
-        ...Object.fromEntries(switchAttributes),
-      },
+    const online = this.pushEntity.onlineId;
+    this.pushEntity.insert(online, {
+      attributes: { ...Object.fromEntries(switchAttributes) },
       /**
        * This sensor should always be available, regardless of application state.
        *
@@ -205,14 +206,13 @@ export class PushEntityConfigService {
       name: `${TitleCase(this.application)} Online`,
       track_history: true,
     });
-    const proxy = await this.pushProxy.createPushProxy(online_id);
-    this.onlineProxy = proxy;
     switchAttributes.forEach(([name]) => {
-      if (!is.undefined(proxy.attributes[name])) {
+      const attribute = `attributes.${name}`;
+      const current = this.pushEntity.proxyGet(online, attribute);
+      if (!is.undefined(current)) {
         return;
       }
-      // ! switches default to off?
-      proxy.attributes[name] = false;
+      this.pushEntity.proxySet(online, attribute, false);
     });
   }
 
@@ -252,17 +252,12 @@ export class PushEntityConfigService {
     await this.initOnline();
 
     // *  `sensor.{app}_uptime`
-    const uptime_id = `sensor.${this.application.replace(
-      "-",
-      "_",
-    )}_uptime` as PICK_GENERATED_ENTITY<"sensor">;
-    this.pushEntity.insert(uptime_id, {
+    this.pushEntity.insert(this.uptimeId, {
       device_class: "duration",
       name: `${TitleCase(this.application)} Uptime`,
       track_history: true,
       unit_of_measurement: "s",
     });
-    this.uptimeProxy = await this.pushProxy.createPushProxy(uptime_id);
   }
 
   private sendHealthCheck() {
@@ -271,7 +266,11 @@ export class PushEntityConfigService {
       return;
     }
     this.onlineProxy.state = true;
-    this.uptimeProxy.state = dayjs().diff(boot, "second");
+    this.pushEntity.proxySet(
+      this.uptimeId,
+      "state",
+      dayjs().diff(boot, "second"),
+    );
   }
 
   private serializeState(): HassDigitalAlchemySerializeState {

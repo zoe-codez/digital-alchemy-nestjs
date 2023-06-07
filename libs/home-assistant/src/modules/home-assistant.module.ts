@@ -29,7 +29,6 @@ import {
   HassCallTypeGenerator,
   HassFetchAPIService,
   HassSocketAPIService,
-  ProxyGeneratorService,
   PushBinarySensorService,
   PushButtonService,
   PushCallService,
@@ -43,6 +42,7 @@ import {
   TalkBackService,
 } from "../services";
 import {
+  DYNAMIC_ENTITY_STORAGE,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
 } from "../types";
@@ -196,7 +196,6 @@ export class HomeAssistantModule {
       HassCallTypeGenerator,
       HassFetchAPIService,
       HassSocketAPIService,
-      ProxyGeneratorService,
       SocketManagerService,
       TalkBackService,
       ...InjectEntityProxy.providers,
@@ -205,6 +204,10 @@ export class HomeAssistantModule {
         inject: [CallProxyService],
         provide: CALL_PROXY,
         useFactory: (call: CallProxyService) => call.buildCallProxy(),
+      },
+      {
+        provide: DYNAMIC_ENTITY_STORAGE,
+        useValue: new Map(),
       },
     ];
     options.controllers ??= false;

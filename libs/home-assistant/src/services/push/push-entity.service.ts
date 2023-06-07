@@ -17,6 +17,7 @@ import {
   ALL_GENERATED_SERVICE_DOMAINS,
   BinarySensorConfig,
   domain,
+  DYNAMIC_ENTITY_STORAGE,
   generated_entity_split,
   GET_CONFIG,
   HOME_ASSISTANT_MODULE_CONFIGURATION,
@@ -55,8 +56,6 @@ const LOG_CONTEXT = (entity_id: PICK_GENERATED_ENTITY) => {
   return `${tag}(${id})`;
 };
 
-const STORAGE: PushStorageMap = new Map();
-
 const proxyMap = new Map<
   PICK_GENERATED_ENTITY<PUSH_PROXY_DOMAINS>,
   ProxyMapValue<PUSH_PROXY_DOMAINS>
@@ -94,6 +93,8 @@ export class PushEntityService<
     private readonly application: string,
     @InjectConfig(APPLICATION_IDENTIFIER)
     private readonly applicationIdentifier: string,
+    @Inject(DYNAMIC_ENTITY_STORAGE)
+    private readonly STORAGE: PushStorageMap,
   ) {
     configuration.generate_entities ??= {};
     this.identifier =
@@ -121,7 +122,7 @@ export class PushEntityService<
 
   public domainStorage(search: DOMAIN): PushStorageMap<DOMAIN> {
     return new Map(
-      [...STORAGE.entries()].filter(([id]) => domain(id) === search),
+      [...this.STORAGE.entries()].filter(([id]) => domain(id) === search),
     ) as PushStorageMap<DOMAIN>;
   }
 
@@ -132,7 +133,7 @@ export class PushEntityService<
     sensor_id: PICK_GENERATED_ENTITY<DOMAIN>,
     updates: MergeAndEmit<STATE, ATTRIBUTES>,
   ): Promise<void> {
-    const data = STORAGE.get(sensor_id);
+    const data = this.STORAGE.get(sensor_id);
     const name = LOG_CONTEXT(sensor_id);
     const key = CACHE_KEY(sensor_id);
     let dirty = false;
@@ -161,7 +162,7 @@ export class PushEntityService<
     // Refresh / replace cache data
     await this.cache.set(key, data);
     if (dirty) {
-      STORAGE.set(sensor_id, data);
+      this.STORAGE.set(sensor_id, data);
     } else {
       this.logger.trace({ name }, `No changes to flush`);
     }
@@ -214,7 +215,7 @@ export class PushEntityService<
   }
 
   public get(entity: PICK_GENERATED_ENTITY<DOMAIN>) {
-    return STORAGE.get(entity);
+    return this.STORAGE.get(entity);
   }
 
   public insert(
@@ -243,7 +244,7 @@ export class PushEntityService<
 
   public proxySet(
     entity: PICK_GENERATED_ENTITY<DOMAIN>,
-    property: SettableProperties,
+    property: string,
     value: unknown,
   ): boolean {
     const options = proxyOptions.get(entity);
@@ -295,6 +296,6 @@ export class PushEntityService<
       this.logger.info({ context }, `Initial cache populate`);
       await this.cache.set(key, data);
     }
-    STORAGE.set(entity, data);
+    this.STORAGE.set(entity, data);
   }
 }

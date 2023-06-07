@@ -4,15 +4,10 @@ import {
   ModuleScannerService,
 } from "@digital-alchemy/boilerplate";
 import { is } from "@digital-alchemy/utilities";
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { get } from "object-path";
 
-import { TemplateButton } from "../../decorators";
+import { PushDomain, TemplateButton } from "../../decorators";
 import {
   ButtonTemplate,
   ButtonTemplateYaml,
@@ -21,11 +16,13 @@ import {
   PICK_GENERATED_ENTITY,
   Template,
 } from "../../types";
+import { PushEntityConfigService } from "../push-entity-config.service";
 import { TalkBackService } from "../utilities";
 import { PushEntityService } from "./push-entity.service";
-import { PushEntityConfigService } from "./push-entity-config.service";
 
-@Injectable()
+@PushDomain({
+  domain: "button",
+})
 export class PushButtonService {
   constructor(
     private readonly logger: AutoLogService,
@@ -57,7 +54,9 @@ export class PushButtonService {
     entity_id?: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml[] {
     const ids = is.empty(entity_id) ? this.restKeys : [entity_id];
-    return ids.map(entity_id => this.createYaml(availability, entity_id));
+    return ids.map(entity_id =>
+      this.createTemplateYaml(availability, entity_id),
+    );
   }
 
   public onTalkBack(id: PICK_GENERATED_ENTITY<"button">): void {
@@ -76,7 +75,7 @@ export class PushButtonService {
     this.scan();
   }
 
-  private createYaml(
+  private createTemplateYaml(
     availability: Template,
     entity_id: PICK_GENERATED_ENTITY<"button">,
   ): ButtonTemplateYaml {

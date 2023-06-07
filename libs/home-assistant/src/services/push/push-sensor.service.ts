@@ -12,9 +12,9 @@ import {
   SensorTemplateYaml,
   Template,
 } from "../../types";
+import { PushEntityConfigService } from "../push-entity-config.service";
 import { TalkBackService } from "../utilities";
 import { PushEntityService, PushStorageMap } from "./push-entity.service";
-import { PushEntityConfigService } from "./push-entity-config.service";
 
 @Injectable()
 export class PushSensorService {

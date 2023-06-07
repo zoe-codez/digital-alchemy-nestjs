@@ -16,13 +16,13 @@ import {
   HOME_ASSISTANT_MODULE_CONFIGURATION,
   HomeAssistantModuleConfiguration,
   PICK_GENERATED_ENTITY,
-} from "../../types";
-import { PushBinarySensorService } from "./push-binary-sensor.service";
-import { PushButtonService } from "./push-button.service";
-import { PushEntityService } from "./push-entity.service";
-import { PushInputSelectService } from "./push-input-select.service";
-import { PushSensorService } from "./push-sensor.service";
-import { PushSwitchService } from "./push-switch.service";
+} from "../types";
+import { PushBinarySensorService } from "./push/push-binary-sensor.service";
+import { PushButtonService } from "./push/push-button.service";
+import { PushEntityService } from "./push/push-entity.service";
+import { PushInputSelectService } from "./push/push-input-select.service";
+import { PushSensorService } from "./push/push-sensor.service";
+import { PushSwitchService } from "./push/push-switch.service";
 
 type GenericYaml = Partial<
   Record<ALL_GENERATED_SERVICE_DOMAINS, { unique_id: string }[]>
@@ -142,7 +142,10 @@ export class PushProxyService {
     const templates = [
       ...this.pushBinarySensor.createYaml(availability),
       ...this.pushButton.createYaml(availability),
-      ...this.pushInputSelect.createYaml(availability),
+      ...this.pushInputSelect.createYaml({
+        availability,
+        entity_id: undefined,
+      }),
       ...this.pushSensor.createYaml(availability),
     ] as GenericYaml[];
 

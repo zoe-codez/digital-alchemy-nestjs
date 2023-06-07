@@ -14,11 +14,8 @@ import {
   DEFAULT_APPLICATION_IDENTIFIER,
   HOME_ASSISTANT_PACKAGE_FOLDER,
   VERIFICATION_FILE,
-} from "../../config";
-import {
-  GenerateEntities,
-  HassDigitalAlchemySerializeState,
-} from "../../types";
+} from "../config";
+import { GenerateEntities, HassDigitalAlchemySerializeState } from "../types";
 
 type ModuleConfigurations = Map<string, HassDigitalAlchemySerializeState>;
 
