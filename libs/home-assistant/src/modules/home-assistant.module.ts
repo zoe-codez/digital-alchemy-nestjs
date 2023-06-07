@@ -18,7 +18,7 @@ import {
   WEBSOCKET_URL,
 } from "../config";
 import { TalkBackController } from "../controllers";
-import { CALL_PROXY, InjectEntityProxy, InjectPushEntity } from "../decorators";
+import { CALL_PROXY, InjectEntityProxy } from "../decorators";
 import {
   BackupService,
   CallProxyService,
@@ -199,15 +199,10 @@ export class HomeAssistantModule {
       SocketManagerService,
       TalkBackService,
       ...InjectEntityProxy.providers,
-      ...InjectPushEntity.providers,
       {
         inject: [CallProxyService],
         provide: CALL_PROXY,
         useFactory: (call: CallProxyService) => call.buildCallProxy(),
-      },
-      {
-        provide: DYNAMIC_ENTITY_STORAGE,
-        useValue: new Map(),
       },
     ];
     options.controllers ??= false;
@@ -222,6 +217,10 @@ export class HomeAssistantModule {
         {
           provide: HOME_ASSISTANT_MODULE_CONFIGURATION,
           useValue: options,
+        },
+        {
+          provide: DYNAMIC_ENTITY_STORAGE,
+          useValue: new Map(),
         },
       ],
     };

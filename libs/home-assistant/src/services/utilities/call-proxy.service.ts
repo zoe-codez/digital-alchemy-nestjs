@@ -23,10 +23,10 @@ import {
   HassServiceDTO,
   PICK_SERVICE,
   PICK_SERVICE_PARAMETERS,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
-import { HassSocketAPIService } from "./hass-socket-api.service";
-import { SocketManagerService } from "./socket-manager.service";
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
+import { HassSocketAPIService } from "../hass-socket-api.service";
+import { SocketManagerService } from "../socket-manager.service";
 
 let services: HassServiceDTO[];
 let domains: string[];

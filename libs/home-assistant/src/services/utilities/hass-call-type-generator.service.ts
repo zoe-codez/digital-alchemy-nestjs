@@ -18,8 +18,8 @@ import {
 import {
   ServiceListFieldDescription,
   ServiceListServiceTarget,
-} from "../types";
-import { HassFetchAPIService } from "./hass-fetch-api.service";
+} from "../../types";
+import { HassFetchAPIService } from "../hass-fetch-api.service";
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(
