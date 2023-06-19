@@ -994,10 +994,12 @@ export class MenuComponentService<VALUE = unknown | string>
       return [
         {
           description: label + "  ",
-          highlight: {
-            highlightMatch: value => is.GV(item) === value,
-            ...highlight,
-          },
+          highlight: is.undefined(highlight)
+            ? undefined
+            : {
+                highlightMatch: value => is.GV(item) === value,
+                ...highlight,
+              },
           key: [key, ...aliases],
         } as TTYKeypressOptions,
         "",
