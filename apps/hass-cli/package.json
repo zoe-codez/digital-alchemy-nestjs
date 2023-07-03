@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Hass CLI",
-  "version": "23.27.0",
+  "version": "23.27.1",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "pkg": {
     "scripts": [
