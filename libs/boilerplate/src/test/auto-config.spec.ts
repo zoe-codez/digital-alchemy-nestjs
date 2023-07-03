@@ -346,6 +346,55 @@ describe("AutoConfig", () => {
       expect(service.string).toBe("environment string");
     });
 
+    it("merges dynamic configuration on top of bootstrap configuration", async () => {
+      const app = await Test.createTestingModule({
+        bootstrap: {
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "bootstrap value",
+              },
+            },
+          },
+        },
+        dynamic_config: {
+          useValue: {
+            application: {
+              STRING_CONFIG: "dynamic_config value",
+            },
+          },
+        },
+        providers: [InjectionInlineTest],
+      }).compile();
+      const service = app.get(InjectionInlineTest);
+      expect(service.string).toBe("dynamic_config value");
+    });
+
+    it("merges system source variables on top of dynamic configuration", async () => {
+      env.STRING_CONFIG = "environment string";
+      const app = await Test.createTestingModule({
+        bootstrap: {
+          application: {
+            config: {
+              application: {
+                STRING_CONFIG: "bootstrap value",
+              },
+            },
+          },
+        },
+        dynamic_config: {
+          useValue: {
+            application: {
+              STRING_CONFIG: "dynamic_config value",
+            },
+          },
+        },
+        providers: [InjectionInlineTest],
+      }).compile();
+      const service = app.get(InjectionInlineTest);
+      expect(service.string).toBe("environment string");
+    });
+
     it("prioritizes environment variables over file configurations with different formatting", async () => {
       env.string_config = "environment string";
       const app = await Test.createTestingModule({

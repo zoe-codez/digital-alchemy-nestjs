@@ -29,6 +29,7 @@ import {
   BaseConfig,
   CONFIG_DEFAULTS,
   CONSUMES_CONFIG,
+  INJECTED_DYNAMIC_CONFIG,
   LOGGER_LIBRARY,
   MODULE_METADATA,
   SKIP_CONFIG_INIT,
@@ -57,6 +58,9 @@ export class AutoConfigService {
     @Optional()
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig = {},
+    @Optional()
+    @Inject(INJECTED_DYNAMIC_CONFIG)
+    private readonly dynamicConfig: AbstractConfig = {},
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: string,
     @Optional()
     @Inject(SKIP_CONFIG_INIT)
@@ -183,6 +187,7 @@ export class AutoConfigService {
    *
    * - values provided via module definitions
    * - values provided via bootstrap
+   * - values loaded via dynamic config
    * - values loaded from configuration files
    * - values loaded from environment variables
    * - values loaded from command line switches
@@ -192,6 +197,7 @@ export class AutoConfigService {
     this.config = {};
     this.setDefaults();
     deepExtend(this.config, this.configDefaults ?? {});
+    deepExtend(this.config, this.dynamicConfig ?? {});
     this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
     this.logger["context"] = [LIB_BOILERPLATE, AutoConfigService.name].join(
       ":",

@@ -1,13 +1,16 @@
 import { is } from "@digital-alchemy/utilities";
 import { DynamicModule, ModuleMetadata, Provider } from "@nestjs/common";
+import { FactoryProvider, ValueProvider } from "@nestjs/common";
 import { ClassConstructor } from "class-transformer";
 import EventEmitter from "eventemitter3";
 
 import { RegisterCache } from "../includes";
 import { BoilerplateModule } from "../modules";
 import {
+  AbstractConfig,
   ACTIVE_APPLICATION,
   AnyConfig,
+  INJECTED_DYNAMIC_CONFIG,
   LOGGER_LIBRARY,
   MODULE_METADATA,
 } from "../types";
@@ -15,6 +18,15 @@ import {
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application?: string;
   configuration?: Record<string, AnyConfig>;
+  /**
+   * Generate configuration values, and use the values via `@InjectConfig` calls
+   *
+   * Providers used here should be EXTREMELY lean, as they will be run at the extreme beginning of the bootstrapping sequence.
+   * This can be effective for making hard coded calls to external services, which provide configuration data
+   */
+  dynamic_config?:
+    | Omit<ValueProvider<AbstractConfig>, "provide">
+    | Omit<FactoryProvider<AbstractConfig>, "provide">;
   globals?: Provider[];
 }
 export const NO_APPLICATION = "digital_alchemy_no_app";
@@ -67,6 +79,12 @@ export function ApplicationModule(
     { provide: EventEmitter, useValue: new EventEmitter() },
     ...metadata.globals,
   ];
+  if (is.object(metadata.dynamic_config)) {
+    GLOBAL_SYMBOLS.push({
+      ...metadata.dynamic_config,
+      provide: INJECTED_DYNAMIC_CONFIG,
+    });
+  }
   metadata.imports = [
     BoilerplateModule.forRoot(),
     {

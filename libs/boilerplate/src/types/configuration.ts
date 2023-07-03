@@ -143,3 +143,5 @@ export class AbstractConfig {
   private config?: string;
   private configs?: string[];
 }
+
+export const INJECTED_DYNAMIC_CONFIG = "INJECTED_DYNAMIC_CONFIG";
