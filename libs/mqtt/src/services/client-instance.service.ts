@@ -15,7 +15,7 @@ export class MQTTClientInstanceService {
     if (this.client) {
       return this.client;
     }
-    this.client = connect(this.options);
+    this.client = connect({ ...this.options });
     return this.client;
   }
 }
