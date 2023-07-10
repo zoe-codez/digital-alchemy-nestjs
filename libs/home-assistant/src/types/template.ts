@@ -121,6 +121,7 @@ UPDATE_TRIGGER.event = (
 export const TALK_BACK_ACTION = (webhook_id: string) => {
   return [
     {
+      local_only: true,
       platform: "webhook",
       webhook_id,
     },
