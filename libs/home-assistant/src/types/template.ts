@@ -106,6 +106,7 @@ export const UPDATE_TRIGGER = (
   }
   return [
     {
+      local_only: true,
       platform: "webhook",
       webhook_id: UPDATE_TRIGGER.event(
         sensor_id as PICK_GENERATED_ENTITY<ALL_GENERATED_SERVICE_DOMAINS>,
