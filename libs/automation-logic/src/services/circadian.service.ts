@@ -50,7 +50,8 @@ const MIRED_CONVERSION = 1_000_000;
  */
 @Injectable()
 export class CircadianService<
-  SENSOR extends PICK_GENERATED_ENTITY<"sensor"> = PICK_GENERATED_ENTITY<"sensor">,
+  SENSOR extends
+    PICK_GENERATED_ENTITY<"sensor"> = PICK_GENERATED_ENTITY<"sensor">,
 > {
   constructor(
     private readonly logger: AutoLogService,

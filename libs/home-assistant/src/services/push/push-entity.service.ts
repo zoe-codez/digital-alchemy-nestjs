@@ -129,10 +129,8 @@ export class PushEntityService<
     } else {
       this.logger.trace({ name }, `No changes to flush`);
     }
-    const friendly_name = get(
-      this.configuration.generate_entities,
-      sensor_id,
-    )?.name;
+    const friendly_name = get(this.configuration.generate_entities, sensor_id)
+      ?.name;
     const update = {
       attributes: {
         ...data.attributes,

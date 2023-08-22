@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 export enum CustomIcons {
   "c" = "\uE61E",
   "cpp" = "\uE61D",

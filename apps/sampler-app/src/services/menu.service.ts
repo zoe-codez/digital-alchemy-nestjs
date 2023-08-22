@@ -140,7 +140,7 @@ export class MenuService {
             ? chalk.red(FontAwesomeIcons.toggle_off)
             : chalk.green(FontAwesomeIcons.toggle_on),
           type: "Types",
-        } as MainMenuEntry<{ type: string }>),
+        }) as MainMenuEntry<{ type: string }>,
     );
     if (is.object(value)) {
       const type = value.type;

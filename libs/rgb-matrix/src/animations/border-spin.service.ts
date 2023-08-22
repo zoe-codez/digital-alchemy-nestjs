@@ -145,7 +145,7 @@ export class BorderSpinService {
   }: Omit<LineOptions, "diff" | "totalWidth">) {
     return this.line
       .bottomToTop(padding, Math.min(time, totalHeight), padding)
-      .map(i => ({ ...i, brightness, color, type: "line" } as LineWidgetDTO));
+      .map(i => ({ ...i, brightness, color, type: "line" }) as LineWidgetDTO);
   }
 
   private growRightTopDown({
@@ -162,7 +162,7 @@ export class BorderSpinService {
         Math.min(time, totalHeight),
         padding,
       )
-      .map(i => ({ ...i, brightness, color, type: "line" } as LineWidgetDTO));
+      .map(i => ({ ...i, brightness, color, type: "line" }) as LineWidgetDTO);
   }
 
   private growTopLeftRight({
@@ -215,7 +215,7 @@ export class BorderSpinService {
   }: Omit<LineOptions, "diff" | "offset" | "totalWidth">) {
     return this.line
       .topToBottom(padding, totalHeight - time, padding)
-      .map(i => ({ ...i, brightness, color, type: "line" } as LineWidgetDTO));
+      .map(i => ({ ...i, brightness, color, type: "line" }) as LineWidgetDTO);
   }
 
   private shrinkRightTopDown({
@@ -231,7 +231,7 @@ export class BorderSpinService {
         this.math.bottom * this.math.panelHeight - time,
         padding,
       )
-      .map(i => ({ ...i, brightness, color, type: "line" } as LineWidgetDTO));
+      .map(i => ({ ...i, brightness, color, type: "line" }) as LineWidgetDTO);
   }
 
   private shrinkTopLeftRight({

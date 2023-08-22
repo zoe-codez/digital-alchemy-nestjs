@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 export enum MiscIcons {
   "power" = "\u23FB",
   "power_off" = "\u2B58",

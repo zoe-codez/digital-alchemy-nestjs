@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 export enum PlIcons {
   "branch" = "\uE0A0",
   "current_line" = "\uE0A1",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 export enum SetIcons {
   "bower" = "\uE61A",
   "cjsx" = "\uE61B",
