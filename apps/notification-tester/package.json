@@ -2,7 +2,7 @@
   "name": "@digital-alchemy/notification-tester",
   "license": "MIT",
   "displayName": "Notification Tester",
-  "version": "23.34.1",
+  "version": "23.34.2",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
