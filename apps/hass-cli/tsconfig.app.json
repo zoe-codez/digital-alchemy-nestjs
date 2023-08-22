@@ -7,10 +7,7 @@
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
-  "exclude": [
-    "**/*.spec.ts",
-    "../../**/*.spec.ts",
-  ],
+  "exclude": ["**/*.spec.ts", "../../**/*.spec.ts"],
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
@@ -18,6 +15,6 @@
     "../../libs/render-utils/**/*.ts",
     "../../libs/server/**/*.ts",
     "../../libs/tty/**/*.ts",
-    "../../libs/utilities/**/*.ts",
+    "../../libs/utilities/**/*.ts"
   ]
 }

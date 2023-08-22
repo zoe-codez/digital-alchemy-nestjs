@@ -1,4 +1,5 @@
-import { CacheModule, DynamicModule } from "@nestjs/common";
+import { CacheModule } from "@nestjs/cache-manager";
+import { DynamicModule } from "@nestjs/common";
 
 import { CacheProviderService } from "../services";
 
