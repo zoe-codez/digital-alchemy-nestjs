@@ -44,26 +44,68 @@
   },
   "exclude": ["node_modules", "tmp", "dist"],
   "references": [
-    { "path": "./apps/build-pipeline/tsconfig.json" },
-    { "path": "./apps/config-builder/tsconfig.json" },
-    { "path": "./apps/entity-creation/tsconfig.json" },
-    { "path": "./apps/hass-cli/tsconfig.json" },
-    { "path": "./apps/hass-type-generate/tsconfig.json" },
-    { "path": "./apps/log-formatter/tsconfig.json" },
-    { "path": "./apps/pi-matrix/tsconfig.json" },
-    { "path": "./apps/sampler-app/tsconfig.json" },
-    { "path": "./apps/scene-manager/tsconfig.json" },
-    { "path": "./libs/automation-logic/tsconfig.json" },
-    { "path": "./libs/boilerplate/tsconfig.json" },
-    { "path": "./libs/gotify/tsconfig.json" },
-    { "path": "./libs/home-assistant/tsconfig.json" },
-    { "path": "./libs/mqtt/tsconfig.json" },
-    { "path": "./libs/pi-matrix-client/tsconfig.json" },
-    { "path": "./libs/render-utils/tsconfig.json" },
-    { "path": "./libs/rgb-matrix/tsconfig.json" },
-    { "path": "./libs/server/tsconfig.json" },
-    { "path": "./libs/testing/tsconfig.json" },
-    { "path": "./libs/tty/tsconfig.json" },
-    { "path": "./libs/utilities/tsconfig.json" }
+    {
+      "path": "./apps/build-pipeline/tsconfig.json"
+    },
+    {
+      "path": "./apps/config-builder/tsconfig.json"
+    },
+    {
+      "path": "./apps/entity-creation/tsconfig.json"
+    },
+    {
+      "path": "./apps/hass-cli/tsconfig.json"
+    },
+    {
+      "path": "./apps/hass-type-generate/tsconfig.json"
+    },
+    {
+      "path": "./apps/log-formatter/tsconfig.json"
+    },
+    {
+      "path": "./apps/pi-matrix/tsconfig.json"
+    },
+    {
+      "path": "./apps/sampler-app/tsconfig.json"
+    },
+    {
+      "path": "./apps/scene-manager/tsconfig.json"
+    },
+    {
+      "path": "./libs/automation-logic/tsconfig.json"
+    },
+    {
+      "path": "./libs/boilerplate/tsconfig.json"
+    },
+    {
+      "path": "./libs/gotify/tsconfig.json"
+    },
+    {
+      "path": "./libs/home-assistant/tsconfig.json"
+    },
+    {
+      "path": "./libs/mqtt/tsconfig.json"
+    },
+    {
+      "path": "./libs/pi-matrix-client/tsconfig.json"
+    },
+    {
+      "path": "./libs/render-utils/tsconfig.json"
+    },
+    {
+      "path": "./libs/rgb-matrix/tsconfig.json"
+    },
+    {
+      "path": "./libs/server/tsconfig.json"
+    },
+    {
+      "path": "./libs/testing/tsconfig.json"
+    },
+    {
+      "path": "./libs/tty/tsconfig.json"
+    },
+    {
+      "path": "./libs/utilities/tsconfig.json"
+    }
   ]
 }

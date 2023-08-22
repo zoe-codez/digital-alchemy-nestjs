@@ -7,10 +7,7 @@
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
-  "exclude": [
-    "**/*.spec.ts",
-    "../../**/*.spec.ts",
-  ],
+  "exclude": ["**/*.spec.ts", "../../**/*.spec.ts"],
   "include": [
     "**/*.ts",
     "../../libs/automation-logic/**/*.ts",
@@ -18,6 +15,6 @@
     "../../libs/home-assistant/**/*.ts",
     "../../libs/mqtt/**/*.ts",
     "../../libs/server/**/*.ts",
-    "../../libs/utilities/**/*.ts",
+    "../../libs/utilities/**/*.ts"
   ]
 }

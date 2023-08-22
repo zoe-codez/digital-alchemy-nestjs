@@ -11,6 +11,8 @@
   "exclude": ["**/*.spec.ts"],
   "include": ["**/*.ts", "**/*.tsx"],
   "references": [
-    { "path": "../utilities/tsconfig.lib.json" }
+    {
+      "path": "../utilities/tsconfig.lib.json"
+    }
   ]
 }
