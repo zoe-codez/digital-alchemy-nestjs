@@ -24,7 +24,6 @@ import {
   SSL_PORT,
 } from "../config";
 import { BasicExceptionFilter } from "../filters";
-import { LoggingInterceptor } from "../interceptors";
 
 @Injectable()
 export class MiddlewareService {
@@ -83,10 +82,8 @@ export class MiddlewareService {
   }
 
   protected onPreInit(app: INestApplication): void {
-    const interceptor = app.get(LoggingInterceptor);
     const filter = app.get(BasicExceptionFilter);
     app.useGlobalFilters(filter);
-    app.useGlobalInterceptors(interceptor);
     if (this.prefix) {
       app.setGlobalPrefix(this.prefix);
     }
