@@ -61,7 +61,7 @@ VERSION=$(node ./dist/apps/build-pipeline/main.js "$*")
 
 # * Build again (transfer package updates to dist)
 npx figlet-cli -f "$FONT" "Publish ${VERSION}" | lolcat
-npx nx run-many --target=build --all --configuration=production || exit 1
+npx nx run-many --target=build --all --configuration=production --skip-nx-cache || exit 1
 
 # Publish packages out
 # ---
