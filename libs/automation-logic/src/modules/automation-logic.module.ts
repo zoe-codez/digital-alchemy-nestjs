@@ -19,6 +19,10 @@ import {
 } from "../config";
 import { ROOM_CONFIG_MAP } from "../decorators";
 import {
+  AUTOMATION_LOGIC_MODULE_CONFIGURATION,
+  AutomationLogicModuleConfiguration,
+} from "../includes";
+import {
   AggressiveScenesService,
   CircadianService,
   GradualDimService,
@@ -31,10 +35,6 @@ import {
   SolarCalcService,
   StateEnforcerService,
 } from "../services";
-import {
-  AUTOMATION_LOGIC_MODULE_CONFIGURATION,
-  AutomationLogicModuleConfiguration,
-} from "../includes";
 
 @LibraryModule({
   configuration: {

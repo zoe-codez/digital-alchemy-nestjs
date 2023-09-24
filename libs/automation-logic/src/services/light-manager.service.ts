@@ -9,7 +9,11 @@ import {
 import { is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
-import { SceneDefinition, SceneLightState, SceneLightStateOn } from "../includes";
+import {
+  SceneDefinition,
+  SceneLightState,
+  SceneLightStateOn,
+} from "../includes";
 import { CircadianService, ColorLight } from "./circadian.service";
 
 @Injectable()
