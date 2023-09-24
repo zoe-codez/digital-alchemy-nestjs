@@ -43,7 +43,16 @@
           }
         ]
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/automation-logic"],
+      "options": {
+        "jestConfig": "libs/automation-logic/jest.config.ts",
+        "passWithNoTests": true
+      }
     }
   },
+  "implicitDependencies": ["!testing"],
   "tags": ["nestjs", "home-assistant", "generated-types"]
 }

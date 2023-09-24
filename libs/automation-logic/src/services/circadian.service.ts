@@ -21,7 +21,7 @@ import {
   CIRCADIAN_MIN_TEMP,
   CIRCADIAN_SENSOR,
 } from "../config";
-import { LOCATION_UPDATED } from "../types";
+import { LOCATION_UPDATED } from "../includes";
 import { SolarCalcService } from "./solar-calc.service";
 
 type ColorModes = "color_temp" | "xy" | "brightness";

@@ -42,7 +42,7 @@ import {
   SCENE_SET_ENTITY,
   SceneList,
   tScene,
-} from "../types";
+} from "../includes";
 import { CircadianService } from "./circadian.service";
 import { SceneControllerService } from "./scene-controller.service";
 

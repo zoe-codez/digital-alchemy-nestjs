@@ -2,5 +2,5 @@ export * from "./config";
 export * from "./decorators";
 export * from "./modules";
 export * from "./services";
-export * from "./types";
-export * from "./types";
+export * from "./includes";
+export * from "./includes";

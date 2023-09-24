@@ -1,3 +1,5 @@
+import { is } from "./is";
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export const EVEN = 2;
 export const PAIR = 2;
@@ -63,11 +65,14 @@ type SleepReturn = Promise<void> & {
  * console.log(end - start); // 1000, because we stopped it early and executed
  * ```
  */
-export function sleep(ms: number = SECOND): SleepReturn {
+export function sleep(target: number | Date = SECOND): SleepReturn {
   // done function from promise
   let done: () => void;
 
-  const timeout = setTimeout(() => done(), ms);
+  const timeout = setTimeout(
+    () => done(),
+    is.date(target) ? target.getTime() - Date.now() : target,
+  );
 
   // Take a normal promise, add a `.kill` to it
   // You can await as normal, or call the function

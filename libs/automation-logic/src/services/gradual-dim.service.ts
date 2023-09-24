@@ -21,7 +21,7 @@ import {
   MAX_LED_BRIGHTNESS,
   OFF,
   SCENE_SET_ENTITY,
-} from "../types";
+} from "../includes";
 
 const UP = 1;
 const DOWN = -1;

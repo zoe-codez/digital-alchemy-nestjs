@@ -34,7 +34,7 @@ import {
 import {
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
   AutomationLogicModuleConfiguration,
-} from "../types";
+} from "../includes";
 
 @LibraryModule({
   configuration: {

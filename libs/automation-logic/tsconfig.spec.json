@@ -11,6 +11,7 @@
     { "path": "../boilerplate/tsconfig.lib.json" },
     { "path": "../mqtt/tsconfig.lib.json" },
     { "path": "../home-assistant/tsconfig.lib.json" },
+    { "path": "../testing/tsconfig.lib.json" },
     { "path": "../utilities/tsconfig.lib.json" }
   ]
 }

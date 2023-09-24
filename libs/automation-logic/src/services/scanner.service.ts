@@ -4,7 +4,7 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { Injectable } from "@nestjs/common";
 
-import { SCENE_ROOM_OPTIONS } from "../types";
+import { SCENE_ROOM_OPTIONS } from "../includes";
 
 @Injectable()
 export class ScannerService {

@@ -210,7 +210,7 @@ export class JSONFilterService {
       return value.getTime();
     }
     if (value instanceof dayjs.Dayjs) {
-      return value.toDate().getTime();
+      return value.valueOf();
     }
     this.logger.warn(
       { value },

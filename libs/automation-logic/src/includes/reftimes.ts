@@ -1,9 +1,9 @@
-import { is, START } from "@digital-alchemy/utilities";
+import { is, NONE, START } from "@digital-alchemy/utilities";
 import dayjs, { Dayjs } from "dayjs";
 
 export function refTimes(times: TimeString[]): Dayjs[] {
   const today = dayjs().format("YYYY-MM-DD");
-  return times.map(i => dayjs(`${today} ${i}`).millisecond(START));
+  return times.map(i => dayjs(`${today} ${i}`).millisecond(NONE));
 }
 
 type Digit = `${number}`;
@@ -96,11 +96,11 @@ is.shortTime = function (times: ShortTime[]): Dayjs[] {
     if (i === "TOMORROW") {
       return dayjs(`${today} 24`);
     }
-    let [hour, minute] = i.slice(SLICE_LENGTH).split(".");
+    let [hour, minute] = i.slice(SLICE_LENGTH).split(":");
     minute ??= "00";
     if (i.charAt(START).toLowerCase() === "p") {
       hour = (Number(hour) + ROLLOVER).toString();
     }
-    return dayjs(`${today} ${hour}:${minute}`).millisecond(START);
+    return dayjs(`${today} ${hour}:${minute}`).millisecond(NONE);
   });
 };

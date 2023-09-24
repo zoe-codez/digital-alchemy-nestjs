@@ -175,7 +175,7 @@ export class WidgetService {
     suffix = "",
     ...widget
   }: CountdownWidgetDTO & { end?: number }): void {
-    widget.end ??= dayjs(widget.target).toDate().getTime();
+    widget.end ??= dayjs(widget.target).valueOf();
     const now = Date.now();
     const diff =
       !overflow && widget.end < now ? EMPTY : Math.abs(widget.end - now);

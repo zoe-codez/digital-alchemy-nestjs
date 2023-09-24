@@ -6,7 +6,7 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {},
       "parserOptions": {
-        "project": ["libs/automation-logic/tsconfig.lib.json"]
+        "project": ["libs/automation-logic/tsconfig.lib.json","libs/automation-logic/tsconfig.spec.json"]
       }
     },
     {

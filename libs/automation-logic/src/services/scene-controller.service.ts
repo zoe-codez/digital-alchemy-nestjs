@@ -24,7 +24,7 @@ import { MQTT_TOPIC_PREFIX } from "../config";
 import {
   AUTOMATION_LOGIC_MODULE_CONFIGURATION,
   AutomationLogicModuleConfiguration,
-} from "../types";
+} from "../includes";
 import { MQTTHealth } from "./mqtt-health.service";
 import { SceneRoomService } from "./scene-room.service";
 

@@ -15,7 +15,7 @@ import { CronExpression, each, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { AGGRESSIVE_SCENES } from "../config";
-import { SceneDefinition, SceneSwitchState } from "../types";
+import { SceneDefinition, SceneSwitchState } from "../includes";
 import { LightMangerService } from "./light-manager.service";
 import { SceneRoomService } from "./scene-room.service";
 

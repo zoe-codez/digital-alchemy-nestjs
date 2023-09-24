@@ -66,6 +66,7 @@
               "bcc",
               "bdf",
               "bg",
+              "unix",
               "bitrate",
               "bson",
               "cachable",

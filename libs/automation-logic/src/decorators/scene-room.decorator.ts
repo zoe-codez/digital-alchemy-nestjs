@@ -2,7 +2,7 @@ import { Controller, Injectable } from "@nestjs/common";
 import { ClassConstructor } from "class-transformer";
 import { Get } from "type-fest";
 
-import { RoomConfiguration, SCENE_ROOM_OPTIONS, SceneList } from "../types";
+import { RoomConfiguration, SCENE_ROOM_OPTIONS, SceneList } from "../includes";
 
 export const ROOM_CONFIG_MAP = "ROOM_CONFIG_MAP";
 type ALL_ROOM_NAMES = string;
