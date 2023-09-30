@@ -103,7 +103,7 @@ export class AutomationLogicModule {
     configuration?: CONFIG,
   ): DynamicModule {
     return {
-      exports: [SolarCalcService],
+      exports: [SolarCalcService, LightMangerService, GradualDimService],
       global: true,
       imports: [DiscoveryModule, RegisterCache(), MQTTModule],
       module: AutomationLogicModule,
