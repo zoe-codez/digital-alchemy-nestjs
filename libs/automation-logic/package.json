@@ -15,5 +15,5 @@
   "scripts": {
     "postinstall": "hass-type-generate || exit 0"
   },
-  "version": "23.39.0"
+  "version": "23.39.1"
 }
