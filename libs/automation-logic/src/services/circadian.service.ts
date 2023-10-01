@@ -11,7 +11,7 @@ import {
   PushEntityService,
   PushProxyService,
 } from "@digital-alchemy/home-assistant";
-import { EMPTY, MINUTE, NONE } from "@digital-alchemy/utilities";
+import { EMPTY, MINUTE } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
 
@@ -32,9 +32,10 @@ export type ColorLight = GenericEntityDTO<{
   color_temp_kelvin: number;
   entity_id: PICK_ENTITY<"light">[];
   hs_color: [h: number, s: number];
+  max_color_temp_kelvin: number;
   max_mireds: number;
+  min_color_temp_kelvin: number;
   min_mireds: number;
-  min_temp_kelvin: number;
   rgb_color: [number, number, number];
   supported_color_modes: ColorModes[];
   supported_features: number;
@@ -77,15 +78,6 @@ export class CircadianService<
   }
 
   public circadianEntity: PUSH_PROXY<SENSOR>;
-
-  public lightInRange(entity: ColorLight): boolean {
-    const min = Math.max(
-      this.minTemperature,
-      entity.attributes.min_temp_kelvin ?? NONE,
-    );
-    min;
-    return false;
-  }
 
   protected async onApplicationBootstrap() {
     if (!this.circadianEnabled) {

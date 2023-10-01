@@ -1,4 +1,4 @@
-import { AutoLogService } from "@digital-alchemy/boilerplate";
+import { AutoLogService, InjectConfig } from "@digital-alchemy/boilerplate";
 import {
   ENTITY_STATE,
   EntityManagerService,
@@ -6,9 +6,10 @@ import {
   InjectCallProxy,
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
-import { is } from "@digital-alchemy/utilities";
+import { is, NONE } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
+import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from "../config";
 import {
   SceneDefinition,
   SceneLightState,
@@ -16,6 +17,7 @@ import {
 } from "../includes";
 import { CircadianService, ColorLight } from "./circadian.service";
 
+const MAX_DIFFERENCE = 10;
 @Injectable()
 export class LightMangerService {
   constructor(
@@ -24,6 +26,10 @@ export class LightMangerService {
     @InjectCallProxy()
     private readonly call: iCallService,
     private readonly circadian: CircadianService,
+    @InjectConfig(CIRCADIAN_MAX_TEMP)
+    private readonly maxTemperature: number,
+    @InjectConfig(CIRCADIAN_MIN_TEMP)
+    private readonly minTemperature: number,
   ) {}
 
   /**
@@ -69,34 +75,50 @@ export class LightMangerService {
       return;
     }
     if ("rgb_color" in expected) {
-      await this.manageLightColor(entity as ColorLight, expected);
+      await this.manageLightColor(entity as unknown as ColorLight, expected);
       return;
     }
-    await this.manageLightCircadian(entity as ColorLight, expected);
+    await this.manageLightCircadian(entity as unknown as ColorLight, expected);
+  }
+
+  private lightInRange({ attributes }: ColorLight) {
+    if (!attributes.supported_color_modes.includes("color_temp")) {
+      return true;
+    }
+    const min = Math.max(
+      this.minTemperature,
+      attributes.min_color_temp_kelvin ?? NONE,
+    );
+    const max = Math.min(
+      this.maxTemperature,
+      attributes.max_color_temp_kelvin ?? NONE,
+    );
+    const kelvin = attributes.color_temp_kelvin;
+    const target = Math.min(max, Math.max(this.circadian.kelvin, min));
+    const difference = Math.abs(kelvin - target);
+
+    return difference <= MAX_DIFFERENCE;
   }
 
   private async manageLightCircadian(
     entity: ColorLight,
     state: SceneLightStateOn,
   ): Promise<void> {
-    const doesColorTemp =
-      entity.attributes.supported_color_modes.includes("color_temp");
-    // const targetKelvin = Math.max(entity.attributes.min)
     const stateTests = {
-      brightness: entity.attributes.brightness == state.brightness,
-      color:
-        // * Does not support color temp = whatever goes right now (still check brightness & state)
-        !doesColorTemp ||
-        //
-        this.circadian.lightInRange(entity),
-      state: entity.state === "off",
+      brightness: entity.attributes.brightness === state.brightness,
+      color: this.lightInRange(entity),
+      state: entity.state === state.state,
     };
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
     if (is.empty(reasons)) {
       return;
     }
-    this.logger.debug({ reasons }, `[%s] setting light {temperature}`);
+    this.logger.debug(
+      { reasons, state },
+      `[%s] setting light {temperature}`,
+      entity.entity_id,
+    );
     await this.call.light.turn_on({
       brightness: state.brightness,
       entity_id: entity.entity_id,
@@ -128,6 +150,7 @@ export class LightMangerService {
     this.logger.debug(
       { reasons, rgb_color: state.rgb_color },
       `[%s] setting light {color}`,
+      entity.entity_id,
     );
     await this.call.light.turn_on({
       brightness: state.brightness,

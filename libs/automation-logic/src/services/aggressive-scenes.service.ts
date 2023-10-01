@@ -1,6 +1,16 @@
+/* eslint-disable sonarjs/no-redundant-jump */
+/* eslint-disable @typescript-eslint/member-ordering */
+import {
+  AGGRESSIVE_SCENES,
+  LightMangerService,
+  SceneDefinition,
+  SceneRoomService,
+  SceneSwitchState,
+} from "@digital-alchemy/automation-logic";
 import {
   AutoLogService,
   Cron,
+  CronExpression,
   InjectConfig,
 } from "@digital-alchemy/boilerplate";
 import {
@@ -11,13 +21,8 @@ import {
   InjectCallProxy,
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
-import { CronExpression, each, is } from "@digital-alchemy/utilities";
+import { each, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
-
-import { AGGRESSIVE_SCENES } from "../config";
-import { SceneDefinition, SceneSwitchState } from "../includes";
-import { LightMangerService } from "./light-manager.service";
-import { SceneRoomService } from "./scene-room.service";
 
 @Injectable()
 export class AggressiveScenesService {
@@ -28,15 +33,14 @@ export class AggressiveScenesService {
     private readonly entity: EntityManagerService,
     @InjectCallProxy()
     private readonly call: iCallService,
-    private readonly lights: LightMangerService,
+    private readonly light: LightMangerService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   protected async checkRooms() {
     try {
-      await each([...SceneRoomService.loaded.keys()], async room => {
-        this.logger.trace({ name: room }, `check room`);
-        await this.validateRoomScene(room);
+      await each([...SceneRoomService.loaded.keys()], async name => {
+        await this.validateRoomScene(name);
       });
     } catch (error) {
       this.logger.error({ error });
@@ -69,7 +73,11 @@ export class AggressiveScenesService {
       `changing state to {%s}`,
       expected.state,
     );
-    await this.call.switch[`turn_${expected.state}`]({ entity_id });
+    if (expected.state === "on") {
+      await this.call.switch.turn_on({ entity_id });
+      return;
+    }
+    await this.call.switch.turn_off({ entity_id });
   }
 
   /**
@@ -93,14 +101,14 @@ export class AggressiveScenesService {
       );
       return;
     }
-    const definition = configuration[room.current] as SceneDefinition;
-    if (!is.object(definition) || is.empty(definition)) {
+    if (!is.object(configuration) || is.empty(configuration)) {
       // ? There currently is no use case for a scene with no entities in it
       // Not technically an error though
+      this.logger.warn("no definition");
       return;
     }
 
-    await each(Object.keys(definition), async (entity_id: PICK_ENTITY) => {
+    await each(Object.keys(configuration), async (entity_id: PICK_ENTITY) => {
       const entity = this.entity.byId(entity_id);
       if (!entity) {
         // * Home assistant outright does not send an entity for this id
@@ -113,10 +121,13 @@ export class AggressiveScenesService {
       const entityDomain = domain(entity_id);
       switch (entityDomain) {
         case "light":
-          await this.lights.manageLight(entity, definition);
+          await this.light.manageLight(
+            entity as ENTITY_STATE<PICK_ENTITY<"light">>,
+            configuration as SceneDefinition,
+          );
           return;
         case "switch":
-          await this.manageSwitch(entity, definition);
+          await this.manageSwitch(entity, configuration as SceneDefinition);
           return;
         default:
           this.logger.debug(
