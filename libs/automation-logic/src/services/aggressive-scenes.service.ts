@@ -1,12 +1,3 @@
-/* eslint-disable sonarjs/no-redundant-jump */
-/* eslint-disable @typescript-eslint/member-ordering */
-import {
-  AGGRESSIVE_SCENES,
-  LightMangerService,
-  SceneDefinition,
-  SceneRoomService,
-  SceneSwitchState,
-} from "@digital-alchemy/automation-logic";
 import {
   AutoLogService,
   Cron,
@@ -22,7 +13,12 @@ import {
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
 import { each, is } from "@digital-alchemy/utilities";
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+
+import { AGGRESSIVE_SCENES } from "../config";
+import { SceneDefinition, SceneSwitchState } from "../includes";
+import { LightMangerService } from "./light-manager.service";
+import { SceneRoomService } from "./scene-room.service";
 
 /**
  * Sometimes when setting a scene, entities don't always set state as desired.
@@ -41,6 +37,7 @@ export class AggressiveScenesService {
     private readonly entity: EntityManagerService,
     @InjectCallProxy()
     private readonly call: iCallService,
+    @Inject(forwardRef(() => LightMangerService))
     private readonly light: LightMangerService,
   ) {}
 
