@@ -392,6 +392,14 @@ export class SceneRoomService {
         );
         return;
       }
+      if (!roomScenes[name]) {
+        this.logger.error(
+          `[@SceneRoom]({%s}) does not define scene {%s}`,
+          this.name,
+          name,
+        );
+        return;
+      }
       const scene = roomScenes[name];
       this.scenes.set(name as ROOM_SCENES<NAME>, scene as tScene);
       this.logger.debug(` - scene {%s}`, name);
