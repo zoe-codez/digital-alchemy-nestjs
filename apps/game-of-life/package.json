@@ -2,7 +2,7 @@
   "name": "@digital-alchemy/game-of-life",
   "license": "MIT",
   "displayName": "Notification Tester",
-  "version": "23.39.2",
+  "version": "23.40.0",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "bin": {
     "game-of-life": "main.js"
