@@ -10,4 +10,4 @@ npx nx build "${PROJECT}" --configuration=production || exit 1
 npx terser "${MAIN}" -c -m --keep-classnames --module > "${MINIFIED}"
 echo "${HEADER}" > "${MAIN}"; cat "${MINIFIED}" >> "${MAIN}"
 
-npx yarn publish --cwd "dist/apps/${PROJECT}" --non-interactive
+yarn publish --cwd "dist/apps/${PROJECT}" --non-interactive
