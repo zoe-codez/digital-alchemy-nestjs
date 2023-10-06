@@ -6,7 +6,7 @@ import {
   InjectCallProxy,
   PICK_ENTITY,
 } from "@digital-alchemy/home-assistant";
-import { is, NONE } from "@digital-alchemy/utilities";
+import { each, is, NONE } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from "../config";
@@ -67,18 +67,24 @@ export class LightMangerService {
       this.logger.warn(`[%s] is {unavailable}, cannot manage state`);
       return;
     }
-    if (expected.state === "off") {
-      if (entity.state === "on") {
-        this.logger.debug(`[%s] {on} => {off}`, entity_id);
-        await this.call.light.turn_off({ entity_id });
-      }
+    const performedUpdate = await this.matchToScene(entity, expected);
+    if (performedUpdate) {
       return;
     }
-    if ("rgb_color" in expected) {
-      await this.manageLightColor(entity as unknown as ColorLight, expected);
-      return;
+    if (!is.empty(entity.attributes.entity_id)) {
+      await each(entity.attributes.entity_id, async child_id => {
+        const child = this.entity.byId(child_id);
+        if (!child) {
+          this.logger.warn(
+            `[%s] => {%s} child entity of group cannot be found`,
+            entity_id,
+            child_id,
+          );
+          return;
+        }
+        await this.matchToScene(child, expected);
+      });
     }
-    await this.manageLightCircadian(entity as unknown as ColorLight, expected);
   }
 
   private lightInRange({ attributes }: ColorLight) {
@@ -103,7 +109,7 @@ export class LightMangerService {
   private async manageLightCircadian(
     entity: ColorLight,
     state: SceneLightStateOn,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const stateTests = {
       brightness: entity.attributes.brightness === state.brightness,
       color: this.lightInRange(entity),
@@ -112,7 +118,7 @@ export class LightMangerService {
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
     if (is.empty(reasons)) {
-      return;
+      return false;
     }
     this.logger.debug(
       { reasons, state },
@@ -124,6 +130,7 @@ export class LightMangerService {
       entity_id: entity.entity_id,
       rgb_color: state.rgb_color,
     });
+    return true;
   }
 
   /**
@@ -134,7 +141,7 @@ export class LightMangerService {
   private async manageLightColor(
     entity: ColorLight,
     state: SceneLightStateOn,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const stateTests = {
       brightness: entity.attributes.brightness == state.brightness,
       color: entity.attributes.rgb_color.every(
@@ -145,7 +152,7 @@ export class LightMangerService {
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
     if (is.empty(reasons)) {
-      return;
+      return false;
     }
     this.logger.debug(
       { reasons, rgb_color: state.rgb_color },
@@ -157,5 +164,36 @@ export class LightMangerService {
       entity_id: entity.entity_id,
       rgb_color: state.rgb_color,
     });
+    return true;
+  }
+
+  /**
+   * ? return true if a change was made
+   *
+   * ? return false if everything is as expected
+   */
+  private async matchToScene(
+    entity: ENTITY_STATE<PICK_ENTITY<"light">>,
+    expected: SceneLightState,
+  ): Promise<boolean> {
+    const entity_id = entity.entity_id as PICK_ENTITY<"light">;
+    if (expected.state === "off") {
+      if (entity.state === "on") {
+        this.logger.debug(`[%s] {on} => {off}`, entity_id);
+        await this.call.light.turn_off({ entity_id });
+        return true;
+      }
+      return false;
+    }
+    if ("rgb_color" in expected) {
+      return await this.manageLightColor(
+        entity as unknown as ColorLight,
+        expected,
+      );
+    }
+    return await this.manageLightCircadian(
+      entity as unknown as ColorLight,
+      expected,
+    );
   }
 }

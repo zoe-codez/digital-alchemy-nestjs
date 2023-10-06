@@ -24,6 +24,14 @@ import {
 import { each, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 
+/**
+ * Sometimes when setting a scene, entities don't always set state as desired.
+ * Entities inside groups occasionally will not always fully perform the command
+ *   ex: light pauses part way through turn_off, resulting in a dimmed but not off state
+ *   ex: transient communication failure causing state set to not be received
+ *
+ * This service exists to track down entities that are not matching the scene definition, then make the appropriate correction
+ */
 @Injectable()
 export class AggressiveScenesService {
   constructor(
@@ -64,10 +72,36 @@ export class AggressiveScenesService {
       );
       return;
     }
-    if (entity.state === expected.state) {
-      // * As expected
+    let performedUpdate = false;
+    if (entity.state !== expected.state) {
+      await this.matchSwitchToScene(entity, expected);
+      performedUpdate = true;
+    }
+    if (performedUpdate) {
       return;
     }
+    if (!is.empty(entity.attributes.entity_id)) {
+      // ? This is a group
+      await each(entity.attributes.entity_id, async child_id => {
+        const child = this.entity.byId(child_id);
+        if (!child) {
+          this.logger.warn(
+            `[%s] => {%s} child entity of group cannot be found`,
+            entity_id,
+            child_id,
+          );
+          return;
+        }
+        await this.matchSwitchToScene(child, expected);
+      });
+    }
+  }
+
+  private async matchSwitchToScene(
+    entity: ENTITY_STATE<PICK_ENTITY<"switch">>,
+    expected: SceneSwitchState,
+  ) {
+    const entity_id = entity.entity_id;
     this.logger.debug(
       { name: entity_id },
       `changing state to {%s}`,

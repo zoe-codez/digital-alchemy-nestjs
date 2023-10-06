@@ -11,14 +11,25 @@ export class ContextDTO {
   public user_id: string;
 }
 
+type GenericEntityAttributes = {
+  /**
+   * Entity groups
+   */
+  entity_id?: PICK_ENTITY[];
+  /**
+   * Human readable name
+   */
+  friendly_name?: string;
+};
+
 export class GenericEntityDTO<
-  ATTRIBUTES extends object = { friendly_name?: string },
+  ATTRIBUTES extends object = GenericEntityAttributes,
   STATE extends unknown = string,
 > {
   public attributes: ATTRIBUTES;
   public context: ContextDTO;
   // ! DO NOT TIE THIS `PICK_ENTITY` BACK TO ALL_DOMAINS
-  // Causes circular references that cannot be ignored in this repo
+  // Causes circular references, which results in entity definitions always being `any`
   public entity_id: PICK_ENTITY;
   public last_changed: string;
   public last_updated: string;
