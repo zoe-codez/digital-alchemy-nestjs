@@ -2,7 +2,7 @@
   "name": "@digital-alchemy/scene-manager",
   "license": "MIT",
   "displayName": "Scene Manager",
-  "version": "23.40.2",
+  "version": "23.40.3",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"

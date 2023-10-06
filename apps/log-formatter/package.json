@@ -10,7 +10,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Log Formatter",
-  "version": "23.40.2",
+  "version": "23.40.3",
   "pkg": {
     "scripts": [
       "node_modules/**/*.js"
