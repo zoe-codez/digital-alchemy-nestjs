@@ -2,7 +2,7 @@
   "name": "@digital-alchemy/entity-creation",
   "license": "MIT",
   "displayName": "Entity Creation",
-  "version": "23.40.4",
+  "version": "23.40.5",
   "homepage": "https://github.com/zoe-codez/digital-alchemy",
   "engines": {
     "node": ">=16.0.0"
