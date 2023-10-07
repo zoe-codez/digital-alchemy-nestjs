@@ -278,12 +278,12 @@ export class SceneRoomService {
         new Promise<void>(async done => {
           await eachSeries(
             Object.keys(lights),
-            async (id: PICK_ENTITY<"light">) => {
-              const change = lights[id];
-              this.eventEmitter.emit(SCENE_SET_ENTITY, id);
+            async (entity_id: PICK_ENTITY<"light">) => {
+              const change = lights[entity_id];
+              this.eventEmitter.emit(SCENE_SET_ENTITY, entity_id);
               await this.call.light.turn_on({
                 brightness: change.brightness,
-                entity_id: id,
+                entity_id,
                 kelvin: change.kelvin,
               });
             },

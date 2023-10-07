@@ -17,7 +17,7 @@ import {
 } from "../includes";
 import { CircadianService, ColorLight } from "./circadian.service";
 
-const MAX_DIFFERENCE = 10;
+const MAX_DIFFERENCE = 100;
 @Injectable()
 export class LightMangerService {
   constructor(
@@ -112,8 +112,8 @@ export class LightMangerService {
   ): Promise<boolean> {
     const stateTests = {
       brightness: entity.attributes.brightness === state.brightness,
-      color: this.lightInRange(entity),
       state: entity.state === state.state,
+      temperature: this.lightInRange(entity),
     };
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
@@ -121,14 +121,19 @@ export class LightMangerService {
       return false;
     }
     this.logger.debug(
-      { reasons, state },
-      `[%s] setting light {temperature}`,
-      entity.entity_id,
+      {
+        from: entity.attributes.color_temp_kelvin,
+        name: entity.entity_id,
+        reasons,
+        state,
+        to: this.circadian.kelvin,
+      },
+      `setting light {temperature}`,
     );
     await this.call.light.turn_on({
       brightness: state.brightness,
       entity_id: entity.entity_id,
-      rgb_color: state.rgb_color,
+      kelvin: this.circadian.kelvin,
     });
     return true;
   }

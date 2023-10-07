@@ -89,7 +89,9 @@ export class AggressiveScenesService {
           );
           return;
         }
-        await this.matchSwitchToScene(child, expected);
+        if (child.state !== expected.state) {
+          await this.matchSwitchToScene(child, expected);
+        }
       });
     }
   }
