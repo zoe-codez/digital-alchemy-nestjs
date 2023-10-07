@@ -73,7 +73,7 @@ npx nx run-many --target=build --all --configuration=production --skip-nx-cache 
 # If any of the builds fail, then retry
 # NX will run from cache for successful ones
 # With only 1-2 failed, they shouldn't re-fail a 2nd time. Haven't observed it happen yet
-npx nx run-many --target=publish --all || npx nx run-many --target=publish --all || exit 1
+npx nx run-many --target=publish --all --skip-nx-cache || npx nx run-many --target=publish --all --skip-nx-cache || exit 1
 
 if [[ $* == "--dev" ]]; then
   npx figlet-cli -f "$FONT" "Done" | lolcat
