@@ -128,7 +128,8 @@ export class LightMangerService {
       type = "light_on_off";
     } else if (stateTests.brightness) {
       type = "light_brightness";
-    } else if (stateTests.temperature) {
+      // eslint-disable-next-line unicorn/no-negated-condition
+    } else if (!stateTests.temperature) {
       type = "light_temperature";
     } else {
       return false;
@@ -178,7 +179,8 @@ export class LightMangerService {
       type = "light_on_off";
     } else if (stateTests.brightness) {
       type = "light_brightness";
-    } else if (stateTests.color) {
+      // eslint-disable-next-line unicorn/no-negated-condition
+    } else if (!stateTests.color) {
       type = "light_color";
     } else {
       return false;
