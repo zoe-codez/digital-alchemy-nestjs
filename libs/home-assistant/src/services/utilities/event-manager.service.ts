@@ -5,10 +5,16 @@ import {
 } from "@digital-alchemy/boilerplate";
 import { eachSeries, is } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 import { nextTick } from "process";
 
 import { OnHassEvent, OnHassEventOptions } from "../../decorators";
-import { HassEventDTO, SocketMessageDTO } from "../../types";
+import {
+  HASS_ONMESSAGE_CALLBACK,
+  HassEventDTO,
+  HassOnMessageCallbackData,
+  SocketMessageDTO,
+} from "../../types";
 import { EntityManagerService } from "./entity-manager.service";
 
 type BindingPair = [context: string, callback: AnnotationPassThrough];
@@ -20,6 +26,7 @@ export class EventManagerService {
     private readonly scanner: ModuleScannerService,
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
+    private readonly event: EventEmitter,
   ) {}
 
   public onMessage(message: SocketMessageDTO): void {
@@ -43,7 +50,13 @@ export class EventManagerService {
           }
         }
         this.logger.trace({ context }, `[@OnHassEvent]({%s})`, data.event_type);
+        const start = Date.now();
         await exec(message.event);
+        this.event.emit(HASS_ONMESSAGE_CALLBACK, {
+          context,
+          event: data.event_type,
+          time: Date.now() - start,
+        } as HassOnMessageCallbackData);
       });
     });
   }

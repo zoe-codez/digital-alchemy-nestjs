@@ -8,9 +8,13 @@ import {
 } from "@digital-alchemy/home-assistant";
 import { each, is, NONE } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from "../config";
 import {
+  AGGRESSIVE_SCENES_ADJUSTMENT,
+  AggressiveScenesAdjustmentData,
+  AggressiveScenesAdjustmentTypes,
   SceneDefinition,
   SceneLightState,
   SceneLightStateOn,
@@ -30,6 +34,7 @@ export class LightMangerService {
     private readonly maxTemperature: number,
     @InjectConfig(CIRCADIAN_MIN_TEMP)
     private readonly minTemperature: number,
+    private readonly event: EventEmitter,
   ) {}
 
   /**
@@ -117,7 +122,15 @@ export class LightMangerService {
     };
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
-    if (is.empty(reasons)) {
+
+    let type: AggressiveScenesAdjustmentTypes;
+    if (stateTests.state) {
+      type = "light_on_off";
+    } else if (stateTests.brightness) {
+      type = "light_brightness";
+    } else if (stateTests.temperature) {
+      type = "light_temperature";
+    } else {
       return false;
     }
     this.logger.debug(
@@ -130,6 +143,10 @@ export class LightMangerService {
       },
       `setting light {temperature}`,
     );
+    this.event.emit(AGGRESSIVE_SCENES_ADJUSTMENT, {
+      entity_id: entity.entity_id,
+      type,
+    } as AggressiveScenesAdjustmentData);
     await this.call.light.turn_on({
       brightness: state.brightness,
       entity_id: entity.entity_id,
@@ -156,9 +173,20 @@ export class LightMangerService {
     };
     // ? Find things that don't currently match expectations
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
-    if (is.empty(reasons)) {
+    let type: AggressiveScenesAdjustmentTypes;
+    if (stateTests.state) {
+      type = "light_on_off";
+    } else if (stateTests.brightness) {
+      type = "light_brightness";
+    } else if (stateTests.color) {
+      type = "light_color";
+    } else {
       return false;
     }
+    this.event.emit(AGGRESSIVE_SCENES_ADJUSTMENT, {
+      entity_id: entity.entity_id,
+      type,
+    } as AggressiveScenesAdjustmentData);
     this.logger.debug(
       { reasons, rgb_color: state.rgb_color },
       `[%s] setting light {color}`,
@@ -185,6 +213,10 @@ export class LightMangerService {
     if (expected.state === "off") {
       if (entity.state === "on") {
         this.logger.debug(`[%s] {on} => {off}`, entity_id);
+        this.event.emit(AGGRESSIVE_SCENES_ADJUSTMENT, {
+          entity_id,
+          type: "light_on_off",
+        } as AggressiveScenesAdjustmentData);
         await this.call.light.turn_off({ entity_id });
         return true;
       }

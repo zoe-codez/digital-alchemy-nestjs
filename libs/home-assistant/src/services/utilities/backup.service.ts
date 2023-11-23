@@ -1,9 +1,12 @@
 import { AutoLogService } from "@digital-alchemy/boilerplate";
 import { HALF, is, SECOND, sleep } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 
 import {
+  HASS_ONBACKUP,
   HASSIO_WS_COMMAND,
+  HassOnBackupData,
   HomeAssistantBackup,
   SignRequestResponse,
 } from "../../types";
@@ -22,6 +25,7 @@ export class BackupService {
     private readonly fetch: HassFetchAPIService,
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socket: HassSocketAPIService,
+    private readonly event: EventEmitter,
   ) {}
 
   public async download(slug: string, destination: string): Promise<void> {
@@ -40,11 +44,13 @@ export class BackupService {
   public async generate(): Promise<HomeAssistantBackup> {
     let current = await this.list();
     // const originalLength = current.backups.length;
+    let start: number;
     if (current.backing_up) {
       this.logger.warn(
         `A backup is currently in progress. Waiting for that to complete instead.`,
       );
     } else {
+      start = Date.now();
       this.logger.info("Initiating new backup");
       this.socket.sendMessage({
         type: HASSIO_WS_COMMAND.generate_backup,
@@ -59,6 +65,11 @@ export class BackupService {
       this.logger.debug("... waiting");
       await sleep(HALF * SECOND);
       current = await this.list();
+    }
+    if (start) {
+      this.event.emit(HASS_ONBACKUP, {
+        time: Date.now() - start,
+      } as HassOnBackupData);
     }
     this.logger.info(`Backup complete`);
     return current.backups.pop();

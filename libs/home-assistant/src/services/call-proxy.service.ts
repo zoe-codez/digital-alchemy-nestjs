@@ -15,14 +15,18 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 import { exit, nextTick } from "process";
 
 import {
   ALL_DOMAINS,
+  CALL_PROXY_PROXY_COMMAND,
+  CallProxyCommandData,
   HASSIO_WS_COMMAND,
   HassServiceDTO,
   PICK_SERVICE,
   PICK_SERVICE_PARAMETERS,
+  PROXY_SERVICE_LIST_UPDATED,
 } from "../types";
 import { HassFetchAPIService } from "./hass-fetch-api.service";
 import { HassSocketAPIService } from "./hass-socket-api.service";
@@ -70,6 +74,7 @@ export class CallProxyService {
     @Inject(forwardRef(() => HassSocketAPIService))
     private readonly socketApi: HassSocketAPIService,
     private readonly manager: SocketManagerService,
+    private readonly event: EventEmitter,
   ) {}
 
   public buildCallProxy(): CallProxy {
@@ -141,6 +146,7 @@ export class CallProxyService {
         this.logger.debug(` - {%s}`, serviceName),
       );
     });
+    this.event.emit(PROXY_SERVICE_LIST_UPDATED);
   }
 
   /**
@@ -155,6 +161,10 @@ export class CallProxyService {
     }
     const [domain, service] = serviceName.split(".");
     // User can just not await this call if they don't care about the "waitForChange"
+    this.event.emit(CALL_PROXY_PROXY_COMMAND, {
+      domain,
+      service,
+    } as CallProxyCommandData);
     return await this.socketApi.sendMessage(
       {
         domain,

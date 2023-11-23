@@ -14,9 +14,15 @@ import {
 } from "@digital-alchemy/home-assistant";
 import { each, is } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 
 import { AGGRESSIVE_SCENES } from "../config";
-import { SceneDefinition, SceneSwitchState } from "../includes";
+import {
+  AGGRESSIVE_SCENES_ADJUSTMENT,
+  AggressiveScenesAdjustmentData,
+  SceneDefinition,
+  SceneSwitchState,
+} from "../includes";
 import { LightMangerService } from "./light-manager.service";
 import { SceneRoomService } from "./scene-room.service";
 
@@ -39,6 +45,7 @@ export class AggressiveScenesService {
     private readonly call: iCallService,
     @Inject(forwardRef(() => LightMangerService))
     private readonly light: LightMangerService,
+    private readonly event: EventEmitter,
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -106,6 +113,10 @@ export class AggressiveScenesService {
       `changing state to {%s}`,
       expected.state,
     );
+    this.event.emit(AGGRESSIVE_SCENES_ADJUSTMENT, {
+      entity_id,
+      type: "switch_on_off",
+    } as AggressiveScenesAdjustmentData);
     if (expected.state === "on") {
       await this.call.switch.turn_on({ entity_id });
       return;

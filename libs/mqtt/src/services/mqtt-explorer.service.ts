@@ -8,6 +8,7 @@ import { Client } from "mqtt";
 
 import { MqttEvents, MqttSubscribeOptions, MqttSubscriber } from "../contracts";
 import { InjectMQTT, OnMQTT } from "../decorators";
+import { MQTT_ON_MESSAGE, MQTTOnMessageData } from "../types";
 import { MqttService } from "./mqtt.service";
 
 const FIRST = 0;
@@ -73,7 +74,12 @@ export class MQTTExplorerService {
             topic,
             async (value, packet) => {
               this.logger.trace({ context }, `OnMQTT {%s}`, topic);
+              const start = Date.now();
               await exec(value, { packet, topic });
+              this.eventEmitter.emit(MQTT_ON_MESSAGE, {
+                context,
+                time: Date.now() - start,
+              } as MQTTOnMessageData);
             },
             data,
           );

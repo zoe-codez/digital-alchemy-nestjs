@@ -13,6 +13,7 @@ import {
 } from "@digital-alchemy/utilities";
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
+import EventEmitter from "eventemitter3";
 import { get, set } from "object-path";
 import { exit, nextTick } from "process";
 import { Get } from "type-fest";
@@ -24,7 +25,9 @@ import {
   ENTITY_STATE,
   EntityHistoryDTO,
   EntityHistoryResult,
+  HASS_ONUPDATE_EVENT,
   HASSIO_WS_COMMAND,
+  HassOnUpdateEventData,
   PICK_ENTITY,
 } from "../../types";
 import { HassFetchAPIService } from "../hass-fetch-api.service";
@@ -67,6 +70,7 @@ export class EntityManagerService {
     private readonly socket: HassSocketAPIService,
     private readonly logger: AutoLogService,
     private readonly scanner: ModuleScannerService,
+    private readonly event: EventEmitter,
   ) {}
 
   public init = false;
@@ -326,7 +330,13 @@ export class EntityManagerService {
           const item: Watcher<typeof entity_id> = {
             callback: async (...data) => {
               this.logger.trace({ context, name: entity_id }, `OnEntityUpdate`);
+              const start = Date.now();
               await exec(...data);
+              this.event.emit(HASS_ONUPDATE_EVENT, {
+                context,
+                entity_id,
+                time: Date.now() - start,
+              } as HassOnUpdateEventData);
             },
             id: v4(),
             type: "annotation",

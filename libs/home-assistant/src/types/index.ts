@@ -3,6 +3,7 @@ export * from "./calendar";
 export * from "./configuration";
 export * from "./constants";
 export * from "./entity-state";
+export * from "./events";
 export * from "./generate-entities";
 export * from "./serialize";
 export * from "./server-log";

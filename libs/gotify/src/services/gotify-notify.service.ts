@@ -5,9 +5,14 @@ import {
   InternalServerErrorException,
   Scope,
 } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 
 import { BASE_URL, CHANNEL_MAPPING } from "../config";
-import { Message } from "../types";
+import {
+  GOTIFY_NOTIFICATION_SENT,
+  GotifyNotificationSentData,
+  Message,
+} from "../types";
 
 /**
  * Use `@SendFrom` to bind message sending to configuration
@@ -19,11 +24,12 @@ export class GotifyNotify {
     @InjectConfig(CHANNEL_MAPPING)
     private readonly channels: Record<string, string>,
     private readonly fetch: FetchService,
+    private readonly event: EventEmitter,
   ) {}
 
   private application: string;
 
-  public async send(body: Message): Promise<void> {
+  public async send(body: Message, context: string): Promise<void> {
     const token = this.channels[this.application];
     if (is.empty(token)) {
       throw new InternalServerErrorException(
@@ -34,6 +40,10 @@ export class GotifyNotify {
       // "home::appliances::lighting::on": { brightness: 15 },
       // "home::appliances::thermostat::change_temperature": { temperature: 23 },
     };
+    this.event.emit(GOTIFY_NOTIFICATION_SENT, {
+      application: this.application,
+      context,
+    } as GotifyNotificationSentData);
     return await this.fetch.fetch({
       baseUrl: this.base,
       body,

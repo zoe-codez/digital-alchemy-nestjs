@@ -6,11 +6,16 @@ import {
 import { OnHassEvent } from "@digital-alchemy/home-assistant";
 import { is, sleep } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
+import EventEmitter from "eventemitter3";
 import { get } from "object-path";
 import { nextTick } from "process";
 
 import { SEQUENCE_TIMEOUT } from "../config";
 import { SequenceWatchDTO, SequenceWatcher } from "../decorators";
+import {
+  SEQUENCE_WATCHER_TRIGGER,
+  SequenceWatcherTriggerData,
+} from "../includes";
 
 type SequenceWatcher = SequenceWatchDTO & {
   callback: () => Promise<void>;
@@ -28,6 +33,7 @@ export class SequenceActivateService {
     private readonly logger: AutoLogService,
     @InjectConfig(SEQUENCE_TIMEOUT) private readonly matchTimeout: number,
     private readonly scanner: ModuleScannerService,
+    private readonly event: EventEmitter,
   ) {}
 
   private readonly ACTIVE = new Map<
@@ -66,7 +72,13 @@ export class SequenceActivateService {
                 : `[@SequenceWatcher]({%s}) trigger`,
               data.context,
             );
+            const start = Date.now();
             await exec();
+            this.event.emit(SEQUENCE_WATCHER_TRIGGER, {
+              context: data.context,
+              label: data.label,
+              time: Date.now() - start,
+            } as SequenceWatcherTriggerData);
           },
         });
         this.WATCHED_EVENTS.set(data.event_type, watcher);

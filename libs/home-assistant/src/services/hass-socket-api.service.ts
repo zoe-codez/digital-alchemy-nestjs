@@ -23,9 +23,13 @@ import {
 } from "../config";
 import {
   AreaDTO,
+  HASS_WEBSOCKET_RECEIVE_MESSAGE,
+  HASS_WEBSOCKET_SEND_MESSAGE,
   HassConfig,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
+  HassWebsocketReceiveMessageData,
+  HassWebsocketSendMessageData,
   ON_SOCKET_AUTH,
   SOCKET_MESSAGES,
   SocketMessageDTO,
@@ -185,6 +189,9 @@ export class HassSocketAPIService {
       return undefined;
     }
     this.countMessage();
+    this.eventEmitter.emit(HASS_WEBSOCKET_SEND_MESSAGE, {
+      type: data.type,
+    } as HassWebsocketSendMessageData);
     if (data.type !== HASSIO_WS_COMMAND.auth) {
       // You want know how annoying this one was to debug?!
       data.id = messageCount;
@@ -291,6 +298,9 @@ export class HassSocketAPIService {
    */
   private async onMessage(message: SocketMessageDTO) {
     const id = Number(message.id);
+    this.eventEmitter.emit(HASS_WEBSOCKET_RECEIVE_MESSAGE, {
+      type: message.type,
+    } as HassWebsocketReceiveMessageData);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
         this.logger.debug(`Sending authentication`);

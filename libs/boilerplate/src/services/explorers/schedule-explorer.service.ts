@@ -1,7 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { CronJob } from "cron";
+import EventEmitter from "eventemitter3";
 
 import { Cron, CronOptions } from "../../decorators";
+import {
+  CRON_SCHEDULE_TRIGGERED,
+  CronScheduleTriggeredData,
+} from "../../types";
 import { AutoLogService } from "../auto-log.service";
 import { ModuleScannerService } from "./module-scanner.service";
 
@@ -13,6 +18,7 @@ export class ScheduleExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly scanner: ModuleScannerService,
+    private readonly event: EventEmitter,
   ) {}
 
   protected onApplicationBootstrap(): void {
@@ -29,7 +35,13 @@ export class ScheduleExplorerService {
           this.logger.debug({ context }, ` - {%s}`, schedule);
           const cronJob = new CronJob(schedule, async () => {
             this.logger.trace({ context }, `cron {%s}`, schedule);
+            const start = Date.now();
             await exec();
+            this.event.emit(CRON_SCHEDULE_TRIGGERED, {
+              context,
+              schedule: data,
+              time: Date.now() - start,
+            } as CronScheduleTriggeredData);
           });
           cronJob.start();
         });

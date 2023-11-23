@@ -23,10 +23,12 @@ import {
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { CronTime } from "cron";
 import dayjs from "dayjs";
+import EventEmitter from "eventemitter3";
 import SolarCalc from "solar-calc";
 import SolarCalcType from "solar-calc/types/solarCalc";
 
 import { SolarEvent, SolarOptions } from "../decorators";
+import { SOLAR_EVENT_TRIGGER, SolarEventTriggerData } from "../includes";
 
 const CALC_EXPIRE = HALF * MINUTE;
 export enum SolarEvents {
@@ -62,6 +64,7 @@ export class SolarCalcService {
     private readonly fetch: HassFetchAPIService,
     private readonly logger: AutoLogService,
     private readonly scanner: ModuleScannerService,
+    private readonly event: EventEmitter,
   ) {
     if (!claimed) {
       this.emit = true;
@@ -227,6 +230,10 @@ export class SolarCalcService {
       SolarEvent,
       ({ exec, data, context }) => {
         this.logger.info({ name: context }, `[@SolarEvent] {%s}`, data);
+        this.event.emit(SOLAR_EVENT_TRIGGER, {
+          context,
+          event: data,
+        } as SolarEventTriggerData);
         const current = this.callbacks.get(data) ?? [];
         current.push(exec);
         this.callbacks.set(data, current);

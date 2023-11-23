@@ -1,3 +1,4 @@
+import { LOG_CONTEXT } from "@digital-alchemy/boilerplate";
 import { Inject, Provider } from "@nestjs/common";
 import { v4 } from "uuid";
 
@@ -28,7 +29,12 @@ export function SendFrom<T extends string>(application: T): ParameterDecorator {
       useFactory(notify: GotifyNotify): GotifyApp {
         notify["application"] = application;
         return async data => {
-          await notify.send(data);
+          await notify.send(
+            data,
+            target.constructor[LOG_CONTEXT] ||
+              target.constructor.name ||
+              "Unknown",
+          );
         };
       },
     } as Provider);

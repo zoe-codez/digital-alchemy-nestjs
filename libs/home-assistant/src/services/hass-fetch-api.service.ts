@@ -13,15 +13,21 @@ import {
 } from "@digital-alchemy/utilities";
 import { Injectable } from "@nestjs/common";
 import dayjs from "dayjs";
+import EventEmitter from "eventemitter3";
 
 import { BASE_URL, TOKEN } from "../config";
 import {
   CalendarEvent,
   CalendarFetchOptions,
+  CallServiceCommandData,
   CheckConfigResult,
   ENTITY_STATE,
   GenericEntityDTO,
+  HASS_CALENDAR_SEARCH,
+  HASS_CALL_SERVICE,
+  HASS_SEND_WEBHOOK,
   HassConfig,
+  HassSendWebhookData,
   HassServiceDTO,
   HomeAssistantServerLogItem,
   PICK_ENTITY,
@@ -47,6 +53,7 @@ export class HassFetchAPIService {
     @InjectConfig(TOKEN)
     private readonly bearer: string,
     private readonly fetchService: FetchService,
+    private readonly event: EventEmitter,
   ) {
     fetchService.BASE_URL = this.baseUrl;
   }
@@ -92,6 +99,7 @@ export class HassFetchAPIService {
       calendar,
       events.length,
     );
+    this.event.emit(HASS_CALENDAR_SEARCH);
     return events.map(({ start, end, ...extra }) => ({
       ...extra,
       end: dayjs(end.dateTime),
@@ -104,6 +112,11 @@ export class HassFetchAPIService {
     data: PICK_SERVICE_PARAMETERS<SERVICE>,
   ): Promise<ENTITY_STATE<PICK_ENTITY>[]> {
     const [domain, service] = serviceName.split(".");
+    this.event.emit(HASS_CALL_SERVICE, {
+      domain,
+      service,
+      type: "fetch",
+    } as CallServiceCommandData);
     return await this.fetch({
       body: { ...(data as object) },
       method: "post",
@@ -285,6 +298,7 @@ export class HassFetchAPIService {
 
   public async webhook(name: string, data: object = {}): Promise<void> {
     this.logger.trace({ ...data, name }, `Webhook`);
+    this.event.emit(HASS_SEND_WEBHOOK, { name } as HassSendWebhookData);
     await this.fetch({
       body: data,
       method: "post",

@@ -38,6 +38,8 @@ import {
   AutomationLogicModuleConfiguration,
   MAX_LED_BRIGHTNESS,
   OFF,
+  ROOM_SET_SCENE,
+  RoomSetSceneData,
   SCENE_ROOM_OPTIONS,
   SCENE_SET_ENTITY,
   SceneList,
@@ -256,7 +258,10 @@ export class SceneRoomService {
         return;
       }
       this.logger.debug(`[%s] Setting scene {%s}`, this.name, sceneName);
-
+      this.eventEmitter.emit(ROOM_SET_SCENE, {
+        room: this.name,
+        scene: sceneName,
+      } as RoomSetSceneData);
       const { scene, lights } = this.dynamicProperties(sceneName);
 
       // Send most things through the expected scene apply

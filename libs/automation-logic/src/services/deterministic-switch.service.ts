@@ -16,6 +16,10 @@ import { CronJob } from "cron";
 import EventEmitter from "eventemitter3";
 
 import { DeterministicSwitch, DeterministicSwitchOptions } from "../decorators";
+import {
+  DETERMINISTIC_SWITCH_CHANGED,
+  DeterministicSwitchChangedData,
+} from "../includes";
 
 @Injectable()
 export class StateEnforcerService {
@@ -97,6 +101,10 @@ export class StateEnforcerService {
     // * Notify and execute!
     const entities = entity_id.map(i => `[${i}]`).join(", ");
     this.logger.debug(`${entities} {${action}}`);
+    this.event.emit(DETERMINISTIC_SWITCH_CHANGED, {
+      entity_id,
+      state: action.includes("on") ? "on" : "off",
+    } as DeterministicSwitchChangedData);
     await this.call.switch[action]({ entity_id });
   }
 }

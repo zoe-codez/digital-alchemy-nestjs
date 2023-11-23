@@ -20,6 +20,11 @@ export type SequenceWatchDTO<
   filter: (data: DATA) => boolean;
 
   /**
+   * text label to attach to SEQUENCE_WATCHER_TRIGGER event
+   */
+  label?: string;
+
+  /**
    * States from controller to match
    */
   match: MATCH[];
