@@ -124,9 +124,9 @@ export class LightMangerService {
     const reasons = Object.keys(stateTests).filter(key => !stateTests[key]);
 
     let type: AggressiveScenesAdjustmentTypes;
-    if (stateTests.state) {
+    if (!stateTests.state) {
       type = "light_on_off";
-    } else if (stateTests.brightness) {
+    } else if (!stateTests.brightness) {
       type = "light_brightness";
       // eslint-disable-next-line unicorn/no-negated-condition
     } else if (!stateTests.temperature) {
