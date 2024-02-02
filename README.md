@@ -1,3 +1,8 @@
+This repo is going **READONLY**
+
+- [@zcc](https://github.com/zoe-codez/zcc) aims to be a feature compatible replacement, without the NestJS dependencies
+
+-----
 
 <h1 align="center">💻 Digital Alchemy Monorepo 🔮</h1>
 
