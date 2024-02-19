@@ -1,6 +1,6 @@
 This repo is going **READONLY**
 
-- [@zcc](https://github.com/zoe-codez/zcc) aims to be a feature compatible replacement, without the NestJS dependencies
+- https://github.com/zoe-codez/digital-alchemy aims to be a feature compatible replacement, without the NestJS dependencies
 
 -----
 
